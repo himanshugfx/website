@@ -204,7 +204,7 @@ export default async function AdminDashboard() {
                             <p className="text-purple-100 text-sm mb-6 opacity-90">Add new products to your store inventory.</p>
                             <Link
                                 href="/admin/products/add"
-                                className="flex items-center justify-center gap-2 w-full py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-colors shadow-lg"
+                                className="flex items-center justify-center gap-2 w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-black/80 transition-colors shadow-lg"
                             >
                                 <Package className="w-5 h-5" />
                                 Add Product
