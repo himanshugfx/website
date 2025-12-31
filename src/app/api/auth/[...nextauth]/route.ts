@@ -43,6 +43,7 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
+    debug: process.env.NODE_ENV === 'development',
     pages: {
         signIn: "/login",
     },
@@ -55,8 +56,8 @@ export const authOptions: AuthOptions = {
         },
         async session({ session, token }) {
             if (token && session.user) {
-                (session.user as any).id = token.sub;
-                (session.user as any).role = token.role;
+                session.user.id = token.sub as string;
+                session.user.role = token.role as string;
             }
             return session;
         },
