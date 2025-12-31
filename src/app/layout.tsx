@@ -10,6 +10,7 @@ import AuthProvider from "@/components/layout/Provider";
 import Script from "next/script";
 import CartPopup from "@/components/CartPopup";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,12 +47,15 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              <Header />
-              <Marquee />
-              {children}
-              <CartPopup />
-              <Footer />
+              <ConditionalWrapper>
+                <Header />
+                <Marquee />
+                {children}
+                <CartPopup />
+                <Footer />
+              </ConditionalWrapper>
               <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
+              <SpeedInsights />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

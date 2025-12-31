@@ -73,6 +73,17 @@ export async function POST(request: Request) {
                 slug: data.slug,
                 images: data.images,
                 thumbImage: data.thumbImage,
+                variations: data.variations ? {
+                    create: data.variations.map((v: any) => ({
+                        color: v.color,
+                        colorCode: v.colorCode,
+                        colorImage: v.colorImage,
+                        image: v.image,
+                    }))
+                } : undefined,
+            },
+            include: {
+                variations: true,
             },
         });
 
@@ -86,83 +97,3 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PUT(request: Request) {
-    try {
-        const data = await request.json();
-        const { id, ...updateData } = data;
-
-        if (!id) {
-            return NextResponse.json(
-                { error: 'Product ID is required' },
-                { status: 400 }
-            );
-        }
-
-        const product = await prisma.product.update({
-            where: { id },
-            data: {
-                ...updateData,
-                price: updateData.price ? parseFloat(updateData.price) : undefined,
-                originPrice: updateData.originPrice ? parseFloat(updateData.originPrice) : undefined,
-                quantity: updateData.quantity !== undefined ? parseInt(updateData.quantity) : undefined,
-            },
-        });
-
-        return NextResponse.json(product);
-    } catch (error) {
-        console.error('Error updating product:', error);
-        return NextResponse.json(
-            { error: 'Failed to update product', details: String(error) },
-            { status: 500 }
-        );
-    }
-}
-
-export async function DELETE(request: Request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-
-        if (!id) {
-            return NextResponse.json(
-                { error: 'Product ID is required' },
-                { status: 400 }
-            );
-        }
-
-        // Check if product exists
-        const product = await prisma.product.findUnique({
-            where: { id },
-        });
-
-        if (!product) {
-            return NextResponse.json(
-                { error: 'Product not found' },
-                { status: 404 }
-            );
-        }
-
-        // Delete variations first (should cascade but let's be explicit)
-        await prisma.variation.deleteMany({
-            where: { productId: id },
-        });
-
-        // Delete order items referencing this product
-        await prisma.orderItem.deleteMany({
-            where: { productId: id },
-        });
-
-        // Now delete the product
-        await prisma.product.delete({
-            where: { id },
-        });
-
-        return NextResponse.json({ success: true, message: 'Product deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete product', details: String(error) },
-            { status: 500 }
-        );
-    }
-}

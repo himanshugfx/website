@@ -41,13 +41,27 @@ export async function PUT(
         const { id } = await params;
         const data = await request.json();
 
+        const { variations, id: _id, updatedAt: _u, createdAt: _c, ...updateData } = data;
+
         const product = await prisma.product.update({
             where: { id },
             data: {
-                ...data,
+                ...updateData,
                 price: data.price ? parseFloat(data.price) : undefined,
                 originPrice: data.originPrice ? parseFloat(data.originPrice) : undefined,
                 quantity: data.quantity !== undefined ? parseInt(data.quantity) : undefined,
+                variations: variations ? {
+                    deleteMany: {},
+                    create: variations.map((v: any) => ({
+                        color: v.color,
+                        colorCode: v.colorCode,
+                        colorImage: v.colorImage,
+                        image: v.image,
+                    }))
+                } : undefined,
+            },
+            include: {
+                variations: true,
             },
         });
 

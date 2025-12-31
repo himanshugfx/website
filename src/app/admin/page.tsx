@@ -4,6 +4,8 @@ import { DollarSign, ShoppingCart, Package, Users, TrendingUp, ChevronRight } fr
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 async function getStats() {
     try {
         const validOrdersWhere = {

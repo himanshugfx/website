@@ -37,7 +37,7 @@ export default async function Home() {
               </div>
               <div className="sub-img absolute left-0 top-0 w-full h-full z-0">
                 <Image
-                  src="/assets/images/banner/khushi-banner2.png"
+                  src="/assets/images/banner/new-year-banner.png"
                   alt="Hero Banner"
                   fill
                   className="object-cover"

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(request: Request) {
     try {
@@ -84,6 +85,9 @@ export async function PUT(request: Request) {
             where: { id },
             data: { status },
         });
+
+        revalidatePath('/admin');
+        revalidatePath('/admin/orders');
 
         return NextResponse.json(order);
     } catch (error) {
