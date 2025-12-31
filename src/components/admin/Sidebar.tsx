@@ -11,7 +11,8 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    TicketPercent
+    TicketPercent,
+    Mail
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ const navigation = [
     { name: 'Abandoned Carts', href: '/admin/abandoned-carts', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
+    { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
 ];
 
 export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: SidebarProps) {

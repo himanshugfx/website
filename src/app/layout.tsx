@@ -48,11 +48,7 @@ export default function RootLayout({
           <CartProvider>
             <WishlistProvider>
               <ConditionalWrapper>
-                <Header />
-                <Marquee />
                 {children}
-                <CartPopup />
-                <Footer />
               </ConditionalWrapper>
               <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
               <SpeedInsights />

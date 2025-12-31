@@ -3,6 +3,43 @@
 import React from 'react';
 
 export default function ContactPage() {
+    const [formData, setFormData] = React.useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+    });
+    const [loading, setLoading] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+    const [error, setError] = React.useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess(false);
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setSuccess(true);
+                setFormData({ name: '', email: '', phone: '', message: '' });
+            } else {
+                setError(data.error || 'Failed to send message');
+            }
+        } catch (err) {
+            setError('Something went wrong. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className="contact-page">
             <div className="breadcrumb-block style-shared">
@@ -28,14 +65,28 @@ export default function ContactPage() {
                         <div className="left lg:w-2/3 w-full lg:pr-10">
                             <h3 className="heading3 text-3xl font-bold">Drop Us A Line</h3>
                             <p className="body1 text-zinc-500 mt-3">Use the form below to get in touch with our support team</p>
-                            <form className="md:mt-10 mt-6 space-y-5">
+                            <form className="md:mt-10 mt-6 space-y-5" onSubmit={handleSubmit}>
+                                {success && (
+                                    <div className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-100 font-semibold mb-6">
+                                        Thank you! Your message has been sent successfully. We'll get back to you soon.
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-100 font-semibold mb-6">
+                                        {error}
+                                    </div>
+                                )}
                                 <div className="grid sm:grid-cols-2 grid-cols-1 gap-5">
                                     <div className="name">
                                         <input
                                             className="border border-line px-4 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
                                             type="text"
                                             placeholder="Your Name *"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             required
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="email">
@@ -43,7 +94,20 @@ export default function ContactPage() {
                                             className="border border-line px-4 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
                                             type="email"
                                             placeholder="Your Email *"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             required
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                    <div className="phone sm:col-span-2">
+                                        <input
+                                            className="border border-line px-4 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
+                                            type="tel"
+                                            placeholder="Mobile Number"
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="message sm:col-span-2">
@@ -51,13 +115,20 @@ export default function ContactPage() {
                                             className="border border-line px-4 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
                                             rows={5}
                                             placeholder="Your Message *"
+                                            value={formData.message}
+                                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                             required
+                                            disabled={loading}
                                         ></textarea>
                                     </div>
                                 </div>
                                 <div className="block-button">
-                                    <button type="submit" className="button-main bg-purple-600 text-white px-10 py-4 rounded-xl font-bold uppercase hover:bg-purple-700 transition-colors">
-                                        Send message
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className={`button-main bg-black text-white px-10 py-4 rounded-xl font-bold uppercase transition-colors hover:bg-purple-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {loading ? 'Sending...' : 'Send message'}
                                     </button>
                                 </div>
                             </form>
