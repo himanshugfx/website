@@ -38,14 +38,9 @@ function LoginForm() {
             }
 
             if (result?.ok) {
-                // If successful, we do a HARD redirect using signIn with redirect: true
-                // This is the most reliable way to ensure cookies are set and middleware sees the session
-                await signIn('credentials', {
-                    email: formData.email,
-                    password: formData.password,
-                    redirect: true,
-                    callbackUrl: isAdminMode ? '/admin' : callbackUrl,
-                });
+                // FORCE a full page reload to the target callback
+                // This is the most reliable way to ensure the session cookie is read by the middleware
+                window.location.href = isAdminMode ? '/admin' : callbackUrl;
             }
         } catch (err) {
             console.error('Login error:', err);
@@ -118,8 +113,8 @@ function LoginForm() {
 
                             <button
                                 className={`button-main w-full py-4 rounded-xl duration-300 font-bold uppercase disabled:cursor-not-allowed ${isAdminMode
-                                        ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-200'
-                                        : 'bg-black hover:bg-zinc-800 text-white'
+                                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-200'
+                                    : 'bg-black hover:bg-zinc-800 text-white'
                                     }`}
                                 disabled={loading}
                                 type="submit"
