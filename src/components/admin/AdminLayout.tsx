@@ -3,21 +3,26 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import AdminHeader from './AdminHeader';
-import { SessionProvider } from 'next-auth/react';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
 }
 
-function AdminLayoutContent({ children }: AdminLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     // Load collapsed state from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem('adminSidebarCollapsed');
-        if (saved) {
-            setSidebarCollapsed(JSON.parse(saved));
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = localStorage.getItem('adminSidebarCollapsed');
+                if (saved) {
+                    setSidebarCollapsed(JSON.parse(saved));
+                }
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
+            }
         }
     }, []);
 
@@ -25,7 +30,13 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
     const handleToggleCollapse = () => {
         const newValue = !sidebarCollapsed;
         setSidebarCollapsed(newValue);
-        localStorage.setItem('adminSidebarCollapsed', JSON.stringify(newValue));
+        if (typeof window !== 'undefined') {
+            try {
+                localStorage.setItem('adminSidebarCollapsed', JSON.stringify(newValue));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
     };
 
     return (
@@ -57,13 +68,5 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
                 />
             )}
         </div>
-    );
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
-    return (
-        <SessionProvider>
-            <AdminLayoutContent>{children}</AdminLayoutContent>
-        </SessionProvider>
     );
 }

@@ -2,11 +2,10 @@
 
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { signIn, getSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 function LoginForm() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/my-account';
 
@@ -41,29 +40,42 @@ function LoginForm() {
             } else if (res?.ok) {
                 console.log('Login successful, checking user role...');
                 
-                // Retry mechanism to get session (session might not be immediately available)
-                const checkSessionAndRedirect = async (retries = 5) => {
+                // Fetch session from API endpoint (more reliable on Vercel/serverless)
+                const checkSessionAndRedirect = async (retries = 10) => {
                     try {
-                        const session = await getSession();
-                        console.log('Session retrieved:', session);
+                        const response = await fetch(`/api/auth/session?t=${Date.now()}`, {
+                            method: 'GET',
+                            credentials: 'include',
+                        });
                         
-                        if (session?.user) {
-                            const actualRole = (session.user as any).role;
+                        if (response.ok) {
+                            const session = await response.json();
+                            console.log('Session retrieved from API:', session);
                             
-                            // Check if user is admin - actual role from database determines redirect
-                            if (actualRole === 'admin') {
-                                // Admin users always go to admin panel
-                                console.log('Admin user detected, redirecting to admin panel');
-                                window.location.href = '/admin';
-                            } else {
-                                // Regular customer user - redirect to customer page
-                                const redirectUrl = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
-                                console.log('Customer user, redirecting to:', redirectUrl);
-                                window.location.href = redirectUrl;
+                            if (session?.user) {
+                                const actualRole = (session.user as any).role;
+                                console.log('User role:', actualRole);
+                                
+                                // Check if user is admin - actual role from database determines redirect
+                                if (actualRole === 'admin') {
+                                    // Admin users always go to admin panel
+                                    console.log('Admin user detected, redirecting to admin panel');
+                                    window.location.href = '/admin';
+                                    return;
+                                } else {
+                                    // Regular customer user - redirect to customer page
+                                    const redirectUrl = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
+                                    console.log('Customer user, redirecting to:', redirectUrl);
+                                    window.location.href = redirectUrl;
+                                    return;
+                                }
                             }
-                        } else if (retries > 0) {
-                            // Session not ready yet, retry after a short delay
-                            setTimeout(() => checkSessionAndRedirect(retries - 1), 200);
+                        }
+                        
+                        // Session not ready yet, retry if we have retries left
+                        if (retries > 0) {
+                            console.log(`Session not ready, retrying... (${retries} retries left)`);
+                            setTimeout(() => checkSessionAndRedirect(retries - 1), 300);
                         } else {
                             // Fallback to callbackUrl if session check fails after retries
                             console.log('Session not available after retries, using callbackUrl');
@@ -71,12 +83,18 @@ function LoginForm() {
                         }
                     } catch (sessionError) {
                         console.error('Error getting session:', sessionError);
-                        // Fallback to callbackUrl if session check fails
-                        window.location.href = callbackUrl;
+                        // Retry on error if we have retries left
+                        if (retries > 0) {
+                            setTimeout(() => checkSessionAndRedirect(retries - 1), 300);
+                        } else {
+                            // Fallback to callbackUrl if session check fails
+                            window.location.href = callbackUrl;
+                        }
                     }
                 };
                 
-                checkSessionAndRedirect();
+                // Start checking session after a small delay to allow cookies to be set
+                setTimeout(() => checkSessionAndRedirect(), 100);
             } else {
                 console.error('Unexpected response:', res);
                 setError('Something went wrong');
