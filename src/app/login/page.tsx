@@ -3,16 +3,16 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 function LoginForm() {
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/my-account';
+    const router = useRouter();
+    const callbackUrl = searchParams.get('callbackUrl') || '/my-account'; // Default fallbacks
 
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        role: 'customer' as 'customer' | 'admin',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -24,6 +24,7 @@ function LoginForm() {
 
         try {
             // Sign in with credentials
+            // redirect: false allows us to check the error property before page reload
             const result = await signIn('credentials', {
                 email: formData.email,
                 password: formData.password,
@@ -36,83 +37,36 @@ function LoginForm() {
                 return;
             }
 
-            if (!result?.ok) {
-                setError('Something went wrong. Please try again.');
-                setLoading(false);
-                return;
-            }
+            if (result?.ok) {
+                // Successfully logged in
+                // We can't easily know the role here without an API call, 
+                // but the middleware will handle the redirection logic if we send them to the right place.
+                // However, let's try to just go to the callbackUrl or defaulting logic.
+                // A simple page refresh or router.push should trigger middleware / session check.
 
-            // Login successful - wait a moment for cookies to be set, then check user role and redirect
-            // Small delay to ensure NextAuth cookies are properly set
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await checkUserRoleAndRedirect();
+                // FORCE reload to ensure cookies are sent and session is picked up
+                // If we know they are admin (we don't client-side easily yet), we'd go to /admin
+
+                // Let's try router.refresh() then router.push
+                router.refresh();
+
+                // Small delay to let cookie set
+                setTimeout(() => {
+                    // Check if callbackUrl is admin
+                    if (callbackUrl.includes('/admin')) {
+                        window.location.href = callbackUrl;
+                    } else {
+                        // For safety, fetch session to know where to go? 
+                        // Or just go to /my-account or home.
+                        window.location.href = callbackUrl;
+                    }
+                }, 500);
+            }
         } catch (err) {
             console.error('Login error:', err);
             setError('An error occurred. Please try again.');
             setLoading(false);
         }
-    };
-
-    const checkUserRoleAndRedirect = async () => {
-        const maxRetries = 20;
-        let retries = 0;
-
-        while (retries < maxRetries) {
-            try {
-                // Fetch session with cache busting
-                const response = await fetch(`/api/auth/session?_=${Date.now()}`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    },
-                });
-
-                if (response.ok) {
-                    const session = await response.json();
-                    
-                    if (session?.user) {
-                        const userRole = (session.user as any).role;
-                        
-                        if (userRole === 'admin') {
-                            // Admin user - always redirect to admin dashboard
-                            // Use replace instead of href to avoid back button issues
-                            // Add a small delay to ensure cookies are fully set
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            window.location.replace('/admin');
-                            return;
-                        } else {
-                            // Regular customer - redirect based on callbackUrl
-                            const redirectPath = callbackUrl.startsWith('/admin') 
-                                ? '/my-account' 
-                                : callbackUrl;
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            window.location.replace(redirectPath);
-                            return;
-                        }
-                    }
-                }
-
-                // Session not ready yet, wait a bit and retry
-                retries++;
-                if (retries < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                }
-            } catch (fetchError) {
-                console.error('Error fetching session:', fetchError);
-                retries++;
-                if (retries < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                }
-            }
-        }
-
-        // If we've exhausted retries, use fallback redirect
-        console.warn('Session check failed after retries, using fallback redirect');
-        const fallbackPath = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
-        window.location.replace(fallbackPath);
     };
 
     return (
@@ -154,25 +108,12 @@ function LoginForm() {
                                 />
                             </div>
 
-                            <div className="role mb-5">
-                                <select
-                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none bg-white"
-                                    value={formData.role}
-                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as 'customer' | 'admin' })}
-                                    required
-                                    disabled={loading}
-                                >
-                                    <option value="customer">Customer</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-2">
-                                    <input 
-                                        type="checkbox" 
-                                        id="remember" 
-                                        className="cursor-pointer" 
+                                    <input
+                                        type="checkbox"
+                                        id="remember"
+                                        className="cursor-pointer"
                                         disabled={loading}
                                     />
                                     <label htmlFor="remember" className="cursor-pointer text-sm">Remember me</label>

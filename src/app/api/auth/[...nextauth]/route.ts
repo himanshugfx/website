@@ -41,28 +41,36 @@ export const authOptions: AuthOptions = {
     ],
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    debug: process.env.NODE_ENV === 'development',
     pages: {
         signIn: "/login",
+        error: '/login',
     },
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
+            // Initial sign in
             if (user) {
                 token.role = user.role;
+                token.id = user.id;
             }
+
+            // Support for updating session
+            if (trigger === "update" && session) {
+                return { ...token, ...session.user };
+            }
+
             return token;
         },
         async session({ session, token }) {
-            if (token && session.user) {
-                session.user.id = token.sub as string;
+            if (session.user) {
+                session.user.id = token.id as string;
                 session.user.role = token.role as string;
             }
             return session;
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
