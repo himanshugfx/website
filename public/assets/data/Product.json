@@ -1,0 +1,446 @@
+[
+  {
+    "id": "1",
+    "category": "cosmetic",
+    "type": "facewash",
+    "name": "Beaded Facewash 50ml",
+    "gender": "unisex",
+    "new": true,
+    "sale": false,
+    "rate": 5,
+    "price": 99,
+    "originPrice": 149,
+    "brand": "Anose",
+    "sold": 120,
+    "quantity": 500,
+    "quantityPurchase": 1,
+    "sizes": [
+      "50ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/19/image_1024/Beaded%20Facewash%2050ml?unique=d972c73"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/19/image_1024/Beaded%20Facewash%2050ml?unique=d972c73",
+      "https://www.anosebeauty.com/web/image/product.product/19/image_1024/Beaded%20Facewash%2050ml?unique=d972c73"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/19/image_1024/Beaded%20Facewash%2050ml?unique=d972c73"
+    ],
+    "description": "Experience deep cleansing with Anose Beaded Facewash. Effectively removes impurities while keeping your skin hydrated.",
+    "action": "add to cart",
+    "slug": "beaded-facewash-50ml"
+  },
+  {
+    "id": "2",
+    "category": "cosmetic",
+    "type": "facewash",
+    "name": "Beaded Facewash 100ml",
+    "gender": "unisex",
+    "new": true,
+    "sale": true,
+    "rate": 5,
+    "price": 149,
+    "originPrice": 199,
+    "brand": "Anose",
+    "sold": 85,
+    "quantity": 300,
+    "quantityPurchase": 1,
+    "sizes": [
+      "100ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503",
+      "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503"
+    ],
+    "description": "Your favorite Beaded Facewash in a larger 100ml pack for long-lasting freshness.",
+    "action": "add to cart",
+    "slug": "beaded-facewash-100ml"
+  },
+  {
+    "id": "3",
+    "category": "cosmetic",
+    "type": "sunscreen",
+    "name": "SPF50 Sunscreen 50ml",
+    "gender": "unisex",
+    "new": true,
+    "sale": false,
+    "rate": 5,
+    "price": 199,
+    "originPrice": 249,
+    "brand": "Anose",
+    "sold": 210,
+    "quantity": 400,
+    "quantityPurchase": 1,
+    "sizes": [
+      "50ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac",
+      "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac"
+    ],
+    "description": "Complete protection against UVA and UVB rays. Non-greasy formula perfect for daily use.",
+    "action": "add to cart",
+    "slug": "spf50-sunscreen-50ml"
+  },
+  {
+    "id": "4",
+    "category": "cosmetic",
+    "type": "facecream",
+    "name": "Anose FaceCream 15g",
+    "gender": "women",
+    "new": false,
+    "sale": false,
+    "rate": 4,
+    "price": 69,
+    "originPrice": 99,
+    "brand": "Anose",
+    "sold": 340,
+    "quantity": 600,
+    "quantityPurchase": 1,
+    "sizes": [
+      "15g"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/8/image_1024/Anose%20FaceCream%2015g?unique=bbb0925"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/8/image_1024/Anose%20FaceCream%2015g?unique=bbb0925",
+      "https://www.anosebeauty.com/web/image/product.product/8/image_1024/Anose%20FaceCream%2015g?unique=bbb0925"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/8/image_1024/Anose%20FaceCream%2015g?unique=bbb0925"
+    ],
+    "description": "Gently nourish your skin with Anose FaceCream. Lightweight and absorbs quickly.",
+    "action": "add to cart",
+    "slug": "anose-face-cream-15g"
+  },
+  {
+    "id": "5",
+    "category": "cosmetic",
+    "type": "kajal",
+    "name": "Kajal (Smudge & Water Proof) Set of 2",
+    "gender": "women",
+    "new": true,
+    "sale": true,
+    "rate": 5,
+    "price": 499,
+    "originPrice": 599,
+    "brand": "Anose",
+    "sold": 150,
+    "quantity": 200,
+    "quantityPurchase": 1,
+    "sizes": [
+      "Set of 2"
+    ],
+    "variation": [
+      {
+        "color": "Black",
+        "colorCode": "#000000",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/20/image_1024/Kajal%20%28Smudge%20%26%20Water%20Proof%29%20%20Set%20of%202?unique=9a09f82"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/20/image_1024/Kajal%20%28Smudge%20%26%20Water%20Proof%29%20%20Set%20of%202?unique=9a09f82",
+      "https://www.anosebeauty.com/web/image/product.product/20/image_1024/Kajal%20%28Smudge%20%26%20Water%20Proof%29%20%20Set%20of%202?unique=9a09f82"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/20/image_1024/Kajal%20%28Smudge%20%26%20Water%20Proof%29%20%20Set%20of%202?unique=9a09f82"
+    ],
+    "description": "Intense black kajal that stays all day. Smudge-proof and water-proof set of two.",
+    "action": "add to cart",
+    "slug": "kajal-set-of-2"
+  },
+  {
+    "id": "6",
+    "category": "cosmetic",
+    "type": "shampoo",
+    "name": "Hibiscuss Shampoo 100ml",
+    "gender": "unisex",
+    "new": false,
+    "sale": false,
+    "rate": 4,
+    "price": 99,
+    "originPrice": 129,
+    "brand": "Anose",
+    "sold": 180,
+    "quantity": 300,
+    "quantityPurchase": 1,
+    "sizes": [
+      "100ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/9/image_1024/Hibiscuss%20Shampoo%20100ml?unique=429cf0a"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/9/image_1024/Hibiscuss%20Shampoo%20100ml?unique=429cf0a",
+      "https://www.anosebeauty.com/web/image/product.product/9/image_1024/Hibiscuss%20Shampoo%20100ml?unique=429cf0a"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/9/image_1024/Hibiscuss%20Shampoo%20100ml?unique=429cf0a"
+    ],
+    "description": "Natural hibiscus extracts for healthy and shiny hair. Gently cleanses the scalp.",
+    "action": "add to cart",
+    "slug": "hibiscus-shampoo-100ml"
+  },
+  {
+    "id": "7",
+    "category": "cosmetic",
+    "type": "shampoo",
+    "name": "Hibiscus Shampoo 200ml",
+    "gender": "unisex",
+    "new": false,
+    "sale": true,
+    "rate": 5,
+    "price": 199,
+    "originPrice": 249,
+    "brand": "Anose",
+    "sold": 110,
+    "quantity": 250,
+    "quantityPurchase": 1,
+    "sizes": [
+      "200ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/10/image_1024/Hibiscus%20Shampoo%20200ml?unique=f349bf6"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/10/image_1024/Hibiscus%20Shampoo%20200ml?unique=f349bf6",
+      "https://www.anosebeauty.com/web/image/product.product/10/image_1024/Hibiscus%20Shampoo%20200ml?unique=f349bf6"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/10/image_1024/Hibiscus%20Shampoo%20200ml?unique=f349bf6"
+    ],
+    "description": "The goodness of hibiscus in a 200ml pack. Ideal for strengthening hair roots.",
+    "action": "add to cart",
+    "slug": "hibiscus-shampoo-200ml"
+  },
+  {
+    "id": "8",
+    "category": "cosmetic",
+    "type": "conditioner",
+    "name": "Hair Conditioner 100ml",
+    "gender": "unisex",
+    "new": true,
+    "sale": false,
+    "rate": 4,
+    "price": 149,
+    "originPrice": 179,
+    "brand": "Anose",
+    "sold": 95,
+    "quantity": 300,
+    "quantityPurchase": 1,
+    "sizes": [
+      "100ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/11/image_1024/Hair%20Conditioner%20100ml?unique=3cef000"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/11/image_1024/Hair%20Conditioner%20100ml?unique=3cef000",
+      "https://www.anosebeauty.com/web/image/product.product/11/image_1024/Hair%20Conditioner%20100ml?unique=3cef000"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/11/image_1024/Hair%20Conditioner%20100ml?unique=3cef000"
+    ],
+    "description": "Deeply conditions and detangles hair. Makes hair smooth and manageable.",
+    "action": "add to cart",
+    "slug": "hair-conditioner-100ml"
+  },
+  {
+    "id": "9",
+    "category": "cosmetic",
+    "type": "facewash",
+    "name": "Herbal Facewash 100ml",
+    "gender": "unisex",
+    "new": false,
+    "sale": false,
+    "rate": 5,
+    "price": 149,
+    "originPrice": 189,
+    "brand": "Anose",
+    "sold": 220,
+    "quantity": 400,
+    "quantityPurchase": 1,
+    "sizes": [
+      "100ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/12/image_1024/Herbal%20Facewash%20100ml?unique=1ea24d6"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/12/image_1024/Herbal%20Facewash%20100ml?unique=1ea24d6",
+      "https://www.anosebeauty.com/web/image/product.product/12/image_1024/Herbal%20Facewash%20100ml?unique=1ea24d6"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/12/image_1024/Herbal%20Facewash%20100ml?unique=1ea24d6"
+    ],
+    "description": "Pure herbal extracts to cleanse your skin naturally. Suitable for all skin types.",
+    "action": "add to cart",
+    "slug": "herbal-facewash-100ml"
+  },
+  {
+    "id": "10",
+    "category": "cosmetic",
+    "type": "facewash",
+    "name": "Herbal Facewash 200ml",
+    "gender": "unisex",
+    "new": true,
+    "sale": true,
+    "rate": 5,
+    "price": 249,
+    "originPrice": 299,
+    "brand": "Anose",
+    "sold": 130,
+    "quantity": 350,
+    "quantityPurchase": 1,
+    "sizes": [
+      "200ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/13/image_1024/Herbal%20Facewash%20200ml?unique=42701bf"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/13/image_1024/Herbal%20Facewash%20200ml?unique=42701bf",
+      "https://www.anosebeauty.com/web/image/product.product/13/image_1024/Herbal%20Facewash%20200ml?unique=42701bf"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/13/image_1024/Herbal%20Facewash%20200ml?unique=42701bf"
+    ],
+    "description": "Double the quantity, double the care. Natural herbal cleansing for your face.",
+    "action": "add to cart",
+    "slug": "herbal-facewash-200ml"
+  },
+  {
+    "id": "11",
+    "category": "cosmetic",
+    "type": "makeup",
+    "name": "Makeup Brush (Set of 13)",
+    "gender": "women",
+    "new": true,
+    "sale": false,
+    "rate": 5,
+    "price": 149,
+    "originPrice": 199,
+    "brand": "Anose",
+    "sold": 450,
+    "quantity": 150,
+    "quantityPurchase": 1,
+    "sizes": [
+      "Set of 13"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/18/image_1024/Makeup%20Brush%20%28Set%20of%2013%29?unique=66553d9"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/18/image_1024/Makeup%20Brush%20%28Set%20of%2013%29?unique=66553d9",
+      "https://www.anosebeauty.com/web/image/product.product/18/image_1024/Makeup%20Brush%20%28Set%20of%2013%29?unique=66553d9"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/18/image_1024/Makeup%20Brush%20%28Set%20of%2013%29?unique=66553d9"
+    ],
+    "description": "Professional makeup brush set of 13. High-quality bristles for flawless application.",
+    "action": "add to cart",
+    "slug": "makeup-brush-set-of-13"
+  },
+  {
+    "id": "12",
+    "category": "cosmetic",
+    "type": "accessories",
+    "name": "Plastic Dropper 3ml",
+    "gender": "unisex",
+    "new": false,
+    "sale": false,
+    "rate": 4,
+    "price": 9,
+    "originPrice": 15,
+    "brand": "Anose",
+    "sold": 1200,
+    "quantity": 1000,
+    "quantityPurchase": 1,
+    "sizes": [
+      "3ml"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/14/image_1024/Plastic%20Dropper%203ml?unique=66553d9"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/14/image_1024/Plastic%20Dropper%203ml?unique=66553d9",
+      "https://www.anosebeauty.com/web/image/product.product/14/image_1024/Plastic%20Dropper%203ml?unique=66553d9"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/14/image_1024/Plastic%20Dropper%203ml?unique=66553d9"
+    ],
+    "description": "Convenient 3ml plastic dropper for precise application of liquids.",
+    "action": "add to cart",
+    "slug": "plastic-dropper-3ml"
+  }
+]
