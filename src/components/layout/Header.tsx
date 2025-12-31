@@ -70,12 +70,20 @@ export default function Header() {
                                         {session ? (
                                             <>
                                                 <div className="heading6 mb-4">Hello, {session.user?.name || 'User'}</div>
-                                                <Link href="/my-account" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg mb-3 hover:bg-purple-700">Dashboard</Link>
+                                                <Link
+                                                    href={session.user?.role === 'admin' ? "/admin" : "/my-account"}
+                                                    className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg mb-3 hover:bg-purple-700"
+                                                >
+                                                    Dashboard
+                                                </Link>
                                                 <button onClick={() => signOut()} className="button-main bg-white text-purple-600 border border-purple-600 w-full text-center block py-2 rounded-lg hover:bg-purple-50">Logout</button>
                                             </>
                                         ) : (
                                             <>
                                                 <Link href="/login" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">Login</Link>
+                                                <Link href="/login?callbackUrl=/admin" className="text-button-uppercase mt-3 duration-300 w-full flex items-center justify-center hover:text-purple-600 font-semibold text-sm">
+                                                    Admin Login
+                                                </Link>
                                                 <div className="text-secondary text-center mt-3 pb-4">
                                                     Don&apos;t have an account?
                                                     <Link href="/register" className="text-black pl-1 hover:underline">Register</Link>

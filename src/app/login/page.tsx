@@ -130,6 +130,15 @@ function LoginForm() {
                             >
                                 {loading ? 'Logging in...' : 'Login'}
                             </button>
+
+                            <div className="mt-4">
+                                <Link
+                                    href="/login?callbackUrl=/admin"
+                                    className="block w-full text-center border border-black py-4 rounded-xl hover:bg-zinc-50 duration-300 font-bold uppercase transition-colors"
+                                >
+                                    Admin Login
+                                </Link>
+                            </div>
                         </form>
 
                         <div className="text-secondary text-center mt-6">
