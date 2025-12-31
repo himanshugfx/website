@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function LoginForm() {
@@ -38,9 +38,41 @@ function LoginForm() {
                 setError('Invalid email or password');
                 setLoading(false);
             } else if (res?.ok) {
-                console.log('Login successful, redirecting to:', callbackUrl);
-                // Force a full page reload to ensure session is loaded
-                window.location.href = callbackUrl;
+                console.log('Login successful, checking user role...');
+                
+                // Retry mechanism to get session (session might not be immediately available)
+                const checkSessionAndRedirect = async (retries = 5) => {
+                    try {
+                        const session = await getSession();
+                        console.log('Session retrieved:', session);
+                        
+                        if (session?.user) {
+                            // Check if user is admin
+                            if ((session.user as any).role === 'admin') {
+                                console.log('Admin user detected, redirecting to admin panel');
+                                window.location.href = '/admin';
+                            } else {
+                                // Use callbackUrl if it's an admin route, otherwise use default
+                                const redirectUrl = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
+                                console.log('Regular user, redirecting to:', redirectUrl);
+                                window.location.href = redirectUrl;
+                            }
+                        } else if (retries > 0) {
+                            // Session not ready yet, retry after a short delay
+                            setTimeout(() => checkSessionAndRedirect(retries - 1), 200);
+                        } else {
+                            // Fallback to callbackUrl if session check fails after retries
+                            console.log('Session not available after retries, using callbackUrl');
+                            window.location.href = callbackUrl;
+                        }
+                    } catch (sessionError) {
+                        console.error('Error getting session:', sessionError);
+                        // Fallback to callbackUrl if session check fails
+                        window.location.href = callbackUrl;
+                    }
+                };
+                
+                checkSessionAndRedirect();
             } else {
                 console.error('Unexpected response:', res);
                 setError('Something went wrong');
