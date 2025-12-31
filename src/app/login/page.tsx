@@ -42,8 +42,9 @@ function LoginForm() {
                 return;
             }
 
-            // Login successful - now check user role and redirect
-            // Use a more reliable approach: wait for session to be available
+            // Login successful - wait a moment for cookies to be set, then check user role and redirect
+            // Small delay to ensure NextAuth cookies are properly set
+            await new Promise(resolve => setTimeout(resolve, 500));
             await checkUserRoleAndRedirect();
         } catch (err) {
             console.error('Login error:', err);
@@ -53,7 +54,7 @@ function LoginForm() {
     };
 
     const checkUserRoleAndRedirect = async () => {
-        const maxRetries = 15;
+        const maxRetries = 20;
         let retries = 0;
 
         while (retries < maxRetries) {
@@ -77,14 +78,18 @@ function LoginForm() {
                         
                         if (userRole === 'admin') {
                             // Admin user - always redirect to admin dashboard
-                            window.location.href = '/admin';
+                            // Use replace instead of href to avoid back button issues
+                            // Add a small delay to ensure cookies are fully set
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            window.location.replace('/admin');
                             return;
                         } else {
                             // Regular customer - redirect based on callbackUrl
                             const redirectPath = callbackUrl.startsWith('/admin') 
                                 ? '/my-account' 
                                 : callbackUrl;
-                            window.location.href = redirectPath;
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            window.location.replace(redirectPath);
                             return;
                         }
                     }
@@ -93,13 +98,13 @@ function LoginForm() {
                 // Session not ready yet, wait a bit and retry
                 retries++;
                 if (retries < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
             } catch (fetchError) {
                 console.error('Error fetching session:', fetchError);
                 retries++;
                 if (retries < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
             }
         }
@@ -107,7 +112,7 @@ function LoginForm() {
         // If we've exhausted retries, use fallback redirect
         console.warn('Session check failed after retries, using fallback redirect');
         const fallbackPath = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
-        window.location.href = fallbackPath;
+        window.location.replace(fallbackPath);
     };
 
     return (
