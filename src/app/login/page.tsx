@@ -13,6 +13,7 @@ function LoginForm() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        role: 'customer' as 'customer' | 'admin',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -47,14 +48,17 @@ function LoginForm() {
                         console.log('Session retrieved:', session);
                         
                         if (session?.user) {
-                            // Check if user is admin
-                            if ((session.user as any).role === 'admin') {
+                            const actualRole = (session.user as any).role;
+                            
+                            // Check if user is admin - actual role from database determines redirect
+                            if (actualRole === 'admin') {
+                                // Admin users always go to admin panel
                                 console.log('Admin user detected, redirecting to admin panel');
                                 window.location.href = '/admin';
                             } else {
-                                // Use callbackUrl if it's an admin route, otherwise use default
+                                // Regular customer user - redirect to customer page
                                 const redirectUrl = callbackUrl.startsWith('/admin') ? '/my-account' : callbackUrl;
-                                console.log('Regular user, redirecting to:', redirectUrl);
+                                console.log('Customer user, redirecting to:', redirectUrl);
                                 window.location.href = redirectUrl;
                             }
                         } else if (retries > 0) {
@@ -116,6 +120,18 @@ function LoginForm() {
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
+                            </div>
+
+                            <div className="role mb-5">
+                                <select
+                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none bg-white"
+                                    value={formData.role}
+                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as 'customer' | 'admin' })}
+                                    required
+                                >
+                                    <option value="customer">Customer</option>
+                                    <option value="admin">Admin</option>
+                                </select>
                             </div>
 
                             <div className="flex items-center justify-between mb-8">
