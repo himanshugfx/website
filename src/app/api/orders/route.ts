@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
             success: true,
             orderId: order.id,
+            orderNumber: order.orderNumber,
             message: 'Order placed successfully',
         });
     } catch (error) {

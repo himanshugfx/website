@@ -165,7 +165,7 @@ export default function CheckoutClient() {
                 if (data.key === 'mock_key') {
                     // Simulate success for mock
                     clearCart();
-                    window.location.href = `/checkout/success?orderId=${data.orderId}`;
+                    window.location.href = `/checkout/success?orderId=${data.orderId}&orderNumber=${data.orderNumber}`;
                     return;
                 }
 
@@ -197,7 +197,7 @@ export default function CheckoutClient() {
 
                             if (verifyData.success) {
                                 clearCart();
-                                window.location.href = `/checkout/success?orderId=${data.orderId}`;
+                                window.location.href = `/checkout/success?orderId=${data.orderId}&orderNumber=${data.orderNumber}`;
                             } else {
                                 setError('Payment verification failed');
                                 setLoading(false);
@@ -289,7 +289,7 @@ export default function CheckoutClient() {
 
                 if (data.success) {
                     clearCart();
-                    window.location.href = `/checkout/success?orderId=${data.orderId}`;
+                    window.location.href = `/checkout/success?orderId=${data.orderId}&orderNumber=${data.orderNumber}`;
                 } else {
                     setError(data.error || 'Failed to place order');
                     setLoading(false);

@@ -7,6 +7,7 @@ import { Eye, ShoppingCart, Filter, Search, MoreHorizontal, Download } from 'luc
 
 interface Order {
     id: string;
+    orderNumber: number;
     userId: string | null;
     total: number;
     status: string;
@@ -156,7 +157,7 @@ export default function OrdersPage() {
                                         <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
-                                                    #{order.id.slice(0, 8)}
+                                                    #{order.orderNumber}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -178,10 +179,10 @@ export default function OrdersPage() {
                                                     value={order.status}
                                                     onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
                                                     className={`px-3 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-purple-500 cursor-pointer appearance-none pr-8 relative ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
-                                                            order.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
-                                                                order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700' :
-                                                                    order.status === 'CANCELLED' ? 'bg-red-50 text-red-700' :
-                                                                        'bg-gray-100 text-gray-700'
+                                                        order.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
+                                                            order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700' :
+                                                                order.status === 'CANCELLED' ? 'bg-red-50 text-red-700' :
+                                                                    'bg-gray-100 text-gray-700'
                                                         }`}
                                                     style={{ backgroundImage: 'none' }}
                                                 >

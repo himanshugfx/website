@@ -4,9 +4,10 @@ import { CheckCircle, Package, ArrowRight } from 'lucide-react';
 export default function CheckoutSuccessPage({
     searchParams,
 }: {
-    searchParams: { orderId?: string };
+    searchParams: { orderId?: string; orderNumber?: string };
 }) {
     const orderId = searchParams.orderId;
+    const orderNumber = searchParams.orderNumber;
 
     return (
         <div className="checkout-success min-h-screen bg-gradient-to-br from-purple-50 to-white">
@@ -26,15 +27,15 @@ export default function CheckoutSuccessPage({
                     </p>
 
                     {/* Order Details */}
-                    {orderId && (
+                    {(orderId || orderNumber) && (
                         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8">
                             <div className="flex items-center justify-center gap-3 mb-4">
                                 <Package className="w-6 h-6 text-purple-600" />
                                 <span className="font-semibold text-gray-900">Order Details</span>
                             </div>
-                            <div className="text-sm text-gray-500 mb-2">Order ID</div>
+                            <div className="text-sm text-gray-500 mb-2">Order Number</div>
                             <div className="font-mono text-lg font-bold text-gray-900 bg-gray-50 py-2 px-4 rounded-lg">
-                                #{orderId.slice(0, 12)}...
+                                #{orderNumber || (orderId ? orderId.slice(0, 12) + '...' : 'N/A')}
                             </div>
                         </div>
                     )}

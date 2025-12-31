@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 interface OrderDetails {
     id: string;
+    orderNumber: number;
     userId: string | null;
     total: number;
     status: string;
@@ -138,7 +139,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold text-gray-900">
-                                    Order #{order.id.slice(0, 8)}
+                                    Order #{order.orderNumber}
                                 </h1>
                                 <StatusBadge status={order.status} />
                             </div>
@@ -264,7 +265,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 <div>
                                     <p className="text-sm text-gray-500 mb-1">Payment Status</p>
                                     <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${order.paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' :
-                                            'bg-amber-100 text-amber-700'
+                                        'bg-amber-100 text-amber-700'
                                         }`}>
                                         {order.paymentStatus}
                                     </span>
@@ -279,10 +280,35 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                     <MapPin className="w-5 h-5 text-gray-400" />
                                     Shipping Address
                                 </h2>
-                                <div className="p-4 bg-gray-50 rounded-xl">
-                                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-                                        {order.address.replace(/^"|"$/g, '').split('\\n').join('\n')}
-                                    </p>
+                                <div className="p-4 bg-gray-50 rounded-xl space-y-3">
+                                    {(() => {
+                                        try {
+                                            const addr = JSON.parse(order.address);
+                                            return (
+                                                <div className="space-y-1 text-sm">
+                                                    <p className="font-bold text-gray-900">{addr.firstName} {addr.lastName}</p>
+                                                    <p className="text-gray-600">{addr.email}</p>
+                                                    <p className="text-gray-600">{addr.phone}</p>
+                                                    <div className="pt-2">
+                                                        <p className="text-gray-900 leading-relaxed">{addr.address}</p>
+                                                        <p className="text-gray-900">{addr.city}, {addr.postalCode}</p>
+                                                        <p className="text-gray-900">{addr.country}</p>
+                                                    </div>
+                                                    {addr.notes && (
+                                                        <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100 italic text-amber-800 text-xs">
+                                                            <strong>Note:</strong> {addr.notes}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        } catch (e) {
+                                            return (
+                                                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                                                    {order.address.replace(/^"|"$/g, '').split('\\n').join('\n')}
+                                                </p>
+                                            );
+                                        }
+                                    })()}
                                 </div>
                             </div>
                         )}

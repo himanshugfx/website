@@ -97,6 +97,7 @@ export async function POST(request: Request) {
                     success: true,
                     redirectUrl: data.data.instrumentResponse.redirectInfo.url,
                     orderId: order.id,
+                    orderNumber: order.orderNumber,
                     transactionId: transactionId,
                     method: 'phonepe'
                 });
@@ -121,6 +122,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({
                     success: true,
                     orderId: order.id,
+                    orderNumber: order.orderNumber,
                     razorpayOrderId: `order_mock_${Date.now()}`,
                     amount: Math.round(total * 100),
                     currency: 'INR',
@@ -155,6 +157,7 @@ export async function POST(request: Request) {
             return NextResponse.json({
                 success: true,
                 orderId: order.id,
+                orderNumber: order.orderNumber,
                 razorpayOrderId: razorpayOrder.id,
                 amount: razorpayOrder.amount,
                 currency: razorpayOrder.currency,
