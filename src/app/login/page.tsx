@@ -8,7 +8,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 function LoginForm() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const callbackUrl = searchParams.get('callbackUrl') || '/my-account'; // Default fallbacks
+    const callbackUrl = searchParams.get('callbackUrl') || '/my-account';
+    const isAdminMode = searchParams.get('callbackUrl') === '/admin';
 
     const [formData, setFormData] = useState({
         email: '',
@@ -23,8 +24,7 @@ function LoginForm() {
         setLoading(true);
 
         try {
-            // Sign in with credentials
-            // redirect: false allows us to check the error property before page reload
+            // First, try to sign in with redirect: false to catch errors
             const result = await signIn('credentials', {
                 email: formData.email,
                 password: formData.password,
@@ -38,29 +38,14 @@ function LoginForm() {
             }
 
             if (result?.ok) {
-                // Successfully logged in
-                // We can't easily know the role here without an API call, 
-                // but the middleware will handle the redirection logic if we send them to the right place.
-                // However, let's try to just go to the callbackUrl or defaulting logic.
-                // A simple page refresh or router.push should trigger middleware / session check.
-
-                // FORCE reload to ensure cookies are sent and session is picked up
-                // If we know they are admin (we don't client-side easily yet), we'd go to /admin
-
-                // Let's try router.refresh() then router.push
-                router.refresh();
-
-                // Small delay to let cookie set
-                setTimeout(() => {
-                    // Check if callbackUrl is admin
-                    if (callbackUrl.includes('/admin')) {
-                        window.location.href = callbackUrl;
-                    } else {
-                        // For safety, fetch session to know where to go? 
-                        // Or just go to /my-account or home.
-                        window.location.href = callbackUrl;
-                    }
-                }, 500);
+                // If successful, we do a HARD redirect using signIn with redirect: true
+                // This is the most reliable way to ensure cookies are set and middleware sees the session
+                await signIn('credentials', {
+                    email: formData.email,
+                    password: formData.password,
+                    redirect: true,
+                    callbackUrl: isAdminMode ? '/admin' : callbackUrl,
+                });
             }
         } catch (err) {
             console.error('Login error:', err);
@@ -74,19 +59,25 @@ function LoginForm() {
             <div className="container mx-auto">
                 <div className="content-main flex flex-col items-center">
                     <div className="md:w-1/2 w-full max-w-[500px]">
-                        <div className="heading4 text-center">Login</div>
-                        <p className="text-secondary text-center mt-2">Welcome back! Sign in to your account.</p>
+                        <div className="heading4 text-center">
+                            {isAdminMode ? 'Admin Login' : 'Login'}
+                        </div>
+                        <p className="text-secondary text-center mt-2">
+                            {isAdminMode
+                                ? 'Access the administration dashboard.'
+                                : 'Welcome back! Sign in to your account.'}
+                        </p>
 
                         <form className="mt-8" onSubmit={handleSubmit}>
                             {error && (
-                                <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-center font-semibold">
+                                <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-center font-semibold border border-red-100">
                                     {error}
                                 </div>
                             )}
 
                             <div className="email mb-5">
                                 <input
-                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none"
+                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
                                     type="email"
                                     placeholder="Email Address *"
                                     required
@@ -98,7 +89,7 @@ function LoginForm() {
 
                             <div className="password mb-5">
                                 <input
-                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none"
+                                    className="border border-line px-5 py-3 w-full rounded-xl focus:border-black outline-none transition-all"
                                     type="password"
                                     placeholder="Password *"
                                     required
@@ -108,45 +99,61 @@ function LoginForm() {
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="remember"
-                                        className="cursor-pointer"
-                                        disabled={loading}
-                                    />
-                                    <label htmlFor="remember" className="cursor-pointer text-sm">Remember me</label>
+                            {!isAdminMode && (
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            id="remember"
+                                            className="cursor-pointer"
+                                            disabled={loading}
+                                        />
+                                        <label htmlFor="remember" className="cursor-pointer text-sm">Remember me</label>
+                                    </div>
+                                    <Link href="/forgot-password" className="font-semibold hover:underline text-sm">
+                                        Forgot password?
+                                    </Link>
                                 </div>
-                                <Link href="/forgot-password" className="font-semibold hover:underline text-sm">
-                                    Forgot password?
-                                </Link>
-                            </div>
+                            )}
 
                             <button
-                                className="button-main w-full bg-black text-white py-4 rounded-xl hover:bg-purple-700 duration-300 font-bold uppercase disabled:bg-purple-400 disabled:cursor-not-allowed"
+                                className={`button-main w-full py-4 rounded-xl duration-300 font-bold uppercase disabled:cursor-not-allowed ${isAdminMode
+                                        ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-200'
+                                        : 'bg-black hover:bg-zinc-800 text-white'
+                                    }`}
                                 disabled={loading}
                                 type="submit"
                             >
-                                {loading ? 'Logging in...' : 'Login'}
+                                {loading ? 'Logging in...' : (isAdminMode ? 'Login to Dashboard' : 'Login')}
                             </button>
 
-                            <div className="mt-4">
-                                <Link
-                                    href="/login?callbackUrl=/admin"
-                                    className="block w-full text-center border border-black py-4 rounded-xl hover:bg-zinc-50 duration-300 font-bold uppercase transition-colors"
-                                >
-                                    Admin Login
-                                </Link>
+                            <div className="mt-6 flex flex-col gap-4">
+                                {isAdminMode ? (
+                                    <Link
+                                        href="/login"
+                                        className="text-center text-sm font-semibold hover:underline"
+                                    >
+                                        Back to User Login
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/login?callbackUrl=/admin"
+                                        className="block w-full text-center border border-zinc-200 py-3 rounded-xl hover:bg-zinc-50 duration-300 font-bold uppercase text-sm transition-colors"
+                                    >
+                                        Admin Login
+                                    </Link>
+                                )}
                             </div>
                         </form>
 
-                        <div className="text-secondary text-center mt-6">
-                            Don't have an account?{' '}
-                            <Link href="/register" className="text-black font-bold pl-1 hover:underline">
-                                Register
-                            </Link>
-                        </div>
+                        {!isAdminMode && (
+                            <div className="text-secondary text-center mt-8">
+                                Don't have an account?{' '}
+                                <Link href="/register" className="text-black font-bold pl-1 hover:underline">
+                                    Register
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

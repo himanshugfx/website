@@ -80,13 +80,16 @@ export default function Header() {
                                             </>
                                         ) : (
                                             <>
-                                                <Link href="/login" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">Login</Link>
-                                                <Link href="/login?callbackUrl=/admin" className="text-button-uppercase mt-3 duration-300 w-full flex items-center justify-center hover:text-purple-600 font-semibold text-sm">
+                                                <Link href="/login" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors">Login</Link>
+                                                <Link
+                                                    href="/login?callbackUrl=/admin"
+                                                    className="w-full text-center block border border-purple-600 text-purple-600 py-2 rounded-lg mt-3 hover:bg-purple-50 transition-colors font-bold text-sm uppercase"
+                                                >
                                                     Admin Login
                                                 </Link>
-                                                <div className="text-secondary text-center mt-3 pb-4">
+                                                <div className="text-secondary text-center mt-4 pb-4">
                                                     Don&apos;t have an account?
-                                                    <Link href="/register" className="text-black pl-1 hover:underline">Register</Link>
+                                                    <Link href="/register" className="text-black pl-1 hover:underline font-semibold">Register</Link>
                                                 </div>
                                             </>
                                         )}

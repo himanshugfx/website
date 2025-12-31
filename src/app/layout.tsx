@@ -9,6 +9,7 @@ import Marquee from "@/components/layout/Marquee";
 import AuthProvider from "@/components/layout/Provider";
 import Script from "next/script";
 import CartPopup from "@/components/CartPopup";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
