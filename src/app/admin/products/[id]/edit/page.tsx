@@ -667,7 +667,7 @@ export default function EditProductPage({ params }: PageProps) {
                                     name="new"
                                     checked={formData.new}
                                     onChange={handleChange}
-                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                                 />
                                 <span className="text-sm font-medium text-gray-700">New Product</span>
                             </label>
@@ -678,7 +678,7 @@ export default function EditProductPage({ params }: PageProps) {
                                     name="sale"
                                     checked={formData.sale}
                                     onChange={handleChange}
-                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                                 />
                                 <span className="text-sm font-medium text-gray-700">On Sale</span>
                             </label>
@@ -689,7 +689,7 @@ export default function EditProductPage({ params }: PageProps) {
                                     name="bestSeller"
                                     checked={formData.bestSeller}
                                     onChange={handleChange}
-                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                                 />
                                 <span className="text-sm font-medium text-gray-700">Best Seller</span>
                             </label>
