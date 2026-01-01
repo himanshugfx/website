@@ -68,7 +68,11 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                                 {categories.map(cat => (
                                     <div
                                         key={cat}
-                                        className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px ${selectedCategory === cat ? 'active' : ''}`}
+                                        className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px transition-colors duration-300 ${
+                                            selectedCategory === cat 
+                                                ? 'text-purple-600 font-semibold' 
+                                                : 'text-black hover:text-purple-600'
+                                        }`}
                                         onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                                     >
                                         {cat}
