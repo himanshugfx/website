@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import type { ProductCardProduct } from '@/components/ProductCard';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ interface Product extends ProductCardProduct {
     type: string;
     new: boolean;
     sale: boolean;
+    bestSeller?: boolean;
 }
 
 interface ShopClientProps {
@@ -21,11 +23,22 @@ interface ShopClientProps {
 }
 
 export default function ShopClient({ initialProducts, categories, types, brands }: ShopClientProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+    const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<string>('Sorting');
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]); // Max price from data is likely lower
+
+    // Initialize from URL params
+    useEffect(() => {
+        const filter = searchParams.get('filter');
+        if (filter === 'best' || filter === 'sale' || filter === 'new') {
+            setSelectedLabel(filter);
+        }
+    }, [searchParams]);
 
     const filteredProducts = useMemo(() => {
         let result = [...initialProducts];
@@ -39,6 +52,13 @@ export default function ShopClient({ initialProducts, categories, types, brands 
         if (selectedBrand) {
             result = result.filter(p => p.brand === selectedBrand);
         }
+        if (selectedLabel === 'best') {
+            result = result.filter(p => p.bestSeller);
+        } else if (selectedLabel === 'sale') {
+            result = result.filter(p => p.sale);
+        } else if (selectedLabel === 'new') {
+            result = result.filter(p => p.new);
+        }
 
         // Sort
         if (sortBy === 'priceHighToLow') {
@@ -48,7 +68,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
         }
 
         return result;
-    }, [initialProducts, selectedCategory, selectedType, selectedBrand, sortBy]);
+    }, [initialProducts, selectedCategory, selectedType, selectedBrand, selectedLabel, sortBy]);
 
     return (
         <main>
@@ -125,7 +145,9 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                                     setSelectedCategory(null);
                                     setSelectedType(null);
                                     setSelectedBrand(null);
+                                    setSelectedLabel(null);
                                     setSortBy('Sorting');
+                                    router.push('/shop');
                                 }}
                             >
                                 Clear Filters

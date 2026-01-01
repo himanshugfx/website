@@ -14,6 +14,9 @@ export interface ProductCardProduct {
     slug: string;
     brand: string;
     quantity: number;
+    new?: boolean;
+    sale?: boolean;
+    bestSeller?: boolean;
 }
 
 interface ProductProps {
@@ -76,8 +79,53 @@ export default function ProductCard({ product }: ProductProps) {
                     />
                 </Link>
 
+                {/* Product Labels */}
+                <div className="absolute top-3 left-0 right-0 flex flex-wrap justify-between items-start gap-1.5 px-3 z-10 pointer-events-none">
+                    <div className="flex flex-wrap gap-1.5">
+                        {product.bestSeller && (
+                            <Link
+                                href="/shop?filter=best"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    window.location.href = '/shop?filter=best';
+                                }}
+                                className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-purple-600 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                            >
+                                BEST
+                            </Link>
+                        )}
+                        {product.sale && (
+                            <Link
+                                href="/shop?filter=sale"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    window.location.href = '/shop?filter=sale';
+                                }}
+                                className="product-tag text-xs font-bold uppercase bg-red-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                            >
+                                SALE
+                            </Link>
+                        )}
+                    </div>
+                    {product.new && (
+                        <Link
+                            href="/shop?filter=new"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = '/shop?filter=new';
+                            }}
+                            className="product-tag text-xs font-bold uppercase bg-green-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-green-700 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                        >
+                            NEW
+                        </Link>
+                    )}
+                </div>
+
                 {product.quantity <= 0 && (
-                    <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase shadow-md z-10">
+                    <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase shadow-md z-10">
                         Out of Stock
                     </div>
                 )}
