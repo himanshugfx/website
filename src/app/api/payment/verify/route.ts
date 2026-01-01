@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
+import { finalizeOrder } from '@/lib/order';
+
 
 export async function POST(request: Request) {
     try {
@@ -21,13 +23,8 @@ export async function POST(request: Request) {
 
         if (generated_signature === razorpay_signature) {
             // Payment successful
-            await prisma.order.update({
-                where: { id: orderId },
-                data: {
-                    status: 'PROCESSING',
-                    // You might want to store razorpay_payment_id here if you have a field for it
-                },
-            });
+            await finalizeOrder(orderId);
+
 
             return NextResponse.json({ success: true, message: "Payment verified successfully" });
         } else {

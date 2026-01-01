@@ -26,7 +26,9 @@ model Product {
   gender          String
   new             Boolean     @default(false)
   sale            Boolean     @default(false)
+  bestSeller      Boolean     @default(false)
   rate            Int         @default(0)
+
   price           Float
   originPrice     Float
   brand           String      @default("Anose")

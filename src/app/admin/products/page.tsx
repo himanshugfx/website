@@ -13,7 +13,11 @@ interface Product {
     quantity: number;
     brand: string;
     thumbImage: string;
+    new: boolean;
+    sale: boolean;
+    bestSeller: boolean;
 }
+
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -40,7 +44,26 @@ export default function ProductsPage() {
         }
     };
 
+    const toggleStatus = async (id: string, field: 'new' | 'sale' | 'bestSeller', currentValue: boolean) => {
+        try {
+            const res = await fetch(`/api/admin/products/${id}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({ [field]: !currentValue }),
+            });
+
+            if (res.ok) {
+                setProducts(products.map(p => p.id === id ? { ...p, [field]: !currentValue } : p));
+            } else {
+                alert('Failed to update status');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update status');
+        }
+    };
+
     const handleDelete = async (id: string) => {
+
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         try {
@@ -112,6 +135,10 @@ export default function ProductsPage() {
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Stock
                                     </th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        Labels
+                                    </th>
+
                                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -174,12 +201,38 @@ export default function ProductsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${product.quantity > 10 ? 'bg-emerald-100 text-emerald-700' :
-                                                        product.quantity > 0 ? 'bg-amber-100 text-amber-700' :
-                                                            'bg-red-100 text-red-700'
+                                                    product.quantity > 0 ? 'bg-amber-100 text-amber-700' :
+                                                        'bg-red-100 text-red-700'
                                                     }`}>
                                                     {product.quantity} in stock
                                                 </span>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => toggleStatus(product.id, 'bestSeller', product.bestSeller)}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.bestSeller ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        title="Toggle Best Seller"
+                                                    >
+                                                        BEST
+                                                    </button>
+                                                    <button
+                                                        onClick={() => toggleStatus(product.id, 'sale', product.sale)}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.sale ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        title="Toggle On Sale"
+                                                    >
+                                                        SALE
+                                                    </button>
+                                                    <button
+                                                        onClick={() => toggleStatus(product.id, 'new', product.new)}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.new ? 'bg-blue-500 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        title="Toggle New Arrival"
+                                                    >
+                                                        NEW
+                                                    </button>
+                                                </div>
+                                            </td>
+
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link

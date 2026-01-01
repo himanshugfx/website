@@ -51,7 +51,11 @@ export async function PUT(
                 price: data.price ? parseFloat(data.price) : undefined,
                 originPrice: data.originPrice ? parseFloat(data.originPrice) : undefined,
                 quantity: data.quantity !== undefined ? parseInt(data.quantity) : undefined,
+                bestSeller: data.bestSeller !== undefined ? data.bestSeller : undefined,
+                new: data.new !== undefined ? data.new : undefined,
+                sale: data.sale !== undefined ? data.sale : undefined,
                 variations: variations ? {
+
                     deleteMany: {},
                     create: variations.map((v: any) => ({
                         color: v.color,

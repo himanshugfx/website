@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
+import { finalizeOrder } from '@/lib/order';
+
 
 const PHONEPE_STATUS_URL = process.env.PHONEPE_ENV === 'PROD'
     ? 'https://api.phonepe.com/apis/hermes/pg/v1/status'
@@ -24,12 +26,10 @@ export async function GET(request: Request) {
 
         // If PhonePe not configured, just mark order as processing and redirect to success
         if (!merchantId || !saltKey || merchantId === 'your_merchant_id') {
-            await prisma.order.update({
-                where: { id: orderId },
-                data: { status: 'PROCESSING' },
-            });
+            await finalizeOrder(orderId);
             return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, baseUrl));
         }
+
 
         if (!transactionId) {
             return NextResponse.redirect(new URL('/checkout?error=missing_transaction', baseUrl));
@@ -58,11 +58,9 @@ export async function GET(request: Request) {
         console.log('PhonePe Status Response:', JSON.stringify(data, null, 2));
 
         if (data.success && data.code === 'PAYMENT_SUCCESS') {
-            // Update order status to PROCESSING
-            await prisma.order.update({
-                where: { id: orderId },
-                data: { status: 'PROCESSING' },
-            });
+            // Update order status and stock
+            await finalizeOrder(orderId);
+
 
             // Redirect to success page
             return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, baseUrl));

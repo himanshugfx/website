@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
+import { finalizeOrder } from '@/lib/order';
+
 
 export async function POST(request: Request) {
     try {
@@ -31,12 +33,10 @@ export async function POST(request: Request) {
                     const internalOrderId = payment.notes?.receipt;
 
                     if (internalOrderId) {
-                        await prisma.order.update({
-                            where: { id: internalOrderId },
-                            data: { status: 'PROCESSING' },
-                        });
+                        await finalizeOrder(internalOrderId);
                     }
                     console.log(`Razorpay Payment captured for order ${internalOrderId}`);
+
                 }
                 return NextResponse.json({ success: true });
             } else {
@@ -88,13 +88,11 @@ export async function POST(request: Request) {
             // But preserving previous logic:
             if (code === 'PAYMENT_SUCCESS') {
                 for (const order of orders) {
-                    await prisma.order.update({
-                        where: { id: order.id },
-                        data: { status: 'PROCESSING' },
-                    });
+                    await finalizeOrder(order.id);
                     break;
                 }
             } else if (code === 'PAYMENT_ERROR') {
+
                 for (const order of orders) {
                     await prisma.order.update({
                         where: { id: order.id },

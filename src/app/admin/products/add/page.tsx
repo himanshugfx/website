@@ -25,6 +25,7 @@ export default function AddProductPage() {
         thumbImage: '',
         new: false,
         sale: false,
+        bestSeller: false,
         rate: 0,
         variations: [] as { color: string, colorCode: string, colorImage: string, image: string }[],
     });
@@ -401,9 +402,19 @@ export default function AddProductPage() {
                                             </div>
                                         );
                                     })}
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.bestSeller}
+                                            onChange={(e) => setFormData({ ...formData, bestSeller: e.target.checked })}
+                                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">Best Seller</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     {/* Variations */}

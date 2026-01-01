@@ -14,8 +14,10 @@ interface ProductProps {
         thumbImage: string;
         slug: string;
         brand: string;
+        quantity: number;
     };
 }
+
 
 export default function ProductCard({ product }: ProductProps) {
     const { addToCart } = useCart();
@@ -72,6 +74,13 @@ export default function ProductCard({ product }: ProductProps) {
                     />
                 </Link>
 
+                {product.quantity <= 0 && (
+                    <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase shadow-md z-10">
+                        Out of Stock
+                    </div>
+                )}
+
+
                 {/* Actions */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 duration-300">
                     <div
@@ -84,12 +93,14 @@ export default function ProductCard({ product }: ProductProps) {
 
                 <div className="absolute bottom-3 left-3 right-3 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">
                     <button
-                        className="w-full bg-white text-purple-600 py-2 rounded-full text-sm font-bold shadow-md hover:bg-black hover:text-white duration-300 uppercase border border-purple-600"
+                        className={`w-full py-2 rounded-full text-sm font-bold shadow-md duration-300 uppercase border ${product.quantity <= 0 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-purple-600 border-purple-600 hover:bg-black hover:text-white'}`}
                         onClick={handleAddToCart}
+                        disabled={product.quantity <= 0}
                     >
-                        Add To Cart
+                        {product.quantity <= 0 ? 'Out of Stock' : 'Add To Cart'}
                     </button>
                 </div>
+
             </div>
 
             <div className="product-infor mt-4 text-center">
@@ -104,6 +115,13 @@ export default function ProductCard({ product }: ProductProps) {
                     )}
                 </div>
             </div>
+            {product.quantity <= 0 && (
+                <div className="text-[11px] text-red-500 font-medium mt-1 italic">
+                    Will be back soon
+                </div>
+            )}
         </div>
+
+        </div >
     );
 }
