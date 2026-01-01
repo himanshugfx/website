@@ -73,8 +73,8 @@ export async function POST(request: Request) {
                 bestSeller: data.bestSeller || false,
                 rate: data.rate || 0,
 
-                price: data.price ? parseFloat(data.price) : undefined,
-                originPrice: data.originPrice ? parseFloat(data.originPrice) : undefined,
+                price: data.price ? parseFloat(data.price) : 0,
+                originPrice: data.originPrice ? parseFloat(data.originPrice) : 0,
                 brand: data.brand || 'Anose',
                 quantity: data.quantity !== undefined ? parseInt(data.quantity) : undefined,
                 quantityPurchase: 1,

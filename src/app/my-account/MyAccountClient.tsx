@@ -160,7 +160,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                     <i className="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg"></i>
                                                     <input
                                                         type="text"
-                                                        defaultValue={user?.name}
+                                                        defaultValue={user?.name || ''}
                                                         className="w-full pl-11 pr-4 py-3 rounded-xl border border-zinc-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none transition-all"
                                                         placeholder="Your Name"
                                                     />
@@ -172,7 +172,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                     <i className="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg"></i>
                                                     <input
                                                         type="email"
-                                                        defaultValue={user?.email}
+                                                        defaultValue={user?.email || ''}
                                                         className="w-full pl-11 pr-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-500 cursor-not-allowed outline-none"
                                                         disabled
                                                     />

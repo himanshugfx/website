@@ -6,8 +6,15 @@ import type { ProductCardProduct } from '@/components/ProductCard';
 import Link from 'next/link';
 
 
+interface Product extends ProductCardProduct {
+    category: string;
+    type: string;
+    new: boolean;
+    sale: boolean;
+}
+
 interface ShopClientProps {
-    initialProducts: ProductCardProduct[];
+    initialProducts: Product[];
     categories: string[];
     types: string[];
     brands: string[];

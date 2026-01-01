@@ -12,10 +12,8 @@ export async function GET(request: Request) {
 
         const skip = (page - 1) * limit;
 
-        let where: {
-            paymentStatus?: string;
-            userId?: string | null;
-        } = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let where: any = {};
 
         if (abandoned) {
             where = {

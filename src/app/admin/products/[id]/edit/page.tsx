@@ -73,6 +73,7 @@ export default function EditProductPage({ params }: PageProps) {
                 thumbImage: product.thumbImage || '',
                 new: product.new || false,
                 sale: product.sale || false,
+                bestSeller: product.bestSeller || false,
                 rate: product.rate || 0,
                 variations: product.variations || [],
             });

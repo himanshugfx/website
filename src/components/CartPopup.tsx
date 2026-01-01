@@ -5,9 +5,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
+interface ProductType {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    thumbImage?: string;
+    images?: string;
+}
+
 export default function CartPopup() {
     const { isPopupOpen, closePopup, lastAddedItem } = useCart();
-    const [recommended, setRecommended] = useState<Product[]>([]);
+    const [recommended, setRecommended] = useState<ProductType[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -18,7 +27,7 @@ export default function CartPopup() {
                     const res = await fetch('/api/admin/products?limit=20');
                     const data = await res.json();
                     if (data.products) {
-                        const others = data.products.filter((p: Product) => p.id !== lastAddedItem.id);
+                        const others = data.products.filter((p: ProductType) => p.id !== lastAddedItem.id);
                         const shuffled = others.sort(() => 0.5 - Math.random());
                         setRecommended(shuffled.slice(0, 2));
                     }
