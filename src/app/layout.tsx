@@ -11,6 +11,7 @@ import Script from "next/script";
 import CartPopup from "@/components/CartPopup";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({
               </ConditionalWrapper>
               <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
               <SpeedInsights />
+              <Analytics />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>
