@@ -141,7 +141,7 @@ export default async function AdminDashboard() {
                                                         <ShoppingCart className="w-8 h-8 text-gray-300" />
                                                     </div>
                                                     <p className="text-gray-900 font-medium">No orders yet</p>
-                                                    <p className="text-gray-500 text-sm">When you get orders, they'll show up here.</p>
+                                                    <p className="text-gray-500 text-sm">When you get orders, they&apos;ll show up here.</p>
                                                 </div>
                                             </td>
                                         </tr>

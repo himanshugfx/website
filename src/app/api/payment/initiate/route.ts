@@ -3,6 +3,12 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 
+interface CartItem {
+    id: string;
+    quantity: number;
+    price: number;
+}
+
 const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
     ? 'https://api.phonepe.com/apis/hermes/pg/v1/pay'
     : 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay';
@@ -27,7 +33,7 @@ export async function POST(request: Request) {
                 status: 'PENDING',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
-                    create: cart.map((item: any) => ({
+                    create: cart.map((item: CartItem) => ({
                         productId: item.id,
                         quantity: item.quantity,
                         price: item.price * item.quantity,

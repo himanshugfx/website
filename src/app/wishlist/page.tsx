@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import WishlistClient from "./WishlistClient";
 
 export default function WishlistPage() {
@@ -6,7 +7,7 @@ export default function WishlistPage() {
             <div className="breadcrumb-block py-5 bg-zinc-50">
                 <div className="container mx-auto">
                     <div className="flex items-center gap-1 caption1">
-                        <a href="/">Home</a>
+                        <Link href="/">Home</Link>
                         <i className="ph ph-caret-right text-xs"></i>
                         <div className="text-secondary2 capitalize">Wishlist</div>
                     </div>

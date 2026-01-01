@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { Session } from 'next-auth';
 
 interface MyAccountClientProps {
-    user: any;
+    user: Session['user'];
 }
 
 export default function MyAccountClient({ user }: MyAccountClientProps) {
@@ -105,7 +106,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         <i className="ph ph-shopping-cart text-3xl"></i>
                                     </div>
                                     <h5 className="text-lg font-bold text-zinc-900">No Recent Orders</h5>
-                                    <p className="text-zinc-500 mt-2 mb-6">Looks like you haven't placed any orders yet.</p>
+                                    <p className="text-zinc-500 mt-2 mb-6">Looks like you haven&apos;t placed any orders yet.</p>
                                     <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105">
                                         Start Shopping
                                     </Link>
@@ -122,7 +123,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         <i className="ph ph-receipt text-4xl text-zinc-300"></i>
                                     </div>
                                     <h5 className="text-lg font-bold text-zinc-900">No Orders Found</h5>
-                                    <p className="text-zinc-500 mt-2">You haven't placed any orders yet.</p>
+                                    <p className="text-zinc-500 mt-2">You haven&apos;t placed any orders yet.</p>
                                 </div>
                             </div>
                         )}

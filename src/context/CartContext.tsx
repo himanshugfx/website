@@ -29,22 +29,22 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const savedCart = localStorage.getItem('anose_cart');
+            if (savedCart) {
+                try {
+                    return JSON.parse(savedCart);
+                } catch (e) {
+                    console.error("Failed to parse cart", e);
+                }
+            }
+        }
+        return [];
+    });
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
-
-    // Load from local storage
-    useEffect(() => {
-        const savedCart = localStorage.getItem('anose_cart');
-        if (savedCart) {
-            try {
-                setCart(JSON.parse(savedCart));
-            } catch (e) {
-                console.error("Failed to parse cart", e);
-            }
-        }
-    }, []);
 
     // Save to local storage
     useEffect(() => {

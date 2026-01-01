@@ -5,17 +5,19 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 
+export interface ProductCardProduct {
+    id: string;
+    name: string;
+    price: number;
+    originPrice: number;
+    thumbImage: string;
+    slug: string;
+    brand: string;
+    quantity: number;
+}
+
 interface ProductProps {
-    product: {
-        id: string;
-        name: string;
-        price: number;
-        originPrice: number;
-        thumbImage: string;
-        slug: string;
-        brand: string;
-        quantity: number;
-    };
+    product: ProductCardProduct;
 }
 
 
@@ -121,7 +123,6 @@ export default function ProductCard({ product }: ProductProps) {
                 </div>
             )}
         </div>
-
-        </div >
     );
 }
+

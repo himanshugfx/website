@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+interface CartItem {
+    id: string;
+    quantity: number;
+    price: number;
+}
+
 export async function POST(request: Request) {
     try {
         const { cart, shippingInfo, userId, total, paymentMethod } = await request.json();
@@ -23,7 +29,7 @@ export async function POST(request: Request) {
                 paymentMethod: paymentMethod || 'ONLINE',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
-                    create: cart.map((item: any) => ({
+                    create: cart.map((item: CartItem) => ({
                         productId: item.id,
                         quantity: item.quantity,
                         price: item.price * item.quantity,

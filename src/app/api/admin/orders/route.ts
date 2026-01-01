@@ -12,7 +12,10 @@ export async function GET(request: Request) {
 
         const skip = (page - 1) * limit;
 
-        let where: any = {};
+        let where: {
+            paymentStatus?: string;
+            userId?: string | null;
+        } = {};
 
         if (abandoned) {
             where = {

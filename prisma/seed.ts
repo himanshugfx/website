@@ -37,7 +37,7 @@ async function main() {
                     images: JSON.stringify(product.images),
                     thumbImage: JSON.stringify(product.thumbImage),
                     variations: {
-                        create: product.variation.map((v: any) => ({
+                        create: product.variation.map((v: { color: string; colorCode: string; colorImage: string; image: string }) => ({
                             color: v.color,
                             colorCode: v.colorCode,
                             colorImage: v.colorImage,

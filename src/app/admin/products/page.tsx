@@ -147,7 +147,8 @@ export default function ProductsPage() {
                             <tbody className="divide-y divide-gray-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center">
+                                        <td colSpan={6} className="px-6 py-12 text-center">
+
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                                                 <p className="text-gray-500">Loading products...</p>
@@ -156,7 +157,8 @@ export default function ProductsPage() {
                                     </tr>
                                 ) : products.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center">
+                                        <td colSpan={6} className="px-6 py-12 text-center">
+
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
                                                     <Package className="w-8 h-8 text-purple-500" />

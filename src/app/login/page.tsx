@@ -143,7 +143,7 @@ function LoginForm() {
 
                         {!isAdminMode && (
                             <div className="text-secondary text-center mt-8">
-                                Don't have an account?{' '}
+                                Don&apos;t have an account?{' '}
                                 <Link href="/register" className="text-black font-bold pl-1 hover:underline">
                                     Register
                                 </Link>

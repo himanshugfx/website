@@ -7,6 +7,34 @@ import { useCart } from '@/context/CartContext';
 import { useSession } from 'next-auth/react';
 import { CreditCard, Truck, Smartphone, Loader2, CheckCircle } from 'lucide-react';
 
+interface RazorpayResponse {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
+
+interface RazorpayErrorResponse {
+    error: {
+        code: string;
+        description: string;
+        source: string;
+        step: string;
+        reason: string;
+        metadata: Record<string, unknown>;
+    };
+}
+
+interface RazorpayInstance {
+    open: () => void;
+    on: (event: string, handler: (response: RazorpayErrorResponse) => void) => void;
+}
+
+declare global {
+    interface Window {
+        Razorpay: new (options: Record<string, unknown>) => RazorpayInstance;
+    }
+}
+
 export default function CheckoutClient() {
     const { cart, cartTotal, clearCart } = useCart();
     const { data: session } = useSession();
@@ -145,7 +173,7 @@ export default function CheckoutClient() {
                             price: item.price,
                         })),
                         shippingInfo,
-                        userId: (session?.user as any)?.id || null,
+                        userId: session?.user?.id || null,
                         total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
                         promoCode: appliedPromo?.code || null,
                         discountAmount: appliedPromo?.discountAmount || 0,
@@ -177,7 +205,7 @@ export default function CheckoutClient() {
                     description: "Order Payment",
                     // image: "/logo.png", // Add your logo here
                     order_id: data.razorpayOrderId,
-                    handler: async function (response: any) {
+                    handler: async function (response: RazorpayResponse) {
                         // Validate payment on server
                         try {
                             const verifyRes = await fetch('/api/payment/verify', {
@@ -221,11 +249,11 @@ export default function CheckoutClient() {
                     },
                 };
 
-                const paymentObject = new (window as any).Razorpay(options);
+                const paymentObject = new window.Razorpay(options);
                 paymentObject.open();
 
                 // Handle modal close by user if needed? Razorpay handles this mostly.
-                paymentObject.on('payment.failed', function (response: any) {
+                paymentObject.on('payment.failed', function (response: RazorpayErrorResponse) {
                     setError(response.error.description || "Payment failed");
                     setLoading(false);
                 });
@@ -245,7 +273,7 @@ export default function CheckoutClient() {
                             price: item.price,
                         })),
                         shippingInfo,
-                        userId: (session?.user as any)?.id || null,
+                        userId: session?.user?.id || null,
                         total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
                         promoCode: appliedPromo?.code || null,
                         discountAmount: appliedPromo?.discountAmount || 0,
@@ -277,7 +305,7 @@ export default function CheckoutClient() {
                             price: item.price,
                         })),
                         shippingInfo,
-                        userId: (session?.user as any)?.id || null,
+                        userId: session?.user?.id || null,
                         total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
                         paymentMethod: 'COD',
                         promoCode: appliedPromo?.code || null,

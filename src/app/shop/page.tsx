@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import prisma from "@/lib/prisma";
-
+import type { ProductCardProduct } from "@/components/ProductCard";
 import ShopClient from "./ShopClient";
 
 export default async function ShopPage() {
@@ -25,7 +25,7 @@ export default async function ShopPage() {
 
     return (
         <ShopClient
-            initialProducts={products as any}
+            initialProducts={products as ProductCardProduct[]}
             categories={categories.map(c => c.category)}
             types={types.map(t => t.type)}
             brands={brands.map(b => b.brand)}

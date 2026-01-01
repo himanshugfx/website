@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 
 export default function CartPopup() {
     const { isPopupOpen, closePopup, lastAddedItem } = useCart();
-    const [recommended, setRecommended] = useState<any[]>([]);
+    const [recommended, setRecommended] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ export default function CartPopup() {
                     const res = await fetch('/api/admin/products?limit=20');
                     const data = await res.json();
                     if (data.products) {
-                        const others = data.products.filter((p: any) => p.id !== lastAddedItem.id);
+                        const others = data.products.filter((p: Product) => p.id !== lastAddedItem.id);
                         const shuffled = others.sort(() => 0.5 - Math.random());
                         setRecommended(shuffled.slice(0, 2));
                     }

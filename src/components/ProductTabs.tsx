@@ -2,21 +2,12 @@
 
 import { useState } from 'react';
 import ProductCard from '@/components/ProductCard';
-
-type Product = {
-    id: string;
-    name: string;
-    slug: string;
-    price: number;
-    image: string;
-    category: string;
-    [key: string]: any;
-};
+import type { ProductCardProduct } from '@/components/ProductCard';
 
 type ProductTabsProps = {
-    bestSellers: Product[];
-    onSale: Product[];
-    newArrivals: Product[];
+    bestSellers: ProductCardProduct[];
+    onSale: ProductCardProduct[];
+    newArrivals: ProductCardProduct[];
 };
 
 export default function ProductTabs({ bestSellers, onSale, newArrivals }: ProductTabsProps) {
@@ -54,7 +45,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                 {/* Products Grid */}
                 <div className="list-product grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 md:gap-[30px] gap-[16px]">
                     {activeProducts.map((product) => (
-                        <ProductCard key={product.id} product={product as any} />
+                        <ProductCard key={product.id} product={product} />
                     ))}
                 </div>
             </div>

@@ -21,18 +21,19 @@ interface WishlistContextType {
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
-
-    useEffect(() => {
-        const saved = localStorage.getItem('anose_wishlist');
-        if (saved) {
-            try {
-                setWishlist(JSON.parse(saved));
-            } catch (e) {
-                console.error("Failed to parse wishlist", e);
+    const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('anose_wishlist');
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch (e) {
+                    console.error("Failed to parse wishlist", e);
+                }
             }
         }
-    }, []);
+        return [];
+    });
 
     useEffect(() => {
         localStorage.setItem('anose_wishlist', JSON.stringify(wishlist));

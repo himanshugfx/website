@@ -13,7 +13,7 @@ export default function CartClient() {
             <div className="cart-block md:py-20 py-12">
                 <div className="container mx-auto text-center">
                     <div className="heading3">Your cart is empty</div>
-                    <p className="body1 text-secondary mt-4">Looks like you haven't added anything to your cart yet.</p>
+                    <p className="body1 text-secondary mt-4">Looks like you haven&apos;t added anything to your cart yet.</p>
                     <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8 hover:bg-purple-700 duration-300">
                         Go To Shop
                     </Link>

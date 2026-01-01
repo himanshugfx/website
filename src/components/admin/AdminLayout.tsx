@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import AdminHeader from './AdminHeader';
 
@@ -10,21 +10,19 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-    // Load collapsed state from localStorage
-    useEffect(() => {
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
         if (typeof window !== 'undefined') {
             try {
                 const saved = localStorage.getItem('adminSidebarCollapsed');
                 if (saved) {
-                    setSidebarCollapsed(JSON.parse(saved));
+                    return JSON.parse(saved);
                 }
             } catch (error) {
                 console.error('Error reading from localStorage:', error);
             }
         }
-    }, []);
+        return false;
+    });
 
     // Save collapsed state to localStorage
     const handleToggleCollapse = () => {

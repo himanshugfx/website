@@ -6,6 +6,14 @@ import Link from 'next/link';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCart } from '@/context/CartContext';
 
+interface WishlistItem {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    slug: string;
+}
+
 export default function WishlistClient() {
     const { wishlist, removeFromWishlist } = useWishlist();
     const { addToCart } = useCart();
@@ -24,7 +32,7 @@ export default function WishlistClient() {
         );
     }
 
-    const handleAddToCart = (item: any) => {
+    const handleAddToCart = (item: WishlistItem) => {
         addToCart({
             id: item.id,
             name: item.name,

@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
+interface VariationInput {
+    color: string;
+    colorCode: string;
+    colorImage: string;
+    image: string;
+}
+
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -57,7 +64,7 @@ export async function PUT(
                 variations: variations ? {
 
                     deleteMany: {},
-                    create: variations.map((v: any) => ({
+                    create: variations.map((v: VariationInput) => ({
                         color: v.color,
                         colorCode: v.colorCode,
                         colorImage: v.colorImage,

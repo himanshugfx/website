@@ -2,24 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import ProductCard from '@/components/ProductCard';
+import type { ProductCardProduct } from '@/components/ProductCard';
 import Link from 'next/link';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    originPrice: number;
-    thumbImage: string;
-    slug: string;
-    brand: string;
-    category: string;
-    type: string;
-    new: boolean;
-    sale: boolean;
-}
 
 interface ShopClientProps {
-    initialProducts: Product[];
+    initialProducts: ProductCardProduct[];
     categories: string[];
     types: string[];
     brands: string[];
@@ -160,7 +148,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
 
                             <div className="list-product grid lg:grid-cols-3 grid-cols-2 sm:gap-[30px] gap-[20px] mt-7">
                                 {filteredProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product as any} />
+                                    <ProductCard key={product.id} product={product} />
                                 ))}
                             </div>
 

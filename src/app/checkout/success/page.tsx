@@ -46,15 +46,15 @@ export default function CheckoutSuccessPage({
                         <ul className="space-y-3 text-sm text-gray-600">
                             <li className="flex items-start gap-3">
                                 <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
-                                <span>You'll receive an order confirmation email shortly.</span>
+                                <span>You&apos;ll receive an order confirmation email shortly.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
-                                <span>We'll process your order and prepare it for shipping.</span>
+                                <span>We&apos;ll process your order and prepare it for shipping.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
-                                <span>You'll receive tracking information once your order ships.</span>
+                                <span>You&apos;ll receive tracking information once your order ships.</span>
                             </li>
                         </ul>
                     </div>

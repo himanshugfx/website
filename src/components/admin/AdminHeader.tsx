@@ -26,7 +26,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 {/* Page title for desktop */}
                 <div className="hidden lg:block">
                     <h2 className="text-xl font-bold text-gray-900">Welcome back, {session?.user?.name?.split(' ')[0] || 'Admin'}! 👋</h2>
-                    <p className="text-sm text-gray-500 mt-1">Here's what's happening with your store today.</p>
+                    <p className="text-sm text-gray-500 mt-1">Here&apos;s what&apos;s happening with your store today.</p>
                 </div>
 
                 <div className="flex-1 lg:flex-none"></div>

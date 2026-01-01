@@ -65,7 +65,7 @@ export default function BlogPage() {
                             <div className="text-content text-center">
                                 <h2 className="heading2 font-bold text-4xl">Blog Grid</h2>
                                 <div className="link flex items-center justify-center gap-1 caption1 mt-3 text-zinc-500">
-                                    <a href="/" className="hover:text-black">Homepage</a>
+                                    <Link href="/" className="hover:text-black">Homepage</Link>
                                     <i className="ph ph-caret-right text-sm"></i>
                                     <div className="capitalize">Blog Grid</div>
                                 </div>

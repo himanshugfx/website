@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
+interface VariationInput {
+    color: string;
+    colorCode: string;
+    colorImage: string;
+    image: string;
+}
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -77,7 +84,7 @@ export async function POST(request: Request) {
                 images: data.images,
                 thumbImage: data.thumbImage,
                 variations: data.variations ? {
-                    create: data.variations.map((v: any) => ({
+                    create: data.variations.map((v: VariationInput) => ({
                         color: v.color,
                         colorCode: v.colorCode,
                         colorImage: v.colorImage,

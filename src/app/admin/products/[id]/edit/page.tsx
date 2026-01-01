@@ -497,18 +497,10 @@ export default function EditProductPage({ params }: PageProps) {
                                             </div>
                                         );
                                     })}
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.bestSeller}
-                                            onChange={(e) => setFormData({ ...formData, bestSeller: e.target.checked })}
-                                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                                        />
-                                        <span className="text-sm font-medium text-gray-700">Best Seller</span>
-                                    </label>
                                 </div>
                             </div>
                         </div>
+
 
                     </div>
 
@@ -689,7 +681,19 @@ export default function EditProductPage({ params }: PageProps) {
                                 />
                                 <span className="text-sm font-medium text-gray-700">On Sale</span>
                             </label>
+
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    name="bestSeller"
+                                    checked={formData.bestSeller}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                />
+                                <span className="text-sm font-medium text-gray-700">Best Seller</span>
+                            </label>
                         </div>
+
                     </div>
 
                     {/* Actions */}
