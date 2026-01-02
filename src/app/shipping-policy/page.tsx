@@ -29,7 +29,6 @@ export default function ShippingPolicyPage() {
                                 <ul className="list-disc list-inside text-zinc-700 space-y-2">
                                     <li>Standard Shipping: 5-7 business days</li>
                                     <li>Express Shipping: 2-3 business days (additional charges apply)</li>
-                                    <li>International Shipping: 10-15 business days</li>
                                 </ul>
                             </section>
 
@@ -39,9 +38,8 @@ export default function ShippingPolicyPage() {
                                     Shipping charges are calculated based on the weight of your order and delivery location:
                                 </p>
                                 <ul className="list-disc list-inside text-zinc-700 space-y-2">
-                                    <li>Orders above ₹500: Free shipping</li>
-                                    <li>Orders below ₹500: ₹50 shipping charges</li>
-                                    <li>Express shipping: Additional ₹100</li>
+                                    <li>Orders above ₹199: Free shipping</li>
+                                    <li>Orders below ₹199: ₹49 shipping charges</li>
                                 </ul>
                             </section>
 
