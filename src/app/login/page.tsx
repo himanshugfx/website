@@ -113,7 +113,7 @@ function LoginForm() {
 
                             <button
                                 className={`button-main w-full py-4 rounded-xl duration-300 font-bold uppercase disabled:cursor-not-allowed ${isAdminMode
-                                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-200'
+                                    ? 'bg-purple-600 hover:bg-black text-white shadow-lg shadow-black'
                                     : 'bg-black hover:bg-zinc-800 text-white'
                                     }`}
                                 disabled={loading}
@@ -133,22 +133,13 @@ function LoginForm() {
                                 ) : (
                                     <Link
                                         href="/login?callbackUrl=/admin"
-                                        className="block w-full text-center border border-zinc-200 py-3 rounded-xl hover:bg-zinc-50 duration-300 font-bold uppercase text-sm transition-colors"
+                                        className="block w-full text-center border border-black py-3 rounded-xl hover:bg-black text-white duration-300 font-bold uppercase text-sm transition-colors"
                                     >
                                         Admin Login
                                     </Link>
                                 )}
                             </div>
                         </form>
-
-                        {!isAdminMode && (
-                            <div className="text-secondary text-center mt-8">
-                                Don&apos;t have an account?{' '}
-                                <Link href="/register" className="text-black font-bold pl-1 hover:underline">
-                                    Register
-                                </Link>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
