@@ -38,19 +38,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 <div className="hidden lg:flex-1 lg:flex-none"></div>
 
 
-                {/* Right section */}
                 <div className="flex items-center gap-2 sm:gap-4">
-                    {/* Notifications */}
-                    <button className="p-2.5 text-gray-400 rounded-xl transition-all duration-200 relative group">
-                        <Bell className="w-5 h-5" />
-                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </button>
-
-                    {/* Settings */}
-                    <button className="p-2.5 text-gray-400 rounded-xl transition-all duration-200 group">
-                        <Settings className="w-5 h-5" />
-                    </button>
-
                     <div className="h-8 w-px bg-gray-200 mx-2 hidden sm:block"></div>
 
                     {/* User menu */}
@@ -59,9 +47,6 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                             onClick={() => setDropdownOpen(!dropdownOpen)}
                             className="flex items-center gap-3 px-2 py-1.5 rounded-xl border border-transparent"
                         >
-                            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg text-white font-semibold text-lg ring-2 ring-white">
-                                {session?.user?.name?.charAt(0) || 'A'}
-                            </div>
                             <div className="hidden sm:block text-left">
                                 <p className="font-semibold text-gray-900 text-sm leading-none">{session?.user?.name || 'Admin'}</p>
                                 <p className="text-xs text-gray-500 mt-1 font-medium">Administrator</p>

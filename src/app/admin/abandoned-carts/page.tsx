@@ -12,6 +12,7 @@ interface Order {
     status: string;
     paymentStatus: string;
     paymentMethod: string;
+    address: string | null;
     createdAt: string;
     user: {
         name: string | null;
@@ -106,8 +107,30 @@ export default function AbandonedCartsPage() {
                                         <tr key={order.id} className="hover:bg-gray-50/50">
                                             <td className="px-6 py-4 font-mono text-sm">#{order.id.slice(0, 8)}</td>
                                             <td className="px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">{order.user?.name || 'Guest'}</div>
-                                                <div className="text-xs text-gray-500">{order.user?.email || 'No email'}</div>
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {(() => {
+                                                        if (order.user?.name) return order.user.name;
+                                                        if (order.address) {
+                                                            try {
+                                                                const addr = JSON.parse(order.address);
+                                                                return `${addr.firstName} ${addr.lastName}`;
+                                                            } catch (e) { return 'Guest'; }
+                                                        }
+                                                        return 'Guest';
+                                                    })()}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {(() => {
+                                                        if (order.user?.email) return order.user.email;
+                                                        if (order.address) {
+                                                            try {
+                                                                const addr = JSON.parse(order.address);
+                                                                return addr.email;
+                                                            } catch (e) { return 'No email'; }
+                                                        }
+                                                        return 'No email';
+                                                    })()}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm font-semibold text-gray-900">INR {order.total.toLocaleString()}</td>
                                             <td className="px-6 py-4 text-sm text-gray-500">

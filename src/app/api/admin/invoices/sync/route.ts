@@ -3,11 +3,14 @@ import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { getInvoices } from '@/lib/zoho';
 
+import { authOptions } from '@/lib/auth';
+
 export async function POST() {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
 
         if (!session || (session.user as { role?: string })?.role !== 'admin') {
+            console.log('Unauthorized access attempt:', session?.user);
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -24,7 +27,7 @@ export async function POST() {
         let hasMore = true;
         let syncedCount = 0;
 
-        while (hasMore && page <= 10) { // Limit to 10 pages (500 invoices max)
+        while (hasMore && page <= 100) { // Limit to 100 pages (5000 invoices max)
             const response = await getInvoices({ page, per_page: 50 });
 
             for (const invoice of response.invoices) {
