@@ -588,7 +588,7 @@ export default function CheckoutClient() {
                                         <button
                                             onClick={handleApplyPromo}
                                             disabled={applyingPromo || !promoCodeInput}
-                                            className="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
+                                            className="bg-black text-white px-6 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
                                         >
                                             {applyingPromo ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                                         </button>

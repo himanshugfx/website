@@ -113,7 +113,7 @@ function LoginForm() {
 
                             <button
                                 className={`button-main w-full py-4 rounded-xl font-bold uppercase disabled:cursor-not-allowed ${isAdminMode
-                                    ? 'bg-purple-600 text-white shadow-lg'
+                                    ? 'bg-black text-white shadow-lg'
                                     : 'bg-black text-white'
                                     }`}
                                 disabled={loading}
