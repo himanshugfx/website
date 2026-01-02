@@ -54,9 +54,9 @@ export default async function Home() {
       </div>
 
       {/* Banner Block */}
-      <div className="banner-block pt-10 px-5">
+      <div className="banner-block md:py-20 py-10 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="list-banner grid lg:grid-cols-3 sm:grid-cols-2 gap-[20px]">
+          <div className="list-banner grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
             {[
               { title: "Skin Care", img: "/assets/images/banner/18.png" },
               { title: "Hair Care", img: "/assets/images/banner/19.png" },

@@ -108,7 +108,7 @@ export default async function AdminDashboard() {
                 {/* Recent Orders */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                        <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
                                 <p className="text-sm text-gray-500 mt-1">Latest orders from your store</p>
@@ -198,13 +198,13 @@ export default async function AdminDashboard() {
                     </div>
 
                     {/* Quick Actions / Mini Stats */}
-                    <div className="space-y-6">
-                        <div className="bg-black rounded-2xl p-6 text-white">
+                    <div className="space-y-8">
+                        <div className="bg-black rounded-2xl p-8 text-white">
                             <h3 className="text-lg font-bold mb-1">Quick Action</h3>
                             <p className="text-gray-400 text-sm mb-6 opacity-90">Add new products to your store inventory.</p>
                             <Link
                                 href="/admin/products/add"
-                                className="flex items-center justify-center gap-2 w-full py-3 bg-purple-600 text-white rounded-xl font-bold transition-colors"
+                                className="flex items-center justify-center gap-2 w-full py-4 bg-purple-600 text-white rounded-xl font-bold transition-colors"
                             >
                                 <Package className="w-5 h-5" />
                                 Add Product

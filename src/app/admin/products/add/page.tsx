@@ -93,11 +93,11 @@ export default function AddProductPage() {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow border border-gray-200 p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-8">
                     {/* Basic Information */}
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-6 font-bold">Basic Information</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Product Name *
@@ -185,8 +185,8 @@ export default function AddProductPage() {
 
                     {/* Pricing & Inventory */}
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-6 font-bold">Pricing & Inventory</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Price (₹) *
@@ -238,8 +238,8 @@ export default function AddProductPage() {
 
                     {/* Product Details */}
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Details</h2>
-                        <div className="space-y-4">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-6 font-bold">Product Details</h2>
+                        <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Description *

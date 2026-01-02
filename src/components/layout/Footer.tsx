@@ -2,9 +2,9 @@ import Link from 'next/link'
 
 export default function Footer() {
     return (
-        <footer id="footer" className="footer md:pt-20 pt-10 bg-white px-4 sm:px-6">
+        <footer id="footer" className="footer md:py-20 py-10 bg-white px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <div className="footer-main grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 pb-8 sm:pb-10 border-b border-line">
+                <div className="footer-main grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 sm:pb-10 border-b border-line">
                     {/* Top Left - Company Info */}
                     <div className="footer-item">
                         <Link href="/" className="logo text-2xl sm:text-3xl font-semibold block mb-4 sm:mb-5">Anose</Link>
@@ -66,10 +66,10 @@ export default function Footer() {
                             Subscribe to stay updated on our latest products and exclusive offers.
                         </div>
                         <div className="form-input relative">
-                            <input 
-                                type="email" 
-                                placeholder="Email Address" 
-                                className="h-11 sm:h-12 w-full border-b border-line pb-1 outline-none caption1 text-sm sm:text-base pr-20 sm:pr-24" 
+                            <input
+                                type="email"
+                                placeholder="Email Address"
+                                className="h-11 sm:h-12 w-full border-b border-line pb-1 outline-none caption1 text-sm sm:text-base pr-20 sm:pr-24"
                             />
                             <button className="absolute right-0 top-1/2 -translate-y-1/2 text-button-uppercase hover:text-black duration-300 text-xs sm:text-sm whitespace-nowrap">SUBSCRIBE</button>
                         </div>

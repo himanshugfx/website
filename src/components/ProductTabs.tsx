@@ -32,8 +32,8 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${activeTab === tab.id
-                                        ? 'bg-white text-black shadow-md'
-                                        : 'text-zinc-500 hover:text-zinc-700'
+                                    ? 'bg-white text-black shadow-md'
+                                    : 'text-zinc-500 hover:text-zinc-700'
                                     }`}
                             >
                                 {tab.label}
@@ -43,7 +43,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                 </div>
 
                 {/* Products Grid */}
-                <div className="list-product grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 md:gap-[30px] gap-[16px]">
+                <div className="list-product grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-6">
                     {activeProducts.map((product) => (
                         <ProductCard key={product.id} product={product} />
                     ))}
