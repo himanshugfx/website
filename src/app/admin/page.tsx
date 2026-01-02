@@ -78,7 +78,8 @@ export default async function AdminDashboard() {
         <AdminLayout>
             <div className="space-y-8">
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}
@@ -186,19 +187,13 @@ export default async function AdminDashboard() {
                                 <tbody className="divide-y divide-gray-100">
                                     {recentOrders.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
-                                                        <ShoppingCart className="w-8 h-8 text-gray-300" />
-                                                    </div>
-                                                    <p className="text-gray-900 font-medium">No orders yet</p>
-                                                    <p className="text-gray-500 text-sm">When you get orders, they&apos;ll show up here.</p>
-                                                </div>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                                No orders yet
                                             </td>
                                         </tr>
                                     ) : (
                                         recentOrders.map((order) => (
-                                            <tr key={order.id} className="group border-b border-gray-100">
+                                            <tr key={order.id} className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
                                                         #{order.orderNumber}
@@ -206,7 +201,7 @@ export default async function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
+                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black text-white flex items-center justify-center font-bold text-xs shadow-sm">
                                                             {(order.user?.name || 'G').charAt(0)}
                                                         </div>
                                                         <div>
@@ -235,7 +230,7 @@ export default async function AdminDashboard() {
                                                 <td className="px-6 py-4 text-right">
                                                     <Link
                                                         href={`/admin/orders/${order.id}`}
-                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-purple-600"
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                                                     >
                                                         <ChevronRight className="w-5 h-5" />
                                                     </Link>
@@ -250,12 +245,12 @@ export default async function AdminDashboard() {
 
                     {/* Quick Actions / Mini Stats */}
                     <div className="space-y-4 sm:space-y-8">
-                        <div className="bg-black rounded-2xl p-5 sm:p-8 text-white">
+                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 sm:p-8 text-white shadow-lg shadow-gray-200">
                             <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
                             <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new products to your store inventory.</p>
                             <Link
                                 href="/admin/products/add"
-                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-purple-600 text-white rounded-xl font-bold transition-colors text-sm sm:text-base"
+                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-white text-black rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base mb-3"
                             >
                                 <Package className="w-5 h-5" />
                                 Add Product
