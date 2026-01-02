@@ -45,27 +45,29 @@ async function getStats() {
 
         const totalProducts = await prisma.product.count();
 
-        // 3. Unique Customers (Store Users + unique Zoho Customer IDs not in store)
+        // 3. Unique Customers (Store Users + unique Zoho Customer IDs)
+        // Note: This is an estimate since we don't have a shared ID between Store and Zoho
         const storeUserIds = new Set(orders.map(o => o.userId).filter(Boolean));
         const zohoCustomerIds = new Set(invoices.map(i => i.customerId));
 
-        // This is an approximation as we don't have a strict mapping, 
-        // but it covers both online and offline shoppers.
+        // Sum of unique store users and unique Zoho customers
         const totalUniqueCustomers = storeUserIds.size + zohoCustomerIds.size;
+        const fallbackUsers = await prisma.user.count();
 
         return {
             totalRevenue,
             totalOrders,
             totalProducts,
-            totalUsers: totalUniqueCustomers || await prisma.user.count(),
+            totalUsers: totalUniqueCustomers > 0 ? totalUniqueCustomers : fallbackUsers,
         };
     } catch (error) {
         console.error('Error fetching stats:', error);
+        const fallbackUsers = await prisma.user.count().catch(() => 0);
         return {
             totalRevenue: 0,
             totalOrders: 0,
             totalProducts: 0,
-            totalUsers: 0,
+            totalUsers: fallbackUsers,
         };
     }
 }

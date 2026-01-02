@@ -1,21 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin/auth';
 import { getInvoicePdfBuffer } from '@/lib/zoho';
 import prisma from '@/lib/prisma';
 
 export async function GET(
-    request: NextRequest,
-    { params }: { params: { id: string } }
+    _request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session || (session.user as { role?: string })?.role !== 'admin') {
-            return new NextResponse('Unauthorized', { status: 401 });
-        }
-
-        const { id } = params;
+        await requireAdmin();
+        const { id } = await params;
 
         // Find invoice in database to get zohoInvoiceId
         const invoice = await prisma.invoice.findUnique({
