@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
-// Load .env from project root
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const clientId = process.env.ZOHO_CLIENT_ID;
@@ -9,16 +9,24 @@ const clientSecret = process.env.ZOHO_CLIENT_SECRET;
 const refreshToken = process.env.ZOHO_REFRESH_TOKEN;
 const organizationId = process.env.ZOHO_ORGANIZATION_ID;
 
-console.log('Testing Zoho Configuration...');
-console.log('Client ID:', clientId ? 'Set' : 'Missing');
-console.log('Client Secret:', clientSecret ? 'Set' : 'Missing');
-console.log('Refresh Token:', refreshToken ? 'Set' : 'Missing');
-console.log('Organization ID:', organizationId);
+const logFile = 'zoho-debug.txt';
+function log(msg: string) {
+    console.log(msg);
+    fs.appendFileSync(logFile, msg + '\n');
+}
 
-async function testZoho() {
+fs.writeFileSync(logFile, 'Starting Test (Invoices)...\n');
+
+log('Testing Zoho Connectivity...');
+log(`Client ID: ${clientId ? 'Set' : 'Missing'}`);
+log(`Client Secret: ${clientSecret ? 'Set' : 'Missing'}`);
+log(`Refresh Token: ${refreshToken ? 'Set' : 'Missing'}`);
+log(`Org ID: ${organizationId}`);
+
+async function testConnection() {
     try {
-        // 1. Try to get Access Token
-        console.log('\n1. Attempting to refresh access token...');
+        // 1. Refresh Token
+        log('\n1. Refreshing Access Token...');
         const tokenUrl = 'https://accounts.zoho.in/oauth/v2/token';
         const params = new URLSearchParams({
             refresh_token: refreshToken!,
@@ -27,44 +35,43 @@ async function testZoho() {
             grant_type: 'refresh_token',
         });
 
-        const tokenResponse = await fetch(`${tokenUrl}?${params.toString()}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
-
-        const tokenData = await tokenResponse.json();
+        const tokenRes = await fetch(`${tokenUrl}?${params.toString()}`, { method: 'POST' });
+        const tokenData = await tokenRes.json();
 
         if (tokenData.error) {
-            console.error('❌ Token Refresh Failed:', tokenData);
+            log(`❌ Token Refresh Failed: ${JSON.stringify(tokenData, null, 2)}`);
             return;
         }
 
-        console.log('✅ Access Token obtained successfully.');
+        log('✅ Access Token Obtained');
         const accessToken = tokenData.access_token;
 
-        // 2. Try to fetch Invoices
-        console.log('\n2. Attempting to fetch invoices...');
-        const apiDomain = process.env.ZOHO_API_DOMAIN || 'https://www.zohoapis.in';
-        const invoiceUrl = `${apiDomain}/invoice/v3/invoices`;
+        // 2. Fetch Invoices
+        log('\n2. Fetching Invoices...');
+        const invoiceUrl = `https://www.zohoapis.in/invoice/v3/invoices`;
 
-        const invoiceResponse = await fetch(invoiceUrl, {
+        const invoiceRes = await fetch(invoiceUrl, {
             headers: {
                 'Authorization': `Zoho-oauthtoken ${accessToken}`,
                 'X-com-zoho-invoice-organizationid': organizationId!,
+                'Content-Type': 'application/json',
             }
         });
 
-        const invoiceData = await invoiceResponse.json();
+        const invoiceData = await invoiceRes.json();
 
         if (invoiceData.code !== 0) {
-            console.error('❌ Invoice Fetch Failed:', invoiceData);
+            log(`❌ API Call Failed: ${JSON.stringify(invoiceData, null, 2)}`);
         } else {
-            console.log(`✅ Connection Successful! Found ${invoiceData.page_context?.total_count || 0} invoices.`);
+            log(`✅ Success! Found ${invoiceData.invoices.length} invoices.`);
+            if (invoiceData.invoices.length > 0) {
+                log(`First Invoice: ${invoiceData.invoices[0].invoice_number}`);
+            }
         }
 
-    } catch (error) {
-        console.error('❌ Unexpected Error:', error);
+    } catch (error: any) {
+        log(`❌ Fatal Error: ${error.toString()}`);
     }
 }
 
-testZoho();
+testConnection();
