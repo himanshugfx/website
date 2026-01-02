@@ -101,10 +101,10 @@ export default async function AdminDashboard() {
 
     return (
         <AdminLayout>
-            <div className="space-y-8">
+            <div className="space-y-6">
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}
@@ -132,8 +132,8 @@ export default async function AdminDashboard() {
                 </div>
 
                 {/* Recent Orders */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
                             <div>
                                 <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Transactions</h2>

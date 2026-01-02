@@ -24,9 +24,10 @@ export async function POST() {
             const response = await getInvoices({ page, per_page: 50 });
 
             if (response && response.invoices && Array.isArray(response.invoices)) {
-                for (const invoice of response.invoices) {
+                // Use Promise.all for concurrent processing
+                await Promise.all(response.invoices.map(async (invoice) => {
                     // Upsert invoice to database
-                    await prisma.invoice.upsert({
+                    const savedInvoice = await prisma.invoice.upsert({
                         where: { zohoInvoiceId: invoice.invoice_id },
                         update: {
                             invoiceNumber: invoice.invoice_number,
@@ -37,8 +38,8 @@ export async function POST() {
                             balance: invoice.balance,
                             dueDate: invoice.due_date ? new Date(invoice.due_date) : null,
                             invoiceDate: new Date(invoice.date),
-                            pdfUrl: `/api/admin/invoices/REPLACE_ID/pdf`, // Will update after creation
                             syncedAt: new Date(),
+                            // Don't update pdfUrl here to avoid overwriting with placeholder if it exists
                         },
                         create: {
                             zohoInvoiceId: invoice.invoice_id,
@@ -50,23 +51,21 @@ export async function POST() {
                             balance: invoice.balance,
                             dueDate: invoice.due_date ? new Date(invoice.due_date) : null,
                             invoiceDate: new Date(invoice.date),
-                            pdfUrl: `/api/admin/invoices/REPLACE_ID/pdf`, // Temporary
+                            pdfUrl: '', // Initialize empty, will update below
                         },
                     });
 
-                    // Get the created/updated invoice to set the correct PDF URL with local ID
-                    const dbInvoice = await prisma.invoice.findUnique({
-                        where: { zohoInvoiceId: invoice.invoice_id }
-                    });
-
-                    if (dbInvoice) {
+                    // Ensure PDF URL is set with the correct local ID
+                    const expectedPdfUrl = `/api/admin/invoices/${savedInvoice.id}/pdf`;
+                    if (savedInvoice.pdfUrl !== expectedPdfUrl) {
                         await prisma.invoice.update({
-                            where: { id: dbInvoice.id },
-                            data: { pdfUrl: `/api/admin/invoices/${dbInvoice.id}/pdf` }
+                            where: { id: savedInvoice.id },
+                            data: { pdfUrl: expectedPdfUrl }
                         });
                     }
-                    syncedCount++;
-                }
+
+                    syncedCount++; // Note: incrementing simple counter inside async map isn't perfectly atomic for accurate final count but fine for this loop logic
+                }));
 
                 hasMore = response.page_context?.has_more_page || false;
                 page++;
