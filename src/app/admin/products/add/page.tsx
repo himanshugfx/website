@@ -293,7 +293,7 @@ export default function AddProductPage() {
                                 <label className="block text-sm font-medium text-gray-700">
                                     Main Thumbnail (Search & List View) *
                                 </label>
-                                <div className="flex items-center gap-4 p-4 border-2 border-dashed border-gray-200 rounded-2xl hover:border-purple-300 transition-colors bg-gray-50/50">
+                                <div className="flex items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-2xl hover:border-black transition-colors bg-gray-50/50">
                                     {formData.thumbImage ? (
                                         <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
                                             <img
@@ -612,7 +612,7 @@ export default function AddProductPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-6 py-2 bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-black text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-900"
                         >
                             {loading ? 'Creating...' : 'Create Product'}
                         </button>

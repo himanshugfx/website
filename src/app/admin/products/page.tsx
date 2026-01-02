@@ -219,21 +219,21 @@ export default function ProductsPage() {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'bestSeller', product.bestSeller)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.bestSeller ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.bestSeller ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle Best Seller"
                                                     >
                                                         BEST
                                                     </button>
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'sale', product.sale)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.sale ? 'bg-black text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.sale ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle On Sale"
                                                     >
                                                         SALE
                                                     </button>
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'new', product.new)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.new ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.new ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle New Arrival"
                                                     >
                                                         NEW
@@ -245,13 +245,13 @@ export default function ProductsPage() {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         href={`/admin/products/${product.id}/edit`}
-                                                        className="p-2 text-white bg-purple-600 rounded-lg"
+                                                        className="p-2 text-white bg-black rounded-lg hover:bg-gray-800 transition-colors"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Link>
                                                     <button
                                                         onClick={() => handleDelete(product.id)}
-                                                        className="p-2 text-white bg-black rounded-lg"
+                                                        className="p-2 text-white bg-black rounded-lg hover:bg-gray-800 transition-colors"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -270,7 +270,7 @@ export default function ProductsPage() {
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-gray-800"
                             >
                                 Previous
                             </button>
@@ -280,7 +280,7 @@ export default function ProductsPage() {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-gray-800"
                             >
                                 Next
                             </button>

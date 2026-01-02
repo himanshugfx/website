@@ -446,7 +446,7 @@ export default function PromoCodesPage() {
                                     <button
                                         type="submit"
                                         disabled={creating}
-                                        className="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2"
+                                        className="px-6 py-2 bg-black text-white font-bold rounded-lg transition-colors flex items-center gap-2 hover:bg-gray-900"
                                     >
                                         {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                                         Create Code

@@ -141,7 +141,7 @@ export default function ProductCard({ product }: ProductProps) {
 
                 <div className="absolute bottom-3 left-3 right-3 translate-y-0 opacity-100">
                     <button
-                        className={`w-full py-2 rounded-full text-sm font-bold shadow-md uppercase border ${product.quantity <= 0 ? 'bg-gray-400 text-white border-gray-400 cursor-not-allowed' : 'bg-purple-600 text-white border-purple-600'}`}
+                        className={`w-full py-2 rounded-full text-sm font-bold shadow-md uppercase border ${product.quantity <= 0 ? 'bg-gray-400 text-white border-gray-400 cursor-not-allowed' : 'bg-black text-white border-black hover:bg-gray-900'}`}
                         onClick={handleAddToCart}
                         disabled={product.quantity <= 0}
                     >

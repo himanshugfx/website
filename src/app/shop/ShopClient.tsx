@@ -109,6 +109,30 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                     <div className="flex max-md:flex-wrap max-md:flex-col-reverse gap-y-8">
                         <div className="sidebar lg:w-1/4 md:w-1/3 w-full md:pr-12">
                             <div className="filter-type-block pb-8 border-b border-line">
+                                <div className="heading6">Labels</div>
+                                <div className="list-type filter-type menu-tab mt-4 flex flex-col gap-2">
+                                    <div
+                                        className={`item tab-item flex items-center justify-between cursor-pointer ${selectedLabel === 'new' ? 'text-black font-bold' : 'text-secondary'}`}
+                                        onClick={() => setSelectedLabel(selectedLabel === 'new' ? null : 'new')}
+                                    >
+                                        <div className="type-name has-line-before hover:text-black capitalize">New Arrivals</div>
+                                    </div>
+                                    <div
+                                        className={`item tab-item flex items-center justify-between cursor-pointer ${selectedLabel === 'sale' ? 'text-black font-bold' : 'text-secondary'}`}
+                                        onClick={() => setSelectedLabel(selectedLabel === 'sale' ? null : 'sale')}
+                                    >
+                                        <div className="type-name has-line-before hover:text-black capitalize">On Sale</div>
+                                    </div>
+                                    <div
+                                        className={`item tab-item flex items-center justify-between cursor-pointer ${selectedLabel === 'best' ? 'text-black font-bold' : 'text-secondary'}`}
+                                        onClick={() => setSelectedLabel(selectedLabel === 'best' ? null : 'best')}
+                                    >
+                                        <div className="type-name has-line-before hover:text-black capitalize">Best Sellers</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="filter-type-block pb-8 border-b border-line mt-8">
                                 <div className="heading6">Products Type</div>
                                 <div className="list-type filter-type menu-tab mt-4">
                                     {types.map(type => (
@@ -140,7 +164,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             </div>
 
                             <button
-                                className="button-main w-full py-2 bg-purple-600 text-white rounded-lg mt-5 font-bold"
+                                className="button-main w-full py-2 bg-black text-white rounded-lg mt-5 font-bold hover:bg-gray-800 transition-colors"
                                 onClick={() => {
                                     setSelectedCategory(null);
                                     setSelectedType(null);

@@ -708,7 +708,7 @@ export default function EditProductPage({ params }: PageProps) {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="px-6 py-2 bg-purple-600 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="px-6 py-2 bg-black text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 hover:bg-gray-900"
                         >
                             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                             {saving ? 'Saving...' : 'Save Changes'}
