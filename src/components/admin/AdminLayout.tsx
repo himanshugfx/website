@@ -48,12 +48,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             />
 
             {/* Main Content */}
-            <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
+            <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'} min-h-screen flex flex-col`}>
                 {/* Header */}
                 <AdminHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 {/* Page Content */}
-                <main className="py-8 px-4 sm:px-6 lg:px-8">
+                <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
                     {children}
                 </main>
             </div>
@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {/* Overlay for mobile */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 lg:hidden"
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

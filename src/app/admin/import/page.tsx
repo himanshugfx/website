@@ -150,7 +150,7 @@ export default function ImportOrdersPage() {
                             <button
                                 onClick={handleUpload}
                                 disabled={uploading}
-                                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full px-6 py-3 bg-black text-white rounded-xl font-semibold hover:black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {uploading ? (
                                     <>

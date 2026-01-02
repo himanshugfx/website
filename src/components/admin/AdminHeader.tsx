@@ -13,7 +13,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
             <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
                 {/* Mobile menu button */}
                 <button

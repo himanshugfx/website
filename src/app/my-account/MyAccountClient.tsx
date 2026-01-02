@@ -163,13 +163,13 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-300 w-full text-left
+                                        className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-semibold transition-all duration-300 w-full text-left
                                             ${activeTab === tab.id
-                                                ? 'bg-purple-600 text-white shadow-md'
+                                                ? 'bg-purple-50 text-black shadow-sm ring-1 ring-purple-100'
                                                 : 'text-zinc-600 hover:bg-zinc-50 hover:text-purple-600'
                                             }`}
                                     >
-                                        <i className={`ph ${tab.icon} text-xl`}></i>
+                                        <i className={`ph ${tab.icon} text-xl ${activeTab === tab.id ? 'text-purple-600' : ''}`}></i>
                                         {tab.label}
                                     </button>
                                 ))}
@@ -212,16 +212,46 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                     ))}
                                 </div>
 
-                                <div className="recent-orders bg-white rounded-2xl border border-zinc-100 shadow-sm p-8 text-center mt-8">
-                                    <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-300">
-                                        <i className="ph ph-shopping-cart text-3xl"></i>
+                                {orders.length > 0 ? (
+                                    <div className="recent-orders bg-white rounded-2xl border border-zinc-100 shadow-sm p-6 mt-8">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h5 className="text-lg font-bold text-zinc-900">Recent Orders</h5>
+                                            <button onClick={() => setActiveTab('orders')} className="text-purple-600 font-bold text-sm hover:underline">View All</button>
+                                        </div>
+                                        <div className="space-y-4">
+                                            {orders.slice(0, 3).map((order) => (
+                                                <div key={order.id} className="flex items-center justify-between p-4 bg-zinc-50 rounded-xl border border-zinc-100">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 bg-white rounded-lg border border-zinc-200 flex items-center justify-center">
+                                                            <i className="ph ph-receipt text-xl text-zinc-400"></i>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-zinc-900">Order #{order.orderNumber}</p>
+                                                            <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-bold text-zinc-900">₹{order.total.toLocaleString()}</p>
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(order.status)}`}>
+                                                            {order.status}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <h5 className="text-lg font-bold text-zinc-900">No Recent Orders</h5>
-                                    <p className="text-zinc-500 mt-2 mb-6">Looks like you haven&apos;t placed any orders yet.</p>
-                                    <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105">
-                                        Start Shopping
-                                    </Link>
-                                </div>
+                                ) : (
+                                    <div className="recent-orders bg-white rounded-2xl border border-zinc-100 shadow-sm p-8 text-center mt-8">
+                                        <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-300">
+                                            <i className="ph ph-shopping-cart text-3xl"></i>
+                                        </div>
+                                        <h5 className="text-lg font-bold text-zinc-900">No Recent Orders</h5>
+                                        <p className="text-zinc-500 mt-2 mb-6">Looks like you haven&apos;t placed any orders yet.</p>
+                                        <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105">
+                                            Start Shopping
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -253,10 +283,10 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             <span className="text-lg font-bold text-zinc-900">{order.orderNumber}</span>
                                                         </div>
                                                         <div className="text-sm text-zinc-500">
-                                                            {new Date(order.createdAt).toLocaleDateString('en-US', { 
-                                                                year: 'numeric', 
-                                                                month: 'long', 
-                                                                day: 'numeric' 
+                                                            {new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric'
                                                             })}
                                                         </div>
                                                     </div>
@@ -267,12 +297,25 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                         <span className="text-lg font-bold text-zinc-900">₹{order.total.toLocaleString()}</span>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="space-y-3 mb-4">
                                                     {order.items.map((item) => (
                                                         <div key={item.id} className="flex items-center gap-4 p-3 bg-zinc-50 rounded-xl">
-                                                            <img 
-                                                                src={typeof item.product.thumbImage === 'string' ? item.product.thumbImage : JSON.parse(item.product.thumbImage as string)} 
+                                                            <img
+                                                                src={(() => {
+                                                                    try {
+                                                                        if (typeof item.product.thumbImage === 'string') {
+                                                                            if (item.product.thumbImage.startsWith('[') || item.product.thumbImage.startsWith('{')) {
+                                                                                const parsed = JSON.parse(item.product.thumbImage);
+                                                                                return Array.isArray(parsed) ? parsed[0] : parsed;
+                                                                            }
+                                                                            return item.product.thumbImage;
+                                                                        }
+                                                                        return '/images/placeholder.jpg';
+                                                                    } catch (e) {
+                                                                        return '/images/placeholder.jpg';
+                                                                    }
+                                                                })()}
                                                                 alt={item.product.name}
                                                                 className="w-16 h-16 object-cover rounded-lg"
                                                             />
