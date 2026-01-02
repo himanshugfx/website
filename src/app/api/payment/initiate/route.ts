@@ -15,7 +15,7 @@ const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
 
 export async function POST(request: Request) {
     try {
-        const { cart, shippingInfo, userId, total, promoCode, discountAmount, paymentMethod } = await request.json();
+        const { cart, shippingInfo, userId, total, promoCode, discountAmount, paymentMethod, shippingFee } = await request.json();
 
         // Validate required fields
         if (!cart || !total) {
@@ -30,6 +30,9 @@ export async function POST(request: Request) {
             data: {
                 userId: userId || null,
                 total: total,
+                shippingFee: shippingFee || 0,
+                discountAmount: discountAmount || 0,
+                promoCode: promoCode || null,
                 status: 'PENDING',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {

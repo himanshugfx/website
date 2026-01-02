@@ -9,7 +9,8 @@ interface CartItem {
 
 export async function POST(request: Request) {
     try {
-        const { cart, shippingInfo, userId, total, paymentMethod } = await request.json();
+        const body = await request.json();
+        const { cart, shippingInfo, userId, total, paymentMethod, shippingFee, discountAmount, promoCode } = body;
 
         // Validate required fields
         if (!cart || !total) {
@@ -24,6 +25,9 @@ export async function POST(request: Request) {
             data: {
                 userId: userId || null,
                 total: total,
+                shippingFee: shippingFee || 0,
+                discountAmount: discountAmount || 0,
+                promoCode: promoCode || null,
                 status: 'PENDING',
                 paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'SUCCESSFUL',
                 paymentMethod: paymentMethod || 'ONLINE',

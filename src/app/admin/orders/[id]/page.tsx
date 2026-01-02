@@ -14,6 +14,9 @@ interface OrderDetails {
     status: string;
     paymentStatus: string;
     paymentMethod: string;
+    shippingFee: number;
+    discountAmount: number;
+    promoCode: string | null;
     address: string | null;
     createdAt: string;
     user: {
@@ -214,12 +217,22 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             <div className="bg-gray-50/50 p-6 border-t border-gray-100">
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-500">
-                                        <span>Subtotal</span>
-                                        <span>₹{order.total.toLocaleString()}</span>
+                                        <span>Items Subtotal</span>
+                                        <span>₹{order.items.reduce((acc, item) => acc + item.price, 0).toLocaleString()}</span>
                                     </div>
+                                    {order.discountAmount > 0 && (
+                                        <div className="flex justify-between text-emerald-600">
+                                            <span>Discount {order.promoCode ? `(${order.promoCode})` : ''}</span>
+                                            <span>-₹{order.discountAmount.toLocaleString()}</span>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between text-gray-500">
                                         <span>Shipping</span>
-                                        <span className="text-emerald-600 font-medium">Free</span>
+                                        {order.shippingFee > 0 ? (
+                                            <span>₹{order.shippingFee.toLocaleString()}</span>
+                                        ) : (
+                                            <span className="text-emerald-600 font-medium">Free</span>
+                                        )}
                                     </div>
                                     <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
                                         <span className="text-lg font-bold text-gray-900">Total</span>

@@ -42,6 +42,10 @@ export default function CheckoutClient() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Shipping Constants
+    const SHIPPING_THRESHOLD = 149;
+    const SHIPPING_FEE = 49;
+
     // Promo Code State
     const [promoCodeInput, setPromoCodeInput] = useState('');
     const [appliedPromo, setAppliedPromo] = useState<{
@@ -174,7 +178,11 @@ export default function CheckoutClient() {
                         })),
                         shippingInfo,
                         userId: session?.user?.id || null,
-                        total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
+                        total: (() => {
+                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
+                        })(),
+                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: appliedPromo?.code || null,
                         discountAmount: appliedPromo?.discountAmount || 0,
                         paymentMethod: 'razorpay'
@@ -274,7 +282,11 @@ export default function CheckoutClient() {
                         })),
                         shippingInfo,
                         userId: session?.user?.id || null,
-                        total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
+                        total: (() => {
+                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
+                        })(),
+                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: appliedPromo?.code || null,
                         discountAmount: appliedPromo?.discountAmount || 0,
                         paymentMethod: 'phonepe'
@@ -306,7 +318,11 @@ export default function CheckoutClient() {
                         })),
                         shippingInfo,
                         userId: session?.user?.id || null,
-                        total: appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal,
+                        total: (() => {
+                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
+                        })(),
+                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         paymentMethod: 'COD',
                         promoCode: appliedPromo?.code || null,
                         discountAmount: appliedPromo?.discountAmount || 0,
@@ -610,7 +626,11 @@ export default function CheckoutClient() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Shipping</span>
-                                    <span className="font-bold text-green-600">Free</span>
+                                    {(appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? (
+                                        <span className="font-bold">₹{SHIPPING_FEE}</span>
+                                    ) : (
+                                        <span className="font-bold text-green-600">Free</span>
+                                    )}
                                 </div>
 
                                 {appliedPromo && (
@@ -623,7 +643,10 @@ export default function CheckoutClient() {
                                 <div className="flex justify-between border-t border-purple-100 mt-4 pt-4">
                                     <span className="heading5">Total</span>
                                     <span className="heading5 text-purple-600">
-                                        ₹{(appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal).toFixed(2)}
+                                        ₹{(() => {
+                                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                                            return (subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal).toFixed(2);
+                                        })()}
                                     </span>
                                 </div>
                             </div>

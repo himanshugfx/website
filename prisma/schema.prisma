@@ -66,7 +66,10 @@ model Order {
   status      String      @default("PENDING")
   paymentStatus String    @default("PENDING")
   paymentMethod String    @default("ONLINE")
-  address     String?
+  shippingFee   Float       @default(0)
+  discountAmount Float      @default(0)
+  promoCode     String?
+  address       String?
   cancelRequest String?   // PENDING, APPROVED, REJECTED
   returnRequest String?   // PENDING, APPROVED, REJECTED
   cancelReason String?
