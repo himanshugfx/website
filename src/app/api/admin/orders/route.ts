@@ -24,8 +24,21 @@ export async function GET(request: Request) {
                     not: 'COD'
                 }
             };
-        } else if (status) {
-            where = { status };
+        } else {
+            // Main orders list: show everything EXCEPT abandoned carts
+            where = {
+                AND: [
+                    status ? { status } : {},
+                    {
+                        NOT: {
+                            AND: [
+                                { paymentStatus: 'PENDING' },
+                                { paymentMethod: { not: 'COD' } }
+                            ]
+                        }
+                    }
+                ]
+            };
         }
 
         const [orders, total] = await Promise.all([
