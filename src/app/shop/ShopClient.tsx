@@ -90,13 +90,13 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                                         key={cat}
                                         type="button"
                                         className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px transition-colors duration-300 ${selectedCategory === cat
-                                                ? 'text-purple-600 font-semibold'
-                                                : 'text-black hover:text-purple-600'
+                                            ? 'text-purple-600 font-semibold'
+                                            : 'text-black hover:text-purple-600'
                                             }`}
                                         onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                                     >
                                         {cat}
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </div>
