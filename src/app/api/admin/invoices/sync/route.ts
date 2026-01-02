@@ -70,15 +70,18 @@ export async function POST() {
 
                 hasMore = response.page_context?.has_more_page || false;
                 page++;
+            } else {
+                hasMore = false;
             }
-
-            // Redirect back to invoices page
-            return NextResponse.redirect(new URL('/admin/invoices', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
-        } catch (error) {
-            console.error('Invoice sync error:', error);
-            return NextResponse.json(
-                { error: 'Failed to sync invoices from Zoho' },
-                { status: 500 }
-            );
         }
+
+        // Redirect back to invoices page
+        return NextResponse.redirect(new URL('/admin/invoices', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
+    } catch (error) {
+        console.error('Invoice sync error:', error);
+        return NextResponse.json(
+            { error: 'Failed to sync invoices from Zoho' },
+            { status: 500 }
+        );
     }
+}
