@@ -48,7 +48,10 @@ export default function Footer() {
                                 <Link href="/faqs" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">FAQs</Link>
                             </li>
                             <li>
-                                <Link href="/shipping-returns" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Shipping & Return Policy</Link>
+                                <Link href="/shipping-policy" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Shipping Policy</Link>
+                            </li>
+                            <li>
+                                <Link href="/refund-policy" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Refund Policy</Link>
                             </li>
                             <li>
                                 <Link href="/privacy-policy" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Privacy Policy</Link>
