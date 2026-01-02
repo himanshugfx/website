@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin();
         const { id } = await params;
 
         const order = await prisma.order.findUnique({
@@ -54,6 +56,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin();
         const { id } = await params;
         const { status } = await request.json();
 

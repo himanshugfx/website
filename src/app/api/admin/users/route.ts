@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export async function GET(request: Request) {
     try {
+        await requireAdmin();
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search') || '';
 
@@ -46,6 +48,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
     try {
+        await requireAdmin();
         const { id, role } = await request.json();
 
         if (!id || !role) {

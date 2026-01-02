@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin/auth';
 
 interface VariationInput {
     color: string;
@@ -14,6 +15,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin();
         // Need to await params in Next.js 15+
         const { id } = await params;
 
@@ -46,6 +48,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin();
         const { id } = await params;
         const data = await request.json();
 
@@ -96,27 +99,31 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin();
         const { id } = await params;
 
-        // First, delete any order items referencing this product
-        await prisma.orderItem.deleteMany({
-            where: { productId: id },
-        });
-
-        // Then delete the product
-        await prisma.product.delete({
-            where: { id },
-        });
+        // Explicitly delete related records to be safe
+        await prisma.$transaction([
+            prisma.variation.deleteMany({
+                where: { productId: id },
+            }),
+            prisma.orderItem.deleteMany({
+                where: { productId: id },
+            }),
+            prisma.product.delete({
+                where: { id },
+            }),
+        ]);
 
         revalidatePath('/');
         revalidatePath('/shop');
 
         return NextResponse.json({ success: true });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting product:', error);
         return NextResponse.json(
-            { error: 'Failed to delete product' },
+            { error: error?.message || 'Failed to delete product' },
             { status: 500 }
         );
     }

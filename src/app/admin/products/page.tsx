@@ -63,22 +63,28 @@ export default function ProductsPage() {
     };
 
     const handleDelete = async (id: string) => {
-
         if (!confirm('Are you sure you want to delete this product?')) return;
 
         try {
-            const res = await fetch(`/api/admin/products?id=${id}`, {
+            const res = await fetch(`/api/admin/products/${id}`, {
                 method: 'DELETE',
             });
+
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                data = { error: 'Unknown server error' };
+            }
 
             if (res.ok) {
                 fetchProducts();
             } else {
-                alert('Failed to delete product');
+                alert(data.error || 'Failed to delete product');
             }
         } catch (error) {
             console.error('Error deleting product:', error);
-            alert('Failed to delete product');
+            alert('An error occurred while deleting the product');
         }
     };
 

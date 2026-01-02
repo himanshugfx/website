@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 // Dynamic import for xlsx to avoid SSR issues
 async function parseExcel(buffer: ArrayBuffer) {
@@ -10,6 +11,7 @@ async function parseExcel(buffer: ArrayBuffer) {
 
 export async function POST(request: Request) {
     try {
+        await requireAdmin();
         const formData = await request.formData();
         const file = formData.get('file') as File;
 

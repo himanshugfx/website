@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin/auth';
 
 interface VariationInput {
     color: string;
@@ -11,6 +12,7 @@ interface VariationInput {
 
 export async function GET(request: Request) {
     try {
+        await requireAdmin();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
@@ -60,6 +62,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+        await requireAdmin();
         const data = await request.json();
 
         const product = await prisma.product.create({
