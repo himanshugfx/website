@@ -110,3 +110,95 @@ model ContactInquiry {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Zoho Invoice cache
+model Invoice {
+  id            String   @id @default(cuid())
+  zohoInvoiceId String   @unique
+  orderId       String?
+  customerId    String
+  customerName  String
+  invoiceNumber String
+  status        String   // DRAFT, SENT, PAID, OVERDUE, VOID
+  total         Float
+  balance       Float    @default(0)
+  dueDate       DateTime?
+  invoiceDate   DateTime
+  pdfUrl        String?
+  syncedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Sales Funnel Models
+model FunnelStage {
+  id        String   @id @default(cuid())
+  name      String   // NEW, CONTACTED, QUALIFIED, PROPOSAL, WON, LOST
+  order     Int
+  color     String
+  leads     Lead[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id          String         @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  source      String         // WEBSITE, WHATSAPP, IMPORT, MANUAL
+  stageId     String
+  stage       FunnelStage    @relation(fields: [stageId], references: [id])
+  value       Float?
+  notes       String?
+  activities  LeadActivity[]
+  convertedAt DateTime?
+  orderId     String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model LeadActivity {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      String   // NOTE, CALL, EMAIL, WHATSAPP, STAGE_CHANGE
+  content   String
+  createdAt DateTime @default(now())
+}
+
+// WhatsApp Marketing Models
+model WhatsAppTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  content   String
+  variables String   // JSON array of variable names like ["name", "order_id"]
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WhatsAppCampaign {
+  id             String            @id @default(cuid())
+  name           String
+  templateId     String
+  status         String            // DRAFT, SCHEDULED, RUNNING, COMPLETED
+  audience       String            // ALL, SEGMENT, LEADS
+  sentCount      Int               @default(0)
+  deliveredCount Int               @default(0)
+  scheduledAt    DateTime?
+  messages       WhatsAppMessage[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model WhatsAppMessage {
+  id         String            @id @default(cuid())
+  campaignId String?
+  campaign   WhatsAppCampaign? @relation(fields: [campaignId], references: [id])
+  phone      String
+  content    String
+  status     String            // SENT, DELIVERED, READ, FAILED
+  sentAt     DateTime          @default(now())
+}

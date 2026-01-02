@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <AdminHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 {/* Page Content */}
-                <main className="flex-1 py-8 px-4 sm:px-8 max-w-full overflow-x-hidden">
+                <main className="flex-1 py-4 sm:py-8 px-3 sm:px-6 lg:px-8 max-w-full overflow-x-hidden">
                     {children}
                 </main>
             </div>

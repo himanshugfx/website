@@ -14,14 +14,20 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
     return (
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
-            <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
-                {/* Mobile menu button */}
+            <div className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-6 lg:px-8">
+                {/* Mobile menu button - larger touch target */}
                 <button
                     onClick={onMenuClick}
-                    className="lg:hidden text-gray-500 p-2 rounded-xl transition-colors"
+                    className="lg:hidden text-gray-700 p-3 -ml-2 rounded-xl transition-colors active:bg-gray-100"
+                    aria-label="Open menu"
                 >
                     <Menu className="w-6 h-6" />
                 </button>
+
+                {/* Mobile title */}
+                <div className="lg:hidden flex-1 text-center">
+                    <h2 className="text-base font-bold text-gray-900">Anose Admin</h2>
+                </div>
 
                 {/* Page title for desktop */}
                 <div className="hidden lg:block">
@@ -29,7 +35,8 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     <p className="text-sm text-gray-500 mt-1">Here&apos;s what&apos;s happening with your store today.</p>
                 </div>
 
-                <div className="flex-1 lg:flex-none"></div>
+                <div className="hidden lg:flex-1 lg:flex-none"></div>
+
 
                 {/* Right section */}
                 <div className="flex items-center gap-2 sm:gap-4">

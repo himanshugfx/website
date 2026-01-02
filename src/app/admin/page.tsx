@@ -77,8 +77,8 @@ export default async function AdminDashboard() {
     return (
         <AdminLayout>
             <div className="space-y-8">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-6">
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}
@@ -106,22 +106,73 @@ export default async function AdminDashboard() {
                 </div>
 
                 {/* Recent Orders */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
-                                <p className="text-sm text-gray-500 mt-1">Latest orders from your store</p>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Transactions</h2>
+                                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Latest orders from your store</p>
                             </div>
                             <Link
                                 href="/admin/orders"
-                                className="group flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl"
+                                className="group flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-purple-600 rounded-xl"
                             >
                                 View All
                                 <TrendingUp className="w-4 h-4" />
                             </Link>
                         </div>
-                        <div className="overflow-x-auto">
+
+                        {/* Mobile View - Card Layout */}
+                        <div className="md:hidden p-4 space-y-3">
+                            {recentOrders.length === 0 ? (
+                                <div className="flex flex-col items-center gap-3 py-8">
+                                    <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                                        <ShoppingCart className="w-7 h-7 text-gray-300" />
+                                    </div>
+                                    <p className="text-gray-900 font-medium text-sm">No orders yet</p>
+                                    <p className="text-gray-500 text-xs">When you get orders, they&apos;ll show up here.</p>
+                                </div>
+                            ) : (
+                                recentOrders.map((order) => (
+                                    <Link
+                                        key={order.id}
+                                        href={`/admin/orders/${order.id}`}
+                                        className="block bg-gray-50 rounded-xl p-4 active:bg-gray-100 transition-colors"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
+                                                    {(order.user?.name || 'G').charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">{order.user?.name || 'Guest'}</p>
+                                                    <p className="text-xs text-gray-500">#{order.orderNumber}</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                                order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                                    order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                        'bg-red-50 text-red-700 border-red-100'
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' :
+                                                    order.status === 'PENDING' ? 'bg-amber-500' :
+                                                        order.status === 'PROCESSING' ? 'bg-blue-500' :
+                                                            'bg-red-500'
+                                                    }`}></span>
+                                                {order.status}
+                                            </span>
+                                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Desktop View - Table Layout */}
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
@@ -150,7 +201,7 @@ export default async function AdminDashboard() {
                                             <tr key={order.id} className="group border-b border-gray-100">
                                                 <td className="px-6 py-4">
                                                     <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
-                                                        #{order.id.slice(0, 8)}
+                                                        #{order.orderNumber}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -198,13 +249,13 @@ export default async function AdminDashboard() {
                     </div>
 
                     {/* Quick Actions / Mini Stats */}
-                    <div className="space-y-8">
-                        <div className="bg-black rounded-2xl p-8 text-white">
-                            <h3 className="text-lg font-bold mb-1">Quick Action</h3>
-                            <p className="text-gray-400 text-sm mb-6 opacity-90">Add new products to your store inventory.</p>
+                    <div className="space-y-4 sm:space-y-8">
+                        <div className="bg-black rounded-2xl p-5 sm:p-8 text-white">
+                            <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
+                            <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new products to your store inventory.</p>
                             <Link
                                 href="/admin/products/add"
-                                className="flex items-center justify-center gap-2 w-full py-4 bg-purple-600 text-white rounded-xl font-bold transition-colors"
+                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-purple-600 text-white rounded-xl font-bold transition-colors text-sm sm:text-base"
                             >
                                 <Package className="w-5 h-5" />
                                 Add Product

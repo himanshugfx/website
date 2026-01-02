@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Search, Users as UsersIcon, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Users as UsersIcon, Shield, ChevronRight } from 'lucide-react';
 
 interface User {
     id: string;
@@ -103,6 +104,9 @@ export default function UsersPage() {
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Joined
                                     </th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -137,9 +141,12 @@ export default function UsersPage() {
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div className="text-sm font-semibold text-gray-900">
+                                                        <Link
+                                                            href={`/admin/users/${user.id}`}
+                                                            className="text-sm font-semibold text-gray-900 hover:text-purple-600 transition-colors"
+                                                        >
                                                             {user.name || 'No name'}
-                                                        </div>
+                                                        </Link>
                                                         <div className="text-sm text-gray-500">{user.email}</div>
                                                     </div>
                                                 </div>
@@ -172,6 +179,14 @@ export default function UsersPage() {
                                                     month: 'short',
                                                     year: 'numeric'
                                                 })}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                <Link
+                                                    href={`/admin/users/${user.id}`}
+                                                    className="inline-flex items-center justify-center p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                                                >
+                                                    <ChevronRight className="w-5 h-5" />
+                                                </Link>
                                             </td>
                                         </tr>
                                     ))
