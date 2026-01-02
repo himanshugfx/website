@@ -6,8 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const clientId = process.env.ZOHO_CLIENT_ID;
 const clientSecret = process.env.ZOHO_CLIENT_SECRET;
-const redirectUri = 'https://www.anosebeauty.com/';
-const code = '1000.bafccc005f8d6b73f69bdd1d8bd8d285.fe2822ae6e0d11572fc7ef45ab1cff49';
+const redirectUri = 'https://www.google.com';
+const code = '1000.33a73b1c2e0efbd31d3842d88113a0c0.003ca81a9d6279653da7b96581f37997';
 
 async function exchangeToken() {
     console.log('Client ID:', clientId);
@@ -32,10 +32,11 @@ async function exchangeToken() {
         });
 
         const data = await response.json();
-        console.log('Response:', JSON.stringify(data, null, 2));
+        const fs = require('fs');
+        fs.writeFileSync('zoho-tokens.json', JSON.stringify(data, null, 2));
 
         if (data.refresh_token) {
-            console.log('\n✅ SUCCESS! New Refresh Token:', data.refresh_token);
+            console.log('\n✅ SUCCESS! Token saved to zoho-tokens.json');
         } else {
             console.error('\n❌ FAILED:', JSON.stringify(data, null, 2));
         }
