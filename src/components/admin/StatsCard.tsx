@@ -38,7 +38,6 @@ export default function StatsCard({ title, value, icon: Icon, trend, color = 'pu
     const colors = colorClasses[color];
 
     return (
-    return (
         <div className="bg-white rounded-2xl p-6 border border-gray-100/80 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 group">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -59,6 +58,5 @@ export default function StatsCard({ title, value, icon: Icon, trend, color = 'pu
                 </div>
             </div>
         </div>
-    );
     );
 }
