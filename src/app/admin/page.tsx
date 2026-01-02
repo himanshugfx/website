@@ -18,23 +18,46 @@ async function getStats() {
             }
         };
 
+        // 1. Get Store Revenue
         const orders = await prisma.order.findMany({
-            where: validOrdersWhere
+            where: validOrdersWhere,
+            select: { total: true, userId: true }
         });
 
-        const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        // 2. Get Zoho Invoice Revenue (Avoid double counting if linked to order)
+        const invoices = await prisma.invoice.findMany({
+            where: {
+                status: { not: 'VOID' },
+                // If it has an orderId, we usually count the order total
+                // but let's be safe and only count invoices that are standalone or represent the final amount
+                orderId: null
+            },
+            select: { total: true, customerId: true, customerName: true }
+        });
+
+        const storeRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        const invoiceRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+        const totalRevenue = storeRevenue + invoiceRevenue;
+
         const totalOrders = await prisma.order.count({
             where: validOrdersWhere
         });
 
         const totalProducts = await prisma.product.count();
-        const totalUsers = await prisma.user.count();
+
+        // 3. Unique Customers (Store Users + unique Zoho Customer IDs not in store)
+        const storeUserIds = new Set(orders.map(o => o.userId).filter(Boolean));
+        const zohoCustomerIds = new Set(invoices.map(i => i.customerId));
+
+        // This is an approximation as we don't have a strict mapping, 
+        // but it covers both online and offline shoppers.
+        const totalUniqueCustomers = storeUserIds.size + zohoCustomerIds.size;
 
         return {
             totalRevenue,
             totalOrders,
             totalProducts,
-            totalUsers,
+            totalUsers: totalUniqueCustomers || await prisma.user.count(),
         };
     } catch (error) {
         console.error('Error fetching stats:', error);

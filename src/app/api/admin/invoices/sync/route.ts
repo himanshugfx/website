@@ -43,6 +43,7 @@ export async function POST() {
                         balance: invoice.balance,
                         dueDate: invoice.due_date ? new Date(invoice.due_date) : null,
                         invoiceDate: new Date(invoice.date),
+                        pdfUrl: `/api/admin/invoices/REPLACE_ID/pdf`, // Will update after creation
                         syncedAt: new Date(),
                     },
                     create: {
@@ -57,6 +58,18 @@ export async function POST() {
                         invoiceDate: new Date(invoice.date),
                     },
                 });
+
+                // Get the created/updated invoice to set the correct PDF URL with local ID
+                const dbInvoice = await prisma.invoice.findUnique({
+                    where: { zohoInvoiceId: invoice.invoice_id }
+                });
+
+                if (dbInvoice) {
+                    await prisma.invoice.update({
+                        where: { id: dbInvoice.id },
+                        data: { pdfUrl: `/api/admin/invoices/${dbInvoice.id}/pdf` }
+                    });
+                }
                 syncedCount++;
             }
 

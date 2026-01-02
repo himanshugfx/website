@@ -240,6 +240,25 @@ export async function getInvoicePdf(invoiceId: string): Promise<{ download_url: 
     };
 }
 
+export async function getInvoicePdfBuffer(zohoInvoiceId: string): Promise<Buffer> {
+    const accessToken = await getAccessToken();
+    const organizationId = process.env.ZOHO_ORGANIZATION_ID;
+
+    const response = await fetch(`${getZohoBaseUrl()}/invoices/${zohoInvoiceId}?accept=pdf`, {
+        headers: {
+            'Authorization': `Zoho-oauthtoken ${accessToken}`,
+            'X-com-zoho-invoice-organizationid': organizationId!,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch PDF from Zoho: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+}
+
 /**
  * Get list of customers from Zoho
  */
