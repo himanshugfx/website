@@ -22,7 +22,7 @@ export async function GET(
 
         const pdfBuffer = await getInvoicePdfBuffer(invoice.zohoInvoiceId);
 
-        return new NextResponse(pdfBuffer, {
+        return new NextResponse(pdfBuffer as unknown as BodyInit, {
             headers: {
                 'Content-Type': 'application/pdf',
                 'Content-Disposition': `inline; filename="Invoice-${invoice.invoiceNumber}.pdf"`,
