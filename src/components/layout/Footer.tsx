@@ -4,13 +4,14 @@ export default function Footer() {
     return (
         <footer id="footer" className="footer md:pt-20 pt-10 bg-white px-4 sm:px-6">
             <div className="container mx-auto">
-                <div className="footer-main flex justify-between gap-y-8 sm:gap-y-10 flex-wrap pb-8 sm:pb-10 border-b border-line">
-                    <div className="footer-item basis-1/4 max-lg:basis-1/2 max-sm:basis-full pr-0 sm:pr-10 mb-6 sm:mb-0">
-                        <Link href="/" className="logo text-2xl sm:text-3xl font-semibold block">Anose</Link>
-                        <div className="caption1 text-secondary mt-4 sm:mt-5 text-sm sm:text-base leading-relaxed">
+                <div className="footer-main grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 pb-8 sm:pb-10 border-b border-line">
+                    {/* Top Left - Company Info */}
+                    <div className="footer-item">
+                        <Link href="/" className="logo text-2xl sm:text-3xl font-semibold block mb-4 sm:mb-5">Anose</Link>
+                        <div className="caption1 text-secondary text-sm sm:text-base leading-relaxed mb-4 sm:mb-5">
                             Anose is a premium cosmetic manufacturer and hotel amenities supplier, dedicated to providing high-quality products.
                         </div>
-                        <div className="list-social flex items-center gap-4 sm:gap-4 mt-4 sm:mt-5">
+                        <div className="list-social flex items-center gap-4">
                             <Link href="https://www.facebook.com/" target="_blank" className="hover:opacity-70 transition-opacity">
                                 <i className="icon-facebook text-lg sm:text-xl hover:text-black duration-300"></i>
                             </Link>
@@ -22,46 +23,52 @@ export default function Footer() {
                             </Link>
                         </div>
                     </div>
-                    <div className="footer-item basis-1/6 max-lg:basis-1/3 max-sm:basis-1/2 mb-6 sm:mb-0">
-                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium">Information</div>
-                        <ul className="mt-4 sm:mt-5 space-y-2 sm:space-y-0">
-                            <li className="mt-2">
+
+                    {/* Top Right - Information */}
+                    <div className="footer-item">
+                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium mb-4 sm:mb-5">INFORMATION</div>
+                        <ul className="space-y-2">
+                            <li>
                                 <Link href="/about" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">About Us</Link>
                             </li>
-                            <li className="mt-2">
+                            <li>
                                 <Link href="/contact" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Contact Us</Link>
                             </li>
-                            <li className="mt-2">
+                            <li>
                                 <Link href="/blog" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Blog</Link>
                             </li>
                         </ul>
                     </div>
-                    <div className="footer-item basis-1/6 max-lg:basis-1/3 max-sm:basis-1/2 mb-6 sm:mb-0">
-                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium">Customer Care</div>
-                        <ul className="mt-4 sm:mt-5 space-y-2 sm:space-y-0">
-                            <li className="mt-2">
+
+                    {/* Bottom Left - Customer Care */}
+                    <div className="footer-item">
+                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium mb-4 sm:mb-5">CUSTOMER CARE</div>
+                        <ul className="space-y-2">
+                            <li>
                                 <Link href="/faqs" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">FAQs</Link>
                             </li>
-                            <li className="mt-2">
+                            <li>
                                 <Link href="/shipping-returns" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Shipping & Return Policy</Link>
                             </li>
-                            <li className="mt-2">
+                            <li>
                                 <Link href="/privacy-policy" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Privacy Policy</Link>
                             </li>
                         </ul>
                     </div>
-                    <div className="footer-item basis-1/4 max-lg:basis-1/2 max-sm:basis-full">
-                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium">Newsletter</div>
-                        <div className="caption1 text-secondary mt-4 sm:mt-5 text-sm sm:text-base leading-relaxed">
+
+                    {/* Bottom Right - Newsletter */}
+                    <div className="footer-item">
+                        <div className="text-button-uppercase text-black text-sm sm:text-base font-medium mb-4 sm:mb-5">NEWSLETTER</div>
+                        <div className="caption1 text-secondary text-sm sm:text-base leading-relaxed mb-4 sm:mb-5">
                             Subscribe to stay updated on our latest products and exclusive offers.
                         </div>
-                        <div className="form-input relative mt-4 sm:mt-5">
+                        <div className="form-input relative">
                             <input 
                                 type="email" 
                                 placeholder="Email Address" 
                                 className="h-11 sm:h-12 w-full border-b border-line pb-1 outline-none caption1 text-sm sm:text-base pr-20 sm:pr-24" 
                             />
-                            <button className="absolute right-0 top-1/2 -translate-y-1/2 text-button-uppercase hover:text-black duration-300 text-xs sm:text-sm whitespace-nowrap">Subscribe</button>
+                            <button className="absolute right-0 top-1/2 -translate-y-1/2 text-button-uppercase hover:text-black duration-300 text-xs sm:text-sm whitespace-nowrap">SUBSCRIBE</button>
                         </div>
                     </div>
                 </div>
