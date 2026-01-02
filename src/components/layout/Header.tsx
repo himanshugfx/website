@@ -72,18 +72,18 @@ export default function Header() {
                                                 <div className="heading6 mb-4">Hello, {session.user?.name || 'User'}</div>
                                                 <Link
                                                     href={session.user?.role === 'admin' ? "/admin" : "/my-account"}
-                                                    className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg mb-3 hover:bg-purple-700"
+                                                    className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg mb-3"
                                                 >
                                                     Dashboard
                                                 </Link>
-                                                <button onClick={() => signOut()} className="button-main bg-white text-purple-600 border border-purple-600 w-full text-center block py-2 rounded-lg hover:bg-purple-50">Logout</button>
+                                                <button onClick={() => signOut()} className="button-main bg-black text-white w-full text-center block py-2 rounded-lg">Logout</button>
                                             </>
                                         ) : (
                                             <>
-                                                <Link href="/login" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors">Login</Link>
+                                                <Link href="/login" className="button-main w-full text-center block bg-purple-600 text-white py-2 rounded-lg transition-colors">Login</Link>
                                                 <Link
                                                     href="/login?callbackUrl=/admin"
-                                                    className="w-full text-center block border border-purple-600 text-purple-600 py-2 rounded-lg mt-3 hover:bg-purple-50 transition-colors font-bold text-sm uppercase"
+                                                    className="w-full text-center block bg-black text-white py-2 rounded-lg mt-3 transition-colors font-bold text-sm uppercase"
                                                 >
                                                     Admin Login
                                                 </Link>

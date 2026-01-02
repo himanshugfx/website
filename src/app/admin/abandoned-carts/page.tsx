@@ -57,7 +57,7 @@ export default function AbandonedCartsPage() {
                     </div>
                     <button
                         onClick={fetchOrders}
-                        className="p-2 text-gray-500 hover:text-purple-600 hover:bg-white rounded-lg transition-all"
+                        className="p-2 text-gray-500 rounded-lg transition-all"
                         title="Refresh"
                     >
                         <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -102,7 +102,7 @@ export default function AbandonedCartsPage() {
                                     </tr>
                                 ) : (
                                     orders.map((order) => (
-                                        <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
+                                        <tr key={order.id} className="group border-b border-gray-100">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
                                                     #{order.id.slice(0, 8)}
@@ -110,7 +110,7 @@ export default function AbandonedCartsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">
+                                                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
                                                         {(order.user?.name || 'G').charAt(0)}
                                                     </div>
                                                     <div>
@@ -137,7 +137,7 @@ export default function AbandonedCartsPage() {
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}
-                                                    className="inline-flex items-center justify-center p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                                                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all"
                                                 >
                                                     <Eye className="w-5 h-5" />
                                                 </Link>
@@ -155,7 +155,7 @@ export default function AbandonedCartsPage() {
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="px-4 py-2 text-sm font-medium bg-purple-600 text-white border border-purple-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                             >
                                 Previous
                             </button>
@@ -165,7 +165,7 @@ export default function AbandonedCartsPage() {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="px-4 py-2 text-sm font-medium bg-black text-white border border-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                             >
                                 Next
                             </button>

@@ -95,7 +95,7 @@ export default function ProductsPage() {
                     </div>
                     <Link
                         href="/admin/products/add"
-                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg shadow-purple-500/25 font-medium"
+                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-medium"
                     >
                         <Plus className="w-5 h-5" />
                         Add Product
@@ -213,21 +213,21 @@ export default function ProductsPage() {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'bestSeller', product.bestSeller)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.bestSeller ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.bestSeller ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
                                                         title="Toggle Best Seller"
                                                     >
                                                         BEST
                                                     </button>
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'sale', product.sale)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.sale ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.sale ? 'bg-black text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
                                                         title="Toggle On Sale"
                                                     >
                                                         SALE
                                                     </button>
                                                     <button
                                                         onClick={() => toggleStatus(product.id, 'new', product.new)}
-                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.new ? 'bg-blue-500 text-white shadow-sm' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                                                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${product.new ? 'bg-purple-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
                                                         title="Toggle New Arrival"
                                                     >
                                                         NEW
@@ -239,13 +239,13 @@ export default function ProductsPage() {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         href={`/admin/products/${product.id}/edit`}
-                                                        className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                        className="p-2 text-white bg-purple-600 rounded-lg"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Link>
                                                     <button
                                                         onClick={() => handleDelete(product.id)}
-                                                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        className="p-2 text-white bg-black rounded-lg"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -264,7 +264,7 @@ export default function ProductsPage() {
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 Previous
                             </button>
@@ -274,7 +274,7 @@ export default function ProductsPage() {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 Next
                             </button>

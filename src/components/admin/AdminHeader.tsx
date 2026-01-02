@@ -18,7 +18,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 {/* Mobile menu button */}
                 <button
                     onClick={onMenuClick}
-                    className="lg:hidden text-gray-500 hover:text-purple-600 p-2 hover:bg-purple-50 rounded-xl transition-colors"
+                    className="lg:hidden text-gray-500 p-2 rounded-xl transition-colors"
                 >
                     <Menu className="w-6 h-6" />
                 </button>
@@ -34,14 +34,14 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 {/* Right section */}
                 <div className="flex items-center gap-2 sm:gap-4">
                     {/* Notifications */}
-                    <button className="p-2.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 relative group">
-                        <Bell className="w-5 h-5 transform group-hover:scale-110 transition-transform" />
+                    <button className="p-2.5 text-gray-400 rounded-xl transition-all duration-200 relative group">
+                        <Bell className="w-5 h-5" />
                         <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
 
                     {/* Settings */}
-                    <button className="p-2.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 group">
-                        <Settings className="w-5 h-5 transform group-hover:rotate-90 transition-transform duration-500" />
+                    <button className="p-2.5 text-gray-400 rounded-xl transition-all duration-200 group">
+                        <Settings className="w-5 h-5" />
                     </button>
 
                     <div className="h-8 w-px bg-gray-200 mx-2 hidden sm:block"></div>
@@ -50,9 +50,9 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     <div className="relative">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100"
+                            className="flex items-center gap-3 px-2 py-1.5 rounded-xl border border-transparent"
                         >
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 text-white font-semibold text-lg ring-2 ring-white">
+                            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg text-white font-semibold text-lg ring-2 ring-white">
                                 {session?.user?.name?.charAt(0) || 'A'}
                             </div>
                             <div className="hidden sm:block text-left">
@@ -78,9 +78,9 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                     <div className="p-2">
                                         <button
                                             onClick={() => signOut({ callbackUrl: '/' })}
-                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors gap-3 group"
+                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl transition-colors gap-3 group"
                                         >
-                                            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                                            <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center transition-colors">
                                                 <LogOut className="w-4 h-4" />
                                             </div>
                                             Sign out

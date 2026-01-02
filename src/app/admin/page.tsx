@@ -115,10 +115,10 @@ export default async function AdminDashboard() {
                             </div>
                             <Link
                                 href="/admin/orders"
-                                className="group flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 transition-all duration-200"
+                                className="group flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl"
                             >
                                 View All
-                                <TrendingUp className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                                <TrendingUp className="w-4 h-4" />
                             </Link>
                         </div>
                         <div className="overflow-x-auto">
@@ -147,7 +147,7 @@ export default async function AdminDashboard() {
                                         </tr>
                                     ) : (
                                         recentOrders.map((order) => (
-                                            <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
+                                            <tr key={order.id} className="group border-b border-gray-100">
                                                 <td className="px-6 py-4">
                                                     <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
                                                         #{order.id.slice(0, 8)}
@@ -155,7 +155,7 @@ export default async function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center text-purple-700 font-bold text-xs">
+                                                        <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
                                                             {(order.user?.name || 'G').charAt(0)}
                                                         </div>
                                                         <div>
@@ -184,7 +184,7 @@ export default async function AdminDashboard() {
                                                 <td className="px-6 py-4 text-right">
                                                     <Link
                                                         href={`/admin/orders/${order.id}`}
-                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all"
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-purple-600"
                                                     >
                                                         <ChevronRight className="w-5 h-5" />
                                                     </Link>
@@ -199,12 +199,12 @@ export default async function AdminDashboard() {
 
                     {/* Quick Actions / Mini Stats */}
                     <div className="space-y-6">
-                        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-purple-500/20">
+                        <div className="bg-black rounded-2xl p-6 text-white">
                             <h3 className="text-lg font-bold mb-1">Quick Action</h3>
-                            <p className="text-purple-100 text-sm mb-6 opacity-90">Add new products to your store inventory.</p>
+                            <p className="text-gray-400 text-sm mb-6 opacity-90">Add new products to your store inventory.</p>
                             <Link
                                 href="/admin/products/add"
-                                className="flex items-center justify-center gap-2 w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-black/80 transition-colors shadow-lg"
+                                className="flex items-center justify-center gap-2 w-full py-3 bg-purple-600 text-white rounded-xl font-bold transition-colors"
                             >
                                 <Package className="w-5 h-5" />
                                 Add Product

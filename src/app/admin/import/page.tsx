@@ -122,7 +122,7 @@ export default function ImportOrdersPage() {
                             <div className="flex items-center gap-4">
                                 <label
                                     htmlFor="file-input"
-                                    className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors cursor-pointer"
+                                    className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold cursor-pointer shadow-lg"
                                 >
                                     <Upload className="w-5 h-5" />
                                     Choose File
@@ -150,7 +150,7 @@ export default function ImportOrdersPage() {
                             <button
                                 onClick={handleUpload}
                                 disabled={uploading}
-                                className="w-full px-6 py-3 bg-black text-white rounded-xl font-semibold hover:black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full px-6 py-3 bg-black text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {uploading ? (
                                     <>
@@ -171,11 +171,10 @@ export default function ImportOrdersPage() {
                 {/* Result */}
                 {result && (
                     <div
-                        className={`rounded-2xl border p-6 ${
-                            result.success
+                        className={`rounded-2xl border p-6 ${result.success
                                 ? 'bg-green-50 border-green-200'
                                 : 'bg-red-50 border-red-200'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-start gap-3">
                             {result.success ? (
@@ -185,16 +184,14 @@ export default function ImportOrdersPage() {
                             )}
                             <div className="flex-1">
                                 <h3
-                                    className={`font-semibold mb-2 ${
-                                        result.success ? 'text-green-900' : 'text-red-900'
-                                    }`}
+                                    className={`font-semibold mb-2 ${result.success ? 'text-green-900' : 'text-red-900'
+                                        }`}
                                 >
                                     {result.success ? 'Import Successful' : 'Import Failed'}
                                 </h3>
                                 <p
-                                    className={`mb-2 ${
-                                        result.success ? 'text-green-800' : 'text-red-800'
-                                    }`}
+                                    className={`mb-2 ${result.success ? 'text-green-800' : 'text-red-800'
+                                        }`}
                                 >
                                     {result.message}
                                 </p>

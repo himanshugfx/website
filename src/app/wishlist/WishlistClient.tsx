@@ -24,7 +24,7 @@ export default function WishlistClient() {
                 <div className="container mx-auto text-center">
                     <div className="heading3">Your wishlist is empty</div>
                     <p className="body1 text-secondary mt-4">Save items you like to see them here.</p>
-                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8 hover:bg-purple-700 duration-300">
+                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8">
                         Go To Shop
                     </Link>
                 </div>
@@ -55,15 +55,15 @@ export default function WishlistClient() {
                                     <Image src={item.image} alt={item.name} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                                     <div className="absolute top-3 right-3">
                                         <div
-                                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:bg-purple-600 hover:text-white duration-300"
+                                            className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm"
                                             onClick={() => removeFromWishlist(item.id)}
                                         >
                                             <i className="ph ph-trash text-xl"></i>
                                         </div>
                                     </div>
-                                    <div className="absolute bottom-4 left-4 right-4 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300 transition-all">
+                                    <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all">
                                         <button
-                                            className="button-main w-full bg-white text-black py-2 rounded-full text-sm font-semibold hover:bg-black hover:text-white"
+                                            className="button-main w-full bg-purple-600 text-white py-2 rounded-full text-sm font-semibold"
                                             onClick={() => handleAddToCart(item)}
                                         >
                                             Add To Cart

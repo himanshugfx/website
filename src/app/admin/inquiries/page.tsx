@@ -175,7 +175,7 @@ export default function InquiriesPage() {
                                         {inquiry.status !== 'READ' && (
                                             <button
                                                 onClick={() => handleUpdateStatus(inquiry.id, 'READ')}
-                                                className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition-colors text-sm font-bold"
+                                                className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold"
                                                 title="Mark as Read"
                                             >
                                                 <CheckCircle className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function InquiriesPage() {
                                         )}
                                         <button
                                             onClick={() => handleDelete(inquiry.id)}
-                                            className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors text-sm font-bold"
+                                            className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded-xl text-sm font-bold"
                                             title="Delete Inquiry"
                                         >
                                             <Trash2 className="w-4 h-4" />

@@ -63,14 +63,14 @@ export default function CheckoutSuccessPage({
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/my-account"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold"
                         >
                             Track Your Order
                             <ArrowRight className="w-4 h-4" />
                         </Link>
                         <Link
                             href="/shop"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-semibold"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-black text-white border border-gray-200 rounded-xl font-semibold"
                         >
                             Continue Shopping
                         </Link>

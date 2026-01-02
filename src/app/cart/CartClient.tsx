@@ -14,7 +14,7 @@ export default function CartClient() {
                 <div className="container mx-auto text-center">
                     <div className="heading3">Your cart is empty</div>
                     <p className="body1 text-secondary mt-4">Looks like you haven&apos;t added anything to your cart yet.</p>
-                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8 hover:bg-purple-700 duration-300">
+                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8">
                         Go To Shop
                     </Link>
                 </div>
@@ -99,7 +99,7 @@ export default function CartClient() {
                                 <div className="heading5">₹{cartTotal}</div>
                             </div>
 
-                            <Link href="/checkout" className="button-main w-full bg-purple-600 text-white py-4 rounded-xl mt-6 hover:bg-purple-700 duration-300 block text-center">
+                            <Link href="/checkout" className="button-main w-full bg-black text-white py-4 rounded-xl mt-6 block text-center">
                                 Proceed To Checkout
                             </Link>
 

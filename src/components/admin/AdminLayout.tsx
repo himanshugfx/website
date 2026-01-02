@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#f8f9fc]">
+        <div className="flex min-h-screen bg-[#f8f9fc]">
             {/* Sidebar */}
             <Sidebar
                 isOpen={sidebarOpen}
@@ -47,13 +47,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 onToggleCollapse={handleToggleCollapse}
             />
 
-            {/* Main Content */}
-            <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'} min-h-screen flex flex-col`}>
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
                 {/* Header */}
                 <AdminHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 {/* Page Content */}
-                <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
+                <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-full overflow-x-hidden">
                     {children}
                 </main>
             </div>

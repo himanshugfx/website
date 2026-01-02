@@ -80,7 +80,7 @@ export default function AddProductPage() {
                 <div className="flex items-center gap-4">
                     <Link
                         href="/admin/products"
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 bg-black text-white rounded-lg transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
@@ -331,7 +331,7 @@ export default function AddProductPage() {
                                                     alert('Upload failed');
                                                 }
                                             }}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
                                         />
                                     </div>
                                 </div>
@@ -421,7 +421,7 @@ export default function AddProductPage() {
                                         variations: [...prev.variations, { color: '', colorCode: '#000000', colorImage: '', image: '' }]
                                     }));
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-xl hover:bg-purple-100 transition-colors text-sm font-semibold"
+                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl transition-colors text-sm font-semibold"
                             >
                                 <Plus className="w-4 h-4" />
                                 Add Variant
@@ -605,14 +605,14 @@ export default function AddProductPage() {
                     <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
                         <Link
                             href="/admin/products"
-                            className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="px-6 py-2 bg-black text-white rounded-lg transition-colors"
                         >
                             Cancel
                         </Link>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Creating...' : 'Create Product'}
                         </button>

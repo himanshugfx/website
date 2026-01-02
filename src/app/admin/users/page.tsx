@@ -128,10 +128,10 @@ export default function UsersPage() {
                                     </tr>
                                 ) : (
                                     users.map((user) => (
-                                        <tr key={user.id} className="hover:bg-purple-50/30 transition-colors">
+                                        <tr key={user.id} className="border-b border-gray-50">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                    <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
                                                         <span className="text-white font-semibold">
                                                             {user.name?.charAt(0) || user.email?.charAt(0) || '?'}
                                                         </span>
@@ -149,8 +149,8 @@ export default function UsersPage() {
                                                     value={user.role}
                                                     onChange={(e) => handleRoleUpdate(user.id, e.target.value)}
                                                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg border-0 focus:ring-2 focus:ring-purple-500 cursor-pointer ${user.role === 'admin'
-                                                            ? 'bg-purple-100 text-purple-700'
-                                                            : 'bg-gray-100 text-gray-700'
+                                                        ? 'bg-purple-600 text-white'
+                                                        : 'bg-black text-white'
                                                         }`}
                                                 >
                                                     {ROLE_OPTIONS.map((role) => (

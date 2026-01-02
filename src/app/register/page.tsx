@@ -102,7 +102,7 @@ export default function RegisterPage() {
                             </div>
 
                             <button
-                                className="button-main w-full bg-purple-600 text-white py-4 rounded-xl hover:bg-purple-700 duration-300 font-bold uppercase disabled:bg-zinc-400"
+                                className="button-main w-full bg-purple-600 text-white py-4 rounded-xl font-bold uppercase disabled:bg-zinc-400"
                                 disabled={loading}
                             >
                                 {loading ? 'Creating Account...' : 'Register'}

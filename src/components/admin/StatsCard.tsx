@@ -13,24 +13,24 @@ interface StatsCardProps {
 
 const colorClasses = {
     purple: {
-        bg: 'bg-gradient-to-br from-purple-500 to-purple-700',
+        bg: 'bg-purple-600',
         light: 'bg-purple-50',
         text: 'text-purple-600',
     },
     green: {
-        bg: 'bg-gradient-to-br from-emerald-500 to-emerald-700',
-        light: 'bg-emerald-50',
-        text: 'text-emerald-600',
+        bg: 'bg-black',
+        light: 'bg-gray-50',
+        text: 'text-black',
     },
     blue: {
-        bg: 'bg-gradient-to-br from-blue-500 to-blue-700',
-        light: 'bg-blue-50',
-        text: 'text-blue-600',
+        bg: 'bg-purple-600',
+        light: 'bg-purple-50',
+        text: 'text-purple-600',
     },
     orange: {
-        bg: 'bg-gradient-to-br from-orange-500 to-orange-600',
-        light: 'bg-orange-50',
-        text: 'text-orange-600',
+        bg: 'bg-black',
+        light: 'bg-gray-50',
+        text: 'text-black',
     },
 };
 
@@ -38,7 +38,7 @@ export default function StatsCard({ title, value, icon: Icon, trend, color = 'pu
     const colors = colorClasses[color];
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-start justify-between">
                 <div className="flex-1">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{title}</p>

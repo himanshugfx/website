@@ -165,8 +165,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-semibold transition-all duration-300 w-full text-left
                                             ${activeTab === tab.id
-                                                ? 'bg-purple-50 text-black shadow-sm ring-1 ring-purple-100'
-                                                : 'text-zinc-600 hover:bg-zinc-50 hover:text-purple-600'
+                                                ? 'bg-purple-600 text-white shadow-sm'
+                                                : 'text-zinc-600 bg-zinc-50'
                                             }`}
                                     >
                                         <i className={`ph ${tab.icon} text-xl ${activeTab === tab.id ? 'text-purple-600' : ''}`}></i>
@@ -175,7 +175,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                 ))}
                                 <button
                                     onClick={() => signOut({ callbackUrl: '/' })}
-                                    className="flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-300 w-full text-left text-red-500 hover:bg-red-50"
+                                    className="flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-300 w-full text-left text-white bg-black"
                                 >
                                     <i className="ph ph-sign-out text-xl"></i>
                                     Logout
@@ -247,7 +247,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         </div>
                                         <h5 className="text-lg font-bold text-zinc-900">No Recent Orders</h5>
                                         <p className="text-zinc-500 mt-2 mb-6">Looks like you haven&apos;t placed any orders yet.</p>
-                                        <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105">
+                                        <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-3 rounded-full font-bold transition-all">
                                             Start Shopping
                                         </Link>
                                     </div>
@@ -337,7 +337,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                         setSelectedOrder(order.id);
                                                                         setActionType('cancel');
                                                                     }}
-                                                                    className="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 transition-colors"
+                                                                    className="px-4 py-2 bg-black text-white rounded-lg font-semibold"
                                                                 >
                                                                     Request Cancellation
                                                                 </button>
@@ -346,7 +346,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                         setSelectedOrder(order.id);
                                                                         setActionType('return');
                                                                     }}
-                                                                    className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition-colors"
+                                                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
                                                                 >
                                                                     Request Return
                                                                 </button>
@@ -398,7 +398,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         </button>
                                         <button
                                             onClick={() => actionType === 'cancel' ? handleCancelRequest(selectedOrder) : handleReturnRequest(selectedOrder)}
-                                            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                                            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
                                         >
                                             Submit
                                         </button>
@@ -460,7 +460,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         </div>
 
                                         <div className="pt-4">
-                                            <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                            <button className="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md">
                                                 Save Changes
                                             </button>
                                         </div>

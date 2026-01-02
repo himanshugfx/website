@@ -90,7 +90,7 @@ export default function ProductCard({ product }: ProductProps) {
                                     e.stopPropagation();
                                     window.location.href = '/shop?filter=best';
                                 }}
-                                className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-purple-600 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                                className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
                             >
                                 BEST
                             </Link>
@@ -103,7 +103,7 @@ export default function ProductCard({ product }: ProductProps) {
                                     e.stopPropagation();
                                     window.location.href = '/shop?filter=sale';
                                 }}
-                                className="product-tag text-xs font-bold uppercase bg-red-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                                className="product-tag text-xs font-bold uppercase bg-purple-600 text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
                             >
                                 SALE
                             </Link>
@@ -117,7 +117,7 @@ export default function ProductCard({ product }: ProductProps) {
                                 e.stopPropagation();
                                 window.location.href = '/shop?filter=new';
                             }}
-                            className="product-tag text-xs font-bold uppercase bg-green-600 text-white px-3 py-1.5 rounded-full shadow-lg hover:bg-green-700 transition-colors duration-300 cursor-pointer pointer-events-auto"
+                            className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
                         >
                             NEW
                         </Link>
@@ -132,18 +132,16 @@ export default function ProductCard({ product }: ProductProps) {
 
 
                 {/* Actions */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-10 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 duration-300">
-                    <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md duration-300 ${isInWishlist(product.id) ? 'bg-purple-600 text-white' : 'bg-white text-purple-600 hover:bg-purple-600 hover:text-white'}`}
-                        onClick={handleWishlist}
-                    >
-                        <i className={`ph-bold ${isInWishlist(product.id) ? 'ph-heart-fill text-red-500' : 'ph-heart'}`}></i>
-                    </div>
+                <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md ${isInWishlist(product.id) ? 'bg-purple-600 text-white' : 'bg-black text-white'}`}
+                    onClick={handleWishlist}
+                >
+                    <i className={`ph-bold ${isInWishlist(product.id) ? 'ph-heart-fill text-white' : 'ph-heart'}`}></i>
                 </div>
 
-                <div className="absolute bottom-3 left-3 right-3 translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">
+                <div className="absolute bottom-3 left-3 right-3 translate-y-0 opacity-100">
                     <button
-                        className={`w-full py-2 rounded-full text-sm font-bold shadow-md duration-300 uppercase border ${product.quantity <= 0 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-purple-600 border-purple-600 hover:bg-black hover:text-white'}`}
+                        className={`w-full py-2 rounded-full text-sm font-bold shadow-md uppercase border ${product.quantity <= 0 ? 'bg-gray-400 text-white border-gray-400 cursor-not-allowed' : 'bg-purple-600 text-white border-purple-600'}`}
                         onClick={handleAddToCart}
                         disabled={product.quantity <= 0}
                     >

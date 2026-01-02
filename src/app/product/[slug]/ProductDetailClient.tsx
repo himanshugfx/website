@@ -140,7 +140,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     {sizes.map((s) => (
                                         <div
                                             key={s}
-                                            className={`item px-5 py-2 border rounded-lg cursor-pointer font-semibold ${selectedSize === s ? 'bg-black text-white border-black' : 'border-line hover:border-black'}`}
+                                            className={`item px-5 py-2 border rounded-lg cursor-pointer font-semibold ${selectedSize === s ? 'bg-black text-white border-black' : 'border-line'}`}
                                             onClick={() => setSelectedSize(s)}
                                         >
                                             {s}
@@ -164,7 +164,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                 >+</div>
                             </div>
                             <button
-                                className="button-main flex-1 bg-black text-white py-4 rounded-xl hover:bg-purple text-white duration-300 font-bold uppercase transition-colors"
+                                className="button-main flex-1 bg-purple-600 text-white py-4 rounded-xl text-white font-bold uppercase"
                                 onClick={handleAddToCart}
                             >
                                 Add To Cart
@@ -172,11 +172,11 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                         </div>
 
                         <div className="other-actions mt-6 flex items-center gap-8 border-t border-line pt-6">
-                            <div className="item flex items-center gap-2 cursor-pointer hover:underline" onClick={handleWishlist}>
+                            <div className="item flex items-center gap-2 cursor-pointer" onClick={handleWishlist}>
                                 <i className={`ph-bold text-xl ${isInWishlist(product.id) ? 'ph-heart-fill text-red-500' : 'ph-heart'}`}></i>
                                 <span className="caption1 font-semibold">{isInWishlist(product.id) ? 'In Wishlist' : 'Add to Wishlist'}</span>
                             </div>
-                            <div className="item flex items-center gap-2 cursor-pointer hover:underline">
+                            <div className="item flex items-center gap-2 cursor-pointer">
                                 <i className="ph ph-arrow-counter-clockwise text-xl"></i>
                                 <span className="caption1 font-semibold">Compare</span>
                             </div>

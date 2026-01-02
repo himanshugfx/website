@@ -132,7 +132,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     <div className="flex items-center gap-4">
                         <Link
                             href="/admin/orders"
-                            className="p-2.5 bg-white border border-gray-200 text-gray-500 hover:text-purple-600 hover:border-purple-200 hover:bg-purple-50 rounded-xl transition-all"
+                            className="p-2.5 bg-black text-white hover:bg-gray-900 rounded-xl transition-all"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
@@ -155,7 +155,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             <button
                                 onClick={() => updateStatus('CANCELLED')}
                                 disabled={updating}
-                                className="px-5 py-2.5 bg-red-50 text-red-600 font-medium rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
+                                className="px-5 py-2.5 bg-black text-white font-medium rounded-xl disabled:opacity-50"
                             >
                                 Cancel Order
                             </button>
@@ -164,7 +164,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             <button
                                 onClick={() => updateStatus('COMPLETED')}
                                 disabled={updating}
-                                className="px-5 py-2.5 bg-purple-600 text-white font-medium rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
+                                className="px-5 py-2.5 bg-purple-600 text-white font-medium rounded-xl transition-all disabled:opacity-50"
                             >
                                 Mark as Completed
                             </button>
@@ -240,7 +240,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             </h2>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
+                                    <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
                                         {(order.user?.name || 'G').charAt(0)}
                                     </div>
                                     <div>

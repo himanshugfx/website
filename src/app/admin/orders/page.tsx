@@ -79,7 +79,7 @@ export default function OrdersPage() {
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-medium">
                             <Download className="w-4 h-4" />
                             Export
                         </button>
@@ -203,7 +203,7 @@ export default function OrdersPage() {
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}
-                                                    className="inline-flex items-center justify-center p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                                                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all"
                                                 >
                                                     <Eye className="w-5 h-5" />
                                                 </Link>
@@ -221,7 +221,7 @@ export default function OrdersPage() {
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Previous
                             </button>
@@ -231,7 +231,7 @@ export default function OrdersPage() {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Next
                             </button>

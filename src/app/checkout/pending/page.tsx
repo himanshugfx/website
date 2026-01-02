@@ -53,13 +53,13 @@ export default function CheckoutPendingPage({
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/my-account"
-                            className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors font-semibold"
+                            className="inline-flex items-center justify-center px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold transition-colors"
                         >
                             Check Order Status
                         </Link>
                         <Link
                             href="/"
-                            className="inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-semibold"
+                            className="inline-flex items-center justify-center px-6 py-3 bg-black text-white border border-gray-200 rounded-xl font-semibold transition-colors"
                         >
                             Go to Home
                         </Link>

@@ -86,13 +86,13 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             </div>
                             <div className="filter-type menu-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
                                 {categories.map(cat => (
-                                    <div
+                                    <button
                                         key={cat}
-                                        className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px transition-colors duration-300 ${
-                                            selectedCategory === cat 
-                                                ? 'text-purple-600 font-semibold' 
+                                        type="button"
+                                        className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px transition-colors duration-300 ${selectedCategory === cat
+                                                ? 'text-purple-600 font-semibold'
                                                 : 'text-black hover:text-purple-600'
-                                        }`}
+                                            }`}
                                         onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                                     >
                                         {cat}
@@ -140,7 +140,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             </div>
 
                             <button
-                                className="button-main w-full py-2 bg-purple-600 text-white rounded-lg mt-5"
+                                className="button-main w-full py-2 bg-purple-600 text-white rounded-lg mt-5 font-bold"
                                 onClick={() => {
                                     setSelectedCategory(null);
                                     setSelectedType(null);

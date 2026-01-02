@@ -127,7 +127,7 @@ export default function ContactPage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className={`button-main bg-black text-white px-10 py-4 rounded-xl font-bold uppercase transition-colors hover:bg-purple-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`button-main bg-purple-600 text-white px-10 py-4 rounded-xl font-bold uppercase ${loading ? 'cursor-not-allowed' : ''}`}
                                     >
                                         {loading ? 'Sending...' : 'Send message'}
                                     </button>

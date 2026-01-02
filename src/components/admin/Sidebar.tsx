@@ -68,7 +68,7 @@ const SidebarContent = ({ isCollapsed, onClose, onToggleCollapse, pathname }: { 
                             title={isCollapsed ? item.name : undefined}
                             className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
                                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                                : 'text-gray-400'
                                 }`}
                         >
                             <div className={`flex items-center ${!isCollapsed && 'gap-3'}`}>
@@ -85,7 +85,7 @@ const SidebarContent = ({ isCollapsed, onClose, onToggleCollapse, pathname }: { 
         {/* Bottom Section */}
         <div className="p-4 border-t border-gray-800">
             {!isCollapsed ? (
-                <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/50 rounded-xl p-4 border border-purple-500/20">
+                <div className="bg-black rounded-xl p-4 border border-gray-800">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                             <span className="text-purple-300 text-xs font-bold">AB</span>
@@ -107,7 +107,7 @@ const SidebarContent = ({ isCollapsed, onClose, onToggleCollapse, pathname }: { 
             {/* Collapse Button (Desktop Only) */}
             <button
                 onClick={onToggleCollapse}
-                className={`hidden lg:flex items-center ${isCollapsed ? 'justify-center' : 'justify-center'} w-full mt-4 p-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors`}
+                className={`hidden lg:flex items-center ${isCollapsed ? 'justify-center' : 'justify-center'} w-full mt-4 p-2 text-gray-500 rounded-lg transition-colors`}
             >
                 {isCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button>
@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
             </div>
 
             {/* Desktop Sidebar */}
-            <div className={`hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col transition-all duration-300 ${isCollapsed ? 'lg:w-20' : 'lg:w-72'
+            <div className={`hidden lg:flex lg:flex-col sticky top-0 h-screen z-30 transition-all duration-300 border-r border-gray-800 flex-shrink-0 ${isCollapsed ? 'lg:w-20' : 'lg:w-72'
                 }`}>
                 <SidebarContent isCollapsed={isCollapsed} onClose={onClose} onToggleCollapse={onToggleCollapse} pathname={pathname} />
             </div>

@@ -104,7 +104,7 @@ export default function BlogPage() {
                                     <p className="body1 text-zinc-500 mt-3 line-clamp-2 leading-relaxed">
                                         {post.excerpt}
                                     </p>
-                                    <Link href={`/blog/${post.id}`} className="text-button inline-block mt-4 font-bold border-b-2 border-black pb-1 hover:text-zinc-500 hover:border-zinc-500 transition-all">
+                                    <Link href={`/blog/${post.id}`} className="text-button inline-block mt-4 font-bold border-b-2 border-black pb-1">
                                         Read More
                                     </Link>
                                 </div>
@@ -114,9 +114,9 @@ export default function BlogPage() {
 
                     <div className="list-pagination w-full flex items-center justify-center gap-4 md:mt-16 mt-10">
                         <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-purple-600 text-white font-bold cursor-pointer">1</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line hover:bg-purple-600 hover:text-white transition-colors cursor-pointer">2</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line hover:bg-purple-600 hover:text-white transition-colors cursor-pointer">3</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line hover:bg-purple-600 hover:text-white transition-colors cursor-pointer">
+                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-pointer">2</div>
+                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-pointer">3</div>
+                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-black text-white cursor-pointer">
                             <i className="ph ph-caret-right"></i>
                         </div>
                     </div>

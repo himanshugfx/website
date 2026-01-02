@@ -84,7 +84,7 @@ export default function CheckoutClient() {
                 <div className="container mx-auto text-center">
                     <div className="heading3">Your cart is empty</div>
                     <p className="body1 text-secondary mt-4">You cannot checkout with an empty cart.</p>
-                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8 hover:bg-purple-700 duration-300">
+                    <Link href="/shop" className="button-main bg-purple-600 text-white px-10 py-3 rounded-full inline-block mt-8">
                         Go To Shop
                     </Link>
                 </div>
@@ -523,7 +523,7 @@ export default function CheckoutClient() {
                         <button
                             onClick={handlePlaceOrder}
                             disabled={loading}
-                            className="button-main w-full bg-purple-600 text-white py-4 rounded-xl mt-10 hover:bg-purple-700 duration-300 font-bold uppercase disabled:bg-purple-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="button-main w-full bg-purple-600 text-white py-4 rounded-xl mt-10 font-bold uppercase disabled:bg-purple-600 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
@@ -580,7 +580,7 @@ export default function CheckoutClient() {
                                                 setPromoCodeInput('');
                                                 setError('');
                                             }}
-                                            className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-100 transition-colors"
+                                            className="bg-black text-white px-4 py-2 rounded-lg font-medium"
                                         >
                                             Remove
                                         </button>
@@ -588,7 +588,7 @@ export default function CheckoutClient() {
                                         <button
                                             onClick={handleApplyPromo}
                                             disabled={applyingPromo || !promoCodeInput}
-                                            className="bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
                                         >
                                             {applyingPromo ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                                         </button>

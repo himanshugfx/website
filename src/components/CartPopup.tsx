@@ -49,7 +49,7 @@ export default function CartPopup() {
             <div className="relative bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl animate-fade-up">
                 <button
                     onClick={closePopup}
-                    className="absolute top-4 right-4 p-2 hover:bg-zinc-100 rounded-full duration-300"
+                    className="absolute top-4 right-4 p-2 bg-zinc-100 rounded-full"
                 >
                     <i className="ph ph-x text-xl"></i>
                 </button>
@@ -93,7 +93,7 @@ export default function CartPopup() {
                                     key={product.id}
                                     href={`/shop/product/${product.slug}`}
                                     onClick={closePopup}
-                                    className="flex gap-3 p-3 border border-line rounded-lg hover:border-black duration-300 cursor-pointer group"
+                                    className="flex gap-3 p-3 border border-line rounded-lg cursor-pointer group"
                                 >
                                     <div className="w-16 aspect-square relative rounded bg-zinc-100 overflow-hidden flex-shrink-0">
                                         <Image
@@ -118,14 +118,14 @@ export default function CartPopup() {
                 <div className="grid grid-cols-2 gap-4 mt-8">
                     <button
                         onClick={closePopup}
-                        className="button-main border border-black bg-white text-black py-3 rounded-xl hover:bg-black hover:text-white duration-300 font-bold"
+                        className="button-main border border-black bg-black text-white py-3 rounded-xl font-bold"
                     >
                         Continue Shopping
                     </button>
                     <Link
                         href="/checkout"
                         onClick={closePopup}
-                        className="button-main bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 duration-300 font-bold text-center flex flex-col items-center justify-center gap-1"
+                        className="button-main bg-purple-600 text-white py-3 rounded-xl font-bold text-center flex flex-col items-center justify-center gap-1"
                     >
                         <span>Continue To Checkout</span>
                         <div className="flex items-center gap-1.5 opacity-90">

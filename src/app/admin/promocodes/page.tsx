@@ -167,7 +167,7 @@ export default function PromoCodesPage() {
                     </div>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl hover:bg-gray-900 transition-all shadow-lg shadow-purple-500/25 font-medium"
+                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-medium"
                     >
                         <Plus className="w-5 h-5" />
                         Create Promo Code
@@ -263,7 +263,7 @@ export default function PromoCodesPage() {
                                                     <span className="font-mono font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded border border-zinc-200">{code.code}</span>
                                                     <button
                                                         onClick={() => navigator.clipboard.writeText(code.code)}
-                                                        className="text-zinc-400 hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                                         title="Copy Code"
                                                     >
                                                         <Copy className="w-4 h-4" />
@@ -293,8 +293,8 @@ export default function PromoCodesPage() {
                                                 <button
                                                     onClick={() => toggleStatus(code.id, code.isActive)}
                                                     className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${code.isActive
-                                                        ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
-                                                        : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200'
+                                                        ? 'bg-purple-600 text-white border-purple-600'
+                                                        : 'bg-black text-white border-black'
                                                         }`}
                                                 >
                                                     {code.isActive ? 'Active' : 'Inactive'}
@@ -303,7 +303,7 @@ export default function PromoCodesPage() {
                                             <td className="px-6 py-4 text-right">
                                                 <button
                                                     onClick={() => handleDelete(code.id)}
-                                                    className="text-zinc-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                    className="text-white bg-black p-2 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
@@ -320,7 +320,7 @@ export default function PromoCodesPage() {
                 {/* Floating Action Button */}
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="fixed bottom-8 right-8 w-14 h-14 bg-black text-white rounded-full shadow-lg shadow-purple-500/50 hover:bg-gray-900 transition-all flex items-center justify-center z-40 hover:scale-110 active:scale-95"
+                    className="fixed bottom-8 right-8 w-14 h-14 bg-black text-white rounded-full shadow-lg z-40"
                     title="Create New Promo Code"
                 >
                     <Plus className="w-6 h-6" />
@@ -332,7 +332,7 @@ export default function PromoCodesPage() {
                         <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl animate-in zoom-in-95 duration-200">
                             <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
                                 <h2 className="text-xl font-bold text-zinc-900">Create New Promo Code</h2>
-                                <button onClick={() => setIsCreateModalOpen(false)} className="text-zinc-400 hover:text-red-500">
+                                <button onClick={() => setIsCreateModalOpen(false)} className="text-zinc-400">
                                     <XCircle className="w-6 h-6" />
                                 </button>
                             </div>
@@ -353,7 +353,7 @@ export default function PromoCodesPage() {
                                         <button
                                             type="button"
                                             onClick={generateRandomCode}
-                                            className="text-sm px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium transition-colors"
+                                            className="text-sm px-3 py-2 bg-black text-white rounded-lg font-medium transition-colors"
                                         >
                                             Generate
                                         </button>
@@ -439,14 +439,14 @@ export default function PromoCodesPage() {
                                     <button
                                         type="button"
                                         onClick={() => setIsCreateModalOpen(false)}
-                                        className="px-4 py-2 text-zinc-700 font-medium hover:bg-zinc-100 rounded-lg transition-colors"
+                                        className="px-4 py-2 bg-black text-white font-medium rounded-lg transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={creating}
-                                        className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-purple-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        className="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2"
                                     >
                                         {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                                         Create Code
