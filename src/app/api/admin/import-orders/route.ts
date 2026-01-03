@@ -66,8 +66,9 @@ export async function POST(request: Request) {
             const row = rowData[i];
 
             // Mandatory check: name, product, amount, payment method, payment status
-            const customerName = row['Customer Name'] || row['customerName'] || row['CustomerName'] || row['Name'] || row['name'] || row['Customer'] || row['customer'];
-            const productName = row['Product Name'] || row['productName'] || row['ProductName'] || row['Product'] || row['product'];
+            const customerName = row['Customer Name'] || row['customerName'] || row['CustomerName'] || row['Name'] || row['name'] || row['Customer'] || row['customer'] || row['Client Name'] || row['Client'] || row['User'] || row['Contact'] || row['Full Name'];
+            const customerEmail = row['Customer Email'] || row['customerEmail'] || row['CustomerEmail'] || row['Email'] || row['email'] || row['User Email'] || row['Account'] || row['Contact Email'] || '';
+            const productName = row['Product Name'] || row['productName'] || row['ProductName'] || row['Product'] || row['product'] || row['Item'] || row['item'];
             const totalAmountStr = row['Total Amount'] || row['totalAmount'] || row['TotalAmount'] || row['Amount'] || row['amount'];
             const totalAmount = parseFloat(totalAmountStr || 0);
             const paymentMethod = row['Payment Method'] || row['paymentMethod'] || row['PaymentMethod'] || 'ONLINE';
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
             if (!orderMap.has(groupKey)) {
                 orderMap.set(groupKey, {
                     customerName,
-                    customerEmail: row['Customer Email'] || row['customerEmail'] || row['CustomerEmail'] || row['Email'] || row['email'] || '',
+                    customerEmail,
                     customerPhone: row['Customer Phone'] || row['customerPhone'] || row['CustomerPhone'] || row['Phone'] || row['phone'] || '',
                     totalAmount,
                     orderStatus: row['Order Status'] || row['orderStatus'] || row['OrderStatus'] || 'PENDING',
