@@ -272,13 +272,13 @@ export default async function AdminDashboard() {
                     <div className="space-y-4 sm:space-y-8">
                         <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 sm:p-8 text-white shadow-lg shadow-gray-200">
                             <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
-                            <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new products to your store inventory.</p>
+                            <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new leads to your sales funnel.</p>
                             <Link
-                                href="/admin/products/add"
+                                href="/admin/funnel/leads/add"
                                 className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-white text-black rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base mb-3"
                             >
-                                <Package className="w-5 h-5" />
-                                Add Product
+                                <Users className="w-5 h-5" />
+                                Add Lead
                             </Link>
                         </div>
 

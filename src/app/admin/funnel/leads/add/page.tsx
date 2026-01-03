@@ -96,9 +96,8 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                 <input
                                     type="email"
                                     name="email"
-                                    required
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="john@example.com"
+                                    placeholder="Enter email"
                                 />
                             </div>
                             <div>
@@ -108,8 +107,9 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                 <input
                                     type="tel"
                                     name="phone"
+                                    required
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="+91 98765 43210"
+                                    placeholder="Enter phone number"
                                 />
                             </div>
                             <div className="sm:col-span-2">
@@ -120,7 +120,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                     type="text"
                                     name="company"
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Acme Corp"
+                                    placeholder="Business name"
                                 />
                             </div>
                         </div>
@@ -176,7 +176,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                     min="0"
                                     step="0.01"
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="10000"
+                                    placeholder="Expected Order Value"
                                 />
                             </div>
                         </div>
@@ -206,7 +206,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                         </Link>
                         <button
                             type="submit"
-                            className="px-6 py-3 font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
+                            className="px-6 py-3 font-semibold text-white bg-Black rounded-xl hover:bg-Black/80"
                         >
                             Add Lead
                         </button>
