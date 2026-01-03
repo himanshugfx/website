@@ -17,27 +17,37 @@ export async function GET(request: Request) {
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
         const search = searchParams.get('search') || '';
+        const sortBy = searchParams.get('sortBy') || 'date_desc';
 
         const skip = (page - 1) * limit;
 
         const where = search
             ? {
                 OR: [
-                    { name: { contains: search } },
-                    { category: { contains: search } },
-                    { brand: { contains: search } },
+                    { name: { contains: search, mode: 'insensitive' } },
+                    { category: { contains: search, mode: 'insensitive' } },
+                    { brand: { contains: search, mode: 'insensitive' } },
                 ],
             }
             : {};
+
+        // Sorting logic
+        let orderBy: any = { createdAt: 'desc' };
+        if (sortBy === 'name_asc') orderBy = { name: 'asc' };
+        if (sortBy === 'name_desc') orderBy = { name: 'desc' };
+        if (sortBy === 'price_asc') orderBy = { price: 'asc' };
+        if (sortBy === 'price_desc') orderBy = { price: 'desc' };
+        if (sortBy === 'stock_asc') orderBy = { quantity: 'asc' };
+        if (sortBy === 'stock_desc') orderBy = { quantity: 'desc' };
+        if (sortBy === 'priority_desc') orderBy = { priority: 'desc' };
+        if (sortBy === 'date_asc') orderBy = { createdAt: 'asc' };
 
         const [products, total] = await Promise.all([
             prisma.product.findMany({
                 where,
                 skip,
                 take: limit,
-                orderBy: {
-                    createdAt: 'desc',
-                },
+                orderBy,
                 include: {
                     variations: true,
                 },

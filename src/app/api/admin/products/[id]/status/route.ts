@@ -12,7 +12,7 @@ export async function PATCH(
         const { id } = await params;
         const data = await request.json();
 
-        const { new: isNew, sale, bestSeller } = data;
+        const { new: isNew, sale, bestSeller, priority } = data;
 
         const product = await prisma.product.update({
             where: { id },
@@ -20,6 +20,7 @@ export async function PATCH(
                 new: isNew !== undefined ? isNew : undefined,
                 sale: sale !== undefined ? sale : undefined,
                 bestSeller: bestSeller !== undefined ? bestSeller : undefined,
+                priority: priority !== undefined ? parseInt(priority) : undefined,
             },
         });
 

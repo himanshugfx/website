@@ -23,17 +23,30 @@ export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [sortBy, setSortBy] = useState('date_desc');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const SORT_OPTIONS = [
+        { value: 'date_desc', label: 'Newest First' },
+        { value: 'date_asc', label: 'Oldest First' },
+        { value: 'priority_desc', label: 'Priority (High to Low)' },
+        { value: 'price_asc', label: 'Price: Low to High' },
+        { value: 'price_desc', label: 'Price: High to Low' },
+        { value: 'name_asc', label: 'Name: A-Z' },
+        { value: 'name_desc', label: 'Name: Z-A' },
+        { value: 'stock_asc', label: 'Stock: Low to High' },
+        { value: 'stock_desc', label: 'Stock: High to Low' },
+    ];
+
     useEffect(() => {
         fetchProducts();
-    }, [page, search]);
+    }, [page, search, sortBy]);
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`/api/admin/products?page=${page}&search=${search}`);
+            const res = await fetch(`/api/admin/products?page=${page}&search=${search}&sortBy=${sortBy}`);
             const data = await res.json();
             setProducts(data.products || []);
             setTotalPages(data.totalPages || 1);
@@ -44,21 +57,21 @@ export default function ProductsPage() {
         }
     };
 
-    const toggleStatus = async (id: string, field: 'new' | 'sale' | 'bestSeller', currentValue: boolean) => {
+    const updateField = async (id: string, field: string, value: any) => {
         try {
             const res = await fetch(`/api/admin/products/${id}/status`, {
                 method: 'PATCH',
-                body: JSON.stringify({ [field]: !currentValue }),
+                body: JSON.stringify({ [field]: value }),
             });
 
             if (res.ok) {
-                setProducts(products.map(p => p.id === id ? { ...p, [field]: !currentValue } : p));
+                setProducts(products.map(p => p.id === id ? { ...p, [field]: value } : p));
             } else {
-                alert('Failed to update status');
+                alert('Failed to update product');
             }
         } catch (error) {
-            console.error('Error updating status:', error);
-            alert('Failed to update status');
+            console.error('Error updating product:', error);
+            alert('Failed to update product');
         }
     };
 
@@ -108,19 +121,36 @@ export default function ProductsPage() {
                     </Link>
                 </div>
 
-                {/* Search */}
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search products by name, category, or brand..."
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setPage(1);
-                        }}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm transition-all"
-                    />
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search products by name, category, or brand..."
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
+                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm transition-all outline-none"
+                        />
+                    </div>
+                    <div className="w-full sm:w-64">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => {
+                                setSortBy(e.target.value);
+                                setPage(1);
+                            }}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm transition-all outline-none cursor-pointer"
+                        >
+                            {SORT_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    Sort: {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Products Table */}
@@ -140,6 +170,9 @@ export default function ProductsPage() {
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Stock
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        Priority
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Labels
@@ -216,23 +249,31 @@ export default function ProductsPage() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
+                                                <input
+                                                    type="number"
+                                                    value={(product as any).priority || 0}
+                                                    onChange={(e) => updateField(product.id, 'priority', e.target.value)}
+                                                    className="w-16 px-2 py-1 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center gap-2">
                                                     <button
-                                                        onClick={() => toggleStatus(product.id, 'bestSeller', product.bestSeller)}
+                                                        onClick={() => updateField(product.id, 'bestSeller', !product.bestSeller)}
                                                         className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.bestSeller ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle Best Seller"
                                                     >
                                                         BEST
                                                     </button>
                                                     <button
-                                                        onClick={() => toggleStatus(product.id, 'sale', product.sale)}
+                                                        onClick={() => updateField(product.id, 'sale', !product.sale)}
                                                         className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.sale ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle On Sale"
                                                     >
                                                         SALE
                                                     </button>
                                                     <button
-                                                        onClick={() => toggleStatus(product.id, 'new', product.new)}
+                                                        onClick={() => updateField(product.id, 'new', !product.new)}
                                                         className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all border ${product.new ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
                                                         title="Toggle New Arrival"
                                                     >
