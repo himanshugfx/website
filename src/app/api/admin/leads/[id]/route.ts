@@ -29,6 +29,9 @@ export async function PATCH(
             data: updateData,
             include: {
                 stage: true,
+                activities: {
+                    orderBy: { createdAt: 'desc' }
+                }
             },
         });
 
