@@ -9,9 +9,19 @@ import Link from 'next/link';
 interface OrderDetails {
     id: string;
     orderNumber: number;
+    userId: string | null;
     customerName: string | null;
     customerEmail: string | null;
     customerPhone: string | null;
+    total: number;
+    status: string;
+    paymentStatus: string;
+    paymentMethod: string;
+    shippingFee: number;
+    discountAmount: number;
+    promoCode: string | null;
+    address: string | null;
+    createdAt: string;
     user: {
         name: string | null;
         email: string | null;
