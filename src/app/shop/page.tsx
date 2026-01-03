@@ -4,7 +4,10 @@ import ShopClient from "./ShopClient";
 
 export default async function ShopPage() {
     const products = await prisma.product.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+            { priority: 'desc' },
+            { createdAt: 'desc' },
+        ],
     });
 
     const categories = await prisma.product.findMany({
