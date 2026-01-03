@@ -2,10 +2,30 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 
+// Helper to parse Excel dates correctly
+function parseExcelDate(val: any): string {
+    if (!val) return new Date().toISOString();
+    if (val instanceof Date) return val.toISOString();
+
+    // If it's a number (Excel serial date)
+    if (typeof val === 'number') {
+        const date = new Date(Math.round((val - 25569) * 864e5));
+        return date.toISOString();
+    }
+
+    // Fallback to trying to parse string
+    try {
+        const date = new Date(val);
+        if (!isNaN(date.getTime())) return date.toISOString();
+    } catch (e) { }
+
+    return new Date().toISOString();
+}
+
 // Dynamic import for xlsx to avoid SSR issues
 async function parseExcel(buffer: ArrayBuffer) {
     const XLSX = await import('xlsx');
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
     return workbook;
 }
 
@@ -71,7 +91,7 @@ export async function POST(request: Request) {
                     orderStatus: row['Order Status'] || row['orderStatus'] || row['OrderStatus'] || 'PENDING',
                     paymentStatus,
                     paymentMethod,
-                    orderDate: row['Order Date'] || row['orderDate'] || row['OrderDate'] || new Date().toISOString(),
+                    orderDate: parseExcelDate(row['Order Date'] || row['orderDate'] || row['OrderDate']),
                     address: row['Shipping Address'] || row['shippingAddress'] || row['ShippingAddress'] || row['Address'] || row['address'] || '',
                     items: [],
                 });

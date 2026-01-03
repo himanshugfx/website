@@ -10,6 +10,7 @@ export async function GET(request: Request) {
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
         const status = searchParams.get('status') || '';
+        const search = searchParams.get('search') || '';
         const abandoned = searchParams.get('abandoned') === 'true';
 
         const skip = (page - 1) * limit;
@@ -26,19 +27,41 @@ export async function GET(request: Request) {
             };
         } else {
             // Main orders list: show everything EXCEPT abandoned carts
+            const abandonedFilter = {
+                NOT: {
+                    AND: [
+                        { status: 'PENDING' },
+                        { paymentStatus: 'PENDING' },
+                        { paymentMethod: { not: 'COD' } }
+                    ]
+                }
+            };
+
             where = {
                 AND: [
                     status ? { status } : {},
-                    {
-                        NOT: {
-                            AND: [
-                                { paymentStatus: 'PENDING' },
-                                { paymentMethod: { not: 'COD' } }
-                            ]
-                        }
-                    }
+                    // Only apply abandoned filter if not searching for something specific
+                    search ? {} : abandonedFilter,
                 ]
             };
+
+            if (search) {
+                const isNumeric = /^\d+$/.test(search);
+                where.AND.push({
+                    OR: [
+                        isNumeric ? { orderNumber: parseInt(search) } : {},
+                        {
+                            user: {
+                                OR: [
+                                    { name: { contains: search, mode: 'insensitive' } },
+                                    { email: { contains: search, mode: 'insensitive' } },
+                                ]
+                            }
+                        },
+                        { address: { contains: search, mode: 'insensitive' } }
+                    ].filter(cond => Object.keys(cond).length > 0)
+                });
+            }
         }
 
         const [orders, total] = await Promise.all([
