@@ -138,7 +138,7 @@ export default function OrdersPage() {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order #</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
@@ -169,7 +169,7 @@ export default function OrdersPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    orders.map((order) => (
+                                    orders.map((order: any) => (
                                         <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
@@ -179,11 +179,11 @@ export default function OrdersPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs ring-2 ring-white">
-                                                        {(order.user?.name || 'G').charAt(0)}
+                                                        {(order.customerName || order.user?.name || 'G').charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <div className="text-sm font-semibold text-gray-900">{order.user?.name || 'Guest'}</div>
-                                                        <div className="text-xs text-gray-500">{order.user?.email}</div>
+                                                        <div className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</div>
+                                                        <div className="text-xs text-gray-500">{order.customerEmail || order.user?.email || ''}</div>
                                                     </div>
                                                 </div>
                                             </td>

@@ -20,6 +20,7 @@ export async function GET(request: Request) {
 
         if (abandoned) {
             where = {
+                status: 'PENDING',
                 paymentStatus: 'PENDING',
                 paymentMethod: {
                     not: 'COD'
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
             };
         } else {
             // Main orders list: show everything EXCEPT abandoned carts
+            // UNLESS searching, then show everything that matches
             const abandonedFilter = {
                 NOT: {
                     AND: [
@@ -40,8 +42,7 @@ export async function GET(request: Request) {
             where = {
                 AND: [
                     status ? { status } : {},
-                    // Only apply abandoned filter if not searching for something specific
-                    search ? {} : abandonedFilter,
+                    search ? {} : abandonedFilter, // Don't filter if searching
                 ]
             };
 
@@ -50,6 +51,10 @@ export async function GET(request: Request) {
                 where.AND.push({
                     OR: [
                         isNumeric ? { orderNumber: parseInt(search) } : {},
+                        { customerName: { contains: search, mode: 'insensitive' } },
+                        { customerEmail: { contains: search, mode: 'insensitive' } },
+                        { customerPhone: { contains: search, mode: 'insensitive' } },
+                        { address: { contains: search, mode: 'insensitive' } },
                         {
                             user: {
                                 OR: [
@@ -57,8 +62,7 @@ export async function GET(request: Request) {
                                     { email: { contains: search, mode: 'insensitive' } },
                                 ]
                             }
-                        },
-                        { address: { contains: search, mode: 'insensitive' } }
+                        }
                     ].filter(cond => Object.keys(cond).length > 0)
                 });
             }
@@ -70,7 +74,7 @@ export async function GET(request: Request) {
                 skip,
                 take: limit,
                 orderBy: {
-                    createdAt: 'desc',
+                    orderNumber: 'desc', // Newest order on top
                 },
                 include: {
                     user: {

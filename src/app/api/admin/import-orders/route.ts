@@ -66,7 +66,7 @@ export async function POST(request: Request) {
             const row = rowData[i];
 
             // Mandatory check: name, product, amount, payment method, payment status
-            const customerName = row['Customer Name'] || row['customerName'] || row['CustomerName'] || row['Name'] || row['name'];
+            const customerName = row['Customer Name'] || row['customerName'] || row['CustomerName'] || row['Name'] || row['name'] || row['Customer'] || row['customer'];
             const productName = row['Product Name'] || row['productName'] || row['ProductName'] || row['Product'] || row['product'];
             const totalAmountStr = row['Total Amount'] || row['totalAmount'] || row['TotalAmount'] || row['Amount'] || row['amount'];
             const totalAmount = parseFloat(totalAmountStr || 0);
@@ -111,20 +111,19 @@ export async function POST(request: Request) {
         // Import orders
         for (const [groupKey, orderData] of orderMap.entries()) {
             try {
-                // Find or create user if email is provided
-                let user = null;
+                // Find or create user if email is provided (Optional for records, but Order will hold the source name)
+                let userId = null;
                 if (orderData.customerEmail) {
-                    user = await prisma.user.upsert({
+                    const user = await prisma.user.upsert({
                         where: { email: orderData.customerEmail },
-                        update: {
-                            name: orderData.customerName
-                        },
+                        update: { name: orderData.customerName },
                         create: {
                             email: orderData.customerEmail,
                             name: orderData.customerName || null,
                             role: 'customer',
                         },
                     });
+                    userId = user.id;
                 }
 
                 // Match or create products
@@ -159,10 +158,13 @@ export async function POST(request: Request) {
                     productIds.push(product.id);
                 }
 
-                // Create order - AUTOMATIC numbering
+                // Create order - AUTOMATIC numbering & Store Customer Details directly
                 const order = await prisma.order.create({
                     data: {
-                        userId: user?.id || null,
+                        userId: userId,
+                        customerName: orderData.customerName,
+                        customerEmail: orderData.customerEmail,
+                        customerPhone: orderData.customerPhone,
                         total: orderData.totalAmount,
                         status: orderData.orderStatus.toUpperCase(),
                         paymentStatus: orderData.paymentStatus.toUpperCase(),

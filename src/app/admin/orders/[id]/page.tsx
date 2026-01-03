@@ -9,16 +9,9 @@ import Link from 'next/link';
 interface OrderDetails {
     id: string;
     orderNumber: number;
-    userId: string | null;
-    total: number;
-    status: string;
-    paymentStatus: string;
-    paymentMethod: string;
-    shippingFee: number;
-    discountAmount: number;
-    promoCode: string | null;
-    address: string | null;
-    createdAt: string;
+    customerName: string | null;
+    customerEmail: string | null;
+    customerPhone: string | null;
     user: {
         name: string | null;
         email: string | null;
@@ -254,11 +247,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
-                                        {(order.user?.name || 'G').charAt(0)}
+                                        {(order.customerName || order.user?.name || 'G').charAt(0)}
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-gray-900">{order.user?.name || 'Guest User'}</p>
-                                        <p className="text-sm text-gray-500">{order.user?.email}</p>
+                                        <p className="font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest User'}</p>
+                                        <p className="text-sm text-gray-500">{order.customerEmail || order.user?.email || ''}</p>
+                                        {order.customerPhone && <p className="text-sm text-gray-500">{order.customerPhone}</p>}
                                     </div>
                                 </div>
                             </div>

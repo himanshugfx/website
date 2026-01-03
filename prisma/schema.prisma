@@ -57,13 +57,16 @@ model Variation {
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  orderNumber Int         @unique @default(autoincrement())
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
-  items       OrderItem[]
-  total       Float
-  status      String      @default("PENDING")
+  id            String      @id @default(cuid())
+  orderNumber   Int         @unique @default(autoincrement())
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  items         OrderItem[]
+  total         Float
+  status        String      @default("PENDING")
   paymentStatus String    @default("PENDING")
   paymentMethod String    @default("ONLINE")
   shippingFee   Float       @default(0)
@@ -72,8 +75,8 @@ model Order {
   address       String?
   cancelRequest String?   // PENDING, APPROVED, REJECTED
   returnRequest String?   // PENDING, APPROVED, REJECTED
-  cancelReason String?
-  returnReason String?
+  cancelReason  String?
+  returnReason  String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
