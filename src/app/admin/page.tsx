@@ -9,19 +9,20 @@ export const dynamic = 'force-dynamic';
 async function getStats() {
     try {
         const validOrdersWhere = {
-            OR: [
-                { paymentStatus: 'SUCCESSFUL' },
-                { paymentMethod: 'COD' }
-            ],
-            status: {
-                not: 'CANCELLED'
+            status: { not: 'CANCELLED' },
+            NOT: {
+                AND: [
+                    { status: 'PENDING' },
+                    { paymentStatus: 'PENDING' },
+                    { paymentMethod: { not: 'COD' } }
+                ]
             }
         };
 
         // 1. Get Store Revenue
         const orders = await prisma.order.findMany({
             where: validOrdersWhere,
-            select: { total: true, userId: true }
+            select: { total: true, userId: true, customerEmail: true, customerName: true }
         });
 
         // 2. Get Zoho Invoice Revenue (Avoid double counting if linked to order)
@@ -45,13 +46,21 @@ async function getStats() {
 
         const totalProducts = await prisma.product.count();
 
-        // 3. Unique Customers (Store Users + unique Zoho Customer IDs)
-        // Note: This is an estimate since we don't have a shared ID between Store and Zoho
-        const storeUserIds = new Set(orders.map(o => o.userId).filter(Boolean));
-        const zohoCustomerIds = new Set(invoices.map(i => i.customerId));
+        // 3. Unique Customers (Store Users + Guest Emails/Names + Zoho)
+        const customerIdentifiers = new Set<string>();
 
-        // Sum of unique store users and unique Zoho customers
-        const totalUniqueCustomers = storeUserIds.size + zohoCustomerIds.size;
+        orders.forEach(o => {
+            if (o.userId) customerIdentifiers.add(o.userId);
+            else if (o.customerEmail) customerIdentifiers.add(o.customerEmail);
+            else if (o.customerName) customerIdentifiers.add(o.customerName);
+        });
+
+        invoices.forEach(i => {
+            if (i.customerId) customerIdentifiers.add(i.customerId);
+            else if (i.customerName) customerIdentifiers.add(i.customerName);
+        });
+
+        const totalUniqueCustomers = customerIdentifiers.size;
         const fallbackUsers = await prisma.user.count();
 
         return {
@@ -168,10 +177,10 @@ export default async function AdminDashboard() {
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
-                                                    {(order.user?.name || 'G').charAt(0)}
+                                                    {(order.customerName || order.user?.name || 'G').charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-semibold text-gray-900">{order.user?.name || 'Guest'}</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</p>
                                                     <p className="text-xs text-gray-500">#{order.orderNumber}</p>
                                                 </div>
                                             </div>
@@ -227,11 +236,11 @@ export default async function AdminDashboard() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                                                            {(order.user?.name || 'G').charAt(0)}
+                                                            {(order.customerName || order.user?.name || 'G').charAt(0)}
                                                         </div>
                                                         <div>
-                                                            <div className="text-sm font-semibold text-gray-900">{order.user?.name || 'Guest'}</div>
-                                                            <div className="text-xs text-gray-500">{order.user?.email}</div>
+                                                            <div className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</div>
+                                                            <div className="text-xs text-gray-500">{order.customerEmail || order.user?.email || ''}</div>
                                                         </div>
                                                     </div>
                                                 </td>

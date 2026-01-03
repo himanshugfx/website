@@ -13,6 +13,9 @@ interface Order {
     paymentStatus: string;
     paymentMethod: string;
     address: string | null;
+    customerName: string | null;
+    customerEmail: string | null;
+    customerPhone: string | null;
     createdAt: string;
     user: {
         name: string | null;
@@ -109,6 +112,7 @@ export default function AbandonedCartsPage() {
                                             <td className="px-6 py-4">
                                                 <div className="text-sm font-medium text-gray-900">
                                                     {(() => {
+                                                        if (order.customerName) return order.customerName;
                                                         if (order.user?.name) return order.user.name;
                                                         if (order.address) {
                                                             try {
@@ -121,6 +125,7 @@ export default function AbandonedCartsPage() {
                                                 </div>
                                                 <div className="text-xs text-gray-500">
                                                     {(() => {
+                                                        if (order.customerEmail) return order.customerEmail;
                                                         if (order.user?.email) return order.user.email;
                                                         if (order.address) {
                                                             try {
