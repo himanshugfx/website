@@ -37,68 +37,68 @@ export async function POST(request: Request) {
         }
 
         const errors: string[] = [];
-        let imported = 0;
+        let importedCount = 0;
         const orderMap = new Map<string, any>();
 
-        // Group orders by order number
-        for (const row of data as any[]) {
-            const orderNumber = row['Order Number'] || row['orderNumber'] || row['OrderNumber'];
-            if (!orderNumber) {
-                errors.push(`Row missing Order Number: ${JSON.stringify(row)}`);
+        // Group orders by order number or row index if missing
+        const rowData = data as any[];
+        for (let i = 0; i < rowData.length; i++) {
+            const row = rowData[i];
+
+            // Mandatory check: name, product, amount, payment method, payment status
+            const customerName = row['Customer Name'] || row['customerName'] || row['CustomerName'] || row['Name'] || row['name'];
+            const productName = row['Product Name'] || row['productName'] || row['ProductName'] || row['Product'] || row['product'];
+            const totalAmountStr = row['Total Amount'] || row['totalAmount'] || row['TotalAmount'] || row['Amount'] || row['amount'];
+            const totalAmount = parseFloat(totalAmountStr || 0);
+            const paymentMethod = row['Payment Method'] || row['paymentMethod'] || row['PaymentMethod'] || 'ONLINE';
+            const paymentStatus = row['Payment Status'] || row['paymentStatus'] || row['PaymentStatus'] || 'PENDING';
+
+            if (!customerName || !productName || isNaN(totalAmount) || !totalAmountStr) {
+                errors.push(`Row ${i + 1} missing mandatory fields (Name, Product, or Amount). Skipping.`);
                 continue;
             }
 
-            if (!orderMap.has(orderNumber.toString())) {
-                orderMap.set(orderNumber.toString(), {
-                    orderNumber: orderNumber.toString(),
-                    customerName: row['Customer Name'] || row['customerName'] || row['CustomerName'] || '',
-                    customerEmail: row['Customer Email'] || row['customerEmail'] || row['CustomerEmail'] || '',
-                    customerPhone: row['Customer Phone'] || row['customerPhone'] || row['CustomerPhone'] || '',
-                    totalAmount: parseFloat(row['Total Amount'] || row['totalAmount'] || row['TotalAmount'] || 0),
+            // Grouping logic: Use Order Number if exists, otherwise treat each row as a unique order
+            const excelOrderNumber = row['Order Number'] || row['orderNumber'] || row['OrderNumber'];
+            const groupKey = excelOrderNumber ? excelOrderNumber.toString() : `row-${i}`;
+
+            if (!orderMap.has(groupKey)) {
+                orderMap.set(groupKey, {
+                    customerName,
+                    customerEmail: row['Customer Email'] || row['customerEmail'] || row['CustomerEmail'] || row['Email'] || row['email'] || '',
+                    customerPhone: row['Customer Phone'] || row['customerPhone'] || row['CustomerPhone'] || row['Phone'] || row['phone'] || '',
+                    totalAmount,
                     orderStatus: row['Order Status'] || row['orderStatus'] || row['OrderStatus'] || 'PENDING',
-                    paymentStatus: row['Payment Status'] || row['paymentStatus'] || row['PaymentStatus'] || 'PENDING',
-                    paymentMethod: row['Payment Method'] || row['paymentMethod'] || row['PaymentMethod'] || 'ONLINE',
+                    paymentStatus,
+                    paymentMethod,
                     orderDate: row['Order Date'] || row['orderDate'] || row['OrderDate'] || new Date().toISOString(),
-                    address: row['Shipping Address'] || row['shippingAddress'] || row['ShippingAddress'] || '',
+                    address: row['Shipping Address'] || row['shippingAddress'] || row['ShippingAddress'] || row['Address'] || row['address'] || '',
                     items: [],
                 });
             }
 
-            const order = orderMap.get(orderNumber.toString());
-            const productName = row['Product Name'] || row['productName'] || row['ProductName'] || '';
+            const order = orderMap.get(groupKey);
             const quantity = parseInt(row['Quantity'] || row['quantity'] || 1);
-            const price = parseFloat(row['Price'] || row['price'] || 0);
+            const price = parseFloat(row['Price'] || row['price'] || totalAmount);
 
-            if (productName) {
-                order.items.push({
-                    productName,
-                    quantity,
-                    price,
-                });
-            }
+            order.items.push({
+                productName,
+                quantity,
+                price,
+            });
         }
 
         // Import orders
-        for (const [orderNumber, orderData] of orderMap.entries()) {
+        for (const [groupKey, orderData] of orderMap.entries()) {
             try {
-                // Check if order already exists
-                const existingOrder = await prisma.order.findFirst({
-                    where: {
-                        orderNumber: parseInt(orderNumber) || undefined,
-                    },
-                });
-
-                if (existingOrder) {
-                    errors.push(`Order #${orderNumber} already exists, skipping`);
-                    continue;
-                }
-
-                // Find or create user
+                // Find or create user if email is provided
                 let user = null;
                 if (orderData.customerEmail) {
                     user = await prisma.user.upsert({
                         where: { email: orderData.customerEmail },
-                        update: {},
+                        update: {
+                            name: orderData.customerName
+                        },
                         create: {
                             email: orderData.customerEmail,
                             name: orderData.customerName || null,
@@ -107,25 +107,23 @@ export async function POST(request: Request) {
                     });
                 }
 
-                // Create products if they don't exist (simplified - you may want to match existing products)
+                // Match or create products
                 const productIds: string[] = [];
                 for (const item of orderData.items) {
-                    // Try to find existing product by name
                     let product = await prisma.product.findFirst({
                         where: {
                             name: {
-                                contains: item.productName,
+                                equals: item.productName,
                                 mode: 'insensitive',
                             },
                         },
                     });
 
-                    // If product doesn't exist, create a placeholder
                     if (!product) {
                         product = await prisma.product.create({
                             data: {
                                 name: item.productName,
-                                slug: item.productName.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+                                slug: item.productName.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7),
                                 category: 'Imported',
                                 type: 'Imported',
                                 gender: 'Unisex',
@@ -133,63 +131,57 @@ export async function POST(request: Request) {
                                 originPrice: item.price,
                                 description: 'Imported product',
                                 images: JSON.stringify([]),
-                                thumbImage: JSON.stringify(''),
+                                thumbImage: '',
                                 quantity: 0,
                             },
                         });
                     }
-
                     productIds.push(product.id);
                 }
 
-                // Create order
+                // Create order - AUTOMATIC numbering
                 const order = await prisma.order.create({
                     data: {
-                        orderNumber: parseInt(orderNumber) || undefined,
                         userId: user?.id || null,
                         total: orderData.totalAmount,
-                        status: orderData.orderStatus,
-                        paymentStatus: orderData.paymentStatus,
-                        paymentMethod: orderData.paymentMethod,
+                        status: orderData.orderStatus.toUpperCase(),
+                        paymentStatus: orderData.paymentStatus.toUpperCase(),
+                        paymentMethod: orderData.paymentMethod.toUpperCase(),
                         address: orderData.address || null,
                         createdAt: new Date(orderData.orderDate),
                     },
                 });
 
                 // Create order items
-                for (let i = 0; i < orderData.items.length; i++) {
-                    const item = orderData.items[i];
-                    const productId = productIds[i];
+                await Promise.all(orderData.items.map((item: any, idx: number) => {
+                    return prisma.orderItem.create({
+                        data: {
+                            orderId: order.id,
+                            productId: productIds[idx],
+                            quantity: item.quantity,
+                            price: item.price,
+                        },
+                    });
+                }));
 
-                    if (productId) {
-                        await prisma.orderItem.create({
-                            data: {
-                                orderId: order.id,
-                                productId: productId,
-                                quantity: item.quantity,
-                                price: item.price,
-                            },
-                        });
-                    }
-                }
-
-                imported++;
+                importedCount++;
             } catch (error: any) {
-                errors.push(`Error importing order #${orderNumber}: ${error.message}`);
+                errors.push(`Error importing order from row/group ${groupKey}: ${error.message}`);
+                console.error(`Import error for ${groupKey}:`, error);
             }
         }
 
         return NextResponse.json({
-            message: `Import completed. ${imported} orders imported successfully.`,
-            imported,
+            message: `Import completed. ${importedCount} orders imported successfully.`,
+            imported: importedCount,
             errors: errors.length > 0 ? errors : undefined,
         });
+
     } catch (error: any) {
-        console.error('Error importing orders:', error);
+        console.error('Global import error:', error);
         return NextResponse.json(
             { error: `Failed to import orders: ${error.message}` },
             { status: 500 }
         );
     }
 }
-

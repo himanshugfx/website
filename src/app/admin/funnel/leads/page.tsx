@@ -209,7 +209,7 @@ export default async function LeadsListPage() {
                                             <td className="px-6 py-4 text-right">
                                                 <Link
                                                     href={`/admin/funnel/leads/${lead.id}`}
-                                                    className="inline-flex items-center justify-center w-8 h-8 text-white bg-purple-600 rounded-lg hover:bg-purple-700"
+                                                    className="inline-flex items-center justify-center w-8 h-8 text-white bg-black rounded-lg hover:bg-black/80"
                                                 >
                                                     <ChevronRight className="w-4 h-4" />
                                                 </Link>
