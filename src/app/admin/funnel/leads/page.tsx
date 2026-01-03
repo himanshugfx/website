@@ -35,6 +35,11 @@ async function getStages() {
 export default async function LeadsListPage() {
     const [leads, stages] = await Promise.all([getLeads(), getStages()]);
 
+    console.log(`[LeadsListPage] Rendering with ${leads.length} leads and ${stages.length} stages`);
+    if (leads.length > 0) {
+        console.log(`[LeadsListPage] First lead stage:`, leads[0].stage?.name || 'MISSING');
+    }
+
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -103,12 +108,14 @@ export default async function LeadsListPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-semibold text-gray-900">{lead.name}</span>
-                                                <span
-                                                    className="px-2 py-0.5 text-xs font-medium rounded-full"
-                                                    style={{ backgroundColor: `${lead.stage.color}20`, color: lead.stage.color }}
-                                                >
-                                                    {lead.stage.name}
-                                                </span>
+                                                {lead.stage && (
+                                                    <span
+                                                        className="px-2 py-0.5 text-xs font-medium rounded-full"
+                                                        style={{ backgroundColor: `${lead.stage.color}20`, color: lead.stage.color }}
+                                                    >
+                                                        {lead.stage.name}
+                                                    </span>
+                                                )}
                                             </div>
                                             {lead.company && (
                                                 <p className="text-sm text-gray-600 flex items-center gap-1">
@@ -176,12 +183,18 @@ export default async function LeadsListPage() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span
-                                                    className="px-2.5 py-1 text-xs font-semibold rounded-full"
-                                                    style={{ backgroundColor: `${lead.stage.color}20`, color: lead.stage.color }}
-                                                >
-                                                    {lead.stage.name}
-                                                </span>
+                                                {lead.stage ? (
+                                                    <span
+                                                        className="px-2.5 py-1 text-xs font-semibold rounded-full"
+                                                        style={{ backgroundColor: `${lead.stage.color}20`, color: lead.stage.color }}
+                                                    >
+                                                        {lead.stage.name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-500">
+                                                        No Stage
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {lead.value ? (
