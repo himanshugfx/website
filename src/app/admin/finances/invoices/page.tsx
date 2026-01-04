@@ -1,11 +1,32 @@
+'use client';
+
 import AdminLayout from '@/components/admin/AdminLayout';
 import { FileText, RefreshCw, Plus, Search, ChevronRight, ExternalLink, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import prisma from '@/lib/prisma';
+import { useState, useEffect } from 'react';
 
-export const dynamic = 'force-dynamic';
+interface Invoice {
+    id: string;
+    zohoInvoiceId: string | null;
+    invoiceNumber: string;
+    customerName: string;
+    status: string;
+    total: number;
+    balance: number;
+    invoiceDate: string;
+    dueDate: string | null;
+    pdfUrl: string | null;
+}
 
-// Status badge colors
+interface InvoiceStats {
+    total: number;
+    paid: number;
+    pending: number;
+    overdue: number;
+    totalAmount: number;
+    paidAmount: number;
+}
+
 const statusColors: Record<string, string> = {
     DRAFT: 'bg-gray-50 text-gray-700 border-gray-200',
     SENT: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -15,61 +36,47 @@ const statusColors: Record<string, string> = {
     PARTIALLY_PAID: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
-async function getInvoices() {
-    try {
-        const invoices = await prisma.invoice.findMany({
-            orderBy: { invoiceDate: 'desc' },
-            take: 50,
-        });
-        return invoices;
-    } catch (error) {
-        console.error('Error fetching invoices:', error);
-        return [];
-    }
-}
+export default function InvoicesPage() {
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
+    const [stats, setStats] = useState<InvoiceStats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+    const [syncing, setSyncing] = useState(false);
 
-async function getInvoiceStats() {
-    try {
-        const [total, paid, pending, overdue] = await Promise.all([
-            prisma.invoice.count(),
-            prisma.invoice.count({ where: { status: 'PAID' } }),
-            prisma.invoice.count({ where: { status: { in: ['SENT', 'DRAFT'] } } }),
-            prisma.invoice.count({ where: { status: 'OVERDUE' } }),
-        ]);
+    useEffect(() => {
+        fetchInvoices();
+    }, []);
 
-        const totalAmount = await prisma.invoice.aggregate({
-            _sum: { total: true },
-        });
+    const fetchInvoices = async () => {
+        try {
+            const res = await fetch('/api/invoices');
+            const data = await res.json();
+            setInvoices(data.invoices || []);
+            setStats(data.stats || null);
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        const paidAmount = await prisma.invoice.aggregate({
-            where: { status: 'PAID' },
-            _sum: { total: true },
-        });
+    const handleSync = async () => {
+        setSyncing(true);
+        try {
+            const res = await fetch('/api/admin/invoices/sync', { method: 'POST' });
+            if (res.ok) {
+                fetchInvoices();
+            }
+        } catch (error) {
+            console.error('Error syncing:', error);
+        } finally {
+            setSyncing(false);
+        }
+    };
 
-        return {
-            total,
-            paid,
-            pending,
-            overdue,
-            totalAmount: totalAmount._sum.total || 0,
-            paidAmount: paidAmount._sum.total || 0,
-        };
-    } catch (error) {
-        console.error('Error fetching invoice stats:', error);
-        return { total: 0, paid: 0, pending: 0, overdue: 0, totalAmount: 0, paidAmount: 0 };
-    }
-}
-
-export default async function InvoicesPage() {
-    const invoices = await getInvoices();
-    const stats = await getInvoiceStats();
-
-    // Check if Zoho is configured
-    const zohoConfigured = !!(
-        process.env.ZOHO_CLIENT_ID &&
-        process.env.ZOHO_CLIENT_SECRET &&
-        process.env.ZOHO_REFRESH_TOKEN &&
-        process.env.ZOHO_ORGANIZATION_ID
+    const filteredInvoices = invoices.filter(inv =>
+        inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
+        inv.customerName.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
@@ -82,17 +89,15 @@ export default async function InvoicesPage() {
                         <p className="text-sm text-gray-500 mt-1">Manage your Zoho invoices and billing</p>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
-                        <form action="/api/admin/invoices/sync" method="POST">
-                            <button
-                                type="submit"
-                                disabled={!zohoConfigured}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                                <span className="hidden sm:inline">Sync from Zoho</span>
-                                <span className="sm:hidden">Sync</span>
-                            </button>
-                        </form>
+                        <button
+                            onClick={handleSync}
+                            disabled={syncing}
+                            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                            <span className="hidden sm:inline">{syncing ? 'Syncing...' : 'Sync from Zoho'}</span>
+                            <span className="sm:hidden">Sync</span>
+                        </button>
                         <Link
                             href="/admin/finances/invoices/create"
                             className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
@@ -104,39 +109,27 @@ export default async function InvoicesPage() {
                     </div>
                 </div>
 
-                {/* Zoho Configuration Warning */}
-                {!zohoConfigured && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="font-semibold text-amber-800">Zoho Invoice not configured</h3>
-                            <p className="text-sm text-amber-700 mt-1">
-                                To sync invoices from Zoho, please add your API credentials to the <code className="bg-amber-100 px-1 rounded">.env</code> file:
-                                ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN, ZOHO_ORGANIZATION_ID
-                            </p>
+                {/* Stats Cards */}
+                {stats && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                        <div className="bg-white rounded-xl p-4 border border-gray-100">
+                            <p className="text-xs font-medium text-gray-500 uppercase">Total Invoices</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 border border-gray-100">
+                            <p className="text-xs font-medium text-gray-500 uppercase">Paid</p>
+                            <p className="text-xl sm:text-2xl font-bold text-emerald-600 mt-1">{stats.paid}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 border border-gray-100">
+                            <p className="text-xs font-medium text-gray-500 uppercase">Pending</p>
+                            <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">{stats.pending}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 border border-gray-100">
+                            <p className="text-xs font-medium text-gray-500 uppercase">Overdue</p>
+                            <p className="text-xl sm:text-2xl font-bold text-red-600 mt-1">{stats.overdue}</p>
                         </div>
                     </div>
                 )}
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Total Invoices</p>
-                        <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Paid</p>
-                        <p className="text-xl sm:text-2xl font-bold text-emerald-600 mt-1">{stats.paid}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Pending</p>
-                        <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">{stats.pending}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Overdue</p>
-                        <p className="text-xl sm:text-2xl font-bold text-red-600 mt-1">{stats.overdue}</p>
-                    </div>
-                </div>
 
                 {/* Search */}
                 <div className="relative">
@@ -144,86 +137,42 @@ export default async function InvoicesPage() {
                     <input
                         type="text"
                         placeholder="Search invoices by number or customer..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                 </div>
 
                 {/* Invoices List */}
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                    {/* Mobile View */}
-                    <div className="md:hidden divide-y divide-gray-100">
-                        {invoices.length === 0 ? (
-                            <div className="p-8 text-center">
-                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FileText className="w-8 h-8 text-gray-300" />
-                                </div>
-                                <p className="text-gray-900 font-medium">No invoices yet</p>
-                                <p className="text-gray-500 text-sm mt-1">
-                                    {zohoConfigured
-                                        ? 'Click "Sync from Zoho" to import your invoices'
-                                        : 'Configure Zoho API to sync your invoices'
-                                    }
-                                </p>
+                    {loading ? (
+                        <div className="p-8 text-center text-gray-500">Loading invoices...</div>
+                    ) : filteredInvoices.length === 0 ? (
+                        <div className="p-8 text-center">
+                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FileText className="w-8 h-8 text-gray-300" />
                             </div>
-                        ) : (
-                            invoices.map((invoice) => (
-                                <Link
-                                    key={invoice.id}
-                                    href={`/admin/finances/invoices/${invoice.id}`}
-                                    className="block p-4 active:bg-gray-50"
-                                >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="font-semibold text-gray-900">{invoice.invoiceNumber}</span>
-                                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${statusColors[invoice.status] || statusColors.DRAFT}`}>
-                                            {invoice.status}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-600">{invoice.customerName}</span>
-                                        <span className="font-bold text-gray-900">₹{invoice.total.toLocaleString()}</span>
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {new Date(invoice.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </p>
-                                </Link>
-                            ))
-                        )}
-                    </div>
-
-                    {/* Desktop View */}
-                    <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Invoice #</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Customer</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Due Date</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {invoices.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} className="px-6 py-12 text-center">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
-                                                    <FileText className="w-8 h-8 text-gray-300" />
-                                                </div>
-                                                <p className="text-gray-900 font-medium">No invoices yet</p>
-                                                <p className="text-gray-500 text-sm">
-                                                    {zohoConfigured
-                                                        ? 'Click "Sync from Zoho" to import your invoices'
-                                                        : 'Configure Zoho API to sync your invoices'
-                                                    }
-                                                </p>
-                                            </div>
-                                        </td>
+                            <p className="text-gray-900 font-medium">No invoices yet</p>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Click "Sync from Zoho" to import your invoices
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Invoice #</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Customer</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Due Date</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
                                     </tr>
-                                ) : (
-                                    invoices.map((invoice) => (
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {filteredInvoices.map((invoice) => (
                                         <tr key={invoice.id} className="group hover:bg-gray-50/50">
                                             <td className="px-6 py-4">
                                                 <span className="font-mono text-sm font-medium text-purple-600">
@@ -271,11 +220,11 @@ export default async function InvoicesPage() {
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </AdminLayout>

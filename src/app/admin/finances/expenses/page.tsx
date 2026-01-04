@@ -52,7 +52,7 @@ export default function ExpensesPage() {
     const [loading, setLoading] = useState(true);
     const [importing, setImporting] = useState(false);
     const [filter, setFilter] = useState('all');
-    const [dateRange, setDateRange] = useState('this_month');
+    const [dateRange, setDateRange] = useState('all');
 
     useEffect(() => {
         fetchExpenses();

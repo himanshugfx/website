@@ -29,8 +29,9 @@ async function getQuotation(id: string) {
     return quotation;
 }
 
-export default async function QuotationDetailPage({ params }: { params: { id: string } }) {
-    const quotation = await getQuotation(params.id);
+export default async function QuotationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const quotation = await getQuotation(id);
 
     if (!quotation) {
         notFound();
