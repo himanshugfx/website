@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Spacing custom properties */
+  --spacing-section: 1.5rem;
+  --spacing-section-lg: 2rem;
+  --spacing-card: 1rem;
+  --spacing-card-lg: 1.5rem;
 }
 
 @theme inline {
@@ -18,11 +23,71 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Consistent section spacing utilities */
+.section-gap {
+  margin-bottom: var(--spacing-section);
 }
+
+.section-gap-lg {
+  margin-bottom: var(--spacing-section-lg);
+}
+
+/* Improved form input styles */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #9333ea;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+/* Button hover transitions */
+.btn-primary {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.25);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Fix for buttons with colored backgrounds that get overridden by CSS resets */
+button[class*="bg-purple"] {
+  background-color: #9333ea !important;
+}
+
+button[class*="bg-purple"]:hover {
+  background-color: #7c3aed !important;
+}
+
+button[class*="bg-blue"] {
+  background-color: #2563eb !important;
+}
+
+button[class*="bg-green"] {
+  background-color: #16a34a !important;
+}
+
+button[class*="bg-red"] {
+  background-color: #dc2626 !important;
+}
+
+button[class*="bg-black"] {
+  background-color: #000000 !important;
+}

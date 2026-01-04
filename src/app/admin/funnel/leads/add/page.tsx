@@ -206,7 +206,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                         </Link>
                         <button
                             type="submit"
-                            className="px-6 py-3 font-semibold text-white bg-Black rounded-xl hover:bg-Black/80"
+                            className="px-6 py-3 font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
                         >
                             Add Lead
                         </button>

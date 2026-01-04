@@ -222,7 +222,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                         <button
                                             onClick={handleValueSave}
                                             disabled={saving}
-                                            className="px-4 py-2.5 bg-black text-white text-sm font-semibold rounded-xl hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
+                                            className="px-4 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
                                         >
                                             {saving ? (
                                                 <Loader2 className="w-4 h-4 animate-spin" />
