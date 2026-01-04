@@ -292,3 +292,239 @@ export async function markInvoiceAsSent(invoiceId: string): Promise<{ message: s
 export async function voidInvoice(invoiceId: string): Promise<{ message: string }> {
     return zohoRequest<{ message: string }>(`/invoices/${invoiceId}/status/void`, 'POST');
 }
+
+// ============= EXPENSE MANAGEMENT =============
+
+interface ZohoExpense {
+    expense_id: string;
+    date: string;
+    account_name: string;
+    paid_through_account_name: string;
+    description: string;
+    currency_code: string;
+    total: number;
+    is_billable: boolean;
+    customer_name: string;
+    vendor_name: string;
+    reference_number: string;
+    status: string;
+}
+
+interface ZohoExpensesResponse {
+    code: number;
+    message: string;
+    expenses: ZohoExpense[];
+    page_context: {
+        page: number;
+        per_page: number;
+        has_more_page: boolean;
+        total_count: number;
+    };
+}
+
+interface CreateExpensePayload {
+    account_id: string;
+    date: string;
+    amount: number;
+    paid_through_account_id?: string;
+    vendor_id?: string;
+    is_billable?: boolean;
+    description?: string;
+    reference_number?: string;
+}
+
+/**
+ * Get list of expenses from Zoho
+ */
+export async function getExpenses(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    date_start?: string;
+    date_end?: string;
+    filter_by?: string;
+}): Promise<ZohoExpensesResponse> {
+    const searchParams = new URLSearchParams();
+
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.per_page) searchParams.set('per_page', params.per_page.toString());
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.date_start) searchParams.set('date_start', params.date_start);
+    if (params?.date_end) searchParams.set('date_end', params.date_end);
+    if (params?.filter_by) searchParams.set('filter_by', params.filter_by);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/expenses${queryString ? `?${queryString}` : ''}`;
+
+    return zohoRequest<ZohoExpensesResponse>(endpoint);
+}
+
+/**
+ * Get a single expense by ID
+ */
+export async function getExpense(expenseId: string): Promise<{ expense: ZohoExpense }> {
+    return zohoRequest<{ expense: ZohoExpense }>(`/expenses/${expenseId}`);
+}
+
+/**
+ * Create a new expense in Zoho
+ */
+export async function createExpense(payload: CreateExpensePayload): Promise<{ expense: ZohoExpense }> {
+    return zohoRequest<{ expense: ZohoExpense }>('/expenses', 'POST', payload);
+}
+
+/**
+ * Delete an expense in Zoho
+ */
+export async function deleteExpense(expenseId: string): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/expenses/${expenseId}`, 'DELETE');
+}
+
+/**
+ * Get expense accounts (categories) from Zoho
+ */
+export async function getExpenseAccounts(): Promise<{ chartofaccounts: Array<{ account_id: string; account_name: string; account_type: string }> }> {
+    return zohoRequest('/chartofaccounts?account_type=expense');
+}
+
+// ============= ESTIMATES/QUOTATIONS MANAGEMENT =============
+
+interface ZohoEstimate {
+    estimate_id: string;
+    estimate_number: string;
+    customer_id: string;
+    customer_name: string;
+    status: string;
+    date: string;
+    expiry_date: string;
+    total: number;
+    sub_total: number;
+    discount: number;
+    tax_total: number;
+    currency_code: string;
+    reference_number: string;
+    notes: string;
+    terms: string;
+    line_items: Array<{
+        item_id: string;
+        name: string;
+        description: string;
+        quantity: number;
+        rate: number;
+        amount: number;
+    }>;
+}
+
+interface ZohoEstimatesResponse {
+    code: number;
+    message: string;
+    estimates: ZohoEstimate[];
+    page_context: {
+        page: number;
+        per_page: number;
+        has_more_page: boolean;
+        total_count: number;
+    };
+}
+
+interface CreateEstimatePayload {
+    customer_id: string;
+    estimate_number?: string;
+    date?: string;
+    expiry_date?: string;
+    line_items: Array<{
+        name: string;
+        description?: string;
+        quantity: number;
+        rate: number;
+    }>;
+    notes?: string;
+    terms?: string;
+    discount?: number;
+}
+
+/**
+ * Get list of estimates/quotations from Zoho
+ */
+export async function getEstimates(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    customer_id?: string;
+    date_start?: string;
+    date_end?: string;
+}): Promise<ZohoEstimatesResponse> {
+    const searchParams = new URLSearchParams();
+
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.per_page) searchParams.set('per_page', params.per_page.toString());
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.customer_id) searchParams.set('customer_id', params.customer_id);
+    if (params?.date_start) searchParams.set('date_start', params.date_start);
+    if (params?.date_end) searchParams.set('date_end', params.date_end);
+
+    const queryString = searchParams.toString();
+    const endpoint = `/estimates${queryString ? `?${queryString}` : ''}`;
+
+    return zohoRequest<ZohoEstimatesResponse>(endpoint);
+}
+
+/**
+ * Get a single estimate by ID
+ */
+export async function getEstimate(estimateId: string): Promise<{ estimate: ZohoEstimate }> {
+    return zohoRequest<{ estimate: ZohoEstimate }>(`/estimates/${estimateId}`);
+}
+
+/**
+ * Create a new estimate in Zoho
+ */
+export async function createEstimate(payload: CreateEstimatePayload): Promise<{ estimate: ZohoEstimate }> {
+    return zohoRequest<{ estimate: ZohoEstimate }>('/estimates', 'POST', payload);
+}
+
+/**
+ * Update an existing estimate in Zoho
+ */
+export async function updateEstimate(estimateId: string, payload: Partial<CreateEstimatePayload>): Promise<{ estimate: ZohoEstimate }> {
+    return zohoRequest<{ estimate: ZohoEstimate }>(`/estimates/${estimateId}`, 'PUT', payload);
+}
+
+/**
+ * Send estimate to customer via email
+ */
+export async function sendEstimate(estimateId: string, emailOptions?: {
+    to_mail_ids?: string[];
+    subject?: string;
+    body?: string;
+}): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/estimates/${estimateId}/email`, 'POST', emailOptions || {});
+}
+
+/**
+ * Mark estimate as sent
+ */
+export async function markEstimateAsSent(estimateId: string): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/estimates/${estimateId}/status/sent`, 'POST');
+}
+
+/**
+ * Mark estimate as accepted
+ */
+export async function acceptEstimate(estimateId: string): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/estimates/${estimateId}/status/accepted`, 'POST');
+}
+
+/**
+ * Mark estimate as declined
+ */
+export async function declineEstimate(estimateId: string): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/estimates/${estimateId}/status/declined`, 'POST');
+}
+
+/**
+ * Delete an estimate in Zoho
+ */
+export async function deleteEstimate(estimateId: string): Promise<{ message: string }> {
+    return zohoRequest<{ message: string }>(`/estimates/${estimateId}`, 'DELETE');
+}

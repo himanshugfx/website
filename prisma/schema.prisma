@@ -209,3 +209,44 @@ model WhatsAppMessage {
   status     String            // SENT, DELIVERED, READ, FAILED
   sentAt     DateTime          @default(now())
 }
+
+// Expense Management (synced with Zoho Invoice)
+model Expense {
+  id              String    @id @default(cuid())
+  zohoExpenseId   String?   @unique  // null for local-only expenses
+  date            DateTime
+  category        String              // TRAVEL, OFFICE_SUPPLIES, MARKETING, UTILITIES, RENT, SALARY, MISC
+  amount          Float
+  vendor          String?
+  description     String?
+  reference       String?             // receipt number, invoice number, etc.
+  paymentMode     String?             // CASH, CARD, BANK_TRANSFER, UPI
+  isBillable      Boolean   @default(false)
+  status          String    @default("RECORDED") // RECORDED, SYNCED
+  syncedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Quotations/Estimates (synced with Zoho Invoice)
+model Quotation {
+  id               String    @id @default(cuid())
+  zohoEstimateId   String?   @unique
+  quotationNumber  String
+  customerId       String?
+  customerName     String
+  customerEmail    String?
+  status           String    @default("DRAFT") // DRAFT, SENT, ACCEPTED, DECLINED, EXPIRED, INVOICED
+  total            Float
+  subtotal         Float     @default(0)
+  discount         Float     @default(0)
+  tax              Float     @default(0)
+  expiryDate       DateTime?
+  quotationDate    DateTime
+  notes            String?
+  terms            String?
+  lineItems        Json?     // Store line items as JSON array
+  syncedAt         DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
