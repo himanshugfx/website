@@ -21,7 +21,7 @@ interface QuotationStats {
     total: number;
     draft: number;
     sent: number;
-    accepted: number;
+    invoiced: number;
     declined: number;
     totalValue: number;
 }
@@ -143,8 +143,8 @@ export default function QuotationsPage() {
                             <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">{stats.sent}</p>
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-gray-100">
-                            <p className="text-xs font-medium text-gray-500 uppercase">Accepted</p>
-                            <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{stats.accepted}</p>
+                            <p className="text-xs font-medium text-gray-500 uppercase">Invoiced</p>
+                            <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{stats.invoiced}</p>
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-gray-100 col-span-2 sm:col-span-1">
                             <p className="text-xs font-medium text-gray-500 uppercase">Total Value</p>

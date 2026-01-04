@@ -10,11 +10,11 @@ export async function GET() {
             take: 50,
         });
 
-        const [total, draft, sent, accepted, declined, totalValue] = await Promise.all([
+        const [total, draft, sent, invoiced, declined, totalValue] = await Promise.all([
             prisma.quotation.count(),
             prisma.quotation.count({ where: { status: 'DRAFT' } }),
             prisma.quotation.count({ where: { status: 'SENT' } }),
-            prisma.quotation.count({ where: { status: 'ACCEPTED' } }),
+            prisma.quotation.count({ where: { status: 'INVOICED' } }),
             prisma.quotation.count({ where: { status: 'DECLINED' } }),
             prisma.quotation.aggregate({ _sum: { total: true } }),
         ]);
@@ -23,7 +23,7 @@ export async function GET() {
             total,
             draft,
             sent,
-            accepted,
+            invoiced,
             declined,
             totalValue: totalValue._sum.total || 0,
         };
