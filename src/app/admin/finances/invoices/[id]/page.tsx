@@ -122,7 +122,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Currency</p>
-                            <p className="font-medium text-gray-900">{invoice.currency || 'INR'}</p>
+                            <p className="font-medium text-gray-900">INR</p>
                         </div>
                     </div>
                 </div>
