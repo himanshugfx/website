@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Receipt, Plus, Download, RefreshCw, Calendar, Filter, IndianRupee, TrendingUp, TrendingDown } from 'lucide-react';
+import { Receipt, Plus, Download, Calendar, IndianRupee, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -13,10 +13,6 @@ interface Expense {
     amount: number;
     vendor: string | null;
     description: string | null;
-    reference: string | null;
-    paymentMode: string | null;
-    status: string;
-    syncedAt: string | null;
 }
 
 interface ExpenseStats {
@@ -51,44 +47,43 @@ export default function ExpensesPage() {
     const [stats, setStats] = useState<ExpenseStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [importing, setImporting] = useState(false);
-    const [filter, setFilter] = useState('all');
-    const [dateRange, setDateRange] = useState('all');
 
     useEffect(() => {
-        fetchExpenses();
-    }, [filter, dateRange]);
+        loadExpenses();
+    }, []);
 
-    const fetchExpenses = async () => {
+    const loadExpenses = async () => {
         try {
-            const params = new URLSearchParams();
-            if (filter !== 'all') params.set('category', filter);
-            if (dateRange !== 'all') params.set('range', dateRange);
+            setLoading(true);
+            const response = await fetch('/api/expenses');
+            const result = await response.json();
 
-            const res = await fetch(`/api/expenses?${params.toString()}`);
-            const data = await res.json();
-            setExpenses(data.expenses || []);
-            setStats(data.stats || null);
-        } catch (error) {
-            console.error('Error fetching expenses:', error);
+            if (result.expenses) {
+                setExpenses(result.expenses);
+            }
+            if (result.stats) {
+                setStats(result.stats);
+            }
+        } catch (err) {
+            console.error('Failed to load expenses:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleImportFromZoho = async () => {
+    const handleImport = async () => {
         setImporting(true);
         try {
             const res = await fetch('/api/expenses/import', { method: 'POST' });
             const data = await res.json();
             if (data.success) {
-                fetchExpenses();
-                alert(`Successfully imported ${data.imported} expenses from Zoho`);
+                loadExpenses();
+                alert(`Imported ${data.imported} expenses`);
             } else {
-                alert('Import failed: ' + data.error);
+                alert('Import failed: ' + (data.error || 'Unknown error'));
             }
-        } catch (error) {
-            console.error('Error importing:', error);
-            alert('Failed to import expenses');
+        } catch (err) {
+            alert('Import failed');
         } finally {
             setImporting(false);
         }
@@ -117,11 +112,13 @@ export default function ExpensesPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Expense Management</h1>
-                        <p className="text-sm text-gray-500 mt-1">Track and manage your business expenses</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {loading ? 'Loading...' : `${expenses.length} expenses found`}
+                        </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <button
-                            onClick={handleImportFromZoho}
+                            onClick={handleImport}
                             disabled={importing}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50"
                         >
@@ -130,7 +127,7 @@ export default function ExpensesPage() {
                         </button>
                         <Link
                             href="/admin/finances/expenses/add"
-                            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-black/80"
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700"
                         >
                             <Plus className="w-4 h-4" />
                             Add Expense
@@ -138,85 +135,63 @@ export default function ExpensesPage() {
                     </div>
                 </div>
 
-                {/* Stats Cards */}
+                {/* Stats */}
                 {stats && (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
+                        <div className="bg-white rounded-2xl border border-gray-100 p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 sm:p-3 bg-red-100 rounded-xl">
-                                    <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
+                                <div className="p-2 bg-red-100 rounded-xl">
+                                    <IndianRupee className="w-5 h-5 text-red-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm text-gray-500">Total Expenses</p>
-                                    <p className="text-lg sm:text-2xl font-bold text-gray-900">{formatCurrency(stats.totalExpenses)}</p>
+                                    <p className="text-xs text-gray-500">Total Expenses</p>
+                                    <p className="text-lg font-bold text-gray-900">{formatCurrency(stats.totalExpenses)}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
+                        <div className="bg-white rounded-2xl border border-gray-100 p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 sm:p-3 bg-blue-100 rounded-xl">
-                                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                                <div className="p-2 bg-blue-100 rounded-xl">
+                                    <Calendar className="w-5 h-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm text-gray-500">This Month</p>
-                                    <p className="text-lg sm:text-2xl font-bold text-gray-900">{formatCurrency(stats.thisMonth)}</p>
+                                    <p className="text-xs text-gray-500">This Month</p>
+                                    <p className="text-lg font-bold text-gray-900">{formatCurrency(stats.thisMonth)}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
+                        <div className="bg-white rounded-2xl border border-gray-100 p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 sm:p-3 bg-gray-100 rounded-xl">
-                                    <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                                <div className="p-2 bg-gray-100 rounded-xl">
+                                    <TrendingDown className="w-5 h-5 text-gray-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm text-gray-500">Last Month</p>
-                                    <p className="text-lg sm:text-2xl font-bold text-gray-900">{formatCurrency(stats.lastMonth)}</p>
+                                    <p className="text-xs text-gray-500">Last Month</p>
+                                    <p className="text-lg font-bold text-gray-900">{formatCurrency(stats.lastMonth)}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
+                        <div className="bg-white rounded-2xl border border-gray-100 p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 sm:p-3 bg-green-100 rounded-xl">
-                                    <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                                <div className="p-2 bg-green-100 rounded-xl">
+                                    <Receipt className="w-5 h-5 text-green-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm text-gray-500">Total Records</p>
-                                    <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.count}</p>
+                                    <p className="text-xs text-gray-500">Total Count</p>
+                                    <p className="text-lg font-bold text-gray-900">{stats.count}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                        <option value="all">All Categories</option>
-                        {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                            <option key={key} value={key}>{label}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value)}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                        <option value="this_month">This Month</option>
-                        <option value="last_month">Last Month</option>
-                        <option value="this_quarter">This Quarter</option>
-                        <option value="this_year">This Year</option>
-                        <option value="all">All Time</option>
-                    </select>
-                </div>
-
                 {/* Expenses Table */}
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500">Loading expenses...</div>
+                        <div className="p-8 text-center">
+                            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                            <p className="text-gray-500">Loading expenses...</p>
+                        </div>
                     ) : expenses.length === 0 ? (
                         <div className="p-8 text-center">
                             <Receipt className="w-12 h-12 text-gray-300 mx-auto mb-3" />
