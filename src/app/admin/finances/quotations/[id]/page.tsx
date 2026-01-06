@@ -37,7 +37,7 @@ export default async function QuotationDetailPage({ params }: { params: Promise<
         notFound();
     }
 
-    const lineItems = (quotation.lineItems as LineItem[]) || [];
+    const lineItems = (quotation.lineItems as unknown as LineItem[]) || [];
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-IN', {

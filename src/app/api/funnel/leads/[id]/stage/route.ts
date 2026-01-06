@@ -42,7 +42,7 @@ export async function PUT(
             data: {
                 leadId: id,
                 type: 'STAGE_CHANGE',
-                description: `Lead moved to ${stage.name} stage`,
+                content: `Lead moved to ${stage.name} stage`,
             },
         });
 

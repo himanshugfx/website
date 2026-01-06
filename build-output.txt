@@ -1,0 +1,166 @@
+﻿
+> anvogue-html@0.1.0 build
+> prisma generate && next build
+
+node.exe : warn The configuration 
+property `package.json#prisma` is 
+deprecated and will be removed in Prisma 
+7. Please migrate to a Prisma config file 
+(e.g., `prisma.config.ts`).
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecifie 
+   d: (warn The config...ma.config.ts`).  
+  :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeComma 
+   ndError
+ 
+For more information, see: 
+https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Γ£ö Generated Prisma Client (v6.19.1) to .\node_modules\@prisma\client in 87ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+Γû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" file convention is 
+deprecated. Please use "proxy" instead. 
+Learn more: https://nextjs.org/docs/messag
+es/middleware-to-proxy
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 2.5s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+Instantiating new PrismaClient
+  Generating static pages using 15 workers (0/51) ...
+  Generating static pages using 15 workers (12/51) 
+  Generating static pages using 15 workers (25/51) 
+Instantiating new PrismaClient
+  Generating static pages using 15 workers (38/51) 
+Γ£ô Generating static pages using 15 workers (51/51) in 352.6ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî ╞Æ /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /admin
+Γö£ Γùï /admin/abandoned-carts
+Γö£ ╞Æ /admin/analytics
+Γö£ ╞Æ /admin/finances
+Γö£ Γùï /admin/finances/expenses
+Γö£ ╞Æ /admin/finances/expenses/add
+Γö£ Γùï /admin/finances/invoices
+Γö£ ╞Æ /admin/finances/invoices/[id]
+Γö£ Γùï /admin/finances/invoices/create
+Γö£ Γùï /admin/finances/quotations
+Γö£ ╞Æ /admin/finances/quotations/[id]
+Γö£ ╞Æ /admin/finances/quotations/add
+Γö£ Γùï /admin/funnel
+Γö£ ╞Æ /admin/funnel/leads
+Γö£ ╞Æ /admin/funnel/leads/[id]
+Γö£ ╞Æ /admin/funnel/leads/add
+Γö£ Γùï /admin/import
+Γö£ Γùï /admin/inquiries
+Γö£ Γùï /admin/orders
+Γö£ ╞Æ /admin/orders/[id]
+Γö£ Γùï /admin/products
+Γö£ ╞Æ /admin/products/[id]/edit
+Γö£ Γùï /admin/products/add
+Γö£ Γùï /admin/promocodes
+Γö£ Γùï /admin/users
+Γö£ ╞Æ /admin/users/[id]
+Γö£ ╞Æ /admin/whatsapp
+Γö£ ╞Æ /admin/whatsapp/templates
+Γö£ Γùï /admin/whatsapp/templates/new
+Γö£ ╞Æ /api/admin/abandoned-carts/recover
+Γö£ ╞Æ /api/admin/import-orders
+Γö£ ╞Æ /api/admin/inquiries
+Γö£ ╞Æ /api/admin/invoices/[id]/pdf
+Γö£ ╞Æ /api/admin/invoices/sync
+Γö£ ╞Æ /api/admin/leads/[id]
+Γö£ ╞Æ /api/admin/leads/stages
+Γö£ ╞Æ /api/admin/orders
+Γö£ ╞Æ /api/admin/orders/[id]
+Γö£ ╞Æ /api/admin/products
+Γö£ ╞Æ /api/admin/products/[id]
+Γö£ ╞Æ /api/admin/products/[id]/status
+Γö£ ╞Æ /api/admin/promocodes
+Γö£ ╞Æ /api/admin/promocodes/[id]
+Γö£ ╞Æ /api/admin/stats
+Γö£ ╞Æ /api/admin/upload
+Γö£ ╞Æ /api/admin/users
+Γö£ ╞Æ /api/auth/[...nextauth]
+Γö£ ╞Æ /api/contact
+Γö£ ╞Æ /api/debug/email
+Γö£ ╞Æ /api/expenses
+Γö£ ╞Æ /api/expenses/import
+Γö£ ╞Æ /api/expenses/sync
+Γö£ ╞Æ /api/funnel
+Γö£ ╞Æ /api/funnel/leads/[id]/stage
+Γö£ ╞Æ /api/invoices
+Γö£ ╞Æ /api/orders
+Γö£ ╞Æ /api/orders/cancel
+Γö£ ╞Æ /api/orders/return
+Γö£ ╞Æ /api/payment/callback
+Γö£ ╞Æ /api/payment/initiate
+Γö£ ╞Æ /api/payment/verify
+Γö£ ╞Æ /api/payment/webhook
+Γö£ ╞Æ /api/quotations
+Γö£ ╞Æ /api/quotations/import
+Γö£ ╞Æ /api/register
+Γö£ ╞Æ /api/users/apply-promo
+Γö£ Γùï /blog
+Γö£ Γùï /cart
+Γö£ Γùï /checkout
+Γö£ Γùï /checkout/pending
+Γö£ Γùï /checkout/success
+Γö£ Γùï /contact
+Γö£ Γùï /login
+Γö£ ╞Æ /my-account
+Γö£ ╞Æ /product/[slug]
+Γö£ Γùï /refund-policy
+Γö£ Γùï /register
+Γö£ Γùï /shipping-policy
+Γö£ ╞Æ /shop
+Γöö Γùï /wishlist
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
