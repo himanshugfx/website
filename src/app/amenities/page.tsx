@@ -181,7 +181,7 @@ export default function AmenitiesPage() {
                 <div className="container mx-auto px-6 relative z-10 text-white py-20">
                     <div className="max-w-3xl">
                         <span className="inline-block px-5 py-2 rounded-full bg-purple-600/90 backdrop-blur-sm text-sm font-bold tracking-wider mb-8 shadow-lg shadow-purple-500/25">
-                            ✨ HOSPITALITY SOLUTIONS
+                            Hospitality Solutions
                         </span>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-extrabold leading-tight">
                             Elevate Guest Experience With{' '}
@@ -220,7 +220,7 @@ export default function AmenitiesPage() {
             </section>
 
             {/* 2. Problem → Solution Section - Fixed overflow */}
-            <section className="py-20 md:py-28 bg-zinc-50 border-y border-zinc-100">
+            <section className="py-20 md:py-28 bg-zinc-50">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto">
                         <div className="text-center mb-16">
@@ -388,7 +388,7 @@ export default function AmenitiesPage() {
             </section>
 
             {/* 6. Final CTA & Form Section */}
-            <section id="quote-form" className="py-20 md:py-28 bg-zinc-50 relative overflow-hidden border-t border-zinc-100">
+            <section id="quote-form" className="py-20 md:py-28 bg-zinc-50 relative overflow-hidden">
                 <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl" />
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -444,7 +444,7 @@ export default function AmenitiesPage() {
                                                 value={formData.name}
                                                 onChange={handleInputChange}
                                                 className="w-full px-5 py-4 rounded-xl border border-zinc-200 focus:border-purple-600 outline-none transition-all bg-zinc-50 focus:bg-white"
-                                                placeholder="John Doe"
+                                                placeholder="Enter Your Name"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -456,7 +456,7 @@ export default function AmenitiesPage() {
                                                 value={formData.hotelName}
                                                 onChange={handleInputChange}
                                                 className="w-full px-5 py-4 rounded-xl border border-zinc-200 focus:border-purple-600 outline-none transition-all bg-zinc-50 focus:bg-white"
-                                                placeholder="Grand Landmark"
+                                                placeholder="Enter Hotel Name"
                                             />
                                         </div>
                                     </div>
@@ -469,7 +469,7 @@ export default function AmenitiesPage() {
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             className="w-full px-5 py-4 rounded-xl border border-zinc-200 focus:border-purple-600 outline-none transition-all bg-zinc-50 focus:bg-white"
-                                            placeholder="manager@hotel.com"
+                                            placeholder="Enter Your Email"
                                         />
                                     </div>
                                     <div className="grid sm:grid-cols-2 gap-6">
@@ -482,7 +482,7 @@ export default function AmenitiesPage() {
                                                 value={formData.phone}
                                                 onChange={handleInputChange}
                                                 className="w-full px-5 py-4 rounded-xl border border-zinc-200 focus:border-purple-600 outline-none transition-all bg-zinc-50 focus:bg-white"
-                                                placeholder="+91 00000 00000"
+                                                placeholder="Enter Your Phone Number"
                                             />
                                         </div>
                                         <div className="space-y-2">
