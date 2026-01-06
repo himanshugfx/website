@@ -24,7 +24,8 @@ import {
     LogOut,
     Receipt,
     Wallet,
-    ClipboardList
+    ClipboardList,
+    Settings
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -62,6 +63,7 @@ const navigation: NavItem[] = [
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
     { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
+    { name: 'Settings', href: '/admin/profile', icon: Settings },
     { name: 'Import Orders', href: '/admin/import', icon: Upload },
 ];
 

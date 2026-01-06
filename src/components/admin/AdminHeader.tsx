@@ -67,10 +67,22 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">{session?.user?.email}</p>
                                     </div>
-                                    <div className="p-2">
+                                    <div className="p-2 space-y-1">
+                                        <button
+                                            onClick={() => {
+                                                window.location.href = '/admin/profile';
+                                                setDropdownOpen(false);
+                                            }}
+                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-50 transition-colors gap-3 group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-purple-100 text-gray-400 group-hover:text-purple-600 flex items-center justify-center transition-colors">
+                                                <Settings className="w-4 h-4" />
+                                            </div>
+                                            Security Settings
+                                        </button>
                                         <button
                                             onClick={() => signOut({ callbackUrl: '/' })}
-                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl transition-colors gap-3 group"
+                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors gap-3 group"
                                         >
                                             <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center transition-colors">
                                                 <LogOut className="w-4 h-4" />
