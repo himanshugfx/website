@@ -45,14 +45,14 @@ async function getAnalyticsData() {
         // Zoho Invoice Revenue (PAID invoices)
         const [currentInvoiceStats, previousInvoiceStats] = await Promise.all([
             prisma.invoice.aggregate({
-                where: { invoiceDate: { gte: thirtyDaysAgo }, status: 'paid' },
+                where: { invoiceDate: { gte: thirtyDaysAgo }, status: 'PAID' },
                 _sum: { total: true },
                 _count: { id: true }
             }),
             prisma.invoice.aggregate({
                 where: {
                     invoiceDate: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-                    status: 'paid'
+                    status: 'PAID'
                 },
                 _sum: { total: true },
                 _count: { id: true }
@@ -178,7 +178,7 @@ async function getAnalyticsData() {
         const zohoInvoices = await prisma.invoice.findMany({
             where: {
                 invoiceDate: { gte: thirtyDaysAgo },
-                status: 'paid'
+                status: 'PAID'
             },
             select: { invoiceDate: true, total: true },
             orderBy: { invoiceDate: 'asc' }
@@ -246,7 +246,7 @@ async function getAnalyticsData() {
             _sum: { total: true }
         });
         const allTimeInvoiceRevenue = await prisma.invoice.aggregate({
-            where: { status: 'paid' },
+            where: { status: 'PAID' },
             _sum: { total: true }
         });
         const allTimeRevenue = (allTimeWebsiteRevenue._sum.total || 0) + (allTimeInvoiceRevenue._sum.total || 0);
