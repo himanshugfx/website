@@ -241,12 +241,27 @@ async function getAnalyticsData() {
         );
 
         // ========== 7. TOTAL STATS (All-time) ==========
+        // Use same logic as dashboard for consistency
+        const validOrdersWhere = {
+            status: { not: 'CANCELLED' },
+            NOT: {
+                AND: [
+                    { status: 'PENDING' },
+                    { paymentStatus: 'PENDING' },
+                    { paymentMethod: { not: 'COD' } }
+                ]
+            }
+        };
+
         const allTimeWebsiteRevenue = await prisma.order.aggregate({
-            where: { status: 'COMPLETED' },
+            where: validOrdersWhere,
             _sum: { total: true }
         });
         const allTimeInvoiceRevenue = await prisma.invoice.aggregate({
-            where: { status: 'PAID' },
+            where: {
+                status: { not: 'VOID' },
+                orderId: null  // Only standalone invoices to avoid double counting
+            },
             _sum: { total: true }
         });
         const allTimeRevenue = (allTimeWebsiteRevenue._sum.total || 0) + (allTimeInvoiceRevenue._sum.total || 0);
