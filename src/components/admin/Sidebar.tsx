@@ -24,6 +24,7 @@ import {
     LogOut,
     Receipt,
     Wallet,
+    ClipboardList,
     Settings,
     Shield,
     UserCircle
