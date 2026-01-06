@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Package, User, MapPin, CreditCard, Calendar, AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, CreditCard, Calendar, AlertTriangle, CheckCircle, Clock, XCircle, Truck, ExternalLink, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 interface OrderDetails {
@@ -22,6 +22,13 @@ interface OrderDetails {
     promoCode: string | null;
     address: string | null;
     createdAt: string;
+    // Delhivery fields
+    awbNumber: string | null;
+    delhiveryStatus: string | null;
+    shippedAt: string | null;
+    deliveredAt: string | null;
+    estimatedDelivery: string | null;
+    trackingUrl: string | null;
     user: {
         name: string | null;
         email: string | null;
@@ -38,12 +45,33 @@ interface OrderDetails {
     }>;
 }
 
+interface TrackingData {
+    success: boolean;
+    shipped: boolean;
+    awbNumber?: string;
+    status?: string;
+    statusDateTime?: string;
+    location?: string;
+    expectedDelivery?: string;
+    deliveredAt?: string;
+    trackingUrl?: string;
+    scans?: Array<{
+        status: string;
+        dateTime: string;
+        location: string;
+        instructions?: string;
+    }>;
+}
+
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const router = useRouter();
     const [order, setOrder] = useState<OrderDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
+    const [shipping, setShipping] = useState(false);
+    const [tracking, setTracking] = useState<TrackingData | null>(null);
+    const [trackingLoading, setTrackingLoading] = useState(false);
 
     useEffect(() => {
         fetchOrder();
@@ -92,6 +120,61 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         }
     };
 
+    const shipWithDelhivery = async () => {
+        if (!order) return;
+        if (!confirm('Create shipment with Delhivery for this order?')) return;
+
+        try {
+            setShipping(true);
+            const res = await fetch('/api/admin/orders/ship', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: order.id }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                alert(`Shipment created! AWB: ${data.awbNumber}`);
+                fetchOrder();
+                fetchTracking();
+            } else {
+                alert(data.error || 'Failed to create shipment');
+            }
+        } catch (error) {
+            console.error('Shipping error:', error);
+            alert('Failed to create shipment');
+        } finally {
+            setShipping(false);
+        }
+    };
+
+    const fetchTracking = async () => {
+        if (!order?.id) return;
+
+        try {
+            setTrackingLoading(true);
+            const res = await fetch(`/api/admin/orders/tracking?orderId=${order.id}`);
+            const data = await res.json();
+            setTracking(data);
+
+            // Refresh order to get updated status
+            if (data.success && data.shipped) {
+                fetchOrder();
+            }
+        } catch (error) {
+            console.error('Tracking fetch error:', error);
+        } finally {
+            setTrackingLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (order?.awbNumber) {
+            fetchTracking();
+        }
+    }, [order?.awbNumber]);
+
     if (loading) {
         return (
             <AdminLayout>
@@ -106,21 +189,29 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     if (!order) return null;
 
     const StatusBadge = ({ status }: { status: string }) => {
-        const styles = {
+        const styles: Record<string, string> = {
             COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+            DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
             PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
             PROCESSING: 'bg-blue-100 text-blue-700 border-blue-200',
+            SHIPPED: 'bg-purple-100 text-purple-700 border-purple-200',
+            OUT_FOR_DELIVERY: 'bg-indigo-100 text-indigo-700 border-indigo-200',
             CANCELLED: 'bg-red-100 text-red-700 border-red-200',
+            RTO: 'bg-orange-100 text-orange-700 border-orange-200',
             DRAFT: 'bg-gray-100 text-gray-700 border-gray-200',
         };
-        const icons = {
+        const icons: Record<string, any> = {
             COMPLETED: CheckCircle,
+            DELIVERED: CheckCircle,
             PENDING: Clock,
             PROCESSING: Package,
+            SHIPPED: Truck,
+            OUT_FOR_DELIVERY: Truck,
             CANCELLED: XCircle,
+            RTO: AlertTriangle,
             DRAFT: AlertTriangle,
         };
-        const Icon = icons[status as keyof typeof icons] || AlertTriangle;
+        const Icon = icons[status] || AlertTriangle;
 
         return (
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold border ${styles[status as keyof typeof styles] || styles.DRAFT}`}>
@@ -157,7 +248,24 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && (
+                        {/* Ship with Delhivery button - only show if not yet shipped */}
+                        {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
+                            order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
+                        ) && (
+                                <button
+                                    onClick={shipWithDelhivery}
+                                    disabled={shipping}
+                                    className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {shipping ? (
+                                        <RefreshCw className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Truck className="w-4 h-4" />
+                                    )}
+                                    Ship with Delhivery
+                                </button>
+                            )}
+                        {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && order.status !== 'DELIVERED' && (
                             <button
                                 onClick={() => updateStatus('CANCELLED')}
                                 disabled={updating}
@@ -166,7 +274,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 Cancel Order
                             </button>
                         )}
-                        {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
+                        {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
                             <button
                                 onClick={() => updateStatus('COMPLETED')}
                                 disabled={updating}
@@ -267,6 +375,108 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 </div>
                             </div>
                         </div>
+
+                        {/* Delhivery Tracking Info */}
+                        {order.awbNumber && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <Truck className="w-5 h-5 text-orange-500" />
+                                        Shipment Tracking
+                                    </h2>
+                                    <button
+                                        onClick={fetchTracking}
+                                        disabled={trackingLoading}
+                                        className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                        title="Refresh tracking"
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${trackingLoading ? 'animate-spin' : ''}`} />
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500">AWB Number</span>
+                                        <a
+                                            href={order.trackingUrl || `https://www.delhivery.com/track/package/${order.awbNumber}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm font-mono font-bold text-purple-600 hover:underline flex items-center gap-1"
+                                        >
+                                            {order.awbNumber}
+                                            <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                    </div>
+                                    {tracking?.status && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Status</span>
+                                            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${tracking.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
+                                                    tracking.status === 'Out For Delivery' ? 'bg-indigo-100 text-indigo-700' :
+                                                        tracking.status === 'In Transit' ? 'bg-blue-100 text-blue-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                {tracking.status}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {tracking?.location && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Location</span>
+                                            <span className="text-sm font-medium text-gray-900">{tracking.location}</span>
+                                        </div>
+                                    )}
+                                    {(tracking?.expectedDelivery || order.estimatedDelivery) && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Expected Delivery</span>
+                                            <span className="text-sm font-medium text-gray-900">
+                                                {new Date(tracking?.expectedDelivery || order.estimatedDelivery!).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {order.shippedAt && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Shipped On</span>
+                                            <span className="text-sm font-medium text-gray-900">
+                                                {new Date(order.shippedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {order.deliveredAt && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Delivered On</span>
+                                            <span className="text-sm font-medium text-emerald-600">
+                                                {new Date(order.deliveredAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Tracking Timeline */}
+                                    {tracking?.scans && tracking.scans.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                            <h3 className="text-sm font-bold text-gray-700 mb-3">Tracking History</h3>
+                                            <div className="space-y-3 max-h-48 overflow-y-auto">
+                                                {tracking.scans.slice(0, 10).map((scan, idx) => (
+                                                    <div key={idx} className="flex gap-3 text-sm">
+                                                        <div className="flex flex-col items-center">
+                                                            <div className={`w-2.5 h-2.5 rounded-full ${idx === 0 ? 'bg-purple-600' : 'bg-gray-300'}`} />
+                                                            {idx < tracking.scans!.length - 1 && (
+                                                                <div className="w-0.5 h-full bg-gray-200 mt-1" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 pb-3">
+                                                            <p className="font-medium text-gray-900">{scan.status}</p>
+                                                            <p className="text-xs text-gray-500">{scan.location}</p>
+                                                            <p className="text-xs text-gray-400 mt-0.5">
+                                                                {new Date(scan.dateTime).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Payment Info */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">

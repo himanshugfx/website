@@ -31,6 +31,13 @@ interface Order {
     returnReason: string | null;
     items: OrderItem[];
     createdAt: string;
+    // Delhivery tracking fields
+    awbNumber: string | null;
+    delhiveryStatus: string | null;
+    shippedAt: string | null;
+    deliveredAt: string | null;
+    estimatedDelivery: string | null;
+    trackingUrl: string | null;
 }
 
 export default function MyAccountClient({ user }: MyAccountClientProps) {
@@ -134,9 +141,13 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'COMPLETED': return 'bg-green-50 text-green-700 border-green-200';
+            case 'DELIVERED': return 'bg-green-50 text-green-700 border-green-200';
             case 'PROCESSING': return 'bg-blue-50 text-blue-700 border-blue-200';
+            case 'SHIPPED': return 'bg-purple-50 text-purple-700 border-purple-200';
+            case 'OUT_FOR_DELIVERY': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
             case 'PENDING': return 'bg-amber-50 text-amber-700 border-amber-200';
             case 'CANCELLED': return 'bg-red-50 text-red-700 border-red-200';
+            case 'RTO': return 'bg-orange-50 text-orange-700 border-orange-200';
             default: return 'bg-gray-50 text-gray-700 border-gray-200';
         }
     };
@@ -345,6 +356,58 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                         </div>
                                                     ))}
                                                 </div>
+
+                                                {/* Delhivery Tracking Section */}
+                                                {order.awbNumber && (
+                                                    <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-100">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <h6 className="font-bold text-zinc-900 flex items-center gap-2">
+                                                                <i className="ph ph-truck text-orange-500"></i>
+                                                                Shipment Tracking
+                                                            </h6>
+                                                            <a
+                                                                href={order.trackingUrl || `https://www.delhivery.com/track/package/${order.awbNumber}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-xs font-bold text-purple-600 hover:underline flex items-center gap-1"
+                                                            >
+                                                                Track on Delhivery
+                                                                <i className="ph ph-arrow-square-out text-sm"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                                                            <div>
+                                                                <p className="text-zinc-500 text-xs">AWB Number</p>
+                                                                <p className="font-mono font-bold text-zinc-900">{order.awbNumber}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-zinc-500 text-xs">Status</p>
+                                                                <p className={`font-bold ${order.delhiveryStatus === 'Delivered' ? 'text-green-600' :
+                                                                        order.delhiveryStatus === 'Out For Delivery' ? 'text-indigo-600' :
+                                                                            'text-blue-600'
+                                                                    }`}>
+                                                                    {order.delhiveryStatus || 'Processing'}
+                                                                </p>
+                                                            </div>
+                                                            {order.estimatedDelivery && (
+                                                                <div>
+                                                                    <p className="text-zinc-500 text-xs">Expected Delivery</p>
+                                                                    <p className="font-bold text-zinc-900">
+                                                                        {new Date(order.estimatedDelivery).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                            {order.deliveredAt && (
+                                                                <div>
+                                                                    <p className="text-zinc-500 text-xs">Delivered On</p>
+                                                                    <p className="font-bold text-green-600">
+                                                                        {new Date(order.deliveredAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
 
                                                 {order.status === 'COMPLETED' && (
                                                     <div className="flex flex-wrap gap-3 pt-4 border-t border-zinc-100">
