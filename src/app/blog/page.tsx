@@ -66,7 +66,9 @@ export default function BlogPage() {
                                 <h2 className="heading2 font-bold text-4xl">Blog Grid</h2>
                                 <div className="link flex items-center justify-center gap-1 caption1 mt-3 text-zinc-500">
                                     <Link href="/" className="hover:text-black">Homepage</Link>
-                                    <i className="ph ph-caret-right text-sm"></i>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
                                     <div className="capitalize">Blog Grid</div>
                                 </div>
                             </div>
@@ -75,7 +77,7 @@ export default function BlogPage() {
                 </div>
             </div>
 
-            <div className="blog-grid md:py-20 py-10">
+            <div className="blog-grid mt-16 md:mt-24 md:py-20 py-10">
                 <div className="container mx-auto px-4">
                     <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-8 gap-y-12">
                         {blogPosts.map((post) => (
@@ -93,7 +95,9 @@ export default function BlogPage() {
                                 </Link>
                                 <div className="blog-info mt-6">
                                     <div className="date caption1 text-zinc-500 flex items-center gap-2">
-                                        <i className="ph ph-calendar"></i>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
                                         {post.date}
                                     </div>
                                     <Link href={`/blog/${post.id}`} className="block mt-3">
@@ -117,7 +121,9 @@ export default function BlogPage() {
                         <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-pointer">2</div>
                         <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-pointer">3</div>
                         <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-black text-white cursor-pointer">
-                            <i className="ph ph-caret-right"></i>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
                     </div>
                 </div>

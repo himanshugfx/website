@@ -24,7 +24,7 @@ export default function ContactPage() {
             const res = await fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, type: 'CONTACT' })
             });
 
             const data = await res.json();
@@ -51,8 +51,10 @@ export default function ContactPage() {
                                 <h2 className="heading2 font-bold text-4xl">Contact Us</h2>
                                 <div className="link flex items-center justify-center gap-1 caption1 mt-3 text-zinc-500">
                                     <Link href="/" className="hover:text-black">Homepage</Link>
-                                    <i className="ph ph-caret-right text-sm"></i>
-                                    <div className="capitalize">Contact Us</div>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    <div className="capitalize font-medium text-black">Contact Us</div>
                                 </div>
                             </div>
                         </div>
@@ -60,7 +62,7 @@ export default function ContactPage() {
                 </div>
             </div>
 
-            <div className="contact-us md:py-20 py-10">
+            <div className="contact-us mt-16 md:mt-24 md:py-20 py-10">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-wrap justify-between gap-y-10">
                         <div className="left lg:w-2/3 w-full lg:pr-10">

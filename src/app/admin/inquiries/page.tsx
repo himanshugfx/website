@@ -81,12 +81,31 @@ export default function InquiriesPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Contact Inquiries</h1>
-                        <p className="text-gray-500 mt-1">Manage messages sent from the contact us page</p>
+                        <h1 className="text-2xl font-bold text-gray-900">Unified Inquiries</h1>
+                        <p className="text-gray-500 mt-1">Manage contact messages and hospitality requests in one place</p>
                     </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:row items-center gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
+                        <p className="text-xs sm:text-sm text-gray-500 font-medium">Total Inquiries</p>
+                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.length}</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
+                        <p className="text-xs sm:text-sm text-purple-600 font-medium">Unread</p>
+                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => i.status === 'UNREAD').length}</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
+                        <p className="text-xs sm:text-sm text-blue-600 font-medium">Hospitality</p>
+                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => i.message?.startsWith('[metadata]:')).length}</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
+                        <p className="text-xs sm:text-sm text-zinc-600 font-medium">General</p>
+                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => !i.message?.startsWith('[metadata]:')).length}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center gap-4">
                     <div className="relative flex-1 w-full">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
@@ -150,10 +169,50 @@ export default function InquiriesPage() {
                                             {inquiry.status === 'UNREAD' && (
                                                 <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">New</span>
                                             )}
+                                            {inquiry.message?.startsWith('[metadata]:') ? (
+                                                <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Hospitality</span>
+                                            ) : (
+                                                <span className="bg-zinc-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">General</span>
+                                            )}
                                         </div>
-                                        <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">
-                                            {inquiry.message}
-                                        </div>
+
+                                        {(() => {
+                                            if (inquiry.message?.startsWith('[metadata]:')) {
+                                                try {
+                                                    const meta = JSON.parse(inquiry.message.replace('[metadata]:', ''));
+                                                    return (
+                                                        <div className="space-y-3">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-xl">
+                                                                    <div className="text-[10px] font-bold text-blue-600 uppercase mb-1">Hotel/Company</div>
+                                                                    <div className="text-sm font-bold text-blue-900">{meta.hotelName}</div>
+                                                                </div>
+                                                                <div className="bg-purple-50/50 border border-purple-100 p-3 rounded-xl">
+                                                                    <div className="text-[10px] font-bold text-purple-600 uppercase mb-1">Quantity Estimate</div>
+                                                                    <div className="text-sm font-bold text-purple-900">{meta.quantity}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm whitespace-pre-wrap leading-relaxed border border-gray-100">
+                                                                <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Additional Message</div>
+                                                                {meta.originalMessage}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                } catch (e) {
+                                                    return (
+                                                        <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm whitespace-pre-wrap leading-relaxed shadow-inner italic">
+                                                            {inquiry.message} (Metadata parsing failed)
+                                                        </div>
+                                                    );
+                                                }
+                                            }
+                                            return (
+                                                <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm whitespace-pre-wrap leading-relaxed border border-gray-100 shadow-sm">
+                                                    {inquiry.message}
+                                                </div>
+                                            );
+                                        })()}
+
                                         <div className="flex items-center gap-4 text-xs text-gray-400 font-medium pt-2">
                                             <div className="flex items-center gap-1">
                                                 <Clock className="w-3 h-3" />
@@ -165,7 +224,7 @@ export default function InquiriesPage() {
                                                     minute: '2-digit'
                                                 })}
                                             </div>
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1 uppercase tracking-tighter">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${inquiry.status === 'UNREAD' ? 'bg-purple-500' : inquiry.status === 'READ' ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
                                                 {inquiry.status}
                                             </div>

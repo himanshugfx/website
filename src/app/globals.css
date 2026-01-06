@@ -3,11 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Spacing custom properties */
-  --spacing-section: 1.5rem;
-  --spacing-section-lg: 2rem;
-  --spacing-card: 1rem;
-  --spacing-card-lg: 1.5rem;
+  /* Spacing custom properties - increased for better section separation */
+  --spacing-section: 4rem;
+  --spacing-section-lg: 6rem;
+  --spacing-section-xl: 8rem;
+  --spacing-card: 1.5rem;
+  --spacing-card-lg: 2rem;
 }
 
 @theme inline {
@@ -25,11 +26,27 @@ body {
 
 /* Consistent section spacing utilities */
 .section-gap {
+  margin-top: var(--spacing-section);
   margin-bottom: var(--spacing-section);
 }
 
 .section-gap-lg {
+  margin-top: var(--spacing-section-lg);
   margin-bottom: var(--spacing-section-lg);
+}
+
+.section-gap-xl {
+  margin-top: var(--spacing-section-xl);
+  margin-bottom: var(--spacing-section-xl);
+}
+
+/* Section spacing - applies padding and margin together */
+section {
+  margin-top: 2rem;
+}
+
+section:first-child {
+  margin-top: 0;
 }
 
 /* Improved form input styles */
