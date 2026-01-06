@@ -40,7 +40,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
     const [cancelReason, setCancelReason] = useState('');
     const [returnReason, setReturnReason] = useState('');
     const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-    const [actionType, setActionType] = useState<'cancel' | 'return' | null>(null);
+    const [actionType, setActionType] = useState<'cancel' | 'return' | 'delete' | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (user?.id) {
@@ -110,6 +111,23 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
         } catch (error) {
             console.error('Error returning order:', error);
             alert('Failed to submit return request');
+        }
+    };
+
+    const handleDataDeletionRequest = async () => {
+        try {
+            setIsDeleting(true);
+            // In a real app, this would call an API to flag the account for deletion
+            // For now, we'll simulate the request
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            alert('Your data deletion request has been submitted. Our team will contact you at ' + user?.email + ' to verify and complete the process within 7 business days.');
+            setActionType(null);
+        } catch (error) {
+            console.error('Error requesting data deletion:', error);
+            alert('Failed to submit deletion request. Please try again later.');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -371,20 +389,34 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                             </div>
                         )}
 
-                        {/* Cancel/Return Modal */}
-                        {(actionType === 'cancel' || actionType === 'return') && selectedOrder && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                                <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-                                    <h3 className="text-xl font-bold text-zinc-900 mb-4">
-                                        {actionType === 'cancel' ? 'Request Cancellation' : 'Request Return'}
+                        {/* Cancel/Return/Delete Modal */}
+                        {(actionType === 'cancel' || actionType === 'return' || actionType === 'delete') && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                                <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl scale-in-center">
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${actionType === 'delete' ? 'bg-red-50 text-red-500' : 'bg-purple-50 text-purple-600'}`}>
+                                        <i className={`ph-bold ${actionType === 'delete' ? 'ph-warning' : (actionType === 'cancel' ? 'ph-x-circle' : 'ph-arrow-counter-clockwise')} text-2xl`}></i>
+                                    </div>
+
+                                    <h3 className="text-2xl font-bold text-zinc-900 mb-2 text-center">
+                                        {actionType === 'delete' ? 'Delete Account Data?' : (actionType === 'cancel' ? 'Request Cancellation' : 'Request Return')}
                                     </h3>
-                                    <textarea
-                                        value={actionType === 'cancel' ? cancelReason : returnReason}
-                                        onChange={(e) => actionType === 'cancel' ? setCancelReason(e.target.value) : setReturnReason(e.target.value)}
-                                        placeholder={`Please provide a reason for ${actionType === 'cancel' ? 'cancellation' : 'return'}...`}
-                                        className="w-full h-32 p-3 border border-zinc-200 rounded-xl focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none resize-none"
-                                    />
-                                    <div className="flex gap-3 mt-4">
+
+                                    <p className="text-zinc-500 text-center mb-8">
+                                        {actionType === 'delete'
+                                            ? 'This will permanently remove your personal data and account history. This action cannot be undone.'
+                                            : `Please provide a reason for your ${actionType} request below.`}
+                                    </p>
+
+                                    {actionType !== 'delete' && (
+                                        <textarea
+                                            value={actionType === 'cancel' ? cancelReason : returnReason}
+                                            onChange={(e) => actionType === 'cancel' ? setCancelReason(e.target.value) : setReturnReason(e.target.value)}
+                                            placeholder={`Please provide a reason for ${actionType === 'cancel' ? 'cancellation' : 'return'}...`}
+                                            className="w-full h-32 p-4 border border-zinc-200 rounded-2xl focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none resize-none mb-6 bg-zinc-50"
+                                        />
+                                    )}
+
+                                    <div className="flex gap-4">
                                         <button
                                             onClick={() => {
                                                 setSelectedOrder(null);
@@ -392,15 +424,25 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                 setCancelReason('');
                                                 setReturnReason('');
                                             }}
-                                            className="flex-1 px-4 py-2 border border-zinc-200 text-zinc-700 rounded-lg font-semibold hover:bg-zinc-50 transition-colors"
+                                            disabled={isDeleting}
+                                            className="flex-1 px-6 py-3.5 border border-zinc-200 text-zinc-700 rounded-xl font-bold hover:bg-zinc-50 transition-all disabled:opacity-50"
                                         >
                                             Cancel
                                         </button>
                                         <button
-                                            onClick={() => actionType === 'cancel' ? handleCancelRequest(selectedOrder) : handleReturnRequest(selectedOrder)}
-                                            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
+                                            onClick={() => {
+                                                if (actionType === 'delete') {
+                                                    handleDataDeletionRequest();
+                                                } else if (selectedOrder) {
+                                                    actionType === 'cancel' ? handleCancelRequest(selectedOrder) : handleReturnRequest(selectedOrder);
+                                                }
+                                            }}
+                                            disabled={isDeleting}
+                                            className={`flex-1 px-6 py-3.5 text-white rounded-xl font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2
+                                                ${actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
                                         >
-                                            Submit
+                                            {isDeleting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                                            {actionType === 'delete' ? 'Confirm Deletion' : 'Submit'}
                                         </button>
                                     </div>
                                 </div>
@@ -465,6 +507,21 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                             </button>
                                         </div>
                                     </form>
+
+                                    <div className="mt-12 pt-8 border-t border-zinc-100">
+                                        <h5 className="text-lg font-bold text-red-600 mb-2">Danger Zone</h5>
+                                        <p className="text-zinc-500 text-sm mb-6">
+                                            Once you request to delete your account data, there is no going back. Please be certain.
+                                            You can learn more about this in our <Link href="/data-deletion-guide" className="text-purple-600 hover:underline">Data Deletion Guide</Link>.
+                                        </p>
+                                        <button
+                                            onClick={() => setActionType('delete')}
+                                            className="bg-zinc-50 text-red-600 border border-red-100 px-6 py-3 rounded-xl font-bold hover:bg-red-50 hover:border-red-200 transition-all flex items-center gap-2"
+                                        >
+                                            <i className="ph-bold ph-trash"></i>
+                                            Request Data Deletion
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}

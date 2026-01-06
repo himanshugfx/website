@@ -56,6 +56,12 @@ export default function Footer() {
                             <li>
                                 <Link href="/privacy-policy" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Privacy Policy</Link>
                             </li>
+                            <li>
+                                <Link href="/terms-of-service" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Terms of Service</Link>
+                            </li>
+                            <li>
+                                <Link href="/data-deletion-guide" className="caption1 text-secondary hover:text-black duration-300 text-sm sm:text-base block py-1">Data Deletion Guide</Link>
+                            </li>
                         </ul>
                     </div>
 
