@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// POST - Update all existing orders: set Delhivery fields to null and status to DELIVERED
+// POST - Update all existing orders to DELIVERED status
 export async function POST(request: Request) {
     try {
         // Check admin authorization
@@ -12,30 +12,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get all orders
-        const orders = await prisma.order.findMany({
-            select: { id: true, status: true, orderNumber: true },
+        // Use updateMany for efficient bulk update - only update status field
+        // Don't touch Delhivery fields since they might not exist in DB yet
+        const result = await prisma.order.updateMany({
+            where: {
+                // Update all orders that are not already DELIVERED or CANCELLED
+                status: {
+                    notIn: ['DELIVERED', 'CANCELLED']
+                }
+            },
+            data: {
+                status: 'DELIVERED',
+            },
         });
-
-        // Update each order
-        const updatePromises = orders.map(order =>
-            prisma.order.update({
-                where: { id: order.id },
-                data: {
-                    status: 'DELIVERED',
-                    // Note: These fields might not exist in DB yet if migration wasn't run
-                    // They will be ignored by Prisma if columns don't exist
-                },
-            })
-        );
-
-        const results = await Promise.all(updatePromises);
 
         return NextResponse.json({
             success: true,
-            message: `Updated ${results.length} orders to DELIVERED status`,
-            updatedCount: results.length,
-            orders: results.map(o => ({ id: o.id, orderNumber: o.orderNumber, status: o.status })),
+            message: `Updated ${result.count} orders to DELIVERED status`,
+            updatedCount: result.count,
         });
     } catch (error) {
         console.error('Bulk update error:', error);
