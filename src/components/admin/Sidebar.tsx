@@ -88,10 +88,10 @@ const NavItemComponent = ({
 
     if (hasChildren) {
         return (
-            <div>
+            <div className="relative group">
                 <button
                     onClick={() => toggleMenu(item.name)}
-                    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive || isChildActive
+                    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 ${isActive || isChildActive
                         ? 'bg-purple-600/20 text-purple-400'
                         : 'text-gray-400 hover:text-white'
                         }`}
@@ -104,6 +104,37 @@ const NavItemComponent = ({
                         <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                     )}
                 </button>
+
+                {/* Collapsed state - show popover on hover */}
+                {isCollapsed && (
+                    <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
+                        <div className="bg-[#1a1c23] border border-gray-700 rounded-xl shadow-xl py-2 min-w-[180px]">
+                            <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700 mb-1">
+                                {item.name}
+                            </div>
+                            {item.children?.map((child) => {
+                                const ChildIcon = child.icon;
+                                const isChildItemActive = pathname === child.href || pathname.startsWith(child.href);
+                                return (
+                                    <Link
+                                        key={child.name}
+                                        href={child.href}
+                                        onClick={() => window.innerWidth < 1024 && onClose()}
+                                        className={`flex items-center gap-3 px-4 py-2.5 transition-all duration-200 ${isChildItemActive
+                                            ? 'bg-purple-600 text-white'
+                                            : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                                            }`}
+                                    >
+                                        <ChildIcon className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{child.name}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Expanded state - show children inline */}
                 {!isCollapsed && isExpanded && (
                     <div className="ml-6 mt-1 space-y-1">
                         {item.children?.map((child) => {

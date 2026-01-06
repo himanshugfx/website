@@ -46,7 +46,35 @@ async function getAnalyticsData() {
         const prevOrders = previousStats._count.id || 0;
         const ordersGrowth = prevOrders > 0 ? ((currentOrders - prevOrders) / prevOrders) * 100 : 0;
 
-        // 2. Daily Revenue (Last 30 days)
+        // 2. Active Customers (Unique customers in last 30 days vs previous 30 days)
+        const currentCustomersOrders = await prisma.order.findMany({
+            where: { createdAt: { gte: thirtyDaysAgo } },
+            select: { customerEmail: true, userId: true }
+        });
+        const prevCustomersOrders = await prisma.order.findMany({
+            where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+            select: { customerEmail: true, userId: true }
+        });
+
+        // Count unique customers by email or userId
+        const currentCustomerSet = new Set<string>();
+        currentCustomersOrders.forEach(order => {
+            if (order.customerEmail) currentCustomerSet.add(order.customerEmail);
+            else if (order.userId) currentCustomerSet.add(order.userId);
+        });
+        const currentActiveCustomers = currentCustomerSet.size;
+
+        const prevCustomerSet = new Set<string>();
+        prevCustomersOrders.forEach(order => {
+            if (order.customerEmail) prevCustomerSet.add(order.customerEmail);
+            else if (order.userId) prevCustomerSet.add(order.userId);
+        });
+        const prevActiveCustomers = prevCustomerSet.size;
+        const customersGrowth = prevActiveCustomers > 0
+            ? ((currentActiveCustomers - prevActiveCustomers) / prevActiveCustomers) * 100
+            : 0;
+
+        // 3. Daily Revenue (Last 30 days)
         const orders = await prisma.order.findMany({
             where: {
                 createdAt: { gte: thirtyDaysAgo },
@@ -80,7 +108,7 @@ async function getAnalyticsData() {
         }));
 
 
-        // 3. Top Products
+        // 4. Top Products
         const topProducts = await prisma.orderItem.groupBy({
             by: ['productId'],
             where: { order: { status: 'COMPLETED' } },
@@ -104,13 +132,14 @@ async function getAnalyticsData() {
             })
         );
 
-        // 4. Conversion Rate (Rough estimate: Completed Orders / Total Orders)
+        // 5. Conversion Rate (Rough estimate: Completed Orders / Total Orders)
         const totalAttempts = await prisma.order.count();
         const conversionRate = totalAttempts > 0 ? (await prisma.order.count({ where: { status: 'COMPLETED' } }) / totalAttempts) * 100 : 0;
 
         return {
             revenue: { current: currentRevenue, growth: revenueGrowth },
             orders: { current: currentOrders, growth: ordersGrowth },
+            customers: { current: currentActiveCustomers, growth: customersGrowth },
             conversion: conversionRate,
             dailyRevenue,
             topProducts: enrichedTopProducts
@@ -178,8 +207,8 @@ export default async function AnalyticsPage() {
                     />
                     <StatCard
                         title="Active Customers"
-                        value="1,248" // Placeholder
-                        growth={12}
+                        value={data.customers.current.toLocaleString()}
+                        growth={data.customers.growth}
                         icon={<Users className="w-6 h-6" />}
                         color="blue"
                     />

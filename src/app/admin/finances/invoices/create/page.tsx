@@ -9,7 +9,7 @@ export default function CreateInvoicePage() {
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link
-                        href="/admin/invoices"
+                        href="/admin/finances/invoices"
                         className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -186,7 +186,7 @@ export default function CreateInvoicePage() {
                     {/* Actions */}
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                         <Link
-                            href="/admin/invoices"
+                            href="/admin/finances/invoices"
                             className="px-6 py-3 text-center font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50"
                         >
                             Cancel
