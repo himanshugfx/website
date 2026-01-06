@@ -12,6 +12,7 @@ import CartPopup from "@/components/CartPopup";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 import { Analytics } from "@vercel/analytics/next"
+import PageViewTracker from "@/components/PageViewTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({
               <ConditionalWrapper>
                 {children}
               </ConditionalWrapper>
+              <PageViewTracker />
               <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
               <SpeedInsights />
               <Analytics />
