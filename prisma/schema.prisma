@@ -263,3 +263,4 @@ model PageView {
   @@index([createdAt])
   @@index([sessionId])
 }
+

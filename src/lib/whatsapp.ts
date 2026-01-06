@@ -1,0 +1,218 @@
+/**
+ * WhatsApp Cloud API Service
+ * Handles sending messages via Meta WhatsApp Business API
+ */
+
+interface WhatsAppMessagePayload {
+    messaging_product: 'whatsapp';
+    to: string;
+    type: 'text' | 'template' | 'image' | 'document';
+    text?: { body: string };
+    template?: {
+        name: string;
+        language: { code: string };
+        components?: Array<{
+            type: 'body' | 'header';
+            parameters: Array<{
+                type: 'text' | 'image' | 'document';
+                text?: string;
+                image?: { link: string };
+            }>;
+        }>;
+    };
+}
+
+interface WhatsAppResponse {
+    messaging_product: string;
+    contacts: Array<{ wa_id: string }>;
+    messages: Array<{ id: string }>;
+}
+
+interface WhatsAppErrorResponse {
+    error: {
+        message: string;
+        type: string;
+        code: number;
+        error_subcode?: number;
+        fbtrace_id: string;
+    };
+}
+
+class WhatsAppService {
+    private apiToken: string;
+    private phoneNumberId: string;
+    private apiVersion: string;
+    private baseUrl: string;
+
+    constructor() {
+        this.apiToken = process.env.WHATSAPP_API_TOKEN || '';
+        this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+        this.apiVersion = process.env.WHATSAPP_API_VERSION || 'v21.0';
+        this.baseUrl = `https://graph.facebook.com/${this.apiVersion}/${this.phoneNumberId}`;
+    }
+
+    /**
+     * Check if WhatsApp is configured
+     */
+    isConfigured(): boolean {
+        return !!(this.apiToken && this.phoneNumberId);
+    }
+
+    /**
+     * Format phone number for WhatsApp API
+     * @param phone - Phone number (can include +, spaces, dashes)
+     * @returns Formatted phone number (only digits, with country code)
+     */
+    formatPhoneNumber(phone: string): string {
+        // Remove all non-digit characters
+        let cleaned = phone.replace(/\D/g, '');
+
+        // Add India country code if not present
+        if (cleaned.length === 10) {
+            cleaned = '91' + cleaned;
+        }
+
+        return cleaned;
+    }
+
+    /**
+     * Send a text message
+     */
+    async sendTextMessage(phone: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+        if (!this.isConfigured()) {
+            return { success: false, error: 'WhatsApp API not configured' };
+        }
+
+        const formattedPhone = this.formatPhoneNumber(phone);
+
+        const payload: WhatsAppMessagePayload = {
+            messaging_product: 'whatsapp',
+            to: formattedPhone,
+            type: 'text',
+            text: { body: message },
+        };
+
+        try {
+            const response = await fetch(`${this.baseUrl}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorData = data as WhatsAppErrorResponse;
+                console.error('WhatsApp API Error:', errorData);
+                return { success: false, error: errorData.error?.message || 'Failed to send message' };
+            }
+
+            const successData = data as WhatsAppResponse;
+            return { success: true, messageId: successData.messages?.[0]?.id };
+        } catch (error) {
+            console.error('WhatsApp API Error:', error);
+            return { success: false, error: 'Failed to connect to WhatsApp API' };
+        }
+    }
+
+    /**
+     * Send a template message (for marketing/notifications)
+     */
+    async sendTemplateMessage(
+        phone: string,
+        templateName: string,
+        languageCode: string = 'en',
+        parameters?: Array<{ type: 'text'; text: string }>
+    ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+        if (!this.isConfigured()) {
+            return { success: false, error: 'WhatsApp API not configured' };
+        }
+
+        const formattedPhone = this.formatPhoneNumber(phone);
+
+        const payload: WhatsAppMessagePayload = {
+            messaging_product: 'whatsapp',
+            to: formattedPhone,
+            type: 'template',
+            template: {
+                name: templateName,
+                language: { code: languageCode },
+                ...(parameters && parameters.length > 0 ? {
+                    components: [{
+                        type: 'body',
+                        parameters: parameters,
+                    }],
+                } : {}),
+            },
+        };
+
+        try {
+            const response = await fetch(`${this.baseUrl}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errorData = data as WhatsAppErrorResponse;
+                console.error('WhatsApp API Error:', errorData);
+                return { success: false, error: errorData.error?.message || 'Failed to send template message' };
+            }
+
+            const successData = data as WhatsAppResponse;
+            return { success: true, messageId: successData.messages?.[0]?.id };
+        } catch (error) {
+            console.error('WhatsApp API Error:', error);
+            return { success: false, error: 'Failed to connect to WhatsApp API' };
+        }
+    }
+
+    /**
+     * Get registered templates from WhatsApp Business Account
+     */
+    async getTemplates(): Promise<{ success: boolean; templates?: any[]; error?: string }> {
+        if (!this.isConfigured()) {
+            return { success: false, error: 'WhatsApp API not configured' };
+        }
+
+        const wabaId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+        if (!wabaId) {
+            return { success: false, error: 'WABA ID not configured' };
+        }
+
+        try {
+            const response = await fetch(
+                `https://graph.facebook.com/${this.apiVersion}/${wabaId}/message_templates`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.apiToken}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('WhatsApp API Error:', data);
+                return { success: false, error: data.error?.message || 'Failed to fetch templates' };
+            }
+
+            return { success: true, templates: data.data || [] };
+        } catch (error) {
+            console.error('WhatsApp API Error:', error);
+            return { success: false, error: 'Failed to connect to WhatsApp API' };
+        }
+    }
+}
+
+// Export singleton instance
+export const whatsappService = new WhatsAppService();
+export default whatsappService;

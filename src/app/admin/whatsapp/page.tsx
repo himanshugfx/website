@@ -72,7 +72,7 @@ export default async function WhatsAppPage() {
 
     // Check if WhatsApp is configured
     const isConfigured = !!(
-        process.env.WHATSAPP_API_KEY &&
+        process.env.WHATSAPP_API_TOKEN &&
         process.env.WHATSAPP_PHONE_NUMBER_ID
     );
 
