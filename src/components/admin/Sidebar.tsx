@@ -259,7 +259,7 @@ const SidebarContent = ({
 
 export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: SidebarProps) {
     const pathname = usePathname();
-    const [expandedMenus, setExpandedMenus] = useState<string[]>(['Finances']); // Auto-expand Finances
+    const [expandedMenus, setExpandedMenus] = useState<string[]>([]); // Start with all menus closed
 
     const toggleMenu = (name: string) => {
         setExpandedMenus(prev =>
