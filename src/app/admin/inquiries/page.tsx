@@ -86,7 +86,7 @@ export default function InquiriesPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
                         <p className="text-xs sm:text-sm text-gray-500 font-medium">Total Inquiries</p>
                         <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.length}</p>

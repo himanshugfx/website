@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, LogOut, Bell, Settings } from 'lucide-react';
+import { Menu, LogOut, Bell, Settings, User } from 'lucide-react';
 import { useState } from 'react';
 
 interface AdminHeaderProps {
@@ -14,7 +14,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
     return (
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
-            <div className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-8 lg:px-12 xl:px-16">
                 {/* Mobile menu button - larger touch target */}
                 <button
                     onClick={onMenuClick}
@@ -45,11 +45,16 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     <div className="relative">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="flex items-center gap-3 px-2 py-1.5 rounded-xl border border-transparent"
+                            className="flex items-center gap-3 p-1 sm:p-2 rounded-2xl hover:bg-gray-50 transition-all border border-transparent group"
                         >
-                            <div className="hidden sm:block text-left">
-                                <p className="font-semibold text-gray-900 text-sm leading-none">{session?.user?.name || 'Admin'}</p>
-                                <p className="text-xs text-gray-500 mt-1 font-medium">Administrator</p>
+                            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+                                <span className="text-white font-bold text-lg">
+                                    {(session?.user?.name || 'A').charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                            <div className="hidden sm:block text-left mr-1">
+                                <p className="font-bold text-gray-900 text-sm leading-tight">{session?.user?.name || 'Admin'}</p>
+                                <p className="text-[10px] text-purple-600 font-black uppercase tracking-widest mt-0.5">Administrator</p>
                             </div>
                         </button>
 

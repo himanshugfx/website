@@ -113,7 +113,7 @@ export default async function AdminDashboard() {
             <div className="space-y-6">
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}

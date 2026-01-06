@@ -24,8 +24,9 @@ import {
     LogOut,
     Receipt,
     Wallet,
-    ClipboardList,
-    Settings
+    Settings,
+    Shield,
+    UserCircle
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -63,7 +64,6 @@ const navigation: NavItem[] = [
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
     { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
-    { name: 'Settings', href: '/admin/profile', icon: Settings },
     { name: 'Import Orders', href: '/admin/import', icon: Upload },
 ];
 
@@ -211,8 +211,8 @@ const SidebarContent = ({
         {/* Header */}
         <div className={`h-20 flex items-center ${isCollapsed ? 'justify-center' : 'px-6'} border-b border-gray-800`}>
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 flex-shrink-0">
-                    <span className="text-white font-bold text-xl">A</span>
+                <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 flex-shrink-0 group">
+                    <Shield className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
                 </div>
                 {!isCollapsed && <span className="text-lg font-bold tracking-wide">Anose Admin</span>}
             </div>
@@ -242,41 +242,13 @@ const SidebarContent = ({
             </nav>
         </div>
 
-        {/* Bottom Section */}
-        <div className="p-4 border-t border-gray-800 space-y-3">
-            {!isCollapsed ? (
-                <div className="bg-black rounded-xl p-4 border border-gray-800">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                            <span className="text-purple-300 text-xs font-bold">AB</span>
-                        </div>
-                        <div>
-                            <p className="text-sm font-semibold text-white">Anose Beauty</p>
-                            <p className="text-xs text-purple-300">Admin Panel</p>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="flex justify-center">
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <span className="text-purple-300 text-xs font-bold">AB</span>
-                    </div>
-                </div>
-            )}
-
-            <button
-                onClick={() => signOut({ callbackUrl: '/' })}
-                className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-4'} py-3 w-full rounded-xl text-red-500 hover:bg-red-500/10 transition-colors`}
-                title="Sign Out"
-            >
-                <LogOut className="w-5 h-5" />
-                {!isCollapsed && <span className="font-medium">Sign Out</span>}
-            </button>
-
+        {/* Bottom Section - Only Collapse button remains */}
+        <div className="p-4 border-t border-gray-800">
             {/* Collapse Button (Desktop Only) */}
             <button
                 onClick={onToggleCollapse}
-                className={`hidden lg:flex items-center ${isCollapsed ? 'justify-center' : 'justify-center'} w-full mt-4 p-2 text-gray-500 rounded-lg transition-colors`}
+                className={`hidden lg:flex items-center justify-center w-full p-2 text-gray-500 hover:text-white rounded-lg transition-colors`}
+                title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
                 {isCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
             </button>
