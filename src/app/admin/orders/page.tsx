@@ -18,7 +18,7 @@ interface Order {
     } | null;
 }
 
-const STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'DRAFT'];
+const STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'CANCELLED', 'DRAFT'];
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
