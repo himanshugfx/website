@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -15,19 +15,21 @@ import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Anose - Premium Cosmetics",
   description: "High-quality Cosmtic Manufactrer and hotel amenities supplier.",
+  icons: {
+    icon: "/assets/images/fav.png",
+    shortcut: "/assets/images/fav.png",
+    apple: "/assets/images/fav.png",
+  },
 };
 
 
@@ -39,14 +41,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/assets/images/fav.png" type="image/png" />
         <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css" />
         <link rel="stylesheet" href="/assets/css/style.css" />
         <link rel="stylesheet" href="/dist/output-scss.css" />
         <link rel="stylesheet" href="/dist/output-tailwind.css" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         <AuthProvider>
