@@ -102,15 +102,15 @@ export async function GET(request: Request) {
             },
         });
 
-        // Include all Delhivery tracking fields in response
+        // Include all Delhivery tracking fields in response (with fallbacks for backward compatibility)
         const ordersWithTracking = orders.map(order => ({
             ...order,
-            awbNumber: order.awbNumber,
-            delhiveryStatus: order.delhiveryStatus,
-            shippedAt: order.shippedAt,
-            deliveredAt: order.deliveredAt,
-            estimatedDelivery: order.estimatedDelivery,
-            trackingUrl: order.trackingUrl,
+            awbNumber: (order as any).awbNumber || null,
+            delhiveryStatus: (order as any).delhiveryStatus || null,
+            shippedAt: (order as any).shippedAt || null,
+            deliveredAt: (order as any).deliveredAt || null,
+            estimatedDelivery: (order as any).estimatedDelivery || null,
+            trackingUrl: (order as any).trackingUrl || null,
         }));
 
         return NextResponse.json({ orders: ordersWithTracking });

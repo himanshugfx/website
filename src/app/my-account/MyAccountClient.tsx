@@ -31,13 +31,13 @@ interface Order {
     returnReason: string | null;
     items: OrderItem[];
     createdAt: string;
-    // Delhivery tracking fields
-    awbNumber: string | null;
-    delhiveryStatus: string | null;
-    shippedAt: string | null;
-    deliveredAt: string | null;
-    estimatedDelivery: string | null;
-    trackingUrl: string | null;
+    // Delhivery tracking fields (optional for backward compatibility)
+    awbNumber?: string | null;
+    delhiveryStatus?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    estimatedDelivery?: string | null;
+    trackingUrl?: string | null;
 }
 
 export default function MyAccountClient({ user }: MyAccountClientProps) {
@@ -383,8 +383,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             <div>
                                                                 <p className="text-zinc-500 text-xs">Status</p>
                                                                 <p className={`font-bold ${order.delhiveryStatus === 'Delivered' ? 'text-green-600' :
-                                                                        order.delhiveryStatus === 'Out For Delivery' ? 'text-indigo-600' :
-                                                                            'text-blue-600'
+                                                                    order.delhiveryStatus === 'Out For Delivery' ? 'text-indigo-600' :
+                                                                        'text-blue-600'
                                                                     }`}>
                                                                     {order.delhiveryStatus || 'Processing'}
                                                                 </p>

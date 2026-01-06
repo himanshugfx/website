@@ -22,13 +22,13 @@ interface OrderDetails {
     promoCode: string | null;
     address: string | null;
     createdAt: string;
-    // Delhivery fields
-    awbNumber: string | null;
-    delhiveryStatus: string | null;
-    shippedAt: string | null;
-    deliveredAt: string | null;
-    estimatedDelivery: string | null;
-    trackingUrl: string | null;
+    // Delhivery fields (optional for backward compatibility)
+    awbNumber?: string | null;
+    delhiveryStatus?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    estimatedDelivery?: string | null;
+    trackingUrl?: string | null;
     user: {
         name: string | null;
         email: string | null;
@@ -410,9 +410,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-gray-500">Status</span>
                                             <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${tracking.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
-                                                    tracking.status === 'Out For Delivery' ? 'bg-indigo-100 text-indigo-700' :
-                                                        tracking.status === 'In Transit' ? 'bg-blue-100 text-blue-700' :
-                                                            'bg-gray-100 text-gray-700'
+                                                tracking.status === 'Out For Delivery' ? 'bg-indigo-100 text-indigo-700' :
+                                                    tracking.status === 'In Transit' ? 'bg-blue-100 text-blue-700' :
+                                                        'bg-gray-100 text-gray-700'
                                                 }`}>
                                                 {tracking.status}
                                             </span>
