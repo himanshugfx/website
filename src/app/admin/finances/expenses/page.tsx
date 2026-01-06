@@ -55,7 +55,7 @@ export default function ExpensesPage() {
     const loadExpenses = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/expenses');
+            const response = await fetch('/api/expenses?range=all');
             const result = await response.json();
 
             if (result.expenses) {
