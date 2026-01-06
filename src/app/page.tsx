@@ -34,7 +34,7 @@ export default async function Home() {
           <div className="container mx-auto h-full px-6 flex items-center">
             <div className="text-content sm:w-1/2 w-full animate-fade-in">
               <div className="inline-block px-4 py-1.5 rounded-full bg-purple-600/90 text-white text-xs font-bold tracking-[0.2em] mb-6 uppercase shadow-lg shadow-purple-500/20">
-                New Arrivals • 2024
+                New Arrivals • 2026
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
                 Sale! Flat <span className="text-purple-400">50% Off!</span>
