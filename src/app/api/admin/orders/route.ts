@@ -76,7 +76,18 @@ export async function GET(request: Request) {
                 orderBy: {
                     orderNumber: 'desc', // Newest order on top
                 },
-                include: {
+                select: {
+                    id: true,
+                    orderNumber: true,
+                    userId: true,
+                    customerName: true,
+                    customerEmail: true,
+                    customerPhone: true,
+                    total: true,
+                    status: true,
+                    paymentStatus: true,
+                    paymentMethod: true,
+                    createdAt: true,
                     user: {
                         select: {
                             name: true,
@@ -84,7 +95,10 @@ export async function GET(request: Request) {
                         },
                     },
                     items: {
-                        include: {
+                        select: {
+                            id: true,
+                            quantity: true,
+                            price: true,
                             product: {
                                 select: {
                                     name: true,
