@@ -309,7 +309,7 @@ export default function AmenitiesPage() {
             {/* 4. Why Choose Anose Beauty - Fixed icons and layout */}
             <section className="py-20 md:py-28 bg-zinc-900 text-white mx-4 rounded-3xl overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-600/10 to-transparent pointer-events-none" />
-                <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+                <div className="container mx-auto px-8 md:px-12 lg:px-16 grid lg:grid-cols-2 gap-16 items-center">
                     <div>
                         <h2 className="text-3xl md:text-4xl font-black mb-12 uppercase tracking-tight">
                             The Anose <span className="text-purple-400">Difference</span>
@@ -343,13 +343,14 @@ export default function AmenitiesPage() {
                     <div className="relative">
                         <div className="bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-sm">
                             <p className="text-xl font-medium italic mb-8 text-zinc-300 leading-relaxed">
-                                "The guest feedback has been incredible since we switched. Our guests consistently compliment the amenities' quality and luxury feel."
+                                "We are very satisfied with Anose Beauty for their premium-quality toiletries and elegant presentation that enhance our guest experience.
+Their reliable service, timely deliveries, and professional support make them a trusted hotel amenities partner we confidently recommend."
                             </p>
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center font-bold text-xl">HM</div>
                                 <div>
-                                    <div className="text-lg font-bold">Hotel Manager</div>
-                                    <div className="text-zinc-500 italic text-sm">Luxury Boutique Resort</div>
+                                    <div className="text-lg font-bold">Nitesh Singh</div>
+                                    <div className="text-zinc-500 italic text-sm">Hotel Manisha International</div>
                                 </div>
                             </div>
                         </div>
