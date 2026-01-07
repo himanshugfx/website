@@ -82,7 +82,7 @@ export default function CartClient() {
 
                     <div className="xl:w-1/3 w-full">
                         <div className="checkout-block bg-zinc-50 p-8 rounded-2xl">
-                            <div className="heading5">Order Summary</div>
+                            <div className="heading5">Order Sagar</div>
 
                             <div className="total-block py-5 flex justify-between border-b border-line mt-4">
                                 <div className="body1">Subtotal</div>
