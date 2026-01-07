@@ -83,9 +83,9 @@ const jsonLd = {
     "availableLanguage": ["en", "Hindi"]
   },
   "sameAs": [
-    "https://www.facebook.com/anose",
-    "https://www.instagram.com/anose",
-    "https://www.youtube.com/anose"
+    "https://www.facebook.com/AnoseBeauty",
+    "https://www.instagram.com/anosebeauty",
+    "https://www.youtube.com/@AnoseBeauty"
   ]
 };
 
