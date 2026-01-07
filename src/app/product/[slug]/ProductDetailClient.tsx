@@ -21,6 +21,7 @@ interface Product {
     brand: string;
     description: string;
     images: string; // JSON string
+    thumbImage: string; // Add thumbImage to interface
     variations: Variation[];
     sizes: string; // Comma separated or single
     slug: string;
@@ -35,13 +36,33 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
     const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
 
-    // Parse images with fallback
+    // Parse images with fallback and include thumbImage
     let images: string[] = [];
     try {
-        const parsed = JSON.parse(product.images) as string[];
-        images = parsed.filter(img => img && img !== '').map(img => img || DEFAULT_IMAGE);
+        const parsed = JSON.parse(product.images || '[]') as string[];
+        images = parsed.filter(img => img && img !== '');
+
+        // Prepend thumbImage if it exists and isn't already in the list
+        let thumbUrl = product.thumbImage;
+        try {
+            if (thumbUrl && (thumbUrl.startsWith('[') || thumbUrl.startsWith('{') || thumbUrl.startsWith('"'))) {
+                const parsed = JSON.parse(thumbUrl);
+                thumbUrl = Array.isArray(parsed) ? parsed[0] : parsed;
+            }
+        } catch (e) {
+            // Keep original string if parse fails
+        }
+
+        if (thumbUrl && !images.includes(thumbUrl)) {
+            images.unshift(thumbUrl);
+        }
     } catch (e) {
-        images = [DEFAULT_IMAGE];
+        // If parsing fails, just use thumbImage if avail
+        if (product.thumbImage) {
+            images = [product.thumbImage];
+        } else {
+            images = [DEFAULT_IMAGE];
+        }
     }
 
     // Ensure at least one image
