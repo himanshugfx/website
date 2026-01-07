@@ -1,8 +1,6 @@
 'use server';
 
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 // Max file sizes - Server Action limit is 100MB as configured in next.config.ts
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -15,7 +13,13 @@ interface UploadResult {
 }
 
 export async function uploadFile(formData: FormData): Promise<UploadResult> {
-    console.log('[Server Action] Starting upload...');
+    console.log('[Server Action] Starting upload (Vercel Blob)...');
+
+    // Check for Vercel Blob token
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        console.error('[Server Action] Error: Missing BLOB_READ_WRITE_TOKEN');
+        return { error: 'Server configuration error: Missing Vercel Blob token' };
+    }
 
     try {
         const file = formData.get('file') as File | null;
@@ -46,28 +50,13 @@ export async function uploadFile(formData: FormData): Promise<UploadResult> {
             return { error: `File too large. Maximum size is ${maxSizeMB}MB` };
         }
 
-        // Convert to buffer
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        // Upload to Vercel Blob
+        const blob = await put(file.name, file, {
+            access: 'public',
+        });
 
-        // Sanitize filename
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const filename = Date.now() + '-' + sanitizedName;
-
-        // Get upload directory
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-        // Ensure uploads directory exists
-        if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-        }
-
-        // Write file
-        const filePath = path.join(uploadDir, filename);
-        await writeFile(filePath, buffer);
-
-        console.log('[Server Action] Upload successful:', `/uploads/${filename}`);
-        return { url: `/uploads/${filename}` };
+        console.log('[Server Action] Upload successful:', blob.url);
+        return { url: blob.url };
 
     } catch (error) {
         console.error('[Server Action] Error:', error);
