@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        // Vercel Blob Storage for legacy uploaded images
+        protocol: 'https',
+        hostname: 'dz1tvnkclawmrdnm.public.blob.vercel-storage.com',
+      },
+      {
+        // Odoo for imported product images
+        protocol: 'https',
+        hostname: 'anosebeauty.odoo.com',
+      },
     ],
   },
   // Increase body size limit for file uploads
