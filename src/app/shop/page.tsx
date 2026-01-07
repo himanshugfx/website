@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+    title: "Shop Premium Skincare & Cosmetics",
+    description: "Browse our collection of luxury skincare, hair care, and organic beauty products. High-quality ingredients for your daily routine.",
+    keywords: ["buy skincare", "organic beauty products", "luxury cosmetics", "hair care products", "Anose shop"],
+};
 import prisma from "@/lib/prisma";
 import ShopClient from "./ShopClient";
 

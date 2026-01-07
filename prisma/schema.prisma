@@ -97,6 +97,7 @@ model Order {
   estimatedDelivery DateTime? // EDD from Delhivery
   trackingUrl     String?   // Direct tracking URL
   lastTrackingSync DateTime? // Last time we synced tracking data
+  whatsappAlertSent Boolean  @default(false) // Track if abandoned cart WhatsApp was sent
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }

@@ -1,16 +1,28 @@
 'use client';
 
 import Link from 'next/link'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useSession, signOut } from 'next-auth/react';
+import SearchModal from '../SearchModal';
+import CartDrawer from '../CartDrawer';
 
 export default function Header() {
-    const { cartCount } = useCart();
+    const { cartCount, isPopupOpen, closePopup } = useCart();
     const { wishlistCount } = useWishlist();
     const { data: session } = useSession();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+
+    // Sync context popup state with drawer (optional but good for consistency)
+    useEffect(() => {
+        if (isPopupOpen) {
+            setCartDrawerOpen(true);
+            closePopup(); // Close the context popup state so it doesn't re-trigger
+        }
+    }, [isPopupOpen, closePopup]);
 
     return (
         <div id="header" className="relative w-full">
@@ -74,6 +86,16 @@ export default function Header() {
                         {/* Right Side Icons */}
                         <div className="right flex items-center gap-4 z-[1]">
                             <div className="list-action flex items-center gap-4">
+                                {/* Search Icon */}
+                                <div
+                                    className="search-icon flex items-center justify-center cursor-pointer p-1 hover:text-purple-600 transition-colors"
+                                    onClick={() => setSearchOpen(true)}
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+
                                 {/* User Icon with Dropdown */}
                                 <div className="user-icon flex items-center justify-center cursor-pointer relative group p-1">
                                     <Link href="/my-account" className="flex items-center justify-center hover:text-purple-600 transition-colors">
@@ -127,12 +149,15 @@ export default function Header() {
                                 </Link>
 
                                 {/* Cart Icon */}
-                                <Link href="/cart" className="relative cursor-pointer p-1 hover:text-purple-600 transition-colors">
+                                <div
+                                    className="relative cursor-pointer p-1 hover:text-purple-600 transition-colors"
+                                    onClick={() => setCartDrawerOpen(true)}
+                                >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
                                     <span className="quantity cart-quantity absolute -right-1 -top-1 text-[10px] text-white bg-purple-600 w-4 h-4 flex items-center justify-center rounded-full font-bold">{cartCount}</span>
-                                </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,6 +206,8 @@ export default function Header() {
                     </div>
                 </div>
             </div>
+            <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+            <CartDrawer isOpen={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
         </div>
     )
 }

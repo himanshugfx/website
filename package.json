@@ -12,6 +12,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "test:migration": "tsx scripts/test-migration.ts",
+    "cron:abandoned": "node scripts/ping-abandoned-cart.js",
     "docker:build": "docker build -t anose-website .",
     "docker:run": "docker run -p 3000:3000 --env-file .env anose-website"
   },

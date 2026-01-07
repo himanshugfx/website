@@ -1,9 +1,32 @@
+import type { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "./ProductDetailClient";
 import ProductCard from "@/components/ProductCard";
 import type { ProductCardProduct } from "@/components/ProductCard";
+
+export async function generateMetadata(
+    { params }: { params: Promise<{ slug: string }> },
+    parent: ResolvingMetadata
+): Promise<Metadata> {
+    const { slug } = await params;
+    const product = await prisma.product.findUnique({
+        where: { slug },
+    });
+
+    if (!product) return { title: 'Product Not Found' };
+
+    const previousImages = (await parent).openGraph?.images || [];
+
+    return {
+        title: product.name,
+        description: product.description?.substring(0, 160) || `Buy ${product.name} at Anose - Premium Skincare.`,
+        openGraph: {
+            images: [product.thumbImage || '', ...previousImages],
+        },
+    };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
@@ -28,8 +51,31 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         take: 4,
     });
 
+    const productJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.name,
+        "image": product.thumbImage,
+        "description": product.description,
+        "brand": {
+            "@type": "Brand",
+            "name": "Anose"
+        },
+        "offers": {
+            "@type": "Offer",
+            "url": `https://anose.in/product/${product.slug}`,
+            "priceCurrency": "INR",
+            "price": product.price,
+            "availability": "https://schema.org/InStock"
+        }
+    };
+
     return (
         <div className="product-detail-page">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+            />
             <div className="breadcrumb-block py-5 bg-zinc-50">
                 <div className="container mx-auto">
                     <div className="flex items-center gap-1 caption1">

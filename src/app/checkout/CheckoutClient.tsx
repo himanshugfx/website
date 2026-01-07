@@ -43,7 +43,7 @@ export default function CheckoutClient() {
     const [error, setError] = useState('');
 
     // Shipping Constants
-    const SHIPPING_THRESHOLD = 149;
+    const SHIPPING_THRESHOLD = 199;
     const SHIPPING_FEE = 49;
 
     // Promo Code State

@@ -23,13 +23,70 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Anose - Premium Cosmetics",
-  description: "High-quality Cosmtic Manufactrer and hotel amenities supplier.",
+  title: {
+    default: "Anose - Premium Cosmetics & Hotel Amenities Manufacturer",
+    template: "%s | Anose"
+  },
+  description: "Anose is a leading premium cosmetic manufacturer and luxury hotel amenities supplier. Explore our organic skincare, hair care, and travel kits crafted for excellence.",
+  keywords: ["premium cosmetics", "hotel amenities supplier", "organic skincare", "cosmetic manufacturer India", "luxury bath products", "private label cosmetics"],
+  authors: [{ name: "Anose Team" }],
+  creator: "Anose",
+  publisher: "Anose",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: "Anose - Premium Cosmetics & Hotel Amenities",
+    description: "Discover high-quality organic skincare and premium hotel amenities from Anose.",
+    url: "https://anose.in",
+    siteName: "Anose",
+    images: [
+      {
+        url: "/assets/images/banner/khushi-banner.png",
+        width: 1200,
+        height: 630,
+        alt: "Anose Premium Skincare",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Anose - Premium Cosmetics",
+    description: "Transform your skincare routine with Anose's premium organic products.",
+    images: ["/assets/images/banner/khushi-banner.png"],
+  },
   icons: {
     icon: "/assets/images/fav.png",
     shortcut: "/assets/images/fav.png",
     apple: "/assets/images/fav.png",
   },
+  manifest: "/manifest.json",
+  alternates: {
+    canonical: "https://anose.in",
+  }
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Anose",
+  "url": "https://anose.in",
+  "logo": "https://anose.in/assets/images/fav.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-XXXXXXXXXX",
+    "contactType": "customer service",
+    "availableLanguage": ["en", "Hindi"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/anose",
+    "https://www.instagram.com/anose",
+    "https://www.youtube.com/anose"
+  ]
 };
 
 
@@ -56,6 +113,10 @@ export default function RootLayout({
               <ConditionalWrapper>
                 {children}
               </ConditionalWrapper>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+              />
               <AdminAutoLogout />
               <PageViewTracker />
               <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
