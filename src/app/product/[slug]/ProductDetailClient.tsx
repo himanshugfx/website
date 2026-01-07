@@ -28,6 +28,9 @@ interface Product {
     type: string;
 }
 
+// Video path for facewash products
+const FACEWASH_VIDEO_PATH = '/assets/images/product/facewash video.mp4';
+
 export default function ProductDetailClient({ product }: { product: Product }) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -35,7 +38,11 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const images = JSON.parse(product.images) as string[];
     const sizes = product.sizes ? product.sizes.split(',') : [];
 
+    // Check if product is a facewash type
+    const isFacewash = product.type?.toLowerCase() === 'facewash';
+
     const [activeImage, setActiveImage] = useState(images[0]);
+    const [showVideo, setShowVideo] = useState(isFacewash); // Show video by default for facewash
     const [selectedSize, setSelectedSize] = useState(sizes[0] || '');
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
@@ -43,6 +50,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const handleVariationChange = (v: Variation) => {
         setSelectedVariation(v);
         setActiveImage(v.image);
+        setShowVideo(false); // Switch to image when selecting a variation
     };
 
     const handleAddToCart = () => {
@@ -78,20 +86,54 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 <div className="flex max-md:flex-wrap gap-y-10">
                     <div className="left-content md:w-1/2 w-full md:pr-10">
                         <div className="image-main relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100">
-                            <Image
-                                src={activeImage}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                                priority
-                            />
+                            {showVideo && isFacewash ? (
+                                <video
+                                    src={FACEWASH_VIDEO_PATH}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    className="object-cover w-full h-full"
+                                />
+                            ) : (
+                                <Image
+                                    src={activeImage}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
+                            )}
                         </div>
                         <div className="list-images grid grid-cols-4 gap-4 mt-4">
+                            {/* Video thumbnail for facewash products */}
+                            {isFacewash && (
+                                <div
+                                    className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 relative ${showVideo ? 'border-black' : 'border-transparent'}`}
+                                    onClick={() => setShowVideo(true)}
+                                >
+                                    <video
+                                        src={FACEWASH_VIDEO_PATH}
+                                        muted
+                                        className="object-cover w-full h-full"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             {images.map((img, i) => (
                                 <div
                                     key={i}
-                                    className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 ${activeImage === img ? 'border-black' : 'border-transparent'}`}
-                                    onClick={() => setActiveImage(img)}
+                                    className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 ${!showVideo && activeImage === img ? 'border-black' : 'border-transparent'}`}
+                                    onClick={() => {
+                                        setActiveImage(img);
+                                        setShowVideo(false);
+                                    }}
                                 >
                                     <Image src={img} alt={`Thumb ${i}`} width={200} height={200} className="object-cover w-full h-full" />
                                 </div>

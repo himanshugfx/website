@@ -17,12 +17,15 @@ export interface ProductCardProduct {
     new?: boolean;
     sale?: boolean;
     bestSeller?: boolean;
+    type?: string; // Add type to detect facewash
 }
 
 interface ProductProps {
     product: ProductCardProduct;
 }
 
+// Video path for facewash products
+const FACEWASH_VIDEO_PATH = '/assets/images/product/facewash video.mp4';
 
 export default function ProductCard({ product }: ProductProps) {
     const { addToCart } = useCart();
@@ -37,6 +40,9 @@ export default function ProductCard({ product }: ProductProps) {
         // Keep original string if parse fails
         imageUrl = product.thumbImage;
     }
+
+    // Check if product is a facewash type
+    const isFacewash = product.type?.toLowerCase() === 'facewash';
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -71,12 +77,23 @@ export default function ProductCard({ product }: ProductProps) {
         <div className="product-item group bg-white p-4 rounded-2xl border border-line hover:shadow-lg transition-all duration-500">
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
                 <Link href={`/product/${product.slug}`} className="block h-full w-full">
-                    <Image
-                        src={imageUrl}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                    {isFacewash ? (
+                        <video
+                            src={FACEWASH_VIDEO_PATH}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                        />
+                    ) : (
+                        <Image
+                            src={imageUrl}
+                            alt={product.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                    )}
                 </Link>
 
                 {/* Product Labels */}
