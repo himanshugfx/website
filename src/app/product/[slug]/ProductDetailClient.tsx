@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { getMediaUrl, getMediaUrls } from '@/lib/media';
 
 interface Variation {
     id: string;
@@ -36,33 +37,13 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
     const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
 
-    // Parse images with fallback and include thumbImage
-    let images: string[] = [];
-    try {
-        const parsed = JSON.parse(product.images || '[]') as string[];
-        images = parsed.filter(img => img && img !== '');
+    // Use helper to get all gallery images as proper URLs
+    let images: string[] = getMediaUrls(product.images);
 
-        // Prepend thumbImage if it exists and isn't already in the list
-        let thumbUrl = product.thumbImage;
-        try {
-            if (thumbUrl && (thumbUrl.startsWith('[') || thumbUrl.startsWith('{') || thumbUrl.startsWith('"'))) {
-                const parsed = JSON.parse(thumbUrl);
-                thumbUrl = Array.isArray(parsed) ? parsed[0] : parsed;
-            }
-        } catch (e) {
-            // Keep original string if parse fails
-        }
-
-        if (thumbUrl && !images.includes(thumbUrl)) {
-            images.unshift(thumbUrl);
-        }
-    } catch (e) {
-        // If parsing fails, just use thumbImage if avail
-        if (product.thumbImage) {
-            images = [product.thumbImage];
-        } else {
-            images = [DEFAULT_IMAGE];
-        }
+    // Add thumbImage at the beginning if it exists
+    const thumbUrl = getMediaUrl(product.thumbImage, '');
+    if (thumbUrl && thumbUrl !== '' && !images.includes(thumbUrl)) {
+        images.unshift(thumbUrl);
     }
 
     // Ensure at least one image
@@ -72,8 +53,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
     const sizes = product.sizes ? product.sizes.split(',') : [];
 
-    // Check if product has a video URL
-    const hasVideo = !!product.videoUrl;
+    // Get video URL using helper (supports both media IDs and legacy URLs)
+    const videoUrl = product.videoUrl ? getMediaUrl(product.videoUrl, '') : '';
+    const hasVideo = !!videoUrl;
 
     const [activeImage, setActiveImage] = useState(images[0]);
     const [showVideo, setShowVideo] = useState(hasVideo); // Show video by default if available
@@ -122,7 +104,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                         <div className="image-main relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100">
                             {showVideo && hasVideo ? (
                                 <video
-                                    src={product.videoUrl}
+                                    src={videoUrl}
                                     autoPlay
                                     loop
                                     muted
@@ -136,7 +118,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     fill
                                     className="object-cover"
                                     priority
-                                    unoptimized={activeImage.startsWith('/uploads/')}
+                                    unoptimized={activeImage.startsWith('/uploads/') || activeImage.startsWith('/api/media/')}
                                 />
                             )}
                         </div>
@@ -148,7 +130,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     onClick={() => setShowVideo(true)}
                                 >
                                     <video
-                                        src={product.videoUrl}
+                                        src={videoUrl}
                                         muted
                                         className="object-cover w-full h-full"
                                     />
@@ -176,7 +158,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                         width={200}
                                         height={200}
                                         className="object-cover w-full h-full"
-                                        unoptimized={img.startsWith('/uploads/')}
+                                        unoptimized={img.startsWith('/uploads/') || img.startsWith('/api/media/')}
                                     />
                                 </div>
                             ))}

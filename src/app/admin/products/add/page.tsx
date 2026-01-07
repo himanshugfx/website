@@ -5,6 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, X, Package, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import MediaUploader from '@/components/admin/MediaUploader';
 
 export default function AddProductPage() {
     const router = useRouter();
@@ -290,60 +291,12 @@ export default function AddProductPage() {
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Images</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Thumbnail */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Main Thumbnail (Search & List View) *
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter image URL..."
-                                    value={formData.thumbImage}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, thumbImage: e.target.value }))}
-                                    className="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg text-sm"
-                                />
-                                <div className="flex items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-2xl hover:border-black transition-colors bg-gray-50/50">
-                                    {formData.thumbImage ? (
-                                        <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
-                                            <img
-                                                src={formData.thumbImage}
-                                                alt="Thumbnail"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, thumbImage: '' }))}
-                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="w-24 h-24 rounded-xl bg-gray-200 flex items-center justify-center">
-                                            <Package className="w-8 h-8 text-gray-400" />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (!file) return;
-                                                const data = new FormData();
-                                                data.append('file', file);
-                                                try {
-                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                    const json = await res.json();
-                                                    if (json.url) setFormData(prev => ({ ...prev, thumbImage: json.url }));
-                                                } catch (err) {
-                                                    alert('Upload failed');
-                                                }
-                                            }}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                            <MediaUploader
+                                label="Main Thumbnail (Search & List View) *"
+                                value={formData.thumbImage}
+                                onChange={(id) => setFormData(prev => ({ ...prev, thumbImage: id }))}
+                                type="image"
+                            />
 
                             {/* Gallery Images */}
                             <div className="space-y-4">
@@ -353,154 +306,38 @@ export default function AddProductPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     {[0, 1, 2, 3].map((index) => {
                                         const currentImages = formData.images ? JSON.parse(formData.images) : [];
-                                        const img = currentImages[index];
+                                        const mediaId = currentImages[index] || '';
 
                                         return (
-                                            <div key={index} className="space-y-2">
-                                                <p className="text-xs font-medium text-gray-500">Photo {index + 1}</p>
-                                                <input
-                                                    type="text"
-                                                    placeholder="URL..."
-                                                    value={img || ''}
-                                                    onChange={(e) => {
-                                                        const updated = [...currentImages];
-                                                        updated[index] = e.target.value;
-                                                        setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
-                                                    }}
-                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs mb-1"
-                                                />
-                                                <div className="relative aspect-square border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center p-2 hover:border-purple-300 transition-all bg-gray-50/50 group">
-                                                    {img ? (
-                                                        <>
-                                                            <img
-                                                                src={img}
-                                                                alt={`Gallery ${index + 1}`}
-                                                                className="w-full h-full object-cover rounded-lg"
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    const updated = [...currentImages];
-                                                                    updated.splice(index, 1);
-                                                                    setFormData(prev => ({ ...prev, images: JSON.stringify(updated) }));
-                                                                }}
-                                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                                                            >
-                                                                <X className="w-3 h-3" />
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <div className="flex flex-col items-center gap-1">
-                                                            <Plus className="w-6 h-6 text-gray-400" />
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                                                onChange={async (e) => {
-                                                                    const file = e.target.files?.[0];
-                                                                    if (!file) return;
-                                                                    const data = new FormData();
-                                                                    data.append('file', file);
-                                                                    try {
-                                                                        const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                                        const json = await res.json();
-                                                                        if (json.url) {
-                                                                            const updated = [...currentImages];
-                                                                            updated[index] = json.url;
-                                                                            setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
-                                                                        }
-                                                                    } catch (err) {
-                                                                        alert('Upload failed');
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <span className="text-[10px] text-gray-400 font-medium">Add Photo</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <MediaUploader
+                                                key={index}
+                                                label={`Photo ${index + 1}`}
+                                                value={mediaId}
+                                                onChange={(id) => {
+                                                    const updated = [...currentImages];
+                                                    updated[index] = id;
+                                                    setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
+                                                }}
+                                                type="image"
+                                            />
                                         );
                                     })}
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
 
                     {/* Product Video (Optional) */}
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Video (Optional)</h2>
                         <p className="text-sm text-gray-500 mb-4">
-                            Upload a video to show instead of the product image. The video will autoplay and loop on product cards and detail pages.
+                            Upload a video to show instead of the product image. The video will autoplay and loop.
                         </p>
-                        <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
-                            <input
-                                type="text"
-                                placeholder="Enter video URL..."
-                                value={formData.videoUrl}
-                                onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
-                            />
-                            <div className="flex items-center gap-4">
-                                {formData.videoUrl ? (
-                                    <div className="relative w-48 h-32 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-black">
-                                        <video
-                                            src={formData.videoUrl}
-                                            className="w-full h-full object-cover"
-                                            muted
-                                            loop
-                                            autoPlay
-                                            playsInline
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, videoUrl: '' }))}
-                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="w-48 h-32 rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-200">
-                                        <div className="text-center">
-                                            <svg className="w-8 h-8 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
-                                            <span className="text-xs text-gray-400">No video</span>
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="flex-1">
-                                    <input
-                                        type="file"
-                                        accept="video/*"
-                                        onChange={async (e) => {
-                                            const file = e.target.files?.[0];
-                                            if (!file) return;
-                                            // setUploading(true);
-                                            const data = new FormData();
-                                            data.append('file', file);
-
-                                            try {
-                                                const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                const json = await res.json();
-                                                if (json.url) {
-                                                    setFormData(prev => ({ ...prev, videoUrl: json.url }));
-                                                }
-                                            } catch (err) {
-                                                console.error('Video upload error:', err);
-                                                alert('Video upload failed');
-                                            } finally {
-                                                // setUploading(false);
-                                            }
-                                        }}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    />
-                                    <p className="text-xs text-gray-400 mt-2">Supported formats: MP4, WebM. Max size: 50MB</p>
-                                </div>
-                            </div>
-                        </div>
+                        <MediaUploader
+                            value={formData.videoUrl}
+                            onChange={(id) => setFormData(prev => ({ ...prev, videoUrl: id }))}
+                            type="video"
+                        />
                     </div>
 
                     {/* Variations */}

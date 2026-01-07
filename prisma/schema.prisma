@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Media table for storing images/videos as Base64
+model Media {
+  id        String   @id @default(cuid())
+  name      String   // Original filename
+  mimeType  String   // e.g., "image/png", "video/mp4"
+  data      String   @db.Text // Base64 encoded data
+  size      Int      // Size in bytes
+  createdAt DateTime @default(now())
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { getMediaUrl } from '@/lib/media';
 
 export interface ProductCardProduct {
     id: string;
@@ -31,27 +32,14 @@ export default function ProductCard({ product }: ProductProps) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-    // Parse and get valid image URL
-    const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
-    let imageUrl = product.thumbImage;
+    // Use helper to get proper image URL (supports both media IDs and legacy URLs)
+    const imageUrl = getMediaUrl(product.thumbImage);
 
-    try {
-        if (product.thumbImage && (product.thumbImage.startsWith('[') || product.thumbImage.startsWith('{') || product.thumbImage.startsWith('"'))) {
-            const parsed = JSON.parse(product.thumbImage);
-            imageUrl = Array.isArray(parsed) ? parsed[0] : parsed;
-        }
-    } catch (e) {
-        // Keep original string if parse fails
-        imageUrl = product.thumbImage;
-    }
-
-    // Use default image if empty or invalid
-    if (!imageUrl || imageUrl === '' || imageUrl === '[]') {
-        imageUrl = DEFAULT_IMAGE;
-    }
+    // Get video URL (also supports media IDs)
+    const videoUrl = product.videoUrl ? getMediaUrl(product.videoUrl) : '';
 
     // Check if product has a video URL to display
-    const hasVideo = !!product.videoUrl;
+    const hasVideo = !!videoUrl;
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -88,7 +76,7 @@ export default function ProductCard({ product }: ProductProps) {
                 <Link href={`/product/${product.slug}`} className="block h-full w-full">
                     {hasVideo ? (
                         <video
-                            src={product.videoUrl}
+                            src={videoUrl}
                             autoPlay
                             loop
                             muted
@@ -101,7 +89,7 @@ export default function ProductCard({ product }: ProductProps) {
                             alt={product.name}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            unoptimized={imageUrl.startsWith('/uploads/')}
+                            unoptimized={imageUrl.startsWith('/uploads/') || imageUrl.startsWith('/api/media/')}
                         />
                     )}
                 </Link>
