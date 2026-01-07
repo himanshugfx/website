@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid or inactive promo code' }, { status: 404 });
         }
 
-        if (subtotal < promo.minOrderValue) {
-            return NextResponse.json({ error: `Minimum order value of ₹${promo.minOrderValue} required` }, { status: 400 });
+        if (subtotal < (promo.minOrderValue || 0)) {
+            return NextResponse.json({ error: `Minimum order value of ₹${promo.minOrderValue || 0} required` }, { status: 400 });
         }
 
         return NextResponse.json({
