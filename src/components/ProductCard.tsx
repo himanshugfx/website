@@ -101,6 +101,7 @@ export default function ProductCard({ product }: ProductProps) {
                             alt={product.name}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            unoptimized={imageUrl.startsWith('/uploads/')}
                         />
                     )}
                 </Link>

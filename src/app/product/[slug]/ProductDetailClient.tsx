@@ -136,6 +136,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     fill
                                     className="object-cover"
                                     priority
+                                    unoptimized={activeImage.startsWith('/uploads/')}
                                 />
                             )}
                         </div>
@@ -169,7 +170,14 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                         setShowVideo(false);
                                     }}
                                 >
-                                    <Image src={img} alt={`Thumb ${i}`} width={200} height={200} className="object-cover w-full h-full" />
+                                    <Image
+                                        src={img}
+                                        alt={`Thumb ${i}`}
+                                        width={200}
+                                        height={200}
+                                        className="object-cover w-full h-full"
+                                        unoptimized={img.startsWith('/uploads/')}
+                                    />
                                 </div>
                             ))}
                         </div>
