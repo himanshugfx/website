@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Plus, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { upload } from '@vercel/blob/client';
+// import { upload } from '@vercel/blob/client';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -429,13 +429,15 @@ export default function EditProductPage({ params }: PageProps) {
 
                                                 try {
                                                     // Manually generate unique filename to avoid "Blob already exists" error
-                                                    const uniqueFilename = `${Date.now()}-${file.name}`;
-                                                    const newBlob = await upload(uniqueFilename, file, {
-                                                        access: 'public',
-                                                        handleUploadUrl: '/api/upload',
-                                                    });
+                                                    // const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                    const data = new FormData();
+                                                    data.append('file', file);
+                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                    const json = await res.json();
 
-                                                    setFormData(prev => ({ ...prev, thumbImage: newBlob.url }));
+                                                    if (!json.url) throw new Error('Upload failed');
+
+                                                    setFormData(prev => ({ ...prev, thumbImage: json.url }));
                                                 } catch (err) {
                                                     console.error('Upload error:', err);
                                                     alert('Upload failed: ' + (err as Error).message);
@@ -507,14 +509,16 @@ export default function EditProductPage({ params }: PageProps) {
 
                                                                     setUploading(true);
                                                                     try {
-                                                                        const uniqueFilename = `${Date.now()}-${file.name}`;
-                                                                        const newBlob = await upload(uniqueFilename, file, {
-                                                                            access: 'public',
-                                                                            handleUploadUrl: '/api/upload',
-                                                                        });
+                                                                        // const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                                        const data = new FormData();
+                                                                        data.append('file', file);
+                                                                        const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                                        const json = await res.json();
+
+                                                                        if (!json.url) throw new Error('Upload failed');
 
                                                                         const updated = [...currentImages];
-                                                                        updated[index] = newBlob.url;
+                                                                        updated[index] = json.url;
                                                                         setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
                                                                     } catch (err) {
                                                                         console.error('Upload error:', err);
@@ -584,13 +588,14 @@ export default function EditProductPage({ params }: PageProps) {
                                         console.log('Uploading video:', file.name, file.size, file.type);
 
                                         try {
-                                            const uniqueFilename = `${Date.now()}-${file.name}`;
-                                            const newBlob = await upload(uniqueFilename, file, {
-                                                access: 'public',
-                                                handleUploadUrl: '/api/upload',
-                                            });
+                                            const data = new FormData();
+                                            data.append('file', file);
+                                            const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                            const json = await res.json();
 
-                                            setFormData(prev => ({ ...prev, videoUrl: newBlob.url }));
+                                            if (!json.url) throw new Error('Upload failed');
+
+                                            setFormData(prev => ({ ...prev, videoUrl: json.url }));
                                         } catch (err) {
                                             console.error('Video upload error:', err);
                                             alert('Video upload failed: ' + (err as Error).message);
@@ -720,14 +725,15 @@ export default function EditProductPage({ params }: PageProps) {
 
                                                             setUploading(true);
                                                             try {
-                                                                const uniqueFilename = `${Date.now()}-${file.name}`;
-                                                                const newBlob = await upload(uniqueFilename, file, {
-                                                                    access: 'public',
-                                                                    handleUploadUrl: '/api/upload',
-                                                                });
+                                                                const data = new FormData();
+                                                                data.append('file', file);
+                                                                const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                                const json = await res.json();
+
+                                                                if (!json.url) throw new Error('Upload failed');
 
                                                                 const updated = [...formData.variations];
-                                                                updated[index].colorImage = newBlob.url;
+                                                                updated[index].colorImage = json.url;
                                                                 setFormData(prev => ({ ...prev, variations: updated }));
                                                             } catch (err) {
                                                                 console.error('Upload error:', err);
@@ -775,14 +781,15 @@ export default function EditProductPage({ params }: PageProps) {
 
                                                             setUploading(true);
                                                             try {
-                                                                const uniqueFilename = `${Date.now()}-${file.name}`;
-                                                                const newBlob = await upload(uniqueFilename, file, {
-                                                                    access: 'public',
-                                                                    handleUploadUrl: '/api/upload',
-                                                                });
+                                                                const data = new FormData();
+                                                                data.append('file', file);
+                                                                const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                                const json = await res.json();
+
+                                                                if (!json.url) throw new Error('Upload failed');
 
                                                                 const updated = [...formData.variations];
-                                                                updated[index].image = newBlob.url;
+                                                                updated[index].image = json.url;
                                                                 setFormData(prev => ({ ...prev, variations: updated }));
                                                             } catch (err) {
                                                                 console.error('Upload error:', err);
