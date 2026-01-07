@@ -419,9 +419,12 @@ export default function EditProductPage({ params }: PageProps) {
                                         <input
                                             type="file"
                                             accept="image/*"
+                                            disabled={uploading}
                                             onChange={async (e) => {
                                                 const file = e.target.files?.[0];
                                                 if (!file) return;
+
+                                                setUploading(true);
                                                 console.log('Uploading file:', file.name, file.size, file.type);
 
                                                 try {
@@ -436,10 +439,13 @@ export default function EditProductPage({ params }: PageProps) {
                                                 } catch (err) {
                                                     console.error('Upload error:', err);
                                                     alert('Upload failed: ' + (err as Error).message);
+                                                } finally {
+                                                    setUploading(false);
                                                 }
                                             }}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                         />
+                                        {uploading && <p className="text-xs text-purple-600 mt-1">Uploading thumbnail...</p>}
                                     </div>
                                 </div>
                             </div>
@@ -493,11 +499,13 @@ export default function EditProductPage({ params }: PageProps) {
                                                             <input
                                                                 type="file"
                                                                 accept="image/*"
-                                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                disabled={uploading}
+                                                                className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                                                 onChange={async (e) => {
                                                                     const file = e.target.files?.[0];
                                                                     if (!file) return;
 
+                                                                    setUploading(true);
                                                                     try {
                                                                         const uniqueFilename = `${Date.now()}-${file.name}`;
                                                                         const newBlob = await upload(uniqueFilename, file, {
@@ -511,6 +519,8 @@ export default function EditProductPage({ params }: PageProps) {
                                                                     } catch (err) {
                                                                         console.error('Upload error:', err);
                                                                         alert('Upload failed: ' + (err as Error).message);
+                                                                    } finally {
+                                                                        setUploading(false);
                                                                     }
                                                                 }}
                                                             />
@@ -680,7 +690,20 @@ export default function EditProductPage({ params }: PageProps) {
                                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Swatch Image</label>
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.colorImage ? (
-                                                        <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
+                                                        <>
+                                                            <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const updated = [...formData.variations];
+                                                                    updated[index].colorImage = '';
+                                                                    setFormData(prev => ({ ...prev, variations: updated }));
+                                                                }}
+                                                                className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </>
                                                     ) : (
                                                         <div className="text-center">
                                                             <Plus className="w-5 h-5 mx-auto text-gray-300" />
@@ -689,20 +712,31 @@ export default function EditProductPage({ params }: PageProps) {
                                                     )}
                                                     <input
                                                         type="file"
+                                                        accept="image/*"
+                                                        disabled={uploading}
                                                         onChange={async (e) => {
                                                             const file = e.target.files?.[0];
                                                             if (!file) return;
-                                                            const data = new FormData();
-                                                            data.append('file', file);
-                                                            const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                            const json = await res.json();
-                                                            if (json.url) {
+
+                                                            setUploading(true);
+                                                            try {
+                                                                const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                                const newBlob = await upload(uniqueFilename, file, {
+                                                                    access: 'public',
+                                                                    handleUploadUrl: '/api/upload',
+                                                                });
+
                                                                 const updated = [...formData.variations];
-                                                                updated[index].colorImage = json.url;
+                                                                updated[index].colorImage = newBlob.url;
                                                                 setFormData(prev => ({ ...prev, variations: updated }));
+                                                            } catch (err) {
+                                                                console.error('Upload error:', err);
+                                                                alert('Upload failed: ' + (err as Error).message);
+                                                            } finally {
+                                                                setUploading(false);
                                                             }
                                                         }}
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                                     />
                                                 </div>
                                             </div>
@@ -711,7 +745,20 @@ export default function EditProductPage({ params }: PageProps) {
                                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Variant Image</label>
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.image ? (
-                                                        <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
+                                                        <>
+                                                            <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const updated = [...formData.variations];
+                                                                    updated[index].image = '';
+                                                                    setFormData(prev => ({ ...prev, variations: updated }));
+                                                                }}
+                                                                className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </>
                                                     ) : (
                                                         <div className="text-center">
                                                             <Plus className="w-5 h-5 mx-auto text-gray-300" />
@@ -720,20 +767,31 @@ export default function EditProductPage({ params }: PageProps) {
                                                     )}
                                                     <input
                                                         type="file"
+                                                        accept="image/*"
+                                                        disabled={uploading}
                                                         onChange={async (e) => {
                                                             const file = e.target.files?.[0];
                                                             if (!file) return;
-                                                            const data = new FormData();
-                                                            data.append('file', file);
-                                                            const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                            const json = await res.json();
-                                                            if (json.url) {
+
+                                                            setUploading(true);
+                                                            try {
+                                                                const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                                const newBlob = await upload(uniqueFilename, file, {
+                                                                    access: 'public',
+                                                                    handleUploadUrl: '/api/upload',
+                                                                });
+
                                                                 const updated = [...formData.variations];
-                                                                updated[index].image = json.url;
+                                                                updated[index].image = newBlob.url;
                                                                 setFormData(prev => ({ ...prev, variations: updated }));
+                                                            } catch (err) {
+                                                                console.error('Upload error:', err);
+                                                                alert('Upload failed: ' + (err as Error).message);
+                                                            } finally {
+                                                                setUploading(false);
                                                             }
                                                         }}
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                                     />
                                                 </div>
                                             </div>
