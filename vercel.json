@@ -5,5 +5,11 @@
   "framework": "nextjs",
   "regions": [
     "iad1"
+  ],
+  "crons": [
+    {
+      "path": "/api/admin/automation/abandoned-cart",
+      "schedule": "30 14 * * *"
+    }
   ]
 }
