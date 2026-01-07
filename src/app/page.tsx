@@ -5,6 +5,7 @@ import ProductTabs from "@/components/ProductTabs";
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCardProduct } from "@/components/ProductCard";
+import { ShieldCheck, BadgeCheck, Rabbit } from "lucide-react";
 
 export default async function Home() {
   const bestSellers = await prisma.product.findMany({
@@ -111,18 +112,18 @@ export default async function Home() {
         <div className="container mx-auto">
           <div className="list-benefit grid items-start md:grid-cols-3 grid-cols-1 gap-10">
             <div className="benefit-item flex flex-col items-center text-center">
-              <i className="icon-double-leaves text-6xl text-green-600"></i>
-              <div className="body1 font-semibold uppercase mt-5">100% ORGANIC</div>
-              <div className="caption1 text-secondary mt-2">We believe in skin that looks like skin and radiance that come naturally</div>
+              <ShieldCheck className="w-16 h-16 text-green-600 mb-5" strokeWidth={1.5} />
+              <div className="body1 font-semibold uppercase">DERMATOLOGICALLY TESTED</div>
+              <div className="caption1 text-secondary mt-2">Clinically proven to be gentle, safe, and effective for all skin types</div>
             </div>
             <div className="benefit-item flex flex-col items-center text-center">
-              <i className="icon-leaves text-6xl text-green-600"></i>
-              <div className="body1 font-semibold uppercase mt-5">NO SYNTHETIC COLORS</div>
-              <div className="caption1 text-secondary mt-2">With transparency as our guide and color as our vehicle conventions</div>
+              <BadgeCheck className="w-16 h-16 text-green-600 mb-5" strokeWidth={1.5} />
+              <div className="body1 font-semibold uppercase">FDA APPROVED</div>
+              <div className="caption1 text-secondary mt-2">Formulated with certified ingredients meeting the highest safety standards</div>
             </div>
             <div className="benefit-item flex flex-col items-center text-center">
-              <i className="icon-rabbit-heart text-6xl text-green-600"></i>
-              <div className="body1 font-semibold uppercase mt-5">NO ANIMAL TESTING</div>
+              <Rabbit className="w-16 h-16 text-green-600 mb-5" strokeWidth={1.5} />
+              <div className="body1 font-semibold uppercase">NO ANIMAL TESTING</div>
               <div className="caption1 text-secondary mt-2">Our products are cruelty-free and never tested on animals</div>
             </div>
           </div>
