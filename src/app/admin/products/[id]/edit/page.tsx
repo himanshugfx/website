@@ -5,6 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Plus, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { uploadFile } from '@/app/actions/upload';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -423,21 +424,13 @@ export default function EditProductPage({ params }: PageProps) {
                                                 console.log('Uploading file:', file.name, file.size, file.type);
                                                 const data = new FormData();
                                                 data.append('file', file);
-                                                try {
-                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                    console.log('Upload response status:', res.status);
-                                                    const json = await res.json();
-                                                    console.log('Upload response:', json);
-                                                    if (json.url) {
-                                                        setFormData(prev => ({ ...prev, thumbImage: json.url }));
-                                                    } else if (json.error) {
-                                                        alert('Upload failed: ' + json.error + (json.details ? '\n\nDetails: ' + json.details : ''));
-                                                    } else {
-                                                        alert('Upload failed: Unknown error (no URL in response)');
-                                                    }
-                                                } catch (err) {
-                                                    console.error('Upload error:', err);
-                                                    alert('Upload failed: Network error - ' + (err as Error).message);
+
+                                                const result = await uploadFile(data);
+
+                                                if (result.url) {
+                                                    setFormData(prev => ({ ...prev, thumbImage: result.url! }));
+                                                } else {
+                                                    alert('Upload failed: ' + result.error + (result.details ? '\n\nDetails: ' + result.details : ''));
                                                 }
                                             }}
                                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
@@ -501,16 +494,15 @@ export default function EditProductPage({ params }: PageProps) {
                                                                     if (!file) return;
                                                                     const data = new FormData();
                                                                     data.append('file', file);
-                                                                    try {
-                                                                        const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                                        const json = await res.json();
-                                                                        if (json.url) {
-                                                                            const updated = [...currentImages];
-                                                                            updated[index] = json.url;
-                                                                            setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
-                                                                        }
-                                                                    } catch (err) {
-                                                                        alert('Upload failed');
+
+                                                                    const result = await uploadFile(data);
+
+                                                                    if (result.url) {
+                                                                        const updated = [...currentImages];
+                                                                        updated[index] = result.url!;
+                                                                        setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
+                                                                    } else {
+                                                                        alert('Upload failed: ' + result.error);
                                                                     }
                                                                 }}
                                                             />
@@ -573,21 +565,13 @@ export default function EditProductPage({ params }: PageProps) {
                                         console.log('Uploading video:', file.name, file.size, file.type);
                                         const data = new FormData();
                                         data.append('file', file);
-                                        try {
-                                            const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                            console.log('Video upload response status:', res.status);
-                                            const json = await res.json();
-                                            console.log('Video upload response:', json);
-                                            if (json.url) {
-                                                setFormData(prev => ({ ...prev, videoUrl: json.url }));
-                                            } else if (json.error) {
-                                                alert('Video upload failed: ' + json.error + (json.details ? '\n\nDetails: ' + json.details : ''));
-                                            } else {
-                                                alert('Video upload failed: Unknown error');
-                                            }
-                                        } catch (err) {
-                                            console.error('Video upload error:', err);
-                                            alert('Video upload failed: Network error - ' + (err as Error).message);
+
+                                        const result = await uploadFile(data);
+
+                                        if (result.url) {
+                                            setFormData(prev => ({ ...prev, videoUrl: result.url! }));
+                                        } else {
+                                            alert('Video upload failed: ' + result.error + (result.details ? '\n\nDetails: ' + result.details : ''));
                                         }
                                     }}
                                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
