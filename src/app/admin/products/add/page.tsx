@@ -23,6 +23,7 @@ export default function AddProductPage() {
         sizes: '',
         images: '',
         thumbImage: '',
+        videoUrl: '',
         new: false,
         sale: false,
         bestSeller: false,

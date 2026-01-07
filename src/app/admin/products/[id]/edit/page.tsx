@@ -637,299 +637,300 @@ export default function EditProductPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Variations */}
-                        <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-gray-900">Product Variations (Colors)</h2>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            variations: [...prev.variations, { color: '', colorCode: '#000000', colorImage: '', image: '' }]
-                                        }));
-                                    }}
-                                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl transition-colors text-sm font-semibold"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    Add Variant
-                                </button>
-                            </div>
+                    {/* Variations */}
+                    <div>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-semibold text-gray-900">Product Variations (Colors)</h2>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        variations: [...prev.variations, { color: '', colorCode: '#000000', colorImage: '', image: '' }]
+                                    }));
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl transition-colors text-sm font-semibold"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Add Variant
+                            </button>
+                        </div>
 
-                            <div className="space-y-4">
-                                {formData.variations.map((variant, index) => (
-                                    <div key={index} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/30 space-y-4 relative group">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const updated = [...formData.variations];
-                                                updated.splice(index, 1);
-                                                setFormData(prev => ({ ...prev, variations: updated }));
-                                            }}
-                                            className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                        <div className="space-y-4">
+                            {formData.variations.map((variant, index) => (
+                                <div key={index} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/30 space-y-4 relative group">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const updated = [...formData.variations];
+                                            updated.splice(index, 1);
+                                            setFormData(prev => ({ ...prev, variations: updated }));
+                                        }}
+                                        className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Name</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Name</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Midnight Black"
+                                                    value={variant.color}
+                                                    onChange={(e) => {
+                                                        const updated = [...formData.variations];
+                                                        updated[index].color = e.target.value;
+                                                        setFormData(prev => ({ ...prev, variations: updated }));
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Hex/Code</label>
+                                                <div className="flex gap-2">
                                                     <input
-                                                        type="text"
-                                                        placeholder="e.g. Midnight Black"
-                                                        value={variant.color}
+                                                        type="color"
+                                                        value={variant.colorCode}
                                                         onChange={(e) => {
                                                             const updated = [...formData.variations];
-                                                            updated[index].color = e.target.value;
+                                                            updated[index].colorCode = e.target.value;
                                                             setFormData(prev => ({ ...prev, variations: updated }));
                                                         }}
-                                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white"
+                                                        className="h-10 w-10 p-1 border border-gray-200 rounded-lg bg-white"
                                                     />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Hex/Code</label>
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="color"
-                                                            value={variant.colorCode}
-                                                            onChange={(e) => {
-                                                                const updated = [...formData.variations];
-                                                                updated[index].colorCode = e.target.value;
-                                                                setFormData(prev => ({ ...prev, variations: updated }));
-                                                            }}
-                                                            className="h-10 w-10 p-1 border border-gray-200 rounded-lg bg-white"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={variant.colorCode}
-                                                            onChange={(e) => {
-                                                                const updated = [...formData.variations];
-                                                                updated[index].colorCode = e.target.value;
-                                                                setFormData(prev => ({ ...prev, variations: updated }));
-                                                            }}
-                                                            className="flex-1 px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white font-mono"
-                                                        />
-                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        value={variant.colorCode}
+                                                        onChange={(e) => {
+                                                            const updated = [...formData.variations];
+                                                            updated[index].colorCode = e.target.value;
+                                                            setFormData(prev => ({ ...prev, variations: updated }));
+                                                        }}
+                                                        className="flex-1 px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white font-mono"
+                                                    />
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {/* Variant Thumbnail */}
-                                                <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Swatch Image</label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="URL..."
-                                                        value={variant.colorImage}
-                                                        onChange={(e) => {
-                                                            const updated = [...formData.variations];
-                                                            updated[index].colorImage = e.target.value;
-                                                            setFormData(prev => ({ ...prev, variations: updated }));
-                                                        }}
-                                                        className="w-full px-2 py-1 border border-gray-200 rounded-lg text-xs mb-1"
-                                                    />
-                                                    <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
-                                                        {variant.colorImage ? (
-                                                            <>
-                                                                <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        const updated = [...formData.variations];
-                                                                        updated[index].colorImage = '';
-                                                                        setFormData(prev => ({ ...prev, variations: updated }));
-                                                                    }}
-                                                                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                >
-                                                                    <X className="w-3 h-3" />
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <div className="text-center">
-                                                                <Plus className="w-5 h-5 mx-auto text-gray-300" />
-                                                                <span className="text-[8px] text-gray-400 font-bold">SWATCH</span>
-                                                            </div>
-                                                        )}
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            disabled={uploading}
-                                                            onChange={async (e) => {
-                                                                const file = e.target.files?.[0];
-                                                                if (!file) return;
-
-                                                                setUploading(true);
-                                                                try {
-                                                                    const data = new FormData();
-                                                                    data.append('file', file);
-                                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                                    const json = await res.json();
-
-                                                                    if (!json.url) throw new Error('Upload failed');
-
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {/* Variant Thumbnail */}
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Swatch Image</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="URL..."
+                                                    value={variant.colorImage}
+                                                    onChange={(e) => {
+                                                        const updated = [...formData.variations];
+                                                        updated[index].colorImage = e.target.value;
+                                                        setFormData(prev => ({ ...prev, variations: updated }));
+                                                    }}
+                                                    className="w-full px-2 py-1 border border-gray-200 rounded-lg text-xs mb-1"
+                                                />
+                                                <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
+                                                    {variant.colorImage ? (
+                                                        <>
+                                                            <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
                                                                     const updated = [...formData.variations];
-                                                                    updated[index].colorImage = json.url;
+                                                                    updated[index].colorImage = '';
                                                                     setFormData(prev => ({ ...prev, variations: updated }));
-                                                                } catch (err) {
-                                                                    console.error('Upload error:', err);
-                                                                    alert('Upload failed: ' + (err as Error).message);
-                                                                } finally {
-                                                                    setUploading(false);
-                                                                }
-                                                            }}
-                                                            className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                                                        />
-                                                    </div>
+                                                                }}
+                                                                className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <div className="text-center">
+                                                            <Plus className="w-5 h-5 mx-auto text-gray-300" />
+                                                            <span className="text-[8px] text-gray-400 font-bold">SWATCH</span>
+                                                        </div>
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        disabled={uploading}
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (!file) return;
+
+                                                            setUploading(true);
+                                                            try {
+                                                                const data = new FormData();
+                                                                data.append('file', file);
+                                                                const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                                const json = await res.json();
+
+                                                                if (!json.url) throw new Error('Upload failed');
+
+                                                                const updated = [...formData.variations];
+                                                                updated[index].colorImage = json.url;
+                                                                setFormData(prev => ({ ...prev, variations: updated }));
+                                                            } catch (err) {
+                                                                console.error('Upload error:', err);
+                                                                alert('Upload failed: ' + (err as Error).message);
+                                                            } finally {
+                                                                setUploading(false);
+                                                            }
+                                                        }}
+                                                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                                    />
                                                 </div>
-                                                {/* Variant Main Image */}
-                                                <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Variant Image</label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="URL..."
-                                                        value={variant.image}
-                                                        onChange={(e) => {
-                                                            const updated = [...formData.variations];
-                                                            updated[index].image = e.target.value;
-                                                            setFormData(prev => ({ ...prev, variations: updated }));
-                                                        }}
-                                                        className="w-full px-2 py-1 border border-gray-200 rounded-lg text-xs mb-1"
-                                                    />
-                                                    <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
-                                                        {variant.image ? (
-                                                            <>
-                                                                <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        const updated = [...formData.variations];
-                                                                        updated[index].image = '';
-                                                                        setFormData(prev => ({ ...prev, variations: updated }));
-                                                                    }}
-                                                                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                >
-                                                                    <X className="w-3 h-3" />
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <div className="text-center">
-                                                                <Plus className="w-5 h-5 mx-auto text-gray-300" />
-                                                                <span className="text-[8px] text-gray-400 font-bold">MAIN</span>
-                                                            </div>
-                                                        )}
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            disabled={uploading}
-                                                            onChange={async (e) => {
-                                                                const file = e.target.files?.[0];
-                                                                if (!file) return;
-
-                                                                setUploading(true);
-                                                                try {
-                                                                    const data = new FormData();
-                                                                    data.append('file', file);
-                                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-                                                                    const json = await res.json();
-
-                                                                    if (!json.url) throw new Error('Upload failed');
-
+                                            </div>
+                                            {/* Variant Main Image */}
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Variant Image</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="URL..."
+                                                    value={variant.image}
+                                                    onChange={(e) => {
+                                                        const updated = [...formData.variations];
+                                                        updated[index].image = e.target.value;
+                                                        setFormData(prev => ({ ...prev, variations: updated }));
+                                                    }}
+                                                    className="w-full px-2 py-1 border border-gray-200 rounded-lg text-xs mb-1"
+                                                />
+                                                <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
+                                                    {variant.image ? (
+                                                        <>
+                                                            <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
                                                                     const updated = [...formData.variations];
-                                                                    updated[index].image = json.url;
+                                                                    updated[index].image = '';
                                                                     setFormData(prev => ({ ...prev, variations: updated }));
-                                                                } catch (err) {
-                                                                    console.error('Upload error:', err);
-                                                                    alert('Upload failed: ' + (err as Error).message);
-                                                                } finally {
-                                                                    setUploading(false);
-                                                                }
-                                                            }}
-                                                            className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                                                        />
-                                                    </div>
+                                                                }}
+                                                                className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <div className="text-center">
+                                                            <Plus className="w-5 h-5 mx-auto text-gray-300" />
+                                                            <span className="text-[8px] text-gray-400 font-bold">MAIN</span>
+                                                        </div>
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        disabled={uploading}
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (!file) return;
+
+                                                            setUploading(true);
+                                                            try {
+                                                                const data = new FormData();
+                                                                data.append('file', file);
+                                                                const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                                                const json = await res.json();
+
+                                                                if (!json.url) throw new Error('Upload failed');
+
+                                                                const updated = [...formData.variations];
+                                                                updated[index].image = json.url;
+                                                                setFormData(prev => ({ ...prev, variations: updated }));
+                                                            } catch (err) {
+                                                                console.error('Upload error:', err);
+                                                                alert('Upload failed: ' + (err as Error).message);
+                                                            } finally {
+                                                                setUploading(false);
+                                                            }
+                                                        }}
+                                                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                                {formData.variations.length === 0 && (
-                                    <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-2xl">
-                                        <p className="text-sm text-gray-400">No variations added. Use variations for color options.</p>
-                                    </div>
-                                )}
-                            </div>
+                                </div>
+                            ))}
+                            {formData.variations.length === 0 && (
+                                <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-2xl">
+                                    <p className="text-sm text-gray-400">No variations added. Use variations for color options.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Flags */}
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Flags</h2>
+                        <div className="flex gap-6">
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    name="new"
+                                    checked={formData.new}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                                />
+                                <span className="text-sm font-medium text-gray-700">New Product</span>
+                            </label>
+
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    name="sale"
+                                    checked={formData.sale}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                                />
+                                <span className="text-sm font-medium text-gray-700">On Sale</span>
+                            </label>
+
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    name="bestSeller"
+                                    checked={formData.bestSeller}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                                />
+                                <span className="text-sm font-medium text-gray-700">Best Seller</span>
+                            </label>
                         </div>
 
-                        {/* Flags */}
-                        <div>
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Flags</h2>
-                            <div className="flex gap-6">
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        name="new"
-                                        checked={formData.new}
-                                        onChange={handleChange}
-                                        className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700">New Product</span>
-                                </label>
+                    </div>
 
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        name="sale"
-                                        checked={formData.sale}
-                                        onChange={handleChange}
-                                        className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700">On Sale</span>
-                                </label>
-
-                                <label className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        name="bestSeller"
-                                        checked={formData.bestSeller}
-                                        onChange={handleChange}
-                                        className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700">Best Seller</span>
-                                </label>
-                            </div>
-
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-100">
-                            <Link
-                                href="/admin/products"
-                                className="px-6 py-2 bg-black text-white rounded-xl transition-colors"
-                            >
-                                Cancel
-                            </Link>
-                            <button
-                                type="submit"
-                                disabled={saving || uploading}
-                                className="w-full px-6 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {saving ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Saving...
-                                    </>
-                                ) : uploading ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Uploading...
-                                    </>
-                                ) : (
-                                    'Save Product'
-                                )}
-                            </button>
-                        </div>
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-100">
+                        <Link
+                            href="/admin/products"
+                            className="px-6 py-2 bg-black text-white rounded-xl transition-colors"
+                        >
+                            Cancel
+                        </Link>
+                        <button
+                            type="submit"
+                            disabled={saving || uploading}
+                            className="w-full px-6 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Saving...
+                                </>
+                            ) : uploading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Uploading...
+                                </>
+                            ) : (
+                                'Save Product'
+                            )}
+                        </button>
+                    </div>
                 </form>
             </div >
         </AdminLayout >
