@@ -133,9 +133,15 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                     ) : (
                         <div className="p-8 text-center text-zinc-400">
                             <div className="mb-4 flex justify-center gap-4">
-                                <div className="px-3 py-1.5 rounded-lg bg-zinc-50 text-[10px] font-bold uppercase tracking-wider select-none">Serum</div>
-                                <div className="px-3 py-1.5 rounded-lg bg-zinc-50 text-[10px] font-bold uppercase tracking-wider select-none">Cleanser</div>
-                                <div className="px-3 py-1.5 rounded-lg bg-zinc-50 text-[10px] font-bold uppercase tracking-wider select-none">Niacinamide</div>
+                                {['Sunscreen', 'Facewash'].map((term) => (
+                                    <button
+                                        key={term}
+                                        onClick={() => setQuery(term)}
+                                        className="px-3 py-1.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-[10px] font-bold uppercase tracking-wider select-none transition-colors cursor-pointer"
+                                    >
+                                        {term}
+                                    </button>
+                                ))}
                             </div>
                             <p className="text-sm">Start typing to search our collection...</p>
                         </div>
