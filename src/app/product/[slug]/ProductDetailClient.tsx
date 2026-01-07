@@ -38,11 +38,12 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const images = JSON.parse(product.images) as string[];
     const sizes = product.sizes ? product.sizes.split(',') : [];
 
-    // Check if product is a facewash type
-    const isFacewash = product.type?.toLowerCase() === 'facewash';
+    // Check if product is a BEADED facewash type (not herbal)
+    const isBeadedFacewash = product.type?.toLowerCase() === 'facewash' &&
+        product.name.toLowerCase().includes('beaded');
 
     const [activeImage, setActiveImage] = useState(images[0]);
-    const [showVideo, setShowVideo] = useState(isFacewash); // Show video by default for facewash
+    const [showVideo, setShowVideo] = useState(isBeadedFacewash); // Show video by default for beaded facewash
     const [selectedSize, setSelectedSize] = useState(sizes[0] || '');
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
@@ -86,7 +87,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 <div className="flex max-md:flex-wrap gap-y-10">
                     <div className="left-content md:w-1/2 w-full md:pr-10">
                         <div className="image-main relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100">
-                            {showVideo && isFacewash ? (
+                            {showVideo && isBeadedFacewash ? (
                                 <video
                                     src={FACEWASH_VIDEO_PATH}
                                     autoPlay
@@ -107,7 +108,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                         </div>
                         <div className="list-images grid grid-cols-4 gap-4 mt-4">
                             {/* Video thumbnail for facewash products */}
-                            {isFacewash && (
+                            {isBeadedFacewash && (
                                 <div
                                     className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 relative ${showVideo ? 'border-black' : 'border-transparent'}`}
                                     onClick={() => setShowVideo(true)}

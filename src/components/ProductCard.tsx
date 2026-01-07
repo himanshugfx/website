@@ -41,8 +41,9 @@ export default function ProductCard({ product }: ProductProps) {
         imageUrl = product.thumbImage;
     }
 
-    // Check if product is a facewash type
-    const isFacewash = product.type?.toLowerCase() === 'facewash';
+    // Check if product is a BEADED facewash type (not herbal)
+    const isBeadedFacewash = product.type?.toLowerCase() === 'facewash' &&
+        product.name.toLowerCase().includes('beaded');
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -77,7 +78,7 @@ export default function ProductCard({ product }: ProductProps) {
         <div className="product-item group bg-white p-4 rounded-2xl border border-line hover:shadow-lg transition-all duration-500">
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
                 <Link href={`/product/${product.slug}`} className="block h-full w-full">
-                    {isFacewash ? (
+                    {isBeadedFacewash ? (
                         <video
                             src={FACEWASH_VIDEO_PATH}
                             autoPlay

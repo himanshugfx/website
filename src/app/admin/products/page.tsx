@@ -13,12 +13,41 @@ interface Product {
     quantity: number;
     brand: string;
     thumbImage: string;
+    images: string; // JSON string of images array
     new: boolean;
     sale: boolean;
     bestSeller: boolean;
 }
 
+// Helper function to get a valid image URL from product
+const getProductImage = (product: Product): string => {
+    // Try to parse thumbImage first
+    let imageUrl = product.thumbImage;
 
+    try {
+        // If thumbImage looks like JSON, parse it
+        if (imageUrl && (imageUrl.startsWith('[') || imageUrl.startsWith('"'))) {
+            const parsed = JSON.parse(imageUrl);
+            imageUrl = Array.isArray(parsed) ? parsed[0] : parsed;
+        }
+    } catch (e) {
+        // Keep original if parse fails
+    }
+
+    // If thumbImage is empty or invalid, try images field
+    if (!imageUrl || imageUrl === '' || imageUrl === '[]') {
+        try {
+            if (product.images) {
+                const images = JSON.parse(product.images);
+                imageUrl = Array.isArray(images) && images.length > 0 ? images[0] : '';
+            }
+        } catch (e) {
+            // Keep empty if parse fails
+        }
+    }
+
+    return imageUrl || '/assets/images/product/1000x1000.png';
+};
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -219,7 +248,7 @@ export default function ProductsPage() {
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
                                                         <img
-                                                            src={product.thumbImage || '/placeholder.png'}
+                                                            src={getProductImage(product)}
                                                             alt={product.name}
                                                             className="w-full h-full object-cover"
                                                         />
