@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // 2. Find pending orders in the window
-        const abandonedOrders = await prisma.order.findMany({
+        const abandonedOrders = await (prisma.order as any).findMany({
             where: {
                 paymentStatus: 'PENDING',
                 status: 'PENDING',
@@ -21,9 +21,7 @@ export async function GET(req: NextRequest) {
                     gte: twoHoursAgo,
                     lte: oneHourAgo,
                 },
-                // If the migration succeeded, we can use this. 
-                // Using any cast to avoid TS errors if migration failed
-                ...((prisma.order as any).whatsappAlertSent !== undefined ? { whatsappAlertSent: false } : {})
+                whatsappAlertSent: false
             },
             include: {
                 items: {

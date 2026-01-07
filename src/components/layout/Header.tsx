@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useSession, signOut } from 'next-auth/react';
-import SearchModal from '../SearchModal';
-import CartDrawer from '../CartDrawer';
+import SearchModal from '@/components/SearchModal';
+import CartDrawer from '@/components/CartDrawer';
 
 export default function Header() {
     const { cartCount, isPopupOpen, closePopup } = useCart();
