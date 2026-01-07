@@ -26,24 +26,36 @@ interface Product {
     slug: string;
     category: string;
     type: string;
+    videoUrl?: string; // Optional video URL - if set, shows video
 }
-
-// Video path for facewash products
-const FACEWASH_VIDEO_PATH = '/assets/images/product/facewash video.mp4';
 
 export default function ProductDetailClient({ product }: { product: Product }) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-    const images = JSON.parse(product.images) as string[];
+    const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
+
+    // Parse images with fallback
+    let images: string[] = [];
+    try {
+        const parsed = JSON.parse(product.images) as string[];
+        images = parsed.filter(img => img && img !== '').map(img => img || DEFAULT_IMAGE);
+    } catch (e) {
+        images = [DEFAULT_IMAGE];
+    }
+
+    // Ensure at least one image
+    if (images.length === 0) {
+        images = [DEFAULT_IMAGE];
+    }
+
     const sizes = product.sizes ? product.sizes.split(',') : [];
 
-    // Check if product is a BEADED facewash type (not herbal)
-    const isBeadedFacewash = product.type?.toLowerCase() === 'facewash' &&
-        product.name.toLowerCase().includes('beaded');
+    // Check if product has a video URL
+    const hasVideo = !!product.videoUrl;
 
     const [activeImage, setActiveImage] = useState(images[0]);
-    const [showVideo, setShowVideo] = useState(isBeadedFacewash); // Show video by default for beaded facewash
+    const [showVideo, setShowVideo] = useState(hasVideo); // Show video by default if available
     const [selectedSize, setSelectedSize] = useState(sizes[0] || '');
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
@@ -87,9 +99,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 <div className="flex max-md:flex-wrap gap-y-10">
                     <div className="left-content md:w-1/2 w-full md:pr-10">
                         <div className="image-main relative aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-100">
-                            {showVideo && isBeadedFacewash ? (
+                            {showVideo && hasVideo ? (
                                 <video
-                                    src={FACEWASH_VIDEO_PATH}
+                                    src={product.videoUrl}
                                     autoPlay
                                     loop
                                     muted
@@ -107,14 +119,14 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             )}
                         </div>
                         <div className="list-images grid grid-cols-4 gap-4 mt-4">
-                            {/* Video thumbnail for facewash products */}
-                            {isBeadedFacewash && (
+                            {/* Video thumbnail for products with video */}
+                            {hasVideo && (
                                 <div
                                     className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 relative ${showVideo ? 'border-black' : 'border-transparent'}`}
                                     onClick={() => setShowVideo(true)}
                                 >
                                     <video
-                                        src={FACEWASH_VIDEO_PATH}
+                                        src={product.videoUrl}
                                         muted
                                         className="object-cover w-full h-full"
                                     />

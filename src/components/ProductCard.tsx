@@ -17,22 +17,26 @@ export interface ProductCardProduct {
     new?: boolean;
     sale?: boolean;
     bestSeller?: boolean;
-    type?: string; // Add type to detect facewash
+    type?: string;
+    videoUrl?: string; // Optional video URL - if set, shows video instead of image
 }
 
 interface ProductProps {
     product: ProductCardProduct;
 }
 
-// Video path for facewash products
-const FACEWASH_VIDEO_PATH = '/assets/images/product/facewash video.mp4';
+
 
 export default function ProductCard({ product }: ProductProps) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+    // Parse and get valid image URL
+    const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
     let imageUrl = product.thumbImage;
+
     try {
-        if (product.thumbImage.startsWith('[') || product.thumbImage.startsWith('{') || product.thumbImage.startsWith('"')) {
+        if (product.thumbImage && (product.thumbImage.startsWith('[') || product.thumbImage.startsWith('{') || product.thumbImage.startsWith('"'))) {
             const parsed = JSON.parse(product.thumbImage);
             imageUrl = Array.isArray(parsed) ? parsed[0] : parsed;
         }
@@ -41,9 +45,13 @@ export default function ProductCard({ product }: ProductProps) {
         imageUrl = product.thumbImage;
     }
 
-    // Check if product is a BEADED facewash type (not herbal)
-    const isBeadedFacewash = product.type?.toLowerCase() === 'facewash' &&
-        product.name.toLowerCase().includes('beaded');
+    // Use default image if empty or invalid
+    if (!imageUrl || imageUrl === '' || imageUrl === '[]') {
+        imageUrl = DEFAULT_IMAGE;
+    }
+
+    // Check if product has a video URL to display
+    const hasVideo = !!product.videoUrl;
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -78,9 +86,9 @@ export default function ProductCard({ product }: ProductProps) {
         <div className="product-item group bg-white p-4 rounded-2xl border border-line hover:shadow-lg transition-all duration-500">
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
                 <Link href={`/product/${product.slug}`} className="block h-full w-full">
-                    {isBeadedFacewash ? (
+                    {hasVideo ? (
                         <video
-                            src={FACEWASH_VIDEO_PATH}
+                            src={product.videoUrl}
                             autoPlay
                             loop
                             muted

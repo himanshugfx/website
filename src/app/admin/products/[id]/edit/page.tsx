@@ -30,6 +30,7 @@ export default function EditProductPage({ params }: PageProps) {
         sizes: '',
         images: '',
         thumbImage: '',
+        videoUrl: '', // Optional video URL - if set, shows video instead of image
         new: false,
         sale: false,
         bestSeller: false,
@@ -71,6 +72,7 @@ export default function EditProductPage({ params }: PageProps) {
                 sizes: product.sizes || '',
                 images: product.images || '',
                 thumbImage: product.thumbImage || '',
+                videoUrl: product.videoUrl || '',
                 new: product.new || false,
                 sale: product.sale || false,
                 bestSeller: product.bestSeller || false,
@@ -503,6 +505,65 @@ export default function EditProductPage({ params }: PageProps) {
                         </div>
 
 
+                    </div>
+
+                    {/* Product Video (Optional) */}
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Video (Optional)</h2>
+                        <p className="text-sm text-gray-500 mb-4">
+                            Upload a video to show instead of the product image. The video will autoplay and loop on product cards and detail pages.
+                        </p>
+                        <div className="flex items-center gap-4 p-4 border-2 border-dashed border-gray-100 rounded-2xl hover:border-purple-200 transition-colors bg-gray-50/50">
+                            {formData.videoUrl ? (
+                                <div className="relative w-48 h-32 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-black">
+                                    <video
+                                        src={formData.videoUrl}
+                                        className="w-full h-full object-cover"
+                                        muted
+                                        loop
+                                        autoPlay
+                                        playsInline
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, videoUrl: '' }))}
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="w-48 h-32 rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-200">
+                                    <div className="text-center">
+                                        <svg className="w-8 h-8 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        <span className="text-xs text-gray-400">No video</span>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <input
+                                    type="file"
+                                    accept="video/*"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        const data = new FormData();
+                                        data.append('file', file);
+                                        try {
+                                            const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
+                                            const json = await res.json();
+                                            if (json.url) setFormData(prev => ({ ...prev, videoUrl: json.url }));
+                                        } catch (err) {
+                                            alert('Upload failed');
+                                        }
+                                    }}
+                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                                />
+                                <p className="text-xs text-gray-400 mt-2">Supported formats: MP4, WebM. Max size: 50MB</p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Variations */}
