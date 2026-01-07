@@ -382,26 +382,37 @@ export default function EditProductPage({ params }: PageProps) {
                                     Main Thumbnail (Search & List View) *
                                 </label>
                                 <div className="flex items-center gap-4 p-4 border-2 border-dashed border-gray-100 rounded-2xl hover:border-purple-200 transition-colors bg-gray-50/50">
-                                    {formData.thumbImage ? (
-                                        <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
-                                            <img
-                                                src={formData.thumbImage}
-                                                alt="Thumbnail"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, thumbImage: '' }))}
-                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center">
-                                            <Loader2 className="w-6 h-6 text-gray-300" />
-                                        </div>
-                                    )}
+                                    {(() => {
+                                        // Parse thumbImage in case it's stored as JSON
+                                        let displayThumb = formData.thumbImage;
+                                        try {
+                                            if (displayThumb && (displayThumb.startsWith('[') || displayThumb.startsWith('"'))) {
+                                                const parsed = JSON.parse(displayThumb);
+                                                displayThumb = Array.isArray(parsed) ? parsed[0] : parsed;
+                                            }
+                                        } catch (e) { /* keep as-is */ }
+
+                                        return displayThumb ? (
+                                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                                <img
+                                                    src={displayThumb}
+                                                    alt="Thumbnail"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, thumbImage: '' }))}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 text-gray-300" />
+                                            </div>
+                                        );
+                                    })()}
                                     <div className="flex-1">
                                         <input
                                             type="file"
@@ -414,9 +425,14 @@ export default function EditProductPage({ params }: PageProps) {
                                                 try {
                                                     const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
                                                     const json = await res.json();
-                                                    if (json.url) setFormData(prev => ({ ...prev, thumbImage: json.url }));
+                                                    if (json.url) {
+                                                        setFormData(prev => ({ ...prev, thumbImage: json.url }));
+                                                    } else if (json.error) {
+                                                        alert('Upload failed: ' + json.error);
+                                                    }
                                                 } catch (err) {
-                                                    alert('Upload failed');
+                                                    console.error('Upload error:', err);
+                                                    alert('Upload failed: ' + (err as Error).message);
                                                 }
                                             }}
                                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
@@ -776,7 +792,7 @@ export default function EditProductPage({ params }: PageProps) {
                         </button>
                     </div>
                 </form>
-            </div>
-        </AdminLayout>
+            </div >
+        </AdminLayout >
     );
 }
