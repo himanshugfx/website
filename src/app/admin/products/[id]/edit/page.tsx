@@ -425,10 +425,11 @@ export default function EditProductPage({ params }: PageProps) {
                                                 console.log('Uploading file:', file.name, file.size, file.type);
 
                                                 try {
-                                                    const newBlob = await upload(file.name, file, {
+                                                    // Manually generate unique filename to avoid "Blob already exists" error
+                                                    const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                    const newBlob = await upload(uniqueFilename, file, {
                                                         access: 'public',
                                                         handleUploadUrl: '/api/upload',
-                                                        addRandomSuffix: true,
                                                     });
 
                                                     setFormData(prev => ({ ...prev, thumbImage: newBlob.url }));
@@ -498,10 +499,10 @@ export default function EditProductPage({ params }: PageProps) {
                                                                     if (!file) return;
 
                                                                     try {
-                                                                        const newBlob = await upload(file.name, file, {
+                                                                        const uniqueFilename = `${Date.now()}-${file.name}`;
+                                                                        const newBlob = await upload(uniqueFilename, file, {
                                                                             access: 'public',
                                                                             handleUploadUrl: '/api/upload',
-                                                                            addRandomSuffix: true,
                                                                         });
 
                                                                         const updated = [...currentImages];
@@ -573,10 +574,10 @@ export default function EditProductPage({ params }: PageProps) {
                                         console.log('Uploading video:', file.name, file.size, file.type);
 
                                         try {
-                                            const newBlob = await upload(file.name, file, {
+                                            const uniqueFilename = `${Date.now()}-${file.name}`;
+                                            const newBlob = await upload(uniqueFilename, file, {
                                                 access: 'public',
                                                 handleUploadUrl: '/api/upload',
-                                                addRandomSuffix: true,
                                             });
 
                                             setFormData(prev => ({ ...prev, videoUrl: newBlob.url }));
