@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Plus, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { uploadFile } from '@/app/actions/upload';
+import { upload } from '@vercel/blob/client';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -422,15 +422,17 @@ export default function EditProductPage({ params }: PageProps) {
                                                 const file = e.target.files?.[0];
                                                 if (!file) return;
                                                 console.log('Uploading file:', file.name, file.size, file.type);
-                                                const data = new FormData();
-                                                data.append('file', file);
 
-                                                const result = await uploadFile(data);
+                                                try {
+                                                    const newBlob = await upload(file.name, file, {
+                                                        access: 'public',
+                                                        handleUploadUrl: '/api/upload',
+                                                    });
 
-                                                if (result.url) {
-                                                    setFormData(prev => ({ ...prev, thumbImage: result.url! }));
-                                                } else {
-                                                    alert('Upload failed: ' + result.error + (result.details ? '\n\nDetails: ' + result.details : ''));
+                                                    setFormData(prev => ({ ...prev, thumbImage: newBlob.url }));
+                                                } catch (err) {
+                                                    console.error('Upload error:', err);
+                                                    alert('Upload failed: ' + (err as Error).message);
                                                 }
                                             }}
                                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white"
@@ -492,17 +494,19 @@ export default function EditProductPage({ params }: PageProps) {
                                                                 onChange={async (e) => {
                                                                     const file = e.target.files?.[0];
                                                                     if (!file) return;
-                                                                    const data = new FormData();
-                                                                    data.append('file', file);
 
-                                                                    const result = await uploadFile(data);
+                                                                    try {
+                                                                        const newBlob = await upload(file.name, file, {
+                                                                            access: 'public',
+                                                                            handleUploadUrl: '/api/upload',
+                                                                        });
 
-                                                                    if (result.url) {
                                                                         const updated = [...currentImages];
-                                                                        updated[index] = result.url!;
+                                                                        updated[index] = newBlob.url;
                                                                         setFormData(prev => ({ ...prev, images: JSON.stringify(updated.filter(Boolean)) }));
-                                                                    } else {
-                                                                        alert('Upload failed: ' + result.error);
+                                                                    } catch (err) {
+                                                                        console.error('Upload error:', err);
+                                                                        alert('Upload failed: ' + (err as Error).message);
                                                                     }
                                                                 }}
                                                             />
@@ -563,15 +567,17 @@ export default function EditProductPage({ params }: PageProps) {
                                         const file = e.target.files?.[0];
                                         if (!file) return;
                                         console.log('Uploading video:', file.name, file.size, file.type);
-                                        const data = new FormData();
-                                        data.append('file', file);
 
-                                        const result = await uploadFile(data);
+                                        try {
+                                            const newBlob = await upload(file.name, file, {
+                                                access: 'public',
+                                                handleUploadUrl: '/api/upload',
+                                            });
 
-                                        if (result.url) {
-                                            setFormData(prev => ({ ...prev, videoUrl: result.url! }));
-                                        } else {
-                                            alert('Video upload failed: ' + result.error + (result.details ? '\n\nDetails: ' + result.details : ''));
+                                            setFormData(prev => ({ ...prev, videoUrl: newBlob.url }));
+                                        } catch (err) {
+                                            console.error('Video upload error:', err);
+                                            alert('Video upload failed: ' + (err as Error).message);
                                         }
                                     }}
                                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
