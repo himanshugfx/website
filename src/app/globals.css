@@ -14,14 +14,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-poppins), "Poppins", system-ui, sans-serif;
-  --font-mono: ui-monospace, monospace;
+  --font-sans: var(--font-poppins), "Poppins";
+  --font-mono: var(--font-poppins), "Poppins";
 }
 
 body {
   background: #ffffff !important;
   color: #171717;
-  font-family: var(--font-poppins), "Poppins", system-ui, sans-serif;
+  font-family: var(--font-poppins), "Poppins";
 }
 
 /* Consistent section spacing utilities */
