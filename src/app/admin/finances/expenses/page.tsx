@@ -22,6 +22,7 @@ interface ExpenseStats {
     count: number;
 }
 
+// Predefined category labels for backward compatibility
 const CATEGORY_LABELS: Record<string, string> = {
     TRAVEL: 'Travel',
     OFFICE_SUPPLIES: 'Office Supplies',
@@ -32,6 +33,7 @@ const CATEGORY_LABELS: Record<string, string> = {
     MISC: 'Miscellaneous',
 };
 
+// Color palette for categories
 const CATEGORY_COLORS: Record<string, string> = {
     TRAVEL: 'bg-blue-100 text-blue-700',
     OFFICE_SUPPLIES: 'bg-green-100 text-green-700',
@@ -40,6 +42,41 @@ const CATEGORY_COLORS: Record<string, string> = {
     RENT: 'bg-red-100 text-red-700',
     SALARY: 'bg-pink-100 text-pink-700',
     MISC: 'bg-gray-100 text-gray-700',
+};
+
+// Generate a consistent color for any category based on its name
+const getCategoryColor = (category: string): string => {
+    // Check if it's a predefined category first
+    if (CATEGORY_COLORS[category]) {
+        return CATEGORY_COLORS[category];
+    }
+
+    // Generate a color based on the category name hash
+    const colors = [
+        'bg-blue-100 text-blue-700',
+        'bg-green-100 text-green-700',
+        'bg-purple-100 text-purple-700',
+        'bg-yellow-100 text-yellow-700',
+        'bg-red-100 text-red-700',
+        'bg-pink-100 text-pink-700',
+        'bg-indigo-100 text-indigo-700',
+        'bg-teal-100 text-teal-700',
+        'bg-orange-100 text-orange-700',
+        'bg-cyan-100 text-cyan-700',
+    ];
+
+    // Simple hash function to get consistent color for each category
+    let hash = 0;
+    for (let i = 0; i < category.length; i++) {
+        hash = category.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    return colors[Math.abs(hash) % colors.length];
+};
+
+// Get display label for category
+const getCategoryLabel = (category: string): string => {
+    return CATEGORY_LABELS[category] || category;
 };
 
 export default function ExpensesPage() {
@@ -218,8 +255,8 @@ export default function ExpensesPage() {
                                                 {formatDate(expense.date)}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${CATEGORY_COLORS[expense.category] || 'bg-gray-100 text-gray-700'}`}>
-                                                    {CATEGORY_LABELS[expense.category] || expense.category}
+                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(expense.category)}`}>
+                                                    {getCategoryLabel(expense.category)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">

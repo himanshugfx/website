@@ -4,16 +4,16 @@ import { getExpenses } from '@/lib/zoho';
 
 export const dynamic = 'force-dynamic';
 
-// Category mapping from Zoho account names to our categories
-const mapZohoCategory = (accountName: string): string => {
-    const name = accountName.toLowerCase();
-    if (name.includes('travel')) return 'TRAVEL';
-    if (name.includes('office') || name.includes('supplies')) return 'OFFICE_SUPPLIES';
-    if (name.includes('marketing') || name.includes('advertising')) return 'MARKETING';
-    if (name.includes('utilities') || name.includes('electric') || name.includes('water')) return 'UTILITIES';
-    if (name.includes('rent')) return 'RENT';
-    if (name.includes('salary') || name.includes('wages')) return 'SALARY';
-    return 'MISC';
+// Normalize category name - clean up Zoho account names
+const normalizeCategory = (accountName: string): string => {
+    // Return the original name, just clean it up a bit
+    // Remove common prefixes and normalize
+    let name = accountName.trim();
+
+    // If it's empty, return MISC
+    if (!name) return 'MISC';
+
+    return name;
 };
 
 export async function POST() {
@@ -35,7 +35,7 @@ export async function POST() {
 
             const expenseData = {
                 date: new Date(expense.date),
-                category: mapZohoCategory(expense.account_name),
+                category: normalizeCategory(expense.account_name),
                 amount: expense.total,
                 vendor: expense.vendor_name || null,
                 description: expense.description || null,
