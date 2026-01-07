@@ -17,6 +17,7 @@ export default function EditProductPage({ params }: PageProps) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [uploading, setUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         category: 'cosmetic',
@@ -427,6 +428,7 @@ export default function EditProductPage({ params }: PageProps) {
                                                     const newBlob = await upload(file.name, file, {
                                                         access: 'public',
                                                         handleUploadUrl: '/api/upload',
+                                                        addRandomSuffix: true,
                                                     });
 
                                                     setFormData(prev => ({ ...prev, thumbImage: newBlob.url }));
@@ -499,6 +501,7 @@ export default function EditProductPage({ params }: PageProps) {
                                                                         const newBlob = await upload(file.name, file, {
                                                                             access: 'public',
                                                                             handleUploadUrl: '/api/upload',
+                                                                            addRandomSuffix: true,
                                                                         });
 
                                                                         const updated = [...currentImages];
@@ -566,22 +569,28 @@ export default function EditProductPage({ params }: PageProps) {
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (!file) return;
+                                        setUploading(true);
                                         console.log('Uploading video:', file.name, file.size, file.type);
 
                                         try {
                                             const newBlob = await upload(file.name, file, {
                                                 access: 'public',
                                                 handleUploadUrl: '/api/upload',
+                                                addRandomSuffix: true,
                                             });
 
                                             setFormData(prev => ({ ...prev, videoUrl: newBlob.url }));
                                         } catch (err) {
                                             console.error('Video upload error:', err);
                                             alert('Video upload failed: ' + (err as Error).message);
+                                        } finally {
+                                            setUploading(false);
                                         }
                                     }}
-                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                                    disabled={uploading}
+                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
+                                {uploading && <p className="text-sm text-purple-600 mt-2">Uploading video... Please wait.</p>}
                                 <p className="text-xs text-gray-400 mt-2">Supported formats: MP4, WebM. Max size: 50MB</p>
                             </div>
                         </div>
@@ -789,11 +798,22 @@ export default function EditProductPage({ params }: PageProps) {
                         </Link>
                         <button
                             type="submit"
-                            disabled={saving}
-                            className="px-6 py-2 bg-black text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 hover:bg-gray-900"
+                            disabled={saving || uploading}
+                            className="w-full px-6 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Saving...
+                                </>
+                            ) : uploading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Uploading...
+                                </>
+                            ) : (
+                                'Save Product'
+                            )}
                         </button>
                     </div>
                 </form>

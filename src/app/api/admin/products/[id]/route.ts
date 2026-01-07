@@ -51,6 +51,7 @@ export async function PUT(
         await requireAdmin();
         const { id } = await params;
         const data = await request.json();
+        console.log('[API] PUT Product payload:', { id, videoUrl: data.videoUrl, thumbImage: data.thumbImage });
 
         const { variations, id: _id, updatedAt: _u, createdAt: _c, ...updateData } = data;
 
