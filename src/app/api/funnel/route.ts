@@ -94,8 +94,13 @@ export async function GET() {
         const totalValue = await prisma.lead.aggregate({
             _sum: { value: true },
         });
+
+        // Find WON stage (case-insensitive) for accurate value calculation
+        const wonStage = await prisma.funnelStage.findFirst({
+            where: { name: { equals: 'WON', mode: 'insensitive' } },
+        });
         const wonValue = await prisma.lead.aggregate({
-            where: { stage: { name: 'WON' } },
+            where: wonStage ? { stageId: wonStage.id } : { stageId: 'never-match' },
             _sum: { value: true },
         });
 
