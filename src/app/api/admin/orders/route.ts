@@ -83,6 +83,7 @@ export async function GET(request: Request) {
                     customerName: true,
                     customerEmail: true,
                     customerPhone: true,
+                    address: true,
                     total: true,
                     status: true,
                     paymentStatus: true,
