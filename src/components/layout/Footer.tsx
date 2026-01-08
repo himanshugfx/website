@@ -138,10 +138,9 @@ export default function Footer() {
                 <div className="footer-bottom py-4 sm:py-5 flex items-center justify-between gap-4 sm:gap-5 max-sm:flex-col max-sm:text-center">
                     <div className="caption1 text-secondary text-xs sm:text-sm order-2 sm:order-1">© 2026 Anose. All Rights Reserved.</div>
                     <div className="list-payment flex items-center justify-center gap-3 sm:gap-4 flex-wrap order-1 sm:order-2">
-                        <img src="/assets/images/payment/Frame-0.png" alt="payment" className="h-5 sm:h-6 object-contain" />
-                        <img src="/assets/images/payment/Frame-1.png" alt="payment" className="h-5 sm:h-6 object-contain" />
-                        <img src="/assets/images/payment/Frame-2.png" alt="payment" className="h-5 sm:h-6 object-contain" />
-                        <img src="/assets/images/payment/Frame-3.png" alt="payment" className="h-5 sm:h-6 object-contain" />
+                        <img src="/assets/images/payment_methods/upi.png" alt="payment" className="h-5 sm:h-6 object-contain" />
+                        <img src="/assets/images/payment_methods/rupay.png" alt="payment" className="h-5 sm:h-6 object-contain" />
+                        <img src="/assets/images/payment_methods/visa.png" alt="payment" className="h-5 sm:h-6 object-contain" />
                     </div>
                 </div>
             </div>

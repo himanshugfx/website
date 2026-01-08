@@ -94,13 +94,13 @@ export default function AboutPage() {
                                 </p>
                             </div>
                         </div>
-                        <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-pink-50">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center p-8">
-                                    <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-                                    <p className="text-purple-600 font-medium">Crafted with Love</p>
-                                </div>
-                            </div>
+                        <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
+                            <Image
+                                src="/assets/images/banner/about.jpg"
+                                alt="Anose Beauty - Crafted with Love"
+                                fill
+                                className="object-cover"
+                            />
                         </div>
                     </div>
                 </div>
@@ -164,7 +164,7 @@ export default function AboutPage() {
                     </p>
                     <Link
                         href="/shop"
-                        className="inline-flex items-center gap-3 bg-white text-purple-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-purple-50 transition-colors shadow-xl"
+                        className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-purple-50 transition-colors shadow-xl"
                     >
                         Shop Our Collection
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
