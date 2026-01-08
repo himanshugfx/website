@@ -61,7 +61,7 @@ export default async function Home() {
         {/* Hero Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/assets/images/banner/khushi-banner.png"
+            src="/assets/images/banner/oas-banner.png"
             alt="Hero Banner"
             fill
             className="object-cover brightness-75 scale-105"
@@ -107,13 +107,13 @@ export default async function Home() {
       </div>
 
       {/* Banner Block */}
-      <div className="banner-block mt-16 md:mt-24 md:py-20 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="banner-block py-12 md:py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="list-banner grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
             {[
-              { title: "Skin Care", img: "/assets/images/banner/18.png" },
-              { title: "Hair Care", img: "/assets/images/banner/19.png" },
-              { title: "Travel Kits", img: "/assets/images/banner/20.png" },
+              { title: "Skin Care", img: "/assets/images/banner/oas-skin.png" },
+              { title: "Hair Care", img: "/assets/images/banner/oas-hair.png" },
+              { title: "Travel Kits", img: "/assets/images/banner/oas-travel.png" },
             ].map((banner, i) => (
               <Link key={i} href="/shop" className="banner-item relative bg-surface block rounded-[20px] overflow-hidden group">
                 <div className="banner-img w-full transition-transform duration-500 group-hover:scale-105">

@@ -2,15 +2,15 @@
 
 export default function Marquee() {
     const items = [
-        "Get 50% off on all products",
+        "Get upto 50% off on all products",
         "Free shipping on all orders over ₹199",
-        "Get 50% off on all products",
+        "Get upto 50% off on all products",
         "Free shipping on all orders over ₹199",
-        "Get 50% off on all products",
+        "Get upto 50% off on all products",
         "Free shipping on all orders over ₹199",
-        "Get 50% off on all products",
+        "Get upto 50% off on all products",
         "Free shipping on all orders over ₹199",
-        "Get 50% off on all products",
+        "Get upto 50% off on all products",
         "Free shipping on all orders over ₹199",
     ];
 

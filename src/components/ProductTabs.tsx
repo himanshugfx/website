@@ -22,7 +22,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
     const activeProducts = tabs.find(tab => tab.id === activeTab)?.products || [];
 
     return (
-        <div className="product-tabs-block mt-16 md:mt-24 md:py-20 py-10">
+        <div className="product-tabs-block py-12 md:py-16">
             <div className="container mx-auto px-4">
                 {/* Tab Navigation */}
                 <div className="flex items-center justify-center mb-10">
