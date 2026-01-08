@@ -1,18 +1,8 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
-
-// Google Analytics Data API types
-interface GAMetric {
-    name: string;
-    value: string;
-}
-
-interface GADimension {
-    name: string;
-    value: string;
-}
 
 interface GARow {
     dimensionValues?: { value: string }[];
@@ -22,25 +12,36 @@ interface GARow {
 interface GAResponse {
     rows?: GARow[];
     rowCount?: number;
+    error?: {
+        message: string;
+        status: string;
+    };
 }
 
 // Helper to get access token using service account
-async function getAccessToken(): Promise<string | null> {
+async function getAccessToken(): Promise<{ token: string | null; error: string | null }> {
     const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
-    if (!serviceAccountEmail || !privateKey) {
-        console.error('Missing service account credentials');
-        return null;
+    if (!serviceAccountEmail) {
+        return { token: null, error: 'GOOGLE_SERVICE_ACCOUNT_EMAIL not configured' };
     }
 
+    if (!privateKey) {
+        return { token: null, error: 'GOOGLE_PRIVATE_KEY not configured' };
+    }
+
+    // Handle escaped newlines in private key
+    privateKey = privateKey.replace(/\\n/g, '\n');
+
     try {
-        // Create JWT for service account
+        // Create JWT header
         const header = Buffer.from(JSON.stringify({
             alg: 'RS256',
             typ: 'JWT'
         })).toString('base64url');
 
+        // Create JWT payload
         const now = Math.floor(Date.now() / 1000);
         const payload = Buffer.from(JSON.stringify({
             iss: serviceAccountEmail,
@@ -51,7 +52,6 @@ async function getAccessToken(): Promise<string | null> {
         })).toString('base64url');
 
         // Sign JWT with private key
-        const crypto = await import('crypto');
         const sign = crypto.createSign('RSA-SHA256');
         sign.update(`${header}.${payload}`);
         const signature = sign.sign(privateKey, 'base64url');
@@ -69,10 +69,20 @@ async function getAccessToken(): Promise<string | null> {
         });
 
         const tokenData = await tokenResponse.json();
-        return tokenData.access_token || null;
-    } catch (error) {
+
+        if (tokenData.error) {
+            console.error('Token exchange error:', tokenData);
+            return { token: null, error: `Token error: ${tokenData.error_description || tokenData.error}` };
+        }
+
+        if (!tokenData.access_token) {
+            return { token: null, error: 'No access token in response' };
+        }
+
+        return { token: tokenData.access_token, error: null };
+    } catch (error: any) {
         console.error('Error getting access token:', error);
-        return null;
+        return { token: null, error: `Auth error: ${error.message}` };
     }
 }
 
@@ -83,7 +93,8 @@ async function runReport(
     dateRanges: { startDate: string; endDate: string }[],
     metrics: { name: string }[],
     dimensions?: { name: string }[],
-    orderBys?: any[]
+    orderBys?: any[],
+    limit?: number
 ): Promise<GAResponse | null> {
     try {
         const body: any = {
@@ -91,13 +102,9 @@ async function runReport(
             metrics
         };
 
-        if (dimensions) {
-            body.dimensions = dimensions;
-        }
-
-        if (orderBys) {
-            body.orderBys = orderBys;
-        }
+        if (dimensions) body.dimensions = dimensions;
+        if (orderBys) body.orderBys = orderBys;
+        if (limit) body.limit = limit;
 
         const response = await fetch(
             `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
@@ -111,13 +118,14 @@ async function runReport(
             }
         );
 
-        if (!response.ok) {
-            const error = await response.text();
-            console.error('GA API Error:', error);
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('GA Report Error:', data.error);
             return null;
         }
 
-        return await response.json();
+        return data;
     } catch (error) {
         console.error('Error running GA report:', error);
         return null;
@@ -141,11 +149,13 @@ async function getRealtimeData(accessToken: string, propertyId: string): Promise
             }
         );
 
-        if (!response.ok) {
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('Realtime Error:', data.error);
             return 0;
         }
 
-        const data = await response.json();
         return parseInt(data.rows?.[0]?.metricValues?.[0]?.value || '0', 10);
     } catch (error) {
         console.error('Error getting realtime data:', error);
@@ -161,29 +171,31 @@ export async function GET() {
 
         if (!propertyId) {
             return NextResponse.json({
-                error: 'GA4_PROPERTY_ID not configured',
-                data: null
+                error: 'GA4_PROPERTY_ID not configured. Add it to your environment variables.',
+                data: null,
+                debug: { step: 'config_check' }
             }, { status: 500 });
         }
 
-        const accessToken = await getAccessToken();
+        // Get access token
+        const { token: accessToken, error: authError } = await getAccessToken();
 
         if (!accessToken) {
             return NextResponse.json({
-                error: 'Failed to authenticate with Google Analytics',
-                data: null
+                error: authError || 'Failed to authenticate with Google Analytics',
+                data: null,
+                debug: { step: 'auth', propertyId }
             }, { status: 500 });
         }
 
-        // Parallel fetch all analytics data
+        // Fetch all analytics data in parallel
         const [
             realtimeUsers,
             overviewData,
             previousPeriodData,
             topPagesData,
             trafficSourcesData,
-            deviceData,
-            ecommerceData
+            deviceData
         ] = await Promise.all([
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),
@@ -220,7 +232,8 @@ export async function GET() {
                     { name: 'averageSessionDuration' }
                 ],
                 [{ name: 'pagePath' }],
-                [{ metric: { metricName: 'screenPageViews' }, desc: true }]
+                [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+                10
             ),
 
             // 5. Traffic sources
@@ -236,17 +249,6 @@ export async function GET() {
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [{ name: 'sessions' }],
                 [{ name: 'deviceCategory' }]
-            ),
-
-            // 7. E-commerce data (if configured)
-            runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
-                [
-                    { name: 'ecommercePurchases' },
-                    { name: 'purchaseRevenue' },
-                    { name: 'transactions' },
-                    { name: 'purchaserConversionRate' }
-                ]
             )
         ]);
 
@@ -271,8 +273,8 @@ export async function GET() {
         const engagementRate = parseFloat(currentMetrics[6]?.value || '0') * 100;
         const newUsers = parseInt(currentMetrics[2]?.value || '0', 10);
 
-        // Parse top pages (limit to 10)
-        const topPages = (topPagesData?.rows || []).slice(0, 10).map(row => ({
+        // Parse top pages
+        const topPages = (topPagesData?.rows || []).map(row => ({
             path: row.dimensionValues?.[0]?.value || '',
             views: parseInt(row.metricValues?.[0]?.value || '0', 10),
             avgDuration: parseFloat(row.metricValues?.[1]?.value || '0')
@@ -291,22 +293,10 @@ export async function GET() {
             sessions: parseInt(row.metricValues?.[0]?.value || '0', 10)
         }));
 
-        // Parse e-commerce data
-        const ecomMetrics = ecommerceData?.rows?.[0]?.metricValues || [];
-        const ecommerce = {
-            purchases: parseInt(ecomMetrics[0]?.value || '0', 10),
-            revenue: parseFloat(ecomMetrics[1]?.value || '0'),
-            transactions: parseInt(ecomMetrics[2]?.value || '0', 10),
-            conversionRate: parseFloat(ecomMetrics[3]?.value || '0') * 100
-        };
-
         return NextResponse.json({
             success: true,
             data: {
-                // Realtime
                 realtimeUsers,
-
-                // Overview metrics
                 sessions,
                 sessionsGrowth,
                 users,
@@ -317,25 +307,24 @@ export async function GET() {
                 bounceRate,
                 avgSessionDuration,
                 engagementRate,
-
-                // Breakdowns
                 topPages,
                 trafficSources,
                 devices,
-
-                // E-commerce
-                ecommerce,
-
-                // Metadata
+                ecommerce: {
+                    purchases: 0,
+                    revenue: 0,
+                    transactions: 0,
+                    conversionRate: 0
+                },
                 period: 'Last 30 days',
                 lastUpdated: new Date().toISOString()
             }
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Analytics API Error:', error);
         return NextResponse.json({
-            error: 'Failed to fetch analytics data',
+            error: `Failed to fetch analytics: ${error.message}`,
             data: null
         }, { status: 500 });
     }
