@@ -1,6 +1,6 @@
 ---
 trigger: always_on
-glob:
-description:
 ---
 
+Brand color is purple.
+Always Use Indian image.
