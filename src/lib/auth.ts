@@ -1,5 +1,6 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
@@ -7,6 +8,17 @@ import bcrypt from "bcrypt";
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID || "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
+        }),
         CredentialsProvider({
             name: "credentials",
             credentials: {
@@ -53,11 +65,21 @@ export const authOptions: AuthOptions = {
         error: '/login',
     },
     callbacks: {
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user, trigger, session, account }) {
             // Initial sign in
             if (user) {
-                token.role = (user as any).role;
                 token.id = user.id;
+                // For Google sign-in, fetch role from database
+                if (account?.provider === "google") {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { email: user.email! },
+                        select: { role: true, id: true }
+                    });
+                    token.role = dbUser?.role || "USER";
+                    token.id = dbUser?.id || user.id;
+                } else {
+                    token.role = (user as any).role;
+                }
             }
 
             // Support for updating session
