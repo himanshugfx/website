@@ -25,12 +25,24 @@ export async function PUT(
         }
 
         // Update the lead's stage
+        const isWonStage = stage.name.toUpperCase() === 'WON';
+
+        // Check if lead is already converted (don't overwrite convertedAt)
+        let shouldSetConvertedAt = false;
+        if (isWonStage) {
+            const currentLead = await prisma.lead.findUnique({
+                where: { id },
+                select: { convertedAt: true },
+            });
+            shouldSetConvertedAt = !currentLead?.convertedAt;
+        }
+
         const updatedLead = await prisma.lead.update({
             where: { id },
             data: {
                 stageId,
-                // If moving to WON stage, mark as converted
-                ...(stage.name === 'WON' ? { convertedAt: new Date() } : {}),
+                // If moving to WON stage and not already converted, mark as converted
+                ...(shouldSetConvertedAt ? { convertedAt: new Date() } : {}),
             },
             include: {
                 stage: true,

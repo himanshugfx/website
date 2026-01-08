@@ -25,6 +25,8 @@ export async function PATCH(
                 select: { name: true },
             });
 
+            console.log(`[Lead Stage Change] Lead ${id} -> Stage: ${newStage?.name}`);
+
             if (newStage) {
                 if (newStage.name.toUpperCase() === 'WON') {
                     // Get the current lead to check if already converted
@@ -35,6 +37,9 @@ export async function PATCH(
                     // Only set convertedAt if not already set
                     if (!currentLead?.convertedAt) {
                         updateData.convertedAt = new Date();
+                        console.log(`[Lead Stage Change] Setting convertedAt for lead ${id}`);
+                    } else {
+                        console.log(`[Lead Stage Change] Lead ${id} already has convertedAt: ${currentLead.convertedAt}`);
                     }
                 } else {
                     // If moving away from WON, optionally clear convertedAt
