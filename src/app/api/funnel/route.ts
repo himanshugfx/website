@@ -19,19 +19,20 @@ async function ensureStagesExist() {
         orderBy: { order: 'asc' },
     });
 
-    // Check for and clean up duplicates
+    // Check for and clean up duplicates (case-insensitive)
     const stagesByName = new Map<string, typeof existingStages>();
     for (const stage of existingStages) {
-        if (!stagesByName.has(stage.name)) {
-            stagesByName.set(stage.name, []);
+        const normalizedName = stage.name.toUpperCase();
+        if (!stagesByName.has(normalizedName)) {
+            stagesByName.set(normalizedName, []);
         }
-        stagesByName.get(stage.name)!.push(stage);
+        stagesByName.get(normalizedName)!.push(stage);
     }
 
     // Remove duplicate stages (keep the one with lowest order, merge leads)
-    for (const [name, stages] of stagesByName.entries()) {
+    for (const [normalizedName, stages] of stagesByName.entries()) {
         if (stages.length > 1) {
-            console.log(`Found ${stages.length} duplicate "${name}" stages, cleaning up...`);
+            console.log(`Found ${stages.length} duplicate "${normalizedName}" stages (case-insensitive), cleaning up...`);
             const [keep, ...remove] = stages.sort((a, b) => a.order - b.order);
 
             for (const duplicate of remove) {
@@ -44,6 +45,7 @@ async function ensureStagesExist() {
                 await prisma.funnelStage.delete({
                     where: { id: duplicate.id },
                 });
+                console.log(`  Deleted duplicate stage "${duplicate.name}" (id: ${duplicate.id}), merged leads to "${keep.name}"`);
             }
         }
     }
