@@ -14,10 +14,34 @@ export async function PATCH(
 
         const { stageId, value } = data;
 
-        const updateData: { stageId?: string; value?: number | null } = {};
+        const updateData: { stageId?: string; value?: number | null; convertedAt?: Date | null } = {};
 
         if (stageId !== undefined) {
             updateData.stageId = stageId;
+
+            // Check if the new stage is WON to set convertedAt
+            const newStage = await prisma.funnelStage.findUnique({
+                where: { id: stageId },
+                select: { name: true },
+            });
+
+            if (newStage) {
+                if (newStage.name.toUpperCase() === 'WON') {
+                    // Get the current lead to check if already converted
+                    const currentLead = await prisma.lead.findUnique({
+                        where: { id },
+                        select: { convertedAt: true },
+                    });
+                    // Only set convertedAt if not already set
+                    if (!currentLead?.convertedAt) {
+                        updateData.convertedAt = new Date();
+                    }
+                } else {
+                    // If moving away from WON, optionally clear convertedAt
+                    // (Comment out if you want to preserve converted status)
+                    // updateData.convertedAt = null;
+                }
+            }
         }
 
         if (value !== undefined) {
@@ -34,6 +58,17 @@ export async function PATCH(
                 }
             },
         });
+
+        // Create activity log for stage change
+        if (stageId !== undefined) {
+            await prisma.leadActivity.create({
+                data: {
+                    leadId: id,
+                    type: 'STAGE_CHANGE',
+                    content: `Lead moved to ${lead.stage.name} stage`,
+                },
+            });
+        }
 
         revalidatePath('/admin/funnel');
         revalidatePath('/admin/funnel/leads');
