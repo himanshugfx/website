@@ -38,7 +38,7 @@ export default async function Home() {
                 New Arrivals • 2026
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
-                To Get Flat <span className="text-purple-400">30% Off!</span>
+                Get Flat <span className="text-purple-400">30% Off!</span>
               </h1>
               <p className="text-lg md:text-xl text-zinc-300 mb-8 max-w-lg leading-relaxed font-medium">
                 Use code <span className="text-white font-bold bg-white/10 px-2 py-1 rounded">DR-OAS</span> to unlock exclusive discounts on our premium skincare collection.
