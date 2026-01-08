@@ -6,7 +6,7 @@ import {
     Calendar,
     ShoppingBag,
     TrendingUp,
-    DollarSign,
+    IndianRupee,
     Clock,
     ChevronRight,
     ExternalLink,
@@ -118,7 +118,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                             <div className="absolute -right-4 -bottom-4 bg-emerald-50 rounded-full p-12 opacity-50 group-hover:scale-110 transition-transform"></div>
                             <div className="relative z-10">
                                 <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
-                                    <DollarSign className="w-6 h-6" />
+                                    <IndianRupee className="w-6 h-6" />
                                 </div>
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Lifetime Value</p>
                                 <p className="text-3xl font-bold text-gray-900">₹{totalSpent.toLocaleString()}</p>
@@ -204,12 +204,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
-                                                        order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                                                            'bg-blue-50 text-blue-700 border border-blue-100'
+                                                    order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
+                                                        'bg-blue-50 text-blue-700 border border-blue-100'
                                                     }`}>
                                                     <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' :
-                                                            order.status === 'PENDING' ? 'bg-amber-500' :
-                                                                'bg-blue-500'
+                                                        order.status === 'PENDING' ? 'bg-amber-500' :
+                                                            'bg-blue-500'
                                                         }`}></span>
                                                     {order.status}
                                                 </span>

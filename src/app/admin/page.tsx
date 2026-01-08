@@ -1,6 +1,6 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import StatsCard from '@/components/admin/StatsCard';
-import { DollarSign, ShoppingCart, Package, Users, TrendingUp, ChevronRight } from 'lucide-react';
+import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, ChevronRight } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
@@ -117,7 +117,7 @@ export default async function AdminDashboard() {
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}
-                        icon={DollarSign}
+                        icon={IndianRupee}
                         color="green"
                     />
                     <StatsCard

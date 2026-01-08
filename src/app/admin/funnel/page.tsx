@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Target, Plus, Users, TrendingUp, DollarSign, GripVertical } from 'lucide-react';
+import { Target, Plus, Users, TrendingUp, IndianRupee, GripVertical } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect, DragEvent } from 'react';
 
@@ -193,7 +193,7 @@ export default function SalesFunnelPage() {
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-gray-100">
                             <div className="flex items-center gap-2 text-gray-500 mb-2">
-                                <DollarSign className="w-4 h-4" />
+                                <IndianRupee className="w-4 h-4" />
                                 <span className="text-xs font-medium uppercase">Won Value</span>
                             </div>
                             <p className="text-xl sm:text-2xl font-bold text-emerald-600">₹{stats.wonValue.toLocaleString()}</p>
@@ -208,8 +208,8 @@ export default function SalesFunnelPage() {
                             <div
                                 key={stage.id}
                                 className={`flex-1 min-w-[280px] max-w-[340px] rounded-2xl p-3 transition-all duration-200 ${dragOverStage === stage.id
-                                        ? 'bg-purple-50 ring-2 ring-purple-400 ring-inset'
-                                        : 'bg-gray-50'
+                                    ? 'bg-purple-50 ring-2 ring-purple-400 ring-inset'
+                                    : 'bg-gray-50'
                                     }`}
                                 onDragOver={(e) => handleDragOver(e, stage.id)}
                                 onDragLeave={handleDragLeave}

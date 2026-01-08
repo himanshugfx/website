@@ -14,8 +14,44 @@ const defaultStages = [
 ];
 
 async function ensureStagesExist() {
-    const existingStages = await prisma.funnelStage.count();
-    if (existingStages === 0) {
+    // Get all existing stages
+    const existingStages = await prisma.funnelStage.findMany({
+        orderBy: { order: 'asc' },
+    });
+
+    // Check for and clean up duplicates (case-insensitive)
+    const stagesByName = new Map<string, typeof existingStages>();
+    for (const stage of existingStages) {
+        const normalizedName = stage.name.toUpperCase();
+        if (!stagesByName.has(normalizedName)) {
+            stagesByName.set(normalizedName, []);
+        }
+        stagesByName.get(normalizedName)!.push(stage);
+    }
+
+    // Remove duplicate stages (keep the one with lowest order, merge leads)
+    for (const [normalizedName, stages] of stagesByName.entries()) {
+        if (stages.length > 1) {
+            console.log(`Found ${stages.length} duplicate "${normalizedName}" stages (case-insensitive), cleaning up...`);
+            const [keep, ...remove] = stages.sort((a, b) => a.order - b.order);
+
+            for (const duplicate of remove) {
+                // Move leads to the primary stage
+                await prisma.lead.updateMany({
+                    where: { stageId: duplicate.id },
+                    data: { stageId: keep.id },
+                });
+                // Delete the duplicate
+                await prisma.funnelStage.delete({
+                    where: { id: duplicate.id },
+                });
+                console.log(`  Deleted duplicate stage "${duplicate.name}" (id: ${duplicate.id}), merged leads to "${keep.name}"`);
+            }
+        }
+    }
+
+    // Create any missing default stages
+    if (existingStages.length === 0) {
         for (const stage of defaultStages) {
             await prisma.funnelStage.create({
                 data: stage,
@@ -58,8 +94,13 @@ export async function GET() {
         const totalValue = await prisma.lead.aggregate({
             _sum: { value: true },
         });
+
+        // Find WON stage (case-insensitive) for accurate value calculation
+        const wonStage = await prisma.funnelStage.findFirst({
+            where: { name: { equals: 'WON', mode: 'insensitive' } },
+        });
         const wonValue = await prisma.lead.aggregate({
-            where: { stage: { name: 'WON' } },
+            where: wonStage ? { stageId: wonStage.id } : { stageId: 'never-match' },
             _sum: { value: true },
         });
 

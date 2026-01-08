@@ -14,10 +14,39 @@ export async function PATCH(
 
         const { stageId, value } = data;
 
-        const updateData: { stageId?: string; value?: number | null } = {};
+        const updateData: { stageId?: string; value?: number | null; convertedAt?: Date | null } = {};
 
         if (stageId !== undefined) {
             updateData.stageId = stageId;
+
+            // Check if the new stage is WON to set convertedAt
+            const newStage = await prisma.funnelStage.findUnique({
+                where: { id: stageId },
+                select: { name: true },
+            });
+
+            console.log(`[Lead Stage Change] Lead ${id} -> Stage: ${newStage?.name}`);
+
+            if (newStage) {
+                if (newStage.name.toUpperCase() === 'WON') {
+                    // Get the current lead to check if already converted
+                    const currentLead = await prisma.lead.findUnique({
+                        where: { id },
+                        select: { convertedAt: true },
+                    });
+                    // Only set convertedAt if not already set
+                    if (!currentLead?.convertedAt) {
+                        updateData.convertedAt = new Date();
+                        console.log(`[Lead Stage Change] Setting convertedAt for lead ${id}`);
+                    } else {
+                        console.log(`[Lead Stage Change] Lead ${id} already has convertedAt: ${currentLead.convertedAt}`);
+                    }
+                } else {
+                    // If moving away from WON, optionally clear convertedAt
+                    // (Comment out if you want to preserve converted status)
+                    // updateData.convertedAt = null;
+                }
+            }
         }
 
         if (value !== undefined) {
@@ -34,6 +63,17 @@ export async function PATCH(
                 }
             },
         });
+
+        // Create activity log for stage change
+        if (stageId !== undefined) {
+            await prisma.leadActivity.create({
+                data: {
+                    leadId: id,
+                    type: 'STAGE_CHANGE',
+                    content: `Lead moved to ${lead.stage.name} stage`,
+                },
+            });
+        }
 
         revalidatePath('/admin/funnel');
         revalidatePath('/admin/funnel/leads');
@@ -79,6 +119,49 @@ export async function GET(
         console.error('Error fetching lead:', error);
         return NextResponse.json(
             { error: 'Failed to fetch lead' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        await requireAdmin();
+        const { id } = await params;
+
+        // Check if lead exists
+        const existingLead = await prisma.lead.findUnique({
+            where: { id },
+        });
+
+        if (!existingLead) {
+            return NextResponse.json(
+                { error: 'Lead not found' },
+                { status: 404 }
+            );
+        }
+
+        // Delete associated activities first
+        await prisma.leadActivity.deleteMany({
+            where: { leadId: id },
+        });
+
+        // Delete the lead
+        await prisma.lead.delete({
+            where: { id },
+        });
+
+        revalidatePath('/admin/funnel');
+        revalidatePath('/admin/funnel/leads');
+
+        return NextResponse.json({ success: true, message: 'Lead deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting lead:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete lead' },
             { status: 500 }
         );
     }

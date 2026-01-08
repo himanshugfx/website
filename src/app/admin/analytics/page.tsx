@@ -1,470 +1,50 @@
+'use client';
+
 import AdminLayout from '@/components/admin/AdminLayout';
 import {
     TrendingUp,
     TrendingDown,
-    DollarSign,
-    ShoppingBag,
     Users,
-    Target,
-    Calendar,
-    ArrowUpRight,
-    ArrowDownRight,
-    Package,
+    Eye,
+    Clock,
+    MousePointer,
+    Smartphone,
+    Monitor,
+    Tablet,
     Globe,
-    FileText
+    BarChart3,
+    Activity,
+    RefreshCw,
+    IndianRupee,
+    ShoppingCart,
+    ArrowUpRight,
+    ArrowDownRight
 } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { useState, useEffect } from 'react';
 
-export const dynamic = 'force-dynamic';
-
-async function getAnalyticsData() {
-    try {
-        const now = new Date();
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-
-        // ========== 1. TOTAL REVENUE (Website Orders + Zoho Invoices) ==========
-
-        // Website Orders Revenue
-        const [currentWebsiteStats, previousWebsiteStats] = await Promise.all([
-            prisma.order.aggregate({
-                where: { createdAt: { gte: thirtyDaysAgo }, status: 'COMPLETED' },
-                _sum: { total: true },
-                _count: { id: true }
-            }),
-            prisma.order.aggregate({
-                where: {
-                    createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-                    status: 'COMPLETED'
-                },
-                _sum: { total: true },
-                _count: { id: true }
-            })
-        ]);
-
-        // Zoho Invoice Revenue (PAID invoices)
-        const [currentInvoiceStats, previousInvoiceStats] = await Promise.all([
-            prisma.invoice.aggregate({
-                where: { invoiceDate: { gte: thirtyDaysAgo }, status: 'PAID' },
-                _sum: { total: true },
-                _count: { id: true }
-            }),
-            prisma.invoice.aggregate({
-                where: {
-                    invoiceDate: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-                    status: 'PAID'
-                },
-                _sum: { total: true },
-                _count: { id: true }
-            })
-        ]);
-
-        // Combined revenue
-        const currentWebsiteRevenue = currentWebsiteStats._sum.total || 0;
-        const currentInvoiceRevenue = currentInvoiceStats._sum.total || 0;
-        const currentTotalRevenue = currentWebsiteRevenue + currentInvoiceRevenue;
-
-        const prevWebsiteRevenue = previousWebsiteStats._sum.total || 0;
-        const prevInvoiceRevenue = previousInvoiceStats._sum.total || 0;
-        const prevTotalRevenue = prevWebsiteRevenue + prevInvoiceRevenue;
-
-        const revenueGrowth = prevTotalRevenue > 0
-            ? ((currentTotalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100
-            : 0;
-
-        // ========== 2. TOTAL ORDERS (Website) ==========
-        const currentOrders = currentWebsiteStats._count.id || 0;
-        const prevOrders = previousWebsiteStats._count.id || 0;
-        const ordersGrowth = prevOrders > 0 ? ((currentOrders - prevOrders) / prevOrders) * 100 : 0;
-
-        // ========== 3. ACTIVE CUSTOMERS ==========
-        // From website orders
-        const currentCustomersOrders = await prisma.order.findMany({
-            where: { createdAt: { gte: thirtyDaysAgo } },
-            select: { customerEmail: true, userId: true }
-        });
-        const prevCustomersOrders = await prisma.order.findMany({
-            where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-            select: { customerEmail: true, userId: true }
-        });
-
-        // From Zoho invoices
-        const currentInvoiceCustomers = await prisma.invoice.findMany({
-            where: { invoiceDate: { gte: thirtyDaysAgo } },
-            select: { customerName: true, customerId: true }
-        });
-        const prevInvoiceCustomers = await prisma.invoice.findMany({
-            where: { invoiceDate: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-            select: { customerName: true, customerId: true }
-        });
-
-        // Combine unique customers
-        const currentCustomerSet = new Set<string>();
-        currentCustomersOrders.forEach(order => {
-            if (order.customerEmail) currentCustomerSet.add(order.customerEmail);
-            else if (order.userId) currentCustomerSet.add(order.userId);
-        });
-        currentInvoiceCustomers.forEach(inv => {
-            currentCustomerSet.add(inv.customerId || inv.customerName);
-        });
-        const currentActiveCustomers = currentCustomerSet.size;
-
-        const prevCustomerSet = new Set<string>();
-        prevCustomersOrders.forEach(order => {
-            if (order.customerEmail) prevCustomerSet.add(order.customerEmail);
-            else if (order.userId) prevCustomerSet.add(order.userId);
-        });
-        prevInvoiceCustomers.forEach(inv => {
-            prevCustomerSet.add(inv.customerId || inv.customerName);
-        });
-        const prevActiveCustomers = prevCustomerSet.size;
-
-        const customersGrowth = prevActiveCustomers > 0
-            ? ((currentActiveCustomers - prevActiveCustomers) / prevActiveCustomers) * 100
-            : 0;
-
-        // ========== 4. CONVERSION RATE (Unique Visitors to Orders) ==========
-        // Get unique visitors (sessions) in last 30 days
-        let currentVisitors = 0;
-        let prevVisitors = 0;
-
-        try {
-            const currentVisitorSessions = await prisma.pageView.findMany({
-                where: { createdAt: { gte: thirtyDaysAgo } },
-                select: { sessionId: true },
-                distinct: ['sessionId']
-            });
-            currentVisitors = currentVisitorSessions.length;
-
-            const prevVisitorSessions = await prisma.pageView.findMany({
-                where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-                select: { sessionId: true },
-                distinct: ['sessionId']
-            });
-            prevVisitors = prevVisitorSessions.length;
-        } catch {
-            // PageView table might not exist yet after migration
-            currentVisitors = 0;
-            prevVisitors = 0;
-        }
-
-        // Total orders (all statuses for conversion calculation)
-        const currentTotalOrderAttempts = await prisma.order.count({
-            where: { createdAt: { gte: thirtyDaysAgo } }
-        });
-
-        // Conversion rate: (Orders / Unique Visitors) * 100
-        // If no visitors tracked yet, fallback to completed/total orders ratio
-        let conversionRate = 0;
-        if (currentVisitors > 0) {
-            conversionRate = (currentTotalOrderAttempts / currentVisitors) * 100;
-        } else {
-            // Fallback: completed orders / all orders
-            const completedOrders = await prisma.order.count({ where: { status: 'COMPLETED' } });
-            const allOrders = await prisma.order.count();
-            conversionRate = allOrders > 0 ? (completedOrders / allOrders) * 100 : 0;
-        }
-
-        // ========== 5. DAILY REVENUE (Last 14 days - Website + Zoho) ==========
-        const websiteOrders = await prisma.order.findMany({
-            where: {
-                createdAt: { gte: thirtyDaysAgo },
-                status: 'COMPLETED'
-            },
-            select: { createdAt: true, total: true },
-            orderBy: { createdAt: 'asc' }
-        });
-
-        const zohoInvoices = await prisma.invoice.findMany({
-            where: {
-                invoiceDate: { gte: thirtyDaysAgo },
-                status: 'PAID'
-            },
-            select: { invoiceDate: true, total: true },
-            orderBy: { invoiceDate: 'asc' }
-        });
-
-        // Initialize daily map for last 14 days
-        const dailyMap = new Map<string, { website: number; zoho: number }>();
-        for (let i = 13; i >= 0; i--) {
-            const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-            const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-            dailyMap.set(dateStr, { website: 0, zoho: 0 });
-        }
-
-        // Add website orders
-        websiteOrders.forEach(order => {
-            const dateStr = new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-            if (dailyMap.has(dateStr)) {
-                const current = dailyMap.get(dateStr)!;
-                dailyMap.set(dateStr, { ...current, website: current.website + order.total });
-            }
-        });
-
-        // Add Zoho invoices
-        zohoInvoices.forEach(invoice => {
-            const dateStr = new Date(invoice.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-            if (dailyMap.has(dateStr)) {
-                const current = dailyMap.get(dateStr)!;
-                dailyMap.set(dateStr, { ...current, zoho: current.zoho + invoice.total });
-            }
-        });
-
-        const dailyRevenue = Array.from(dailyMap.entries()).map(([date, data]) => ({
-            date,
-            website: data.website,
-            zoho: data.zoho,
-            total: data.website + data.zoho
-        }));
-
-        // ========== 6. TOP SELLING PRODUCTS ==========
-        const topProducts = await prisma.orderItem.groupBy({
-            by: ['productId'],
-            where: { order: { status: 'COMPLETED' } },
-            _sum: { quantity: true, price: true },
-            orderBy: { _sum: { quantity: 'desc' } },
-            take: 5
-        });
-
-        const enrichedTopProducts = await Promise.all(
-            topProducts.map(async (item) => {
-                const product = await prisma.product.findUnique({
-                    where: { id: item.productId },
-                    select: { name: true }
-                });
-                return {
-                    name: product?.name || 'Unknown',
-                    quantity: item._sum.quantity || 0,
-                    revenue: (item._sum.price || 0) * (item._sum.quantity || 0)
-                };
-            })
-        );
-
-        // ========== 7. TOTAL STATS (All-time) ==========
-        // Use same logic as dashboard for consistency
-        const validOrdersWhere = {
-            status: { not: 'CANCELLED' },
-            NOT: {
-                AND: [
-                    { status: 'PENDING' },
-                    { paymentStatus: 'PENDING' },
-                    { paymentMethod: { not: 'COD' } }
-                ]
-            }
-        };
-
-        const allTimeWebsiteRevenue = await prisma.order.aggregate({
-            where: validOrdersWhere,
-            _sum: { total: true }
-        });
-        const allTimeInvoiceRevenue = await prisma.invoice.aggregate({
-            where: {
-                status: { not: 'VOID' },
-                orderId: null  // Only standalone invoices to avoid double counting
-            },
-            _sum: { total: true }
-        });
-        const allTimeRevenue = (allTimeWebsiteRevenue._sum.total || 0) + (allTimeInvoiceRevenue._sum.total || 0);
-
-        return {
-            revenue: {
-                current: currentTotalRevenue,
-                growth: revenueGrowth,
-                website: currentWebsiteRevenue,
-                zoho: currentInvoiceRevenue,
-                allTime: allTimeRevenue
-            },
-            orders: { current: currentOrders, growth: ordersGrowth },
-            customers: { current: currentActiveCustomers, growth: customersGrowth },
-            visitors: currentVisitors,
-            conversion: conversionRate,
-            dailyRevenue,
-            topProducts: enrichedTopProducts
-        };
-    } catch (error) {
-        console.error('Error fetching analytics:', error);
-        return null;
-    }
-}
-
-export default async function AnalyticsPage() {
-    const data = await getAnalyticsData();
-
-    if (!data) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <p className="text-gray-500 font-medium tracking-tight">Failed to load analytics data.</p>
-                </div>
-            </AdminLayout>
-        );
-    }
-
-    // Prepare chart data (normalize to max height)
-    const maxRevenue = Math.max(...data.dailyRevenue.map(d => d.total), 1000);
-    const chartHeight = 120;
-
-    return (
-        <AdminLayout>
-            <div className="space-y-8">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Advanced Analytics</h1>
-                        <p className="mt-1 text-gray-500 font-medium">Website + Zoho Invoice performance metrics</p>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                        <Calendar className="w-4 h-4 text-purple-600" />
-                        <span className="text-sm font-bold text-gray-900 uppercase tracking-tighter">Last 30 Days</span>
-                    </div>
-                </div>
-
-                {/* Primary Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                        title="Total Revenue"
-                        value={`₹${data.revenue.current.toLocaleString()}`}
-                        growth={data.revenue.growth}
-                        icon={<DollarSign className="w-6 h-6" />}
-                        color="emerald"
-                        subtitle={`Website: ₹${data.revenue.website.toLocaleString()} | Zoho: ₹${data.revenue.zoho.toLocaleString()}`}
-                    />
-                    <StatCard
-                        title="Website Orders"
-                        value={data.orders.current.toString()}
-                        growth={data.orders.growth}
-                        icon={<ShoppingBag className="w-6 h-6" />}
-                        color="purple"
-                    />
-                    <StatCard
-                        title="Conversion Rate"
-                        value={`${data.conversion.toFixed(1)}%`}
-                        growth={0}
-                        icon={<Target className="w-6 h-6" />}
-                        color="amber"
-                        subtitle={data.visitors > 0 ? `${data.visitors.toLocaleString()} visitors` : 'Tracking started'}
-                    />
-                    <StatCard
-                        title="Active Customers"
-                        value={data.customers.current.toLocaleString()}
-                        growth={data.customers.growth}
-                        icon={<Users className="w-6 h-6" />}
-                        color="blue"
-                    />
-                </div>
-
-                {/* Revenue Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-emerald-50 to-green-100 rounded-2xl p-6 border border-emerald-200">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Globe className="w-5 h-5 text-emerald-600" />
-                            <span className="text-sm font-bold text-emerald-700 uppercase tracking-wider">Website Revenue</span>
-                        </div>
-                        <p className="text-2xl font-black text-emerald-900">₹{data.revenue.website.toLocaleString()}</p>
-                        <p className="text-xs text-emerald-600 mt-1">From online orders (30 days)</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 border border-blue-200">
-                        <div className="flex items-center gap-3 mb-2">
-                            <FileText className="w-5 h-5 text-blue-600" />
-                            <span className="text-sm font-bold text-blue-700 uppercase tracking-wider">Zoho Invoices</span>
-                        </div>
-                        <p className="text-2xl font-black text-blue-900">₹{data.revenue.zoho.toLocaleString()}</p>
-                        <p className="text-xs text-blue-600 mt-1">From paid invoices (30 days)</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 border border-purple-200">
-                        <div className="flex items-center gap-3 mb-2">
-                            <TrendingUp className="w-5 h-5 text-purple-600" />
-                            <span className="text-sm font-bold text-purple-700 uppercase tracking-wider">All-Time Revenue</span>
-                        </div>
-                        <p className="text-2xl font-black text-purple-900">₹{data.revenue.allTime.toLocaleString()}</p>
-                        <p className="text-xs text-purple-600 mt-1">Total lifetime revenue</p>
-                    </div>
-                </div>
-
-                {/* Charts & Trends Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Revenue Trend Chart */}
-                    <div className="lg:col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900 tracking-tight">Daily Revenue</h2>
-                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Website + Zoho Combined</p>
-                            </div>
-                            <div className="flex items-center gap-4 text-xs">
-                                <div className="flex items-center gap-1">
-                                    <div className="w-3 h-3 rounded bg-purple-600"></div>
-                                    <span className="text-gray-500 font-medium">Website</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <div className="w-3 h-3 rounded bg-blue-400"></div>
-                                    <span className="text-gray-500 font-medium">Zoho</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 flex items-end gap-2 min-h-[200px] h-full">
-                            {data.dailyRevenue.map((day, idx) => (
-                                <div key={idx} className="flex-1 flex flex-col items-center group">
-                                    <div className="relative w-full flex flex-col">
-                                        {/* Tooltip */}
-                                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold py-2 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
-                                            <div>Total: ₹{day.total.toLocaleString()}</div>
-                                            <div className="text-gray-400">Web: ₹{day.website.toLocaleString()}</div>
-                                            <div className="text-blue-300">Zoho: ₹{day.zoho.toLocaleString()}</div>
-                                        </div>
-                                        {/* Stacked bars */}
-                                        <div className="w-full flex flex-col-reverse">
-                                            {/* Website portion */}
-                                            <div
-                                                className="w-full bg-purple-600 rounded-t-sm transition-all duration-500"
-                                                style={{ height: `${(day.website / maxRevenue) * chartHeight}px` }}
-                                            ></div>
-                                            {/* Zoho portion */}
-                                            <div
-                                                className="w-full bg-blue-400 transition-all duration-500"
-                                                style={{ height: `${(day.zoho / maxRevenue) * chartHeight}px` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-3 text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
-                                        {day.date}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Top Products */}
-                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900 tracking-tight mb-6">Top Selling Products</h2>
-                        {data.topProducts.length === 0 ? (
-                            <div className="text-center py-8 text-gray-400">
-                                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                <p>No sales data yet</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {data.topProducts.map((product, idx) => (
-                                    <div key={idx} className="flex items-center gap-4 group">
-                                        <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors shrink-0">
-                                            <Package className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>
-                                            <p className="text-xs text-gray-400 font-bold uppercase tracking-tight">{product.quantity} sold</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-black text-gray-900">₹{product.revenue.toLocaleString()}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </AdminLayout>
-    );
+interface AnalyticsData {
+    realtimeUsers: number;
+    sessions: number;
+    sessionsGrowth: number;
+    users: number;
+    usersGrowth: number;
+    newUsers: number;
+    pageViews: number;
+    pageViewsGrowth: number;
+    bounceRate: number;
+    avgSessionDuration: number;
+    engagementRate: number;
+    topPages: { path: string; views: number; avgDuration: number }[];
+    trafficSources: { source: string; sessions: number; users: number }[];
+    devices: { device: string; sessions: number }[];
+    ecommerce: {
+        purchases: number;
+        revenue: number;
+        transactions: number;
+        conversionRate: number;
+    };
+    period: string;
+    lastUpdated: string;
 }
 
 function StatCard({
@@ -472,46 +52,341 @@ function StatCard({
     value,
     growth,
     icon,
-    color,
-    subtitle
+    color = 'purple'
 }: {
     title: string;
-    value: string;
-    growth: number;
+    value: string | number;
+    growth?: number;
     icon: React.ReactNode;
-    color: 'emerald' | 'purple' | 'amber' | 'blue';
-    subtitle?: string;
+    color?: string;
 }) {
-    const colorClasses = {
-        emerald: 'bg-emerald-50 text-emerald-600',
-        purple: 'bg-purple-50 text-purple-600',
-        amber: 'bg-amber-50 text-amber-600',
-        blue: 'bg-blue-50 text-blue-600',
+    const colorClasses: { [key: string]: { bg: string; text: string; icon: string } } = {
+        purple: { bg: 'bg-purple-50', text: 'text-purple-600', icon: 'text-purple-500' },
+        blue: { bg: 'bg-blue-50', text: 'text-blue-600', icon: 'text-blue-500' },
+        green: { bg: 'bg-emerald-50', text: 'text-emerald-600', icon: 'text-emerald-500' },
+        orange: { bg: 'bg-orange-50', text: 'text-orange-600', icon: 'text-orange-500' },
+        pink: { bg: 'bg-pink-50', text: 'text-pink-600', icon: 'text-pink-500' }
     };
 
+    const colors = colorClasses[color] || colorClasses.purple;
+
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-4">
-                <div className={`w-12 h-12 ${colorClasses[color]} rounded-2xl flex items-center justify-center shadow-sm`}>
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+            <div className="flex items-start justify-between">
+                <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center ${colors.icon}`}>
                     {icon}
                 </div>
-                {growth !== 0 && (
-                    <div className={`flex items-center gap-1 text-xs font-black uppercase tracking-tighter ${growth > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {growth > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                {growth !== undefined && (
+                    <div className={`flex items-center gap-1 text-sm font-medium ${growth >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {growth >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                         {Math.abs(growth).toFixed(1)}%
                     </div>
                 )}
             </div>
-            <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{title}</p>
-                <p className="text-2xl font-black text-gray-900 tracking-tight">{value}</p>
-                {subtitle && (
-                    <p className="text-[10px] text-gray-400 mt-1 font-medium">{subtitle}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-4">{value}</p>
+            <p className="text-sm text-gray-500 mt-1">{title}</p>
+        </div>
+    );
+}
+
+function formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${mins}m ${secs}s`;
+}
+
+function getDeviceIcon(device: string) {
+    switch (device.toLowerCase()) {
+        case 'mobile': return <Smartphone className="w-4 h-4" />;
+        case 'tablet': return <Tablet className="w-4 h-4" />;
+        default: return <Monitor className="w-4 h-4" />;
+    }
+}
+
+export default function AnalyticsPage() {
+    const [data, setData] = useState<AnalyticsData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch('/api/admin/analytics');
+            const json = await res.json();
+
+            if (json.error) {
+                setError(json.error);
+            } else {
+                setData(json.data);
+            }
+        } catch (err) {
+            setError('Failed to fetch analytics data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+        // Refresh every 5 minutes
+        const interval = setInterval(fetchData, 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <AdminLayout>
+            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+                        <p className="text-gray-500 mt-1">Google Analytics data for your website</p>
+                    </div>
+                    <button
+                        onClick={fetchData}
+                        disabled={loading}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </button>
+                </div>
+
+                {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+                        <h3 className="text-red-800 font-semibold mb-2">Configuration Required</h3>
+                        <p className="text-red-600 text-sm">{error}</p>
+                        <p className="text-red-500 text-sm mt-2">
+                            Please ensure the following environment variables are set:
+                        </p>
+                        <ul className="text-red-500 text-sm mt-2 list-disc list-inside">
+                            <li>GA4_PROPERTY_ID</li>
+                            <li>GOOGLE_SERVICE_ACCOUNT_EMAIL</li>
+                            <li>GOOGLE_PRIVATE_KEY</li>
+                        </ul>
+                    </div>
+                )}
+
+                {loading && !data && (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="text-center">
+                            <RefreshCw className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-4" />
+                            <p className="text-gray-500">Loading analytics data...</p>
+                        </div>
+                    </div>
+                )}
+
+                {data && (
+                    <>
+                        {/* Realtime Card */}
+                        <div className="bg-gradient-to-r from-purple-600 to-purple-800 rounded-2xl p-6 text-white mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                <span className="text-purple-200 text-sm font-medium">LIVE</span>
+                            </div>
+                            <p className="text-5xl font-bold mt-4">{data.realtimeUsers}</p>
+                            <p className="text-purple-200 mt-2">Active users right now</p>
+                        </div>
+
+                        {/* Overview Stats */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <StatCard
+                                title="Sessions"
+                                value={data.sessions.toLocaleString()}
+                                growth={data.sessionsGrowth}
+                                icon={<Activity className="w-6 h-6" />}
+                                color="purple"
+                            />
+                            <StatCard
+                                title="Total Users"
+                                value={data.users.toLocaleString()}
+                                growth={data.usersGrowth}
+                                icon={<Users className="w-6 h-6" />}
+                                color="blue"
+                            />
+                            <StatCard
+                                title="Page Views"
+                                value={data.pageViews.toLocaleString()}
+                                growth={data.pageViewsGrowth}
+                                icon={<Eye className="w-6 h-6" />}
+                                color="green"
+                            />
+                            <StatCard
+                                title="Avg. Session Duration"
+                                value={formatDuration(data.avgSessionDuration)}
+                                icon={<Clock className="w-6 h-6" />}
+                                color="orange"
+                            />
+                        </div>
+
+                        {/* Engagement Stats */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <StatCard
+                                title="New Users"
+                                value={data.newUsers.toLocaleString()}
+                                icon={<Users className="w-6 h-6" />}
+                                color="pink"
+                            />
+                            <StatCard
+                                title="Engagement Rate"
+                                value={`${data.engagementRate.toFixed(1)}%`}
+                                icon={<MousePointer className="w-6 h-6" />}
+                                color="purple"
+                            />
+                            <StatCard
+                                title="Bounce Rate"
+                                value={`${data.bounceRate.toFixed(1)}%`}
+                                icon={<TrendingDown className="w-6 h-6" />}
+                                color="orange"
+                            />
+                            <StatCard
+                                title="Conversion Rate"
+                                value={`${data.ecommerce.conversionRate.toFixed(2)}%`}
+                                icon={<ShoppingCart className="w-6 h-6" />}
+                                color="green"
+                            />
+                        </div>
+
+                        {/* E-commerce Revenue Card */}
+                        {(data.ecommerce.revenue > 0 || data.ecommerce.transactions > 0) && (
+                            <div className="bg-gradient-to-r from-emerald-500 to-emerald-700 rounded-2xl p-6 text-white mb-8">
+                                <h3 className="text-emerald-100 text-sm font-medium uppercase tracking-wider mb-4">
+                                    E-commerce Revenue (Last 30 Days)
+                                </h3>
+                                <div className="grid grid-cols-3 gap-6">
+                                    <div>
+                                        <p className="text-3xl font-bold">₹{data.ecommerce.revenue.toLocaleString()}</p>
+                                        <p className="text-emerald-200 text-sm mt-1">Total Revenue</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-3xl font-bold">{data.ecommerce.transactions}</p>
+                                        <p className="text-emerald-200 text-sm mt-1">Transactions</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-3xl font-bold">{data.ecommerce.purchases}</p>
+                                        <p className="text-emerald-200 text-sm mt-1">Purchases</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+                            {/* Top Pages */}
+                            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                                <div className="p-6 border-b border-gray-100">
+                                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                                        <BarChart3 className="w-5 h-5 text-purple-500" />
+                                        Top Pages
+                                    </h3>
+                                </div>
+                                <div className="divide-y divide-gray-50">
+                                    {data.topPages.slice(0, 8).map((page, index) => (
+                                        <div key={index} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900 truncate">
+                                                    {page.path || '/'}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    Avg. {formatDuration(page.avgDuration)}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    {page.views.toLocaleString()}
+                                                </p>
+                                                <p className="text-xs text-gray-500">views</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {data.topPages.length === 0 && (
+                                        <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                                            No page data available
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Traffic Sources */}
+                            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                                <div className="p-6 border-b border-gray-100">
+                                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                                        <Globe className="w-5 h-5 text-blue-500" />
+                                        Traffic Sources
+                                    </h3>
+                                </div>
+                                <div className="divide-y divide-gray-50">
+                                    {data.trafficSources.map((source, index) => {
+                                        const totalSessions = data.trafficSources.reduce((sum, s) => sum + s.sessions, 0);
+                                        const percentage = totalSessions > 0 ? (source.sessions / totalSessions) * 100 : 0;
+
+                                        return (
+                                            <div key={index} className="px-6 py-4">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-sm font-medium text-gray-900 capitalize">
+                                                        {source.source || 'Unknown'}
+                                                    </span>
+                                                    <span className="text-sm text-gray-500">
+                                                        {source.sessions.toLocaleString()} sessions
+                                                    </span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div
+                                                        className="bg-purple-500 h-2 rounded-full transition-all"
+                                                        style={{ width: `${percentage}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {data.trafficSources.length === 0 && (
+                                        <div className="px-6 py-8 text-center text-gray-500 text-sm">
+                                            No traffic source data available
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Device Breakdown */}
+                        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                            <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-6">
+                                <Smartphone className="w-5 h-5 text-orange-500" />
+                                Device Breakdown
+                            </h3>
+                            <div className="grid grid-cols-3 gap-4">
+                                {data.devices.map((device, index) => {
+                                    const totalSessions = data.devices.reduce((sum, d) => sum + d.sessions, 0);
+                                    const percentage = totalSessions > 0 ? (device.sessions / totalSessions) * 100 : 0;
+
+                                    return (
+                                        <div key={index} className="text-center p-4 bg-gray-50 rounded-xl">
+                                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
+                                                {getDeviceIcon(device.device)}
+                                            </div>
+                                            <p className="text-2xl font-bold text-gray-900">{percentage.toFixed(0)}%</p>
+                                            <p className="text-sm text-gray-500 capitalize">{device.device}</p>
+                                            <p className="text-xs text-gray-400 mt-1">{device.sessions.toLocaleString()} sessions</p>
+                                        </div>
+                                    );
+                                })}
+                                {data.devices.length === 0 && (
+                                    <div className="col-span-3 text-center text-gray-500 text-sm py-8">
+                                        No device data available
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-8 text-center text-sm text-gray-400">
+                            <p>Data period: {data.period}</p>
+                            <p>Last updated: {new Date(data.lastUpdated).toLocaleString()}</p>
+                        </div>
+                    </>
                 )}
             </div>
-            <div className="absolute -right-2 -bottom-2 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
-                {icon}
-            </div>
-        </div>
+        </AdminLayout>
     );
 }

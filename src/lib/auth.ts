@@ -1,12 +1,22 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
 export const authOptions: AuthOptions = {
-    adapter: PrismaAdapter(prisma),
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID || "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
+        }),
         CredentialsProvider({
             name: "credentials",
             credentials: {
@@ -53,11 +63,51 @@ export const authOptions: AuthOptions = {
         error: '/login',
     },
     callbacks: {
-        async jwt({ token, user, trigger, session }) {
+        async signIn({ user, account }) {
+            // For Google sign-in, check if user exists or create them
+            if (account?.provider === "google" && user.email) {
+                try {
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email: user.email },
+                    });
+
+                    if (!existingUser) {
+                        // Create new user for Google sign-in
+                        await prisma.user.create({
+                            data: {
+                                email: user.email,
+                                name: user.name || user.email.split('@')[0],
+                                role: "USER",
+                                // No password for Google users
+                            },
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error in signIn callback:", error);
+                    return false;
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, trigger, session, account }) {
             // Initial sign in
             if (user) {
-                token.role = (user as any).role;
                 token.id = user.id;
+
+                // For Google sign-in, fetch the actual user from database
+                if (account?.provider === "google" && user.email) {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { email: user.email },
+                        select: { id: true, role: true, name: true }
+                    });
+                    if (dbUser) {
+                        token.id = dbUser.id;
+                        token.role = dbUser.role;
+                        token.name = dbUser.name;
+                    }
+                } else {
+                    token.role = (user as any).role;
+                }
             }
 
             // Support for updating session

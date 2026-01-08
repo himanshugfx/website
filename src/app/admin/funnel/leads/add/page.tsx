@@ -1,5 +1,5 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, User, Building2, Mail, Phone, Target, DollarSign, FileText } from 'lucide-react';
+import { ArrowLeft, User, Building2, Mail, Phone, Target, IndianRupee, FileText } from 'lucide-react';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
@@ -168,7 +168,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                             </div>
                             <div className="sm:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    <DollarSign className="w-3 h-3 inline mr-1" /> Estimated Value (₹)
+                                    <IndianRupee className="w-3 h-3 inline mr-1" /> Estimated Value (₹)
                                 </label>
                                 <input
                                     type="number"
