@@ -1,6 +1,40 @@
-import Link from 'next/link'
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Footer() {
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [message, setMessage] = useState('');
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setStatus('loading');
+        try {
+            const res = await fetch('/api/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                setStatus('success');
+                setMessage(data.message);
+                setEmail('');
+            } else {
+                setStatus('error');
+                setMessage(data.error || 'Something went wrong');
+            }
+        } catch {
+            setStatus('error');
+            setMessage('Failed to subscribe. Please try again.');
+        }
+    };
+
     return (
         <footer id="footer" className="footer md:py-20 py-10 bg-white px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
@@ -9,7 +43,7 @@ export default function Footer() {
                     <div className="footer-item">
                         <Link href="/" className="logo text-3xl font-black block mb-6 tracking-tighter hover:text-purple-600 transition-colors">ANOSE</Link>
                         <div className="caption1 text-zinc-500 text-sm sm:text-base leading-relaxed mb-6 max-w-xs">
-                            Anose is a premium cosmetic manufacturer and hotel amenities supplier, dedicated to providing high-quality products.
+                            Premium skincare crafted with 5-star spa expertise. Luxury quality, honest prices. Proudly Made in India.
                         </div>
                         <div className="list-social flex items-center gap-5">
                             <Link href="https://www.facebook.com/61561850642387/about/" target="_blank" className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all duration-300">
@@ -75,20 +109,34 @@ export default function Footer() {
                     <div className="footer-item">
                         <div className="text-button-uppercase text-black text-sm sm:text-base font-medium mb-4 sm:mb-5">NEWSLETTER</div>
                         <div className="caption1 text-secondary text-sm sm:text-base leading-relaxed mb-4 sm:mb-5">
-                            Subscribe to stay updated on our latest products and exclusive offers.
+                            Subscribe & get <span className="font-semibold text-purple-600">10% off</span> your first order!
                         </div>
-                        <div className="form-input relative">
+                        <form onSubmit={handleSubscribe} className="form-input relative">
                             <input
                                 type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Email Address"
-                                className="h-11 sm:h-12 w-full border-b border-line pb-1 outline-none caption1 text-sm sm:text-base pr-20 sm:pr-24"
+                                className="h-11 sm:h-12 w-full border-b border-line pb-1 outline-none caption1 text-sm sm:text-base pr-24"
+                                disabled={status === 'loading'}
                             />
-                            <button className="absolute right-0 top-1/2 -translate-y-1/2 text-button-uppercase hover:text-black duration-300 text-xs sm:text-sm whitespace-nowrap">SUBSCRIBE</button>
-                        </div>
+                            <button
+                                type="submit"
+                                disabled={status === 'loading'}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 text-button-uppercase hover:text-purple-600 duration-300 text-xs sm:text-sm whitespace-nowrap disabled:opacity-50"
+                            >
+                                {status === 'loading' ? 'SENDING...' : 'SUBSCRIBE'}
+                            </button>
+                        </form>
+                        {message && (
+                            <p className={`mt-2 text-xs ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                                {message}
+                            </p>
+                        )}
                     </div>
                 </div>
                 <div className="footer-bottom py-4 sm:py-5 flex items-center justify-between gap-4 sm:gap-5 max-sm:flex-col max-sm:text-center">
-                    <div className="caption1 text-secondary text-xs sm:text-sm order-2 sm:order-1">© 2025 Anose. All Rights Reserved.</div>
+                    <div className="caption1 text-secondary text-xs sm:text-sm order-2 sm:order-1">© 2026 Anose. All Rights Reserved.</div>
                     <div className="list-payment flex items-center justify-center gap-3 sm:gap-4 flex-wrap order-1 sm:order-2">
                         <img src="/assets/images/payment/Frame-0.png" alt="payment" className="h-5 sm:h-6 object-contain" />
                         <img src="/assets/images/payment/Frame-1.png" alt="payment" className="h-5 sm:h-6 object-contain" />

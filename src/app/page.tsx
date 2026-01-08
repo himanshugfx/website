@@ -5,7 +5,7 @@ import ProductTabs from "@/components/ProductTabs";
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCardProduct } from "@/components/ProductCard";
-import { ShieldCheck, BadgeCheck, Rabbit } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Rabbit, Award } from "lucide-react";
 
 export default async function Home() {
   const bestSellers = await prisma.product.findMany({
@@ -74,6 +74,36 @@ export default async function Home() {
         {/* Decorative Blur Elements */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-50 left-[40%] w-64 h-64 bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
+      {/* Trust Strip - New Section */}
+      <div className="bg-purple-50 border-b border-purple-100 py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12">
+            <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
+              <svg className="w-5 h-4" viewBox="0 0 900 600" fill="none">
+                <rect width="900" height="200" fill="#FF9933" />
+                <rect y="200" width="900" height="200" fill="white" />
+                <rect y="400" width="900" height="200" fill="#138808" />
+                <circle cx="450" cy="300" r="60" fill="#000080" />
+                <circle cx="450" cy="300" r="50" fill="white" />
+              </svg>
+              <span>Made in India</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
+              <ShieldCheck className="w-5 h-5 text-green-600" />
+              <span>FDA Approved</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
+              <Rabbit className="w-5 h-5 text-purple-600" />
+              <span>Cruelty-Free</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
+              <Award className="w-5 h-5 text-amber-600" />
+              <span>5-Star Spa Quality</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Banner Block */}

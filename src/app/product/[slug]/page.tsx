@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "./ProductDetailClient";
 import ProductCard from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
 import type { ProductCardProduct } from "@/components/ProductCard";
 
 export async function generateMetadata(
@@ -90,6 +91,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
             <ProductDetailClient product={product as Parameters<typeof ProductDetailClient>[0]['product']} />
 
+            {/* Customer Reviews */}
+            <div className="container mx-auto px-4">
+                <ProductReviews productId={product.id} productName={product.name} />
+            </div>
+
             {/* Related Products */}
             <div className="related-product-block md:py-20 py-10 border-t border-line mt-10">
                 <div className="container mx-auto">
@@ -104,3 +110,4 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
     );
 }
+

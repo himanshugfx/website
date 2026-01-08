@@ -54,6 +54,7 @@ model Product {
   priority        Int         @default(0)
   variations      Variation[]
   items           OrderItem[]
+  reviews         ProductReview[]
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 }
@@ -284,3 +285,29 @@ model PageView {
   @@index([sessionId])
 }
 
+// Newsletter Subscribers
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  isActive     Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+}
+
+// Product Reviews
+model ProductReview {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerEmail String?
+  rating        Int      // 1-5
+  title         String?
+  comment       String
+  isVerified    Boolean  @default(false) // Verified purchase
+  isApproved    Boolean  @default(false) // Admin approval
+  createdAt     DateTime @default(now())
+
+  @@index([productId])
+  @@index([isApproved])
+}
