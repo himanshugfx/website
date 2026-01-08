@@ -1,12 +1,10 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
 export const authOptions: AuthOptions = {
-    adapter: PrismaAdapter(prisma),
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -65,18 +63,48 @@ export const authOptions: AuthOptions = {
         error: '/login',
     },
     callbacks: {
+        async signIn({ user, account }) {
+            // For Google sign-in, check if user exists or create them
+            if (account?.provider === "google" && user.email) {
+                try {
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email: user.email },
+                    });
+
+                    if (!existingUser) {
+                        // Create new user for Google sign-in
+                        await prisma.user.create({
+                            data: {
+                                email: user.email,
+                                name: user.name || user.email.split('@')[0],
+                                role: "USER",
+                                // No password for Google users
+                            },
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error in signIn callback:", error);
+                    return false;
+                }
+            }
+            return true;
+        },
         async jwt({ token, user, trigger, session, account }) {
             // Initial sign in
             if (user) {
                 token.id = user.id;
-                // For Google sign-in, fetch role from database
-                if (account?.provider === "google") {
+
+                // For Google sign-in, fetch the actual user from database
+                if (account?.provider === "google" && user.email) {
                     const dbUser = await prisma.user.findUnique({
-                        where: { email: user.email! },
-                        select: { role: true, id: true }
+                        where: { email: user.email },
+                        select: { id: true, role: true, name: true }
                     });
-                    token.role = dbUser?.role || "USER";
-                    token.id = dbUser?.id || user.id;
+                    if (dbUser) {
+                        token.id = dbUser.id;
+                        token.role = dbUser.role;
+                        token.name = dbUser.name;
+                    }
                 } else {
                     token.role = (user as any).role;
                 }
