@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Mail, Phone, Building2, Calendar, DollarSign, Tag, MessageSquare, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Building2, Calendar, IndianRupee, Tag, MessageSquare, Check, Loader2, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Stage {
@@ -40,11 +41,14 @@ interface LeadDetailClientProps {
 }
 
 export default function LeadDetailClient({ initialLead, stages }: LeadDetailClientProps) {
+    const router = useRouter();
     const [lead, setLead] = useState<Lead>(initialLead);
     const [selectedStageId, setSelectedStageId] = useState(initialLead.stageId);
     const [value, setValue] = useState(initialLead.value?.toString() || '');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleStageChange = async (newStageId: string) => {
         setSelectedStageId(newStageId);
@@ -95,6 +99,28 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
         }
     };
 
+    const handleDelete = async () => {
+        setDeleting(true);
+        try {
+            const res = await fetch(`/api/admin/leads/${lead.id}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                router.push('/admin/funnel/leads');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete lead');
+            }
+        } catch (error) {
+            console.error('Error deleting lead:', error);
+            alert('Failed to delete lead');
+        } finally {
+            setDeleting(false);
+            setShowDeleteConfirm(false);
+        }
+    };
+
     return (
         <AdminLayout>
             <div className="max-w-4xl mx-auto space-y-6">
@@ -120,12 +146,21 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                             <p className="text-sm text-gray-500 mt-1">Added on {new Date(lead.createdAt).toLocaleDateString()}</p>
                         </div>
                     </div>
-                    {saved && (
-                        <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
-                            <Check className="w-4 h-4" />
-                            Saved
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {saved && (
+                            <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                                <Check className="w-4 h-4" />
+                                Saved
+                            </div>
+                        )}
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -210,7 +245,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                     <label className="text-xs text-gray-500 mb-2 block">Lead Value (₹)</label>
                                     <div className="flex gap-2">
                                         <div className="relative flex-1">
-                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                             <input
                                                 type="number"
                                                 value={value}
@@ -265,6 +300,53 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                     </div>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setShowDeleteConfirm(false)}
+                    />
+                    <div className="relative bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                <Trash2 className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Delete Lead</h3>
+                                <p className="text-sm text-gray-500">This action cannot be undone</p>
+                            </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-6">
+                            Are you sure you want to delete <strong>{lead.name}</strong>? All associated activities will also be deleted.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={deleting}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+                            >
+                                {deleting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete Lead'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }

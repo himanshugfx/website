@@ -14,8 +14,42 @@ const defaultStages = [
 ];
 
 async function ensureStagesExist() {
-    const existingStages = await prisma.funnelStage.count();
-    if (existingStages === 0) {
+    // Get all existing stages
+    const existingStages = await prisma.funnelStage.findMany({
+        orderBy: { order: 'asc' },
+    });
+
+    // Check for and clean up duplicates
+    const stagesByName = new Map<string, typeof existingStages>();
+    for (const stage of existingStages) {
+        if (!stagesByName.has(stage.name)) {
+            stagesByName.set(stage.name, []);
+        }
+        stagesByName.get(stage.name)!.push(stage);
+    }
+
+    // Remove duplicate stages (keep the one with lowest order, merge leads)
+    for (const [name, stages] of stagesByName.entries()) {
+        if (stages.length > 1) {
+            console.log(`Found ${stages.length} duplicate "${name}" stages, cleaning up...`);
+            const [keep, ...remove] = stages.sort((a, b) => a.order - b.order);
+
+            for (const duplicate of remove) {
+                // Move leads to the primary stage
+                await prisma.lead.updateMany({
+                    where: { stageId: duplicate.id },
+                    data: { stageId: keep.id },
+                });
+                // Delete the duplicate
+                await prisma.funnelStage.delete({
+                    where: { id: duplicate.id },
+                });
+            }
+        }
+    }
+
+    // Create any missing default stages
+    if (existingStages.length === 0) {
         for (const stage of defaultStages) {
             await prisma.funnelStage.create({
                 data: stage,

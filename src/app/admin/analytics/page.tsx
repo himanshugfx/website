@@ -2,7 +2,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import {
     TrendingUp,
     TrendingDown,
-    DollarSign,
+    IndianRupee,
     ShoppingBag,
     Users,
     Target,
@@ -325,7 +325,7 @@ export default async function AnalyticsPage() {
                         title="Total Revenue"
                         value={`₹${data.revenue.current.toLocaleString()}`}
                         growth={data.revenue.growth}
-                        icon={<DollarSign className="w-6 h-6" />}
+                        icon={<IndianRupee className="w-6 h-6" />}
                         color="emerald"
                         subtitle={`Website: ₹${data.revenue.website.toLocaleString()} | Zoho: ₹${data.revenue.zoho.toLocaleString()}`}
                     />

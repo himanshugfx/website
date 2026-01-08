@@ -83,3 +83,46 @@ export async function GET(
         );
     }
 }
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        await requireAdmin();
+        const { id } = await params;
+
+        // Check if lead exists
+        const existingLead = await prisma.lead.findUnique({
+            where: { id },
+        });
+
+        if (!existingLead) {
+            return NextResponse.json(
+                { error: 'Lead not found' },
+                { status: 404 }
+            );
+        }
+
+        // Delete associated activities first
+        await prisma.leadActivity.deleteMany({
+            where: { leadId: id },
+        });
+
+        // Delete the lead
+        await prisma.lead.delete({
+            where: { id },
+        });
+
+        revalidatePath('/admin/funnel');
+        revalidatePath('/admin/funnel/leads');
+
+        return NextResponse.json({ success: true, message: 'Lead deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting lead:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete lead' },
+            { status: 500 }
+        );
+    }
+}
