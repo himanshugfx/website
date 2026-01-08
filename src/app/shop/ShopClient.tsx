@@ -73,17 +73,26 @@ export default function ShopClient({ initialProducts, categories, types, brands 
     return (
         <main>
             <div className="breadcrumb-block style-img">
-                <div className="breadcrumb-main bg-linear overflow-hidden">
+                <div
+                    className="breadcrumb-main overflow-hidden relative"
+                    style={{
+                        backgroundImage: 'url(/assets/images/banner/shop.png)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}
+                >
+                    {/* Overlay for better text readability */}
+                    <div className="absolute inset-0 bg-black/30" />
                     <div className="container mx-auto lg:pt-[134px] pt-24 pb-10 relative">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center relative z-[1]">
                             <div className="text-content">
-                                <div className="heading2 text-center">Shop</div>
-                                <div className="link flex items-center justify-center gap-1 caption1 mt-3">
-                                    <Link href="/">Homepage</Link>
-                                    <svg className="w-3 h-3 text-secondary2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="heading2 text-center text-white">Shop</div>
+                                <div className="link flex items-center justify-center gap-1 caption1 mt-3 text-white/90">
+                                    <Link href="/" className="hover:text-white">Homepage</Link>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
-                                    <div className="text-secondary2 capitalize">Shop</div>
+                                    <div className="capitalize">Shop</div>
                                 </div>
                             </div>
                             <div className="filter-type menu-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
@@ -92,8 +101,8 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                                         key={cat}
                                         type="button"
                                         className={`item tab-item text-button-uppercase cursor-pointer has-line-before line-2px transition-colors duration-300 ${selectedCategory === cat
-                                            ? 'text-purple-600 font-semibold'
-                                            : 'text-black hover:text-purple-600'
+                                            ? 'text-purple-300 font-semibold'
+                                            : 'text-white hover:text-purple-300'
                                             }`}
                                         onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
                                     >
