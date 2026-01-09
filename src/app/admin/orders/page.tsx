@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Eye, ShoppingCart, Filter, Search, MoreHorizontal, Download } from 'lucide-react';
+import { Eye, ShoppingCart, Filter, Search, MoreHorizontal, Download, Truck, RefreshCw } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -12,6 +12,11 @@ interface Order {
     total: number;
     status: string;
     createdAt: string;
+    awbNumber?: string | null;
+    paymentStatus: string;
+    paymentMethod: string;
+    customerName?: string | null;
+    customerEmail?: string | null;
     user: {
         name: string | null;
         email: string | null;
@@ -68,6 +73,35 @@ export default function OrdersPage() {
         } catch (error) {
             console.error('Error updating order:', error);
             alert('Failed to update order status');
+        }
+    };
+
+    const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);
+
+    const shipWithRapidShyp = async (orderId: string) => {
+        if (!confirm('Create shipment with RapidShyp for this order?')) return;
+
+        try {
+            setShippingOrderId(orderId);
+            const res = await fetch('/api/admin/orders/ship', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                alert(`Shipment created with RapidShyp! AWB: ${data.awbNumber}`);
+                fetchOrders();
+            } else {
+                alert(data.error || 'Failed to create shipment');
+            }
+        } catch (error) {
+            console.error('RapidShyp shipping error:', error);
+            alert('Failed to create shipment');
+        } finally {
+            setShippingOrderId(null);
         }
     };
 
@@ -216,10 +250,27 @@ export default function OrdersPage() {
                                                     year: 'numeric'
                                                 })}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                                {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
+                                                    order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
+                                                ) && (
+                                                        <button
+                                                            onClick={() => shipWithRapidShyp(order.id)}
+                                                            disabled={shippingOrderId === order.id}
+                                                            className="inline-flex items-center justify-center p-2 bg-blue-600 text-white rounded-lg transition-all hover:bg-blue-700 disabled:opacity-50"
+                                                            title="Ship with RapidShyp"
+                                                        >
+                                                            {shippingOrderId === order.id ? (
+                                                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                                            ) : (
+                                                                <Truck className="w-5 h-5" />
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}
-                                                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all"
+                                                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all hover:bg-purple-700"
+                                                    title="View Details"
                                                 >
                                                     <Eye className="w-5 h-5" />
                                                 </Link>

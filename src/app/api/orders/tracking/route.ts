@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { trackDelhiveryShipment } from '@/lib/delhivery';
+import { trackRapidShypShipment, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 
 // Public tracking endpoint for customers
 export async function GET(request: Request) {
@@ -36,8 +36,8 @@ export async function GET(request: Request) {
             });
         }
 
-        // Get tracking from Delhivery
-        const tracking = await trackDelhiveryShipment(awbNumber);
+        // Get tracking from RapidShyp
+        const tracking = await trackRapidShypShipment(awbNumber);
 
         if (!tracking.success) {
             // Return cached data from order
@@ -45,8 +45,8 @@ export async function GET(request: Request) {
                 success: true,
                 shipped: true,
                 awbNumber,
-                status: order?.delhiveryStatus || 'Unknown',
-                trackingUrl: order?.trackingUrl || `https://www.delhivery.com/track/package/${awbNumber}`,
+                status: order?.shippingStatus || 'Unknown',
+                trackingUrl: order?.trackingUrl || getRapidShypTrackingUrl(awbNumber),
                 shippedAt: order?.shippedAt,
                 estimatedDelivery: order?.estimatedDelivery,
                 deliveredAt: order?.deliveredAt,
@@ -59,12 +59,10 @@ export async function GET(request: Request) {
             shipped: true,
             awbNumber,
             status: tracking.status,
-            statusDateTime: tracking.statusDateTime,
             location: tracking.location,
             expectedDelivery: tracking.expectedDelivery,
-            deliveredAt: tracking.deliveredAt,
             scans: tracking.scans?.slice(0, 20), // Limit scan history
-            trackingUrl: `https://www.delhivery.com/track/package/${awbNumber}`,
+            trackingUrl: getRapidShypTrackingUrl(awbNumber),
         });
     } catch (error) {
         console.error('Public tracking error:', error);

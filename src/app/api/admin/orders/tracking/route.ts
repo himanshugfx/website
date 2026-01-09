@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { trackDelhiveryShipment, mapDelhiveryStatus } from '@/lib/delhivery';
+import { trackRapidShypShipment, mapRapidShypStatus, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 
 // GET - Fetch tracking info for an order
 export async function GET(request: Request) {
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
                     id: true,
                     orderNumber: true,
                     awbNumber: true,
-                    delhiveryStatus: true,
+                    shippingStatus: true,
                     shippedAt: true,
                     deliveredAt: true,
                     estimatedDelivery: true,
@@ -46,8 +46,8 @@ export async function GET(request: Request) {
             }, { status: 200 });
         }
 
-        // Get real-time tracking from Delhivery
-        const trackingResult = await trackDelhiveryShipment(awb);
+        // Get real-time tracking from RapidShyp
+        const trackingResult = await trackRapidShypShipment(awb);
 
         if (!trackingResult.success) {
             // Return cached data if API fails
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
                 success: true,
                 shipped: true,
                 awbNumber: awb,
-                status: order?.delhiveryStatus || 'Unknown',
+                status: order?.shippingStatus || 'Unknown',
                 trackingUrl: order?.trackingUrl,
                 shippedAt: order?.shippedAt,
                 deliveredAt: order?.deliveredAt,
@@ -68,19 +68,19 @@ export async function GET(request: Request) {
 
         // Update order with latest tracking data
         if (orderId) {
-            const isDelivered = trackingResult.status === 'Delivered';
-            const newStatus = mapDelhiveryStatus(trackingResult.status || '');
+            const isDelivered = trackingResult.status?.toUpperCase() === 'DELIVERED';
+            const newStatus = mapRapidShypStatus(trackingResult.status || '');
 
             await prisma.order.update({
                 where: { id: orderId },
                 data: {
-                    delhiveryStatus: trackingResult.status,
+                    shippingStatus: trackingResult.status,
                     status: newStatus,
                     estimatedDelivery: trackingResult.expectedDelivery
                         ? new Date(trackingResult.expectedDelivery)
                         : undefined,
-                    deliveredAt: isDelivered && trackingResult.deliveredAt
-                        ? new Date(trackingResult.deliveredAt)
+                    deliveredAt: isDelivered
+                        ? new Date()
                         : undefined,
                     lastTrackingSync: new Date(),
                 },
@@ -92,12 +92,10 @@ export async function GET(request: Request) {
             shipped: true,
             awbNumber: awb,
             status: trackingResult.status,
-            statusDateTime: trackingResult.statusDateTime,
             location: trackingResult.location,
             expectedDelivery: trackingResult.expectedDelivery,
-            deliveredAt: trackingResult.deliveredAt,
             scans: trackingResult.scans,
-            trackingUrl: order?.trackingUrl || `https://www.delhivery.com/track/package/${awb}`,
+            trackingUrl: order?.trackingUrl || getRapidShypTrackingUrl(awb),
             lastSync: new Date().toISOString(),
         });
     } catch (error) {
@@ -117,6 +115,7 @@ export async function POST(request: Request) {
                 where: {
                     awbNumber: { not: null },
                     status: { notIn: ['DELIVERED', 'CANCELLED', 'RTO_DELIVERED'] },
+                    shippingProvider: 'RAPIDSHYP'
                 },
                 select: {
                     id: true,
@@ -129,22 +128,22 @@ export async function POST(request: Request) {
             for (const order of ordersToSync) {
                 if (!order.awbNumber) continue;
 
-                const trackingResult = await trackDelhiveryShipment(order.awbNumber);
+                const trackingResult = await trackRapidShypShipment(order.awbNumber);
 
                 if (trackingResult.success && trackingResult.status) {
-                    const isDelivered = trackingResult.status === 'Delivered';
-                    const newStatus = mapDelhiveryStatus(trackingResult.status);
+                    const isDelivered = trackingResult.status?.toUpperCase() === 'DELIVERED';
+                    const newStatus = mapRapidShypStatus(trackingResult.status);
 
                     await prisma.order.update({
                         where: { id: order.id },
                         data: {
-                            delhiveryStatus: trackingResult.status,
+                            shippingStatus: trackingResult.status,
                             status: newStatus,
                             estimatedDelivery: trackingResult.expectedDelivery
                                 ? new Date(trackingResult.expectedDelivery)
                                 : undefined,
-                            deliveredAt: isDelivered && trackingResult.deliveredAt
-                                ? new Date(trackingResult.deliveredAt)
+                            deliveredAt: isDelivered
+                                ? new Date()
                                 : undefined,
                             lastTrackingSync: new Date(),
                         },

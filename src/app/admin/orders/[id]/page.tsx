@@ -22,13 +22,13 @@ interface OrderDetails {
     promoCode: string | null;
     address: string | null;
     createdAt: string;
-    // Delhivery fields (optional for backward compatibility)
     awbNumber?: string | null;
-    delhiveryStatus?: string | null;
+    shippingStatus?: string | null;
     shippedAt?: string | null;
     deliveredAt?: string | null;
     estimatedDelivery?: string | null;
     trackingUrl?: string | null;
+    shippingProvider?: string | null;
     user: {
         name: string | null;
         email: string | null;
@@ -120,9 +120,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         }
     };
 
-    const shipWithDelhivery = async () => {
+    const shipWithRapidShyp = async () => {
         if (!order) return;
-        if (!confirm('Create shipment with Delhivery for this order?')) return;
+        if (!confirm('Create shipment with RapidShyp for this order?')) return;
 
         try {
             setShipping(true);
@@ -135,14 +135,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             const data = await res.json();
 
             if (res.ok && data.success) {
-                alert(`Shipment created! AWB: ${data.awbNumber}`);
+                alert(`Shipment created with RapidShyp! AWB: ${data.awbNumber}`);
                 fetchOrder();
                 fetchTracking();
             } else {
                 alert(data.error || 'Failed to create shipment');
             }
         } catch (error) {
-            console.error('Shipping error:', error);
+            console.error('RapidShyp shipping error:', error);
             alert('Failed to create shipment');
         } finally {
             setShipping(false);
@@ -248,21 +248,21 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Ship with Delhivery button - only show if not yet shipped */}
+                        {/* Ship with RapidShyp button - only show if not yet shipped */}
                         {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
                             order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
                         ) && (
                                 <button
-                                    onClick={shipWithDelhivery}
+                                    onClick={shipWithRapidShyp}
                                     disabled={shipping}
-                                    className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {shipping ? (
                                         <RefreshCw className="w-4 h-4 animate-spin" />
                                     ) : (
                                         <Truck className="w-4 h-4" />
                                     )}
-                                    Ship with Delhivery
+                                    Ship with RapidShyp
                                 </button>
                             )}
                         {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && order.status !== 'DELIVERED' && (
@@ -376,12 +376,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             </div>
                         </div>
 
-                        {/* Delhivery Tracking Info */}
+                        {/* Shipment Tracking Info */}
                         {order.awbNumber && (
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                        <Truck className="w-5 h-5 text-orange-500" />
+                                        <Truck className="w-5 h-5 text-blue-600" />
                                         Shipment Tracking
                                     </h2>
                                     <button
@@ -397,10 +397,10 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-gray-500">AWB Number</span>
                                         <a
-                                            href={order.trackingUrl || `https://www.delhivery.com/track/package/${order.awbNumber}`}
+                                            href={order.trackingUrl || `https://www.rapidshyp.com/tracking?awb=${order.awbNumber}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-sm font-mono font-bold text-purple-600 hover:underline flex items-center gap-1"
+                                            className="text-sm font-mono font-bold text-blue-600 hover:underline flex items-center gap-1"
                                         >
                                             {order.awbNumber}
                                             <ExternalLink className="w-3 h-3" />

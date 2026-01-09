@@ -89,6 +89,10 @@ export async function GET(request: Request) {
                     paymentStatus: true,
                     paymentMethod: true,
                     createdAt: true,
+                    awbNumber: true,
+                    shippingStatus: true,
+                    shippingProvider: true,
+                    weight: true,
                     user: {
                         select: {
                             name: true,

@@ -31,13 +31,13 @@ interface Order {
     returnReason: string | null;
     items: OrderItem[];
     createdAt: string;
-    // Delhivery tracking fields (optional for backward compatibility)
     awbNumber?: string | null;
-    delhiveryStatus?: string | null;
+    shippingStatus?: string | null;
     shippedAt?: string | null;
     deliveredAt?: string | null;
     estimatedDelivery?: string | null;
     trackingUrl?: string | null;
+    shippingProvider?: string | null;
 }
 
 export default function MyAccountClient({ user }: MyAccountClientProps) {
@@ -357,21 +357,21 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                     ))}
                                                 </div>
 
-                                                {/* Delhivery Tracking Section */}
+                                                {/* Shipping Tracking Section */}
                                                 {order.awbNumber && (
-                                                    <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-100">
+                                                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                                                         <div className="flex items-center justify-between mb-3">
                                                             <h6 className="font-bold text-zinc-900 flex items-center gap-2">
-                                                                <i className="ph ph-truck text-orange-500"></i>
+                                                                <i className="ph ph-truck text-blue-600"></i>
                                                                 Shipment Tracking
                                                             </h6>
                                                             <a
-                                                                href={order.trackingUrl || `https://www.delhivery.com/track/package/${order.awbNumber}`}
+                                                                href={order.trackingUrl || `https://www.rapidshyp.com/tracking?awb=${order.awbNumber}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-xs font-bold text-purple-600 hover:underline flex items-center gap-1"
+                                                                className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
                                                             >
-                                                                Track on Delhivery
+                                                                Track Shipment
                                                                 <i className="ph ph-arrow-square-out text-sm"></i>
                                                             </a>
                                                         </div>
@@ -382,11 +382,11 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             </div>
                                                             <div>
                                                                 <p className="text-zinc-500 text-xs">Status</p>
-                                                                <p className={`font-bold ${order.delhiveryStatus === 'Delivered' ? 'text-green-600' :
-                                                                    order.delhiveryStatus === 'Out For Delivery' ? 'text-indigo-600' :
+                                                                <p className={`font-bold ${order.shippingStatus === 'Delivered' ? 'text-green-600' :
+                                                                    order.shippingStatus === 'Out For Delivery' ? 'text-indigo-600' :
                                                                         'text-blue-600'
                                                                     }`}>
-                                                                    {order.delhiveryStatus || 'Processing'}
+                                                                    {order.shippingStatus || 'Processing'}
                                                                 </p>
                                                             </div>
                                                             {order.estimatedDelivery && (

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { createDelhiveryShipment, getTrackingUrl } from '@/lib/delhivery';
+import { createRapidShypOrder, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
                 items: {
                     include: {
                         product: {
-                            select: { name: true },
+                            select: { name: true, price: true },
                         },
                     },
                 },
@@ -51,21 +51,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid address format' }, { status: 400 });
         }
 
-        // Create shipment with Delhivery
-        const result = await createDelhiveryShipment({
-            orderId: order.id,
+        // Create shipment with RapidShyp
+        const result = await createRapidShypOrder({
             orderNumber: order.orderNumber,
             customerName: addressData.firstName + ' ' + (addressData.lastName || ''),
+            customerEmail: addressData.email || order.customerEmail || '',
             customerPhone: addressData.phone || order.customerPhone || '',
-            address: addressData.address || '',
+            address: `${addressData.address || ''}, ${addressData.city || ''}, ${addressData.state || ''}`,
             city: addressData.city || '',
             state: addressData.state || '',
             pincode: addressData.postalCode || '',
             paymentMethod: order.paymentMethod,
             total: order.total,
+            weight: (order as any).weight || 0.5,
             products: order.items.map(item => ({
                 name: item.product.name,
                 quantity: item.quantity,
+                price: item.product.price,
             })),
         });
 
@@ -80,10 +82,11 @@ export async function POST(request: Request) {
             where: { id: orderId },
             data: {
                 awbNumber: result.awbNumber,
-                delhiveryStatus: 'Manifested',
+                shippingStatus: 'MANIFESTED',
+                shippingProvider: 'RAPIDSHYP',
                 status: 'PROCESSING',
                 shippedAt: new Date(),
-                trackingUrl: result.awbNumber ? getTrackingUrl(result.awbNumber) : null,
+                trackingUrl: result.awbNumber ? getRapidShypTrackingUrl(result.awbNumber) : null,
                 lastTrackingSync: new Date(),
             },
         });
@@ -92,10 +95,10 @@ export async function POST(request: Request) {
             success: true,
             awbNumber: result.awbNumber,
             trackingUrl: updatedOrder.trackingUrl,
-            message: 'Shipment created successfully',
+            message: 'Shipment created successfully on RapidShyp',
         });
     } catch (error) {
-        console.error('Delhivery ship error:', error);
+        console.error('RapidShyp ship error:', error);
         return NextResponse.json({ error: 'Failed to create shipment' }, { status: 500 });
     }
 }

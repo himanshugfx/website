@@ -90,15 +90,17 @@ model Order {
   returnRequest String?   // PENDING, APPROVED, REJECTED
   cancelReason  String?
   returnReason  String?
-  // Delhivery Shipping Fields
-  awbNumber       String?   // Air Waybill Number (Delhivery tracking ID)
-  delhiveryStatus String?   // Status from Delhivery API (In Transit, Delivered, etc.)
-  shippedAt       DateTime? // When shipped with Delhivery
-  deliveredAt     DateTime? // When delivered
-  estimatedDelivery DateTime? // EDD from Delhivery
-  trackingUrl     String?   // Direct tracking URL
-  lastTrackingSync DateTime? // Last time we synced tracking data
-  whatsappAlertSent Boolean  @default(false) // Track if abandoned cart WhatsApp was sent
+  // Shipping Fields (Generic)
+  shippingProvider String?   @default("RAPIDSHYP")
+  awbNumber       String?   // Tracking ID
+  shippingStatus  String?   // Shipping status from provider
+  weight          Float?    @default(0.5) // KG
+  shippedAt       DateTime? 
+  deliveredAt     DateTime? 
+  estimatedDelivery DateTime? 
+  trackingUrl     String?   
+  lastTrackingSync DateTime? 
+  whatsappAlertSent Boolean  @default(false) 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }

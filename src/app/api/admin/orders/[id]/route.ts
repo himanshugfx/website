@@ -34,6 +34,15 @@ export async function GET(
                 returnReason: true,
                 createdAt: true,
                 updatedAt: true,
+                awbNumber: true,
+                shippingStatus: true,
+                shippingProvider: true,
+                weight: true,
+                shippedAt: true,
+                deliveredAt: true,
+                estimatedDelivery: true,
+                trackingUrl: true,
+                lastTrackingSync: true,
                 user: {
                     select: {
                         name: true,

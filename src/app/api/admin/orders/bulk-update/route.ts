@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         }
 
         // Use updateMany for efficient bulk update - only update status field
-        // Don't touch Delhivery fields since they might not exist in DB yet
+        // This will update generic status fields
         const result = await prisma.order.updateMany({
             where: {
                 // Update all orders that are not already DELIVERED or CANCELLED
