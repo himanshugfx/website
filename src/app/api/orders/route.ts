@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { emailService } from '@/lib/email';
 
 interface CartItem {
     id: string;
     quantity: number;
     price: number;
+    name?: string;
 }
 
 export async function POST(request: Request) {
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // Create order in database
+        // Create order in database with items included for email
         const order = await prisma.order.create({
             data: {
                 userId: userId || null,
@@ -40,6 +42,17 @@ export async function POST(request: Request) {
                     })),
                 },
             },
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         // Update product quantities
@@ -53,6 +66,18 @@ export async function POST(request: Request) {
                 },
             });
         }
+
+        // Send order notification email (fire-and-forget, don't block response)
+        emailService.sendOrderNotification({
+            orderId: order.id,
+            orderNumber: order.orderNumber,
+            items: order.items,
+            total: order.total,
+            shippingFee: order.shippingFee || 0,
+            discountAmount: order.discountAmount || 0,
+            paymentMethod: order.paymentMethod || 'ONLINE',
+            shippingInfo: shippingInfo || null,
+        }).catch(err => console.error('Failed to send order notification:', err));
 
         return NextResponse.json({
             success: true,

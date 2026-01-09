@@ -1,0 +1,172 @@
+/**
+ * Email Service
+ * Handles sending email notifications via SMTP
+ */
+
+import nodemailer from 'nodemailer';
+
+interface OrderItem {
+    quantity: number;
+    price: number;
+    product: {
+        name: string;
+    };
+}
+
+interface ShippingInfo {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+}
+
+interface OrderDetails {
+    orderId: string;
+    orderNumber: number;
+    items: OrderItem[];
+    total: number;
+    shippingFee: number;
+    discountAmount: number;
+    paymentMethod: string;
+    shippingInfo: ShippingInfo | null;
+}
+
+class EmailService {
+    private transporter: nodemailer.Transporter | null = null;
+    private adminEmail: string = 'anosebeauty@gmail.com';
+
+    constructor() {
+        if (this.isConfigured()) {
+            this.transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST,
+                port: Number(process.env.SMTP_PORT) || 587,
+                secure: process.env.SMTP_SECURE === 'true',
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS,
+                },
+            });
+        }
+    }
+
+    /**
+     * Check if email is configured
+     */
+    isConfigured(): boolean {
+        return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    }
+
+    /**
+     * Send new order notification to admin
+     */
+    async sendOrderNotification(order: OrderDetails): Promise<{ success: boolean; error?: string }> {
+        if (!this.transporter || !this.isConfigured()) {
+            console.warn('Email service not configured, skipping order notification');
+            return { success: false, error: 'Email service not configured' };
+        }
+
+        const shippingInfo = order.shippingInfo;
+        const customerName = shippingInfo
+            ? `${shippingInfo.firstName} ${shippingInfo.lastName}`
+            : 'Guest Customer';
+
+        const itemsList = order.items
+            .map(item => `
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.product.name}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${item.price.toFixed(2)}</td>
+                </tr>
+            `)
+            .join('');
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; text-align: center;">🛒 New Order Received!</h1>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+                    <h2 style="color: #9333ea; margin-top: 0;">Order #${order.orderNumber}</h2>
+                    <p style="color: #666;">Order ID: ${order.orderId}</p>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3 style="color: #333; margin-top: 0;">👤 Customer Details</h3>
+                        <p><strong>Name:</strong> ${customerName}</p>
+                        ${shippingInfo ? `
+                            <p><strong>Email:</strong> ${shippingInfo.email}</p>
+                            <p><strong>Phone:</strong> ${shippingInfo.phone}</p>
+                            <p><strong>Address:</strong> ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} - ${shippingInfo.pincode}</p>
+                        ` : ''}
+                        <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3 style="color: #333; margin-top: 0;">📦 Order Items</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    <th style="padding: 10px; text-align: left;">Product</th>
+                                    <th style="padding: 10px; text-align: center;">Qty</th>
+                                    <th style="padding: 10px; text-align: right;">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsList}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="background: #9333ea; color: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Subtotal:</span>
+                            <span>₹${(order.total - order.shippingFee + order.discountAmount).toFixed(2)}</span>
+                        </div>
+                        ${order.discountAmount > 0 ? `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Discount:</span>
+                                <span>-₹${order.discountAmount.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Shipping:</span>
+                            <span>₹${order.shippingFee.toFixed(2)}</span>
+                        </div>
+                        <hr style="border-color: rgba(255,255,255,0.3); margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold;">
+                            <span>Total:</span>
+                            <span>₹${order.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #1f2937; color: #9ca3af; padding: 15px; border-radius: 0 0 10px 10px; text-align: center;">
+                    <p style="margin: 0;">Anose Beauty - Order Notification</p>
+                </div>
+            </div>
+        `;
+
+        try {
+            await this.transporter.sendMail({
+                from: `"Anose Beauty Orders" <${process.env.SMTP_USER}>`,
+                to: this.adminEmail,
+                subject: `🛒 New Order #${order.orderNumber} - ₹${order.total.toFixed(2)}`,
+                html: htmlContent,
+            });
+
+            console.log(`Order notification email sent for order #${order.orderNumber}`);
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to send order notification email:', error);
+            return { success: false, error: String(error) };
+        }
+    }
+}
+
+// Export singleton instance
+export const emailService = new EmailService();
+export default emailService;
