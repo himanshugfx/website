@@ -311,3 +311,18 @@ model ProductReview {
   @@index([productId])
   @@index([isApproved])
 }
+
+model AbandonedCheckout {
+  id            String   @id @default(cuid())
+  userId        String?
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  shippingInfo  String?  @db.Text // Store as JSON string
+  cartItems     String?  @db.Text // Store as JSON string
+  total         Float?
+  status        String   @default("ABANDONED") // ABANDONED, RECOVERED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
