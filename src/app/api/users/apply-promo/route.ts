@@ -31,14 +31,21 @@ export async function POST(req: Request) {
         }
 
         // 5. Usage limit check
-        if (promoCode.usageLimit && promoCode.usedCount >= promoCode.usageLimit) {
+        const actualUsedCount = await prisma.order.count({
+            where: {
+                promoCode: promoCode.code,
+                paymentStatus: 'SUCCESSFUL' // Only count successful or COD orders that are confirmed
+            }
+        });
+
+        if (promoCode.usageLimit && actualUsedCount >= promoCode.usageLimit) {
             return NextResponse.json({ error: 'Promo code usage limit reached' }, { status: 400 });
         }
 
         // 6. Minimum order value check
         if (promoCode.minOrderValue && cartTotal < promoCode.minOrderValue) {
             return NextResponse.json({
-                error: `Minimum order value of $${promoCode.minOrderValue} required`
+                error: `Minimum order value of ₹${promoCode.minOrderValue} required`
             }, { status: 400 });
         }
 

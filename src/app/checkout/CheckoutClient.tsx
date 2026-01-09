@@ -556,7 +556,7 @@ export default function CheckoutClient() {
                     </div>
 
                     <div className="lg:w-1/3 w-full">
-                        <div className="order-summary bg-gradient-to-br from-purple-50 to-white p-8 rounded-2xl sticky top-24 border border-purple-100">
+                        <div className="order-summary bg-gradient-to-br from-purple-50 to-white md:p-8 p-5 rounded-2xl sticky top-24 border border-purple-100">
                             <div className="heading5 border-b border-purple-100 pb-4 mb-6">Your Order</div>
                             <div className="list-product flex flex-col gap-5">
                                 {cart.map((item) => (
@@ -586,7 +586,7 @@ export default function CheckoutClient() {
                                         value={promoCodeInput}
                                         onChange={(e) => setPromoCodeInput(e.target.value)}
                                         placeholder="Enter promo code"
-                                        className="flex-1 border border-line px-4 py-2 rounded-lg focus:outline-none focus:border-purple-500 uppercase"
+                                        className="flex-1 min-w-0 border border-line px-4 py-2 rounded-lg focus:outline-none focus:border-purple-500 uppercase"
                                         disabled={!!appliedPromo}
                                     />
                                     {appliedPromo ? (
@@ -596,7 +596,7 @@ export default function CheckoutClient() {
                                                 setPromoCodeInput('');
                                                 setError('');
                                             }}
-                                            className="bg-black text-white px-4 py-2 rounded-lg font-medium"
+                                            className="bg-black text-white sm:px-4 px-3 py-2 rounded-lg font-medium"
                                         >
                                             Remove
                                         </button>
@@ -604,7 +604,7 @@ export default function CheckoutClient() {
                                         <button
                                             onClick={handleApplyPromo}
                                             disabled={applyingPromo || !promoCodeInput}
-                                            className="bg-black text-white px-6 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
+                                            className="bg-black text-white sm:px-6 px-4 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
                                         >
                                             {applyingPromo ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                                         </button>
