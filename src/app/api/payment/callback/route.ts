@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { finalizeOrder } from '@/lib/order';
+import { emailService } from '@/lib/email';
 
 
 const PHONEPE_STATUS_URL = process.env.PHONEPE_ENV === 'PROD'
@@ -26,7 +27,29 @@ export async function GET(request: Request) {
 
         // If PhonePe not configured, just mark order as processing and redirect to success
         if (!merchantId || !saltKey || merchantId === 'your_merchant_id') {
-            await finalizeOrder(orderId);
+            const orderNumber = await finalizeOrder(orderId);
+
+            // Send email notification after successful finalization
+            if (orderNumber) {
+                const order = await prisma.order.findUnique({
+                    where: { id: orderId },
+                    include: { items: { include: { product: { select: { name: true } } } } }
+                });
+                if (order) {
+                    const shippingInfo = order.address ? JSON.parse(order.address) : null;
+                    emailService.sendOrderNotification({
+                        orderId: order.id,
+                        orderNumber,
+                        items: order.items,
+                        total: order.total,
+                        shippingFee: order.shippingFee || 0,
+                        discountAmount: order.discountAmount || 0,
+                        paymentMethod: order.paymentMethod || 'ONLINE',
+                        shippingInfo,
+                    }).catch(err => console.error('Failed to send order notification:', err));
+                }
+            }
+
             return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, baseUrl));
         }
 
@@ -59,8 +82,28 @@ export async function GET(request: Request) {
 
         if (data.success && data.code === 'PAYMENT_SUCCESS') {
             // Update order status and stock
-            await finalizeOrder(orderId);
+            const orderNumber = await finalizeOrder(orderId);
 
+            // Send email notification after successful payment
+            if (orderNumber) {
+                const order = await prisma.order.findUnique({
+                    where: { id: orderId },
+                    include: { items: { include: { product: { select: { name: true } } } } }
+                });
+                if (order) {
+                    const shippingInfo = order.address ? JSON.parse(order.address) : null;
+                    emailService.sendOrderNotification({
+                        orderId: order.id,
+                        orderNumber,
+                        items: order.items,
+                        total: order.total,
+                        shippingFee: order.shippingFee || 0,
+                        discountAmount: order.discountAmount || 0,
+                        paymentMethod: order.paymentMethod || 'ONLINE',
+                        shippingInfo,
+                    }).catch(err => console.error('Failed to send order notification:', err));
+                }
+            }
 
             // Redirect to success page
             return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, baseUrl));

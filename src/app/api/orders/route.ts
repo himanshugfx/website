@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { emailService } from '@/lib/email';
+import { assignOrderNumber, incrementPromoCodeUsage } from '@/lib/order';
 
 interface CartItem {
     id: string;
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // Create order in database with items included for email
+        // Create order in database (without order number - will be assigned on confirmation)
         const order = await prisma.order.create({
             data: {
                 userId: userId || null,
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
                 shippingFee: shippingFee || 0,
                 discountAmount: discountAmount || 0,
                 promoCode: promoCode || null,
-                status: 'PENDING',
+                status: paymentMethod === 'COD' ? 'PROCESSING' : 'PENDING',
                 paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'SUCCESSFUL',
                 paymentMethod: paymentMethod || 'ONLINE',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
@@ -55,6 +56,17 @@ export async function POST(request: Request) {
             },
         });
 
+        // For COD orders, assign order number immediately and increment promo usage
+        let orderNumber: number | null = null;
+        if (paymentMethod === 'COD') {
+            orderNumber = await assignOrderNumber(order.id);
+
+            // Increment promo code usage
+            if (promoCode) {
+                await incrementPromoCodeUsage(promoCode);
+            }
+        }
+
         // Update product quantities
         for (const item of cart) {
             await prisma.product.update({
@@ -68,21 +80,23 @@ export async function POST(request: Request) {
         }
 
         // Send order notification email (fire-and-forget, don't block response)
-        emailService.sendOrderNotification({
-            orderId: order.id,
-            orderNumber: order.orderNumber,
-            items: order.items,
-            total: order.total,
-            shippingFee: order.shippingFee || 0,
-            discountAmount: order.discountAmount || 0,
-            paymentMethod: order.paymentMethod || 'ONLINE',
-            shippingInfo: shippingInfo || null,
-        }).catch(err => console.error('Failed to send order notification:', err));
+        if (paymentMethod === 'COD' && orderNumber) {
+            emailService.sendOrderNotification({
+                orderId: order.id,
+                orderNumber: orderNumber,
+                items: order.items,
+                total: order.total,
+                shippingFee: order.shippingFee || 0,
+                discountAmount: order.discountAmount || 0,
+                paymentMethod: order.paymentMethod || 'ONLINE',
+                shippingInfo: shippingInfo || null,
+            }).catch(err => console.error('Failed to send order notification:', err));
+        }
 
         return NextResponse.json({
             success: true,
             orderId: order.id,
-            orderNumber: order.orderNumber,
+            orderNumber: orderNumber,
             message: 'Order placed successfully',
         });
     } catch (error) {

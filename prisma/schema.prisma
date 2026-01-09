@@ -71,7 +71,7 @@ model Variation {
 
 model Order {
   id            String      @id @default(cuid())
-  orderNumber   Int         @unique @default(autoincrement())
+  orderNumber   Int?        @unique  // Assigned only when payment is confirmed
   userId        String?
   user          User?       @relation(fields: [userId], references: [id])
   customerName  String?
@@ -111,6 +111,12 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int
   price     Float
+}
+
+// Counter for sequential order numbers (only assigned on confirmed orders)
+model OrderCounter {
+  id    String @id @default("order_counter")
+  value Int    @default(0)
 }
 
 model PromoCode {
