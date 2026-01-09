@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         // Create shipment with Delhivery
         const result = await createDelhiveryShipment({
             orderId: order.id,
-            orderNumber: order.orderNumber,
+            orderNumber: order.orderNumber || 0, // Fallback to 0 if not assigned yet
             customerName: addressData.firstName + ' ' + (addressData.lastName || ''),
             customerPhone: addressData.phone || order.customerPhone || '',
             address: addressData.address || '',

@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 interface OrderDetails {
     id: string;
-    orderNumber: number;
+    orderNumber: number | null;
     userId: string | null;
     customerName: string | null;
     customerEmail: string | null;
@@ -236,7 +236,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold text-gray-900">
-                                    Order #{order.orderNumber}
+                                    Order #{order.orderNumber || 'Pending'}
                                 </h1>
                                 <StatusBadge status={order.status} />
                             </div>

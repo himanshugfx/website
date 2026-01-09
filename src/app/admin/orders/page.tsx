@@ -7,7 +7,7 @@ import { Eye, ShoppingCart, Filter, Search, MoreHorizontal, Download } from 'luc
 
 interface Order {
     id: string;
-    orderNumber: number;
+    orderNumber: number | null;
     userId: string | null;
     total: number;
     status: string;
@@ -173,7 +173,7 @@ export default function OrdersPage() {
                                         <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
-                                                    #{order.orderNumber}
+                                                    #{order.orderNumber || 'Pending'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
