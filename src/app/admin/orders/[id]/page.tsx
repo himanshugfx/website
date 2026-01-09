@@ -132,14 +132,22 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 body: JSON.stringify({ orderId: order.id }),
             });
 
-            const data = await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                console.error('Failed to parse shipping response:', text);
+                alert(`Error: Invalid response from server. Status: ${res.status}. ${text.slice(0, 100)}`);
+                return;
+            }
 
             if (res.ok && data.success) {
                 alert(`Shipment created with RapidShyp! AWB: ${data.awbNumber}`);
                 fetchOrder();
                 fetchTracking();
             } else {
-                alert(data.error || 'Failed to create shipment');
+                alert(data.error || data.message || 'Failed to create shipment');
             }
         } catch (error) {
             console.error('RapidShyp shipping error:', error);

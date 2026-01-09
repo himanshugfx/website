@@ -4,7 +4,7 @@
  * Handles order creation, tracking, and shipping labels
  */
 
-const RAPIDSHYP_API_BASE = process.env.RAPIDSHYP_API_URL || 'https://api.rapidshyp.com/api/v1';
+const RAPIDSHYP_API_BASE = process.env.RAPIDSHYP_API_URL || 'https://api.rapidshyp.com/rapidshyp/apis/v1';
 const RAPIDSHYP_TOKEN = process.env.RAPIDSHYP_API_TOKEN || '';
 
 // Status mapping from RapidShyp to internal order status
@@ -58,23 +58,31 @@ export async function createRapidShypOrder(orderData: {
             weight: orderData.weight || 0.5,
             items: orderData.products.map(p => ({
                 name: p.name,
+                itemName: p.name,
                 sku: p.sku || p.name,
                 units: p.quantity,
                 unit_price: p.price
             }))
         };
 
-        const response = await fetch(`${RAPIDSHYP_API_BASE}/orders`, {
+        const response = await fetch(`${RAPIDSHYP_API_BASE}/create_order`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${RAPIDSHYP_TOKEN}`,
-                'rapidshyp-token': RAPIDSHYP_TOKEN // Some docs mention this header explicitly
+                'rapidshyp-token': RAPIDSHYP_TOKEN
             },
             body: JSON.stringify(payload),
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        console.log('RapidShyp Raw Response:', text);
+        let result;
+        try {
+            result = text ? JSON.parse(text) : {};
+        } catch (e) {
+            console.error('RapidShyp response was not JSON:', text);
+            return { success: false, error: `Invalid response from RapidShyp (Status ${response.status}): ${text.slice(0, 100) || '(empty body)'}` };
+        }
 
         if (response.ok && result.success) {
             return {
@@ -84,7 +92,7 @@ export async function createRapidShypOrder(orderData: {
             };
         }
 
-        return { success: false, error: result.message || 'Failed to create RapidShyp order' };
+        return { success: false, error: result.message || result.error || 'Failed to create RapidShyp order' };
     } catch (error) {
         console.error('RapidShyp order creation error:', error);
         return { success: false, error: String(error) };
@@ -102,12 +110,18 @@ export async function trackRapidShypShipment(awbNumber: string) {
 
         const response = await fetch(`${RAPIDSHYP_API_BASE}/tracking/${awbNumber}`, {
             headers: {
-                'Authorization': `Bearer ${RAPIDSHYP_TOKEN}`,
                 'rapidshyp-token': RAPIDSHYP_TOKEN
             },
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        let result;
+        try {
+            result = text ? JSON.parse(text) : {};
+        } catch (e) {
+            console.error('RapidShyp tracking response was not JSON:', text);
+            return { success: false, error: `Invalid response from RapidShyp: ${text.slice(0, 100)}` };
+        }
 
         if (response.ok && result.success) {
             return {
@@ -119,7 +133,7 @@ export async function trackRapidShypShipment(awbNumber: string) {
             };
         }
 
-        return { success: false, error: result.message || 'Tracking info not available' };
+        return { success: false, error: result.message || result.error || 'Tracking info not available' };
     } catch (error) {
         console.error('RapidShyp tracking error:', error);
         return { success: false, error: String(error) };
