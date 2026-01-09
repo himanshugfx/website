@@ -25,10 +25,23 @@ export async function POST(request: Request) {
             );
         }
 
+        // Validate userId if provided (prevents Foreign Key crash if session is stale/database was reset)
+        let finalUserId = userId || null;
+        if (finalUserId) {
+            const userExists = await prisma.user.findUnique({
+                where: { id: finalUserId },
+                select: { id: true }
+            });
+            if (!userExists) {
+                console.warn(`Payment initiate: User ID ${finalUserId} not found in database. Falling back to guest checkout.`);
+                finalUserId = null;
+            }
+        }
+
         // Create order in database first with PENDING status
         const order = await prisma.order.create({
             data: {
-                userId: userId || null,
+                userId: finalUserId,
                 total: total,
                 shippingFee: shippingFee || 0,
                 discountAmount: discountAmount || 0,
