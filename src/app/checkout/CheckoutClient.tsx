@@ -335,7 +335,7 @@ export default function CheckoutClient() {
                     clearCart();
                     window.location.href = `/checkout/success?orderId=${data.orderId}&orderNumber=${data.orderNumber}`;
                 } else {
-                    setError(data.error || 'Failed to place order');
+                    setError(data.message || data.error || 'Failed to place order');
                     setLoading(false);
                 }
             }
