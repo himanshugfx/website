@@ -38,9 +38,36 @@ interface OrderDetails {
 class EmailService {
     private transporter: nodemailer.Transporter | null = null;
     private adminEmail: string = 'anosebeauty@gmail.com';
+    private initialized: boolean = false;
 
-    constructor() {
-        if (this.isConfigured()) {
+    /**
+     * Check if email is configured
+     */
+    isConfigured(): boolean {
+        const configured = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+        if (!configured) {
+            console.log('Email config check - SMTP_HOST:', process.env.SMTP_HOST ? 'set' : 'missing');
+            console.log('Email config check - SMTP_USER:', process.env.SMTP_USER ? 'set' : 'missing');
+            console.log('Email config check - SMTP_PASS:', process.env.SMTP_PASS ? 'set' : 'missing');
+        }
+        return configured;
+    }
+
+    /**
+     * Get or create transporter (lazy initialization)
+     */
+    private getTransporter(): nodemailer.Transporter | null {
+        if (!this.isConfigured()) {
+            return null;
+        }
+
+        if (!this.initialized) {
+            console.log('Initializing email transporter with:', {
+                host: process.env.SMTP_HOST,
+                port: process.env.SMTP_PORT,
+                secure: process.env.SMTP_SECURE
+            });
+
             this.transporter = nodemailer.createTransport({
                 host: process.env.SMTP_HOST,
                 port: Number(process.env.SMTP_PORT) || 587,
@@ -50,21 +77,19 @@ class EmailService {
                     pass: process.env.SMTP_PASS,
                 },
             });
+            this.initialized = true;
         }
-    }
 
-    /**
-     * Check if email is configured
-     */
-    isConfigured(): boolean {
-        return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+        return this.transporter;
     }
 
     /**
      * Send new order notification to admin
      */
     async sendOrderNotification(order: OrderDetails): Promise<{ success: boolean; error?: string }> {
-        if (!this.transporter || !this.isConfigured()) {
+        const transporter = this.getTransporter();
+
+        if (!transporter) {
             console.warn('Email service not configured, skipping order notification');
             return { success: false, error: 'Email service not configured' };
         }
@@ -151,7 +176,7 @@ class EmailService {
         `;
 
         try {
-            await this.transporter.sendMail({
+            await transporter.sendMail({
                 from: `"Anose Orders" <anosebeauty@gmail.com>`,
                 to: this.adminEmail,
                 subject: `🛒 New Order #${order.orderNumber} - ₹${order.total.toFixed(2)}`,
