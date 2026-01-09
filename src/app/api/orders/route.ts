@@ -85,10 +85,14 @@ export async function POST(request: Request) {
             orderNumber: order.orderNumber,
             message: 'Order placed successfully',
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Order creation error:', error);
         return NextResponse.json(
-            { error: 'Failed to create order' },
+            {
+                error: 'Failed to create order',
+                message: error.message,
+                code: error.code
+            },
             { status: 500 }
         );
     }
