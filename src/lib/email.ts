@@ -152,7 +152,7 @@ class EmailService {
 
         try {
             await this.transporter.sendMail({
-                from: `"Anose Beauty Orders" <${process.env.SMTP_USER}>`,
+                from: `"Anose Orders" <anosebeauty@gmail.com>`,
                 to: this.adminEmail,
                 subject: `🛒 New Order #${order.orderNumber} - ₹${order.total.toFixed(2)}`,
                 html: htmlContent,
