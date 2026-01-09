@@ -59,11 +59,20 @@ export async function POST(request: Request) {
         // For COD orders, assign order number immediately and increment promo usage
         let orderNumber: number | null = null;
         if (paymentMethod === 'COD') {
-            orderNumber = await assignOrderNumber(order.id);
+            try {
+                orderNumber = await assignOrderNumber(order.id);
+            } catch (err) {
+                console.error('Failed to assign order number:', err);
+                // Continue without order number - can be assigned later
+            }
 
             // Increment promo code usage
             if (promoCode) {
-                await incrementPromoCodeUsage(promoCode);
+                try {
+                    await incrementPromoCodeUsage(promoCode);
+                } catch (err) {
+                    console.error('Failed to increment promo code usage:', err);
+                }
             }
         }
 
