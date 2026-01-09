@@ -3,7 +3,13 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
     try {
-        // Try to create a small test order to see if it fails and why
+        // 1. Check max order number
+        const maxOrder = await prisma.order.findFirst({
+            orderBy: { orderNumber: 'desc' },
+            select: { orderNumber: true }
+        });
+
+        // 2. Try to create a small test order
         const testOrder = await prisma.order.create({
             data: {
                 total: 0,
@@ -16,6 +22,8 @@ export async function GET() {
             }
         });
 
+        const assignedNumber = testOrder.orderNumber;
+
         // Delete it immediately
         await prisma.order.delete({
             where: { id: testOrder.id }
@@ -23,8 +31,9 @@ export async function GET() {
 
         return NextResponse.json({
             success: true,
-            message: "Database insertion test passed",
-            schema: "Order model is functional"
+            maxOrderNumber: maxOrder?.orderNumber || 0,
+            testOrderAssignedNumber: assignedNumber,
+            message: "Database insertion test passed"
         });
     } catch (error: any) {
         console.error('Test order creation failed:', error);
