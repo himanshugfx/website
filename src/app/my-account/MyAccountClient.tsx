@@ -21,7 +21,7 @@ interface OrderItem {
 
 interface Order {
     id: string;
-    orderNumber: number | null;
+    orderNumber: number;
     total: number;
     status: string;
     paymentStatus: string;
@@ -255,7 +255,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             <i className="ph ph-receipt text-xl text-zinc-400"></i>
                                                         </div>
                                                         <div>
-                                                            <p className="font-bold text-zinc-900">Order #{order.orderNumber || 'Pending'}</p>
+                                                            <p className="font-bold text-zinc-900">Order #{order.orderNumber}</p>
                                                             <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
@@ -309,7 +309,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                     <div>
                                                         <div className="flex items-center gap-3 mb-2">
                                                             <span className="text-sm font-semibold text-zinc-500">Order #</span>
-                                                            <span className="text-lg font-bold text-zinc-900">{order.orderNumber || 'Pending'}</span>
+                                                            <span className="text-lg font-bold text-zinc-900">{order.orderNumber}</span>
                                                         </div>
                                                         <div className="text-sm text-zinc-500">
                                                             {new Date(order.createdAt).toLocaleDateString('en-US', {

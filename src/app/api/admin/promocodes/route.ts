@@ -7,8 +7,33 @@ export async function GET() {
         const promoCodes = await prisma.promoCode.findMany({
             orderBy: { createdAt: 'desc' },
         });
-        return NextResponse.json(promoCodes);
+
+        // Get usage counts from the Order table
+        const promoUsageCounts = await prisma.order.groupBy({
+            by: ['promoCode'],
+            _count: {
+                promoCode: true,
+            },
+            where: {
+                promoCode: { not: null },
+            },
+        });
+
+        const usageMap = promoUsageCounts.reduce((acc: any, curr) => {
+            if (curr.promoCode) {
+                acc[curr.promoCode] = curr._count.promoCode;
+            }
+            return acc;
+        }, {});
+
+        const promoWithCounts = promoCodes.map(promo => ({
+            ...promo,
+            usedCount: usageMap[promo.code] || 0,
+        }));
+
+        return NextResponse.json(promoWithCounts);
     } catch (error) {
+        console.error('Failed to fetch promo codes:', error);
         return NextResponse.json({ error: 'Failed to fetch promo codes' }, { status: 500 });
     }
 }
