@@ -56,7 +56,7 @@ export async function createRapidShypOrder(orderData: {
             payment_mode: orderData.paymentMethod === 'COD' ? 'COD' : 'Prepaid',
             total_order_value: orderData.total,
             weight: orderData.weight || 0.5,
-            items: orderData.products.map(p => ({
+            orderItems: orderData.products.map(p => ({
                 name: p.name,
                 itemName: p.name,
                 sku: p.sku || p.name,
