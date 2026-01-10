@@ -47,6 +47,7 @@ model Product {
   quantityPurchase Int        @default(1)
   sizes           String?
   description     String
+  ingredients     String?     // Product ingredients list
   slug            String      @unique
   images          String
   thumbImage      String

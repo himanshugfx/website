@@ -14,6 +14,7 @@ import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
+import AnoseAssistant from "@/components/AnoseAssistant";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -135,6 +136,7 @@ export default function RootLayout({
               </Script>
               <SpeedInsights />
               <Analytics />
+              <AnoseAssistant />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

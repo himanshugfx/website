@@ -28,6 +28,7 @@ export default function EditProductPage({ params }: PageProps) {
         originPrice: '',
         quantity: '',
         description: '',
+        ingredients: '',
         slug: '',
         sizes: '',
         images: '',
@@ -70,6 +71,7 @@ export default function EditProductPage({ params }: PageProps) {
                 originPrice: product.originPrice?.toString() || '',
                 quantity: product.quantity?.toString() || '',
                 description: product.description || '',
+                ingredients: product.ingredients || '',
                 slug: product.slug || '',
                 sizes: product.sizes || '',
                 images: product.images || '',
@@ -342,6 +344,21 @@ export default function EditProductPage({ params }: PageProps) {
                                     rows={4}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ingredients
+                                </label>
+                                <textarea
+                                    name="ingredients"
+                                    value={formData.ingredients}
+                                    onChange={handleChange}
+                                    rows={3}
+                                    placeholder="e.g., Aloe Vera, Vitamin E, Niacinamide, Hyaluronic Acid..."
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">List the key ingredients of this product (comma-separated)</p>
                             </div>
 
                             <div>

@@ -20,6 +20,7 @@ export default function AddProductPage() {
         originPrice: '',
         quantity: '',
         description: '',
+        ingredients: '',
         slug: '',
         sizes: '',
         images: '',
@@ -254,6 +255,21 @@ export default function AddProductPage() {
                                     rows={4}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ingredients
+                                </label>
+                                <textarea
+                                    name="ingredients"
+                                    value={formData.ingredients}
+                                    onChange={handleChange}
+                                    rows={3}
+                                    placeholder="e.g., Aloe Vera, Vitamin E, Niacinamide, Hyaluronic Acid..."
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">List the key ingredients of this product (comma-separated)</p>
                             </div>
 
                             <div>
