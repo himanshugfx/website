@@ -193,7 +193,8 @@ export async function getAnalyticsData() {
         const [
             realtimeUsers,
             trafficSourcesRes,
-            deviceRes
+            deviceRes,
+            cityRes
         ] = await Promise.all([
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),
@@ -212,17 +213,27 @@ export async function getAnalyticsData() {
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [{ name: 'sessions' }],
                 [{ name: 'deviceCategory' }]
+            ),
+
+            // 4. City-wise traffic
+            runReport(accessToken, propertyId,
+                [{ startDate: '30daysAgo', endDate: 'today' }],
+                [{ name: 'sessions' }],
+                [{ name: 'city' }],
+                [{ metric: { metricName: 'sessions' }, desc: true }],
+                5
             )
         ]);
 
         const trafficSourcesData = trafficSourcesRes.data;
         const deviceData = deviceRes.data;
+        const cityData = cityRes.data;
 
         // Parse traffic sources
         const trafficSources = (trafficSourcesData?.rows || []).map(row => ({
             source: row.dimensionValues?.[0]?.value || '',
             sessions: parseInt(row.metricValues?.[0]?.value || '0', 10),
-            users: parseInt(row.metricValues?.[1]?.value || '0', 10)
+            users: parseInt(row.metricValues?.[1]?.value || '1', 10)
         }));
 
         // Parse device breakdown
@@ -231,12 +242,19 @@ export async function getAnalyticsData() {
             sessions: parseInt(row.metricValues?.[0]?.value || '0', 10)
         })).sort((a, b) => b.sessions - a.sessions);
 
+        // Parse city breakdown
+        const cities = (cityData?.rows || []).map(row => ({
+            city: row.dimensionValues?.[0]?.value || '',
+            sessions: parseInt(row.metricValues?.[0]?.value || '0', 10)
+        }));
+
         return {
             success: true,
             data: {
                 realtimeUsers,
                 trafficSources,
                 devices,
+                cities,
                 lastUpdated: new Date().toISOString()
             }
         };

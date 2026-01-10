@@ -4,8 +4,8 @@ export const blogPosts = [
         title: "Vitamin C: Brightening Powerhouse for Your Skin",
         category: "Skincare",
         date: "August 01, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_vitamin_c_1768079058340.png",
+        afterImage: "/images/blog/blog_vitamin_c_1768079058340.png",
         excerpt: "Explore how Vitamin C combats hyperpigmentation, boosts collagen, and gives you a radiant glow.",
         content: `
             <p>Vitamin C is heralded as one of the best anti-aging ingredients on the market and the key to maintaining a smooth, even, and glowy complexion.</p>
@@ -24,8 +24,8 @@ export const blogPosts = [
         title: "Hyaluronic Acid: The Ultimate Hydration Hero",
         category: "Skincare",
         date: "August 03, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_hyaluronic_acid_1768079073117.png",
+        afterImage: "/images/blog/blog_hyaluronic_acid_1768079073117.png",
         excerpt: "Discover why Hyaluronic Acid can hold 1000x its weight in water and keep skin plump all day.",
         content: `
             <p>Hyaluronic acid is a sugar molecule that occurs naturally in the skin, and it helps bind water to collagen, trapping it in the skin, so that skin can appear plumper, dewier, and more hydrated.</p>
@@ -44,8 +44,8 @@ export const blogPosts = [
         title: "Retinol: Turning Back the Clock on Aging",
         category: "Skincare",
         date: "August 05, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_retinol_1768079087688.png",
+        afterImage: "/images/blog/blog_retinol_1768079087688.png",
         excerpt: "Learn how Retinol stimulates cell turnover, smooths fine lines, and improves texture.",
         content: `
             <p>Retinol, a derivative of Vitamin A, is widely considered the gold standard in anti-aging skincare for its ability to transform skin over time.</p>
@@ -64,8 +64,8 @@ export const blogPosts = [
         title: "Niacinamide: The Multi-Tasking Skin Savior",
         category: "Skincare",
         date: "August 07, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_niacinamide_1768079102788.png",
+        afterImage: "/images/blog/blog_niacinamide_1768079102788.png",
         excerpt: "From reducing redness to tightening pores, see why Niacinamide is a must-have ingredient.",
         content: `
             <p>Niacinamide, also known as Vitamin B3, is a versatile ingredient that works well with almost every other skincare component.</p>
@@ -84,8 +84,8 @@ export const blogPosts = [
         title: "Salicylic Acid: Banish Breakouts for Good",
         category: "Skincare",
         date: "August 09, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_salicylic_acid_1768079135010.png",
+        afterImage: "/images/blog/blog_salicylic_acid_1768079135010.png",
         excerpt: "A deep-cleaning beta-hydroxy acid that unclogs pores and calms inflammation.",
         content: `
             <p>Salicylic acid is a Beta Hydroxy Acid (BHA) that is oil-soluble, making it very effective for oily and acne-prone skin.</p>
@@ -104,8 +104,8 @@ export const blogPosts = [
         title: "Peptides: Building Blocks for Firm Skin",
         category: "Skincare",
         date: "August 11, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_peptides_1768079149771.png",
+        afterImage: "/images/blog/blog_peptides_1768079149771.png",
         excerpt: "How peptide chains signal skin cells to produce collagen and elastin for a lifted look.",
         content: `
             <p>Peptides are short chains of amino acids that serve as the building blocks of proteins like collagen, elastin, and keratin in the skin.</p>
@@ -124,8 +124,8 @@ export const blogPosts = [
         title: "Ceramides: Restoring the Skin Barrier",
         category: "Skincare",
         date: "August 13, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_ceramides_1768079165544.png",
+        afterImage: "/images/blog/blog_ceramides_1768079165544.png",
         excerpt: "Learn why ceramides lock in moisture and protect against environmental damage.",
         content: `
             <p>Ceramides are lipids (fats) that are naturally found in high concentrations in the uppermost layers of skin. They make up over 50% of skin’s composition.</p>
@@ -144,8 +144,8 @@ export const blogPosts = [
         title: "Aloe Vera: Soothing Calm for Irritated Skin",
         category: "Skincare",
         date: "August 15, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_aloe_vera_1768079181721.png",
+        afterImage: "/images/blog/blog_aloe_vera_1768079181721.png",
         excerpt: "The cooling gel of Aloe Vera reduces redness and promotes healing.",
         content: `
             <p>Aloe Vera is one of the most widely used botanical ingredients in skincare, known for its incredible soothing and cooling properties.</p>
@@ -164,8 +164,8 @@ export const blogPosts = [
         title: "Green Tea Extract: Antioxidant Shield",
         category: "Skincare",
         date: "August 17, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_green_tea_1768079205888.png",
+        afterImage: "/images/blog/blog_green_tea_1768079205888.png",
         excerpt: "Packed with polyphenols, green tea fights free radicals and soothes inflammation.",
         content: `
             <p>Green tea extract is derived from the leaves of the Camellia sinensis plant and is one of the most researched botanical antioxidants.</p>
@@ -184,8 +184,8 @@ export const blogPosts = [
         title: "Kojic Acid: Brightening and Even Tone",
         category: "Skincare",
         date: "August 19, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_kojic_acid_1768079221018.png",
+        afterImage: "/images/blog/blog_kojic_acid_1768079221018.png",
         excerpt: "A natural mushroom-derived acid that inhibits melanin production for clearer skin.",
         content: `
             <p>Kojic acid is a natural ingredient derived from fungi and is also a byproduct of fermented rice wine (sake).</p>
@@ -204,8 +204,8 @@ export const blogPosts = [
         title: "Zinc Oxide: Sun Protection with a Gentle Touch",
         category: "Skincare",
         date: "August 21, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_zinc_oxide_1768079243698.png",
+        afterImage: "/images/blog/blog_zinc_oxide_1768079243698.png",
         excerpt: "Broad-spectrum mineral sunscreen that calms sensitive skin while shielding from UV.",
         content: `
             <p>Zinc Oxide is a mineral compound that provides broad-spectrum UV protection when applied topically.</p>
@@ -224,8 +224,8 @@ export const blogPosts = [
         title: "Squalane: Lightweight Moisture for All Skin Types",
         category: "Skincare",
         date: "August 23, 2024",
-        beforeImage: "/images/blog/skin_before.png",
-        afterImage: "/images/blog/skin_after.png",
+        beforeImage: "/images/blog/blog_squalane_1768079260624.png",
+        afterImage: "/images/blog/blog_squalane_1768079260624.png",
         excerpt: "Derived from olives, squalane mimics skin’s natural oils for a silky, non-greasy finish.",
         content: `
             <p>Squalane is a stable, saturated version of squalene, a lipid that is naturally produced by our own skin cells.</p>

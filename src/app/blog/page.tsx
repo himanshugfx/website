@@ -33,61 +33,45 @@ export default function BlogPage() {
                     <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-8 gap-y-12">
                         {blogPosts.map((post) => (
                             <div key={post.id} className="blog-item group">
-                                <Link href={`/blog/${post.id}`} className="block overflow-hidden rounded-2xl relative aspect-[4/3] bg-zinc-100 border border-zinc-100">
+                                <Link href={`/blog/${post.id}`} className="block overflow-hidden rounded-3xl relative aspect-[4/3] bg-zinc-100 border border-zinc-100 shadow-sm transition-transform duration-500 group-hover:scale-[1.02]">
                                     {/* After Image (Background - shown on hover) */}
                                     <Image
                                         src={post.afterImage}
-                                        alt="Skin Texture After"
+                                        alt={post.title}
                                         fill
                                         className="object-cover"
                                     />
-                                    {/* Before Image (Top - default view, fades on hover) */}
-                                    <Image
-                                        src={post.beforeImage}
-                                        alt="Skin Texture Before"
-                                        fill
-                                        className="object-cover opacity-100 group-hover:opacity-0 transition-opacity duration-700 font-bold"
-                                    />
-                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm z-10">
+                                    {/* Overlay with glass effect on secondary (hover) */}
+                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1] backdrop-blur-[2px]"></div>
+
+                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm z-10 text-zinc-800">
                                         {post.category}
                                     </div>
-                                    <div className="absolute bottom-4 left-4 bg-black/60 text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest backdrop-blur-sm z-10">
-                                        <span className="group-hover:hidden italic">Before Treatment</span>
-                                        <span className="hidden group-hover:inline italic text-green-300">Ingredient Result</span>
+                                    <div className="absolute bottom-4 left-4 bg-black/40 text-white text-[9px] px-4 py-2 rounded-full font-black uppercase tracking-[0.2em] backdrop-blur-md z-10 border border-white/20 transition-all duration-500 group-hover:bg-purple-600/60 group-hover:border-purple-400">
+                                        View Science
                                     </div>
                                 </Link>
-                                <div className="blog-info mt-6">
-                                    <div className="date caption1 text-zinc-500 flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
+                                <div className="blog-info mt-8 px-2">
+                                    <div className="date caption1 text-zinc-400 flex items-center gap-2 text-xs font-medium uppercase tracking-wider">
                                         {post.date}
                                     </div>
-                                    <Link href={`/blog/${post.id}`} className="block mt-3">
-                                        <h4 className="heading4 text-xl font-bold group-hover:text-zinc-600 transition-colors line-clamp-2 leading-tight">
+                                    <Link href={`/blog/${post.id}`} className="block mt-4">
+                                        <h4 className="heading4 text-2xl font-bold group-hover:text-purple-700 transition-colors line-clamp-2 leading-[1.2] tracking-tight">
                                             {post.title}
                                         </h4>
                                     </Link>
-                                    <p className="body1 text-zinc-500 mt-3 line-clamp-2 leading-relaxed">
+                                    <p className="body1 text-zinc-500 mt-4 line-clamp-2 leading-relaxed text-sm">
                                         {post.excerpt}
                                     </p>
-                                    <Link href={`/blog/${post.id}`} className="text-button inline-block mt-4 font-bold border-b-2 border-black pb-1 hover:text-zinc-600 transition-colors">
-                                        Identify Ingredient
+                                    <Link href={`/blog/${post.id}`} className="inline-flex items-center gap-2 mt-6 font-black text-xs uppercase tracking-[0.2em] text-zinc-800 hover:text-purple-700 transition-colors group/btn">
+                                        <span>Identify Ingredient</span>
+                                        <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </svg>
                                     </Link>
                                 </div>
                             </div>
                         ))}
-                    </div>
-
-                    <div className="list-pagination w-full flex items-center justify-center gap-4 md:mt-16 mt-10">
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-black text-white font-bold cursor-pointer">1</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-not-allowed">2</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-gray-100 text-gray-500 cursor-not-allowed">3</div>
-                        <div className="item w-10 h-10 flex items-center justify-center rounded-lg border border-line bg-zinc-200 text-zinc-400 cursor-not-allowed">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
             </div>

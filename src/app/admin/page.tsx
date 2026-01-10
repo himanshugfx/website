@@ -118,8 +118,8 @@ export default async function AdminDashboard() {
                     />
                 </div>
 
-                {/* Recent Orders */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Analytics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {/* Active Users */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h3 className="text-sm font-medium text-gray-500 mb-1">Active Users</h3>
@@ -155,6 +155,32 @@ export default async function AdminDashboard() {
                             ))}
                             {(!analytics?.data?.trafficSources?.length) && (
                                 <p className="text-xs text-gray-400 text-center py-2">No traffic data available</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Top Cities */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <h3 className="text-sm font-medium text-gray-500 mb-4">Top Cities</h3>
+                        <div className="space-y-3">
+                            {(analytics?.data?.cities || []).slice(0, 4).map((cityTarget: any, i: number) => (
+                                <div key={i} className="space-y-1">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="font-medium text-gray-700 capitalize">
+                                            {cityTarget.city === '(not set)' ? 'Other' : cityTarget.city}
+                                        </span>
+                                        <span className="text-gray-500">{cityTarget.sessions}</span>
+                                    </div>
+                                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-orange-500 rounded-full"
+                                            style={{ width: `${Math.min((cityTarget.sessions / (analytics?.data?.cities?.[0]?.sessions || 1)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                            {(!analytics?.data?.cities?.length) && (
+                                <p className="text-xs text-gray-400 text-center py-2">No city data available</p>
                             )}
                         </div>
                     </div>

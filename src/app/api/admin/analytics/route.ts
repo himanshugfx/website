@@ -280,6 +280,15 @@ export async function GET() {
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [{ name: 'sessions' }],
                 [{ name: 'deviceCategory' }]
+            ),
+
+            // 8. City-wise traffic
+            runReport(accessToken, propertyId,
+                [{ startDate: '30daysAgo', endDate: 'today' }],
+                [{ name: 'sessions' }],
+                [{ name: 'city' }],
+                [{ metric: { metricName: 'sessions' }, desc: true }],
+                10
             )
         ]);
 
@@ -300,6 +309,7 @@ export async function GET() {
         const topPagesData = topPagesRes.data;
         const trafficSourcesData = trafficSourcesRes.data;
         const deviceData = deviceRes.data;
+        const cityData = cityRes.data;
 
         // Parse overview metrics
         const currentMetrics = overviewData?.rows?.[0]?.metricValues || [];
@@ -349,6 +359,12 @@ export async function GET() {
             sessions: parseInt(row.metricValues?.[0]?.value || '0', 10)
         }));
 
+        // Parse city breakdown
+        const cities = (cityData?.rows || []).map(row => ({
+            city: row.dimensionValues?.[0]?.value || '',
+            sessions: parseInt(row.metricValues?.[0]?.value || '0', 10)
+        }));
+
         return NextResponse.json({
             success: true,
             data: {
@@ -366,6 +382,7 @@ export async function GET() {
                 topPages,
                 trafficSources,
                 devices,
+                cities,
                 ecommerce: {
                     purchases,
                     revenue,

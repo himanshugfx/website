@@ -6,6 +6,18 @@ export interface SkincareIntent {
 }
 
 export const SKINCARE_KB: Record<string, SkincareIntent> = {
+    basics: {
+        keywords: ["routine", "basics", "daily skin care", "how to start", "skincare steps", "beginner"],
+        title: "Skincare Basics 101",
+        advice: "A perfect routine has 3 core steps: 1. **Cleanse** (use a gentle facewash), 2. **Moisturize** (keep skin hydrated), and 3. **Protect** (SPF 50+ is non-negotiable every morning). Start simple and let your skin adjust!",
+        searchTerms: "facewash moisturizer sunscreen"
+    },
+    glow_general: {
+        keywords: ["glowing", "radiant", "radiance", "brighten skin", "dull skin", "how to glow"],
+        title: "The Secret to Glowing Skin",
+        advice: "True radiance comes from: \n1. **Internal Hydration**: Drink 2-3L water.\n2. **Gentle Exfoliation**: Use AHAs/BHAs once a week.\n3. **Vitamin C**: A daily serum brightens dullness.\n4. **Sun Protection**: Prevents dullness caused by UV rays. \nConsistency is your best friend!",
+        searchTerms: "vitamin c serum saffron facewash"
+    },
     acne: {
         keywords: ["acne", "pimple", "zits", "breakout", "blackhead", "whitehead"],
         title: "Treating Acne-Prone Skin",
@@ -78,13 +90,22 @@ export const SKINCARE_KB: Record<string, SkincareIntent> = {
 export const detectIntent = (input: string): SkincareIntent | null => {
     const lowerInput = input.toLowerCase();
 
-    // Try to find a match where at least one keyword is present
+    // Priority 1: Exact or longer keyword matches first
+    // This helps differentiate between "glow" (general) and "home remedy for glow" (remedy)
+    let bestMatch: SkincareIntent | null = null;
+    let maxKeywordLength = 0;
+
     for (const key in SKINCARE_KB) {
         const intent = SKINCARE_KB[key];
-        if (intent.keywords.some(k => lowerInput.includes(k))) {
-            return intent;
+        for (const keyword of intent.keywords) {
+            if (lowerInput.includes(keyword)) {
+                if (keyword.length > maxKeywordLength) {
+                    maxKeywordLength = keyword.length;
+                    bestMatch = intent;
+                }
+            }
         }
     }
 
-    return null;
+    return bestMatch;
 };
