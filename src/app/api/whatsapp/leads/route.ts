@@ -7,10 +7,10 @@ export async function GET() {
     try {
         const leads = await prisma.lead.findMany({
             where: {
-                phone: {
-                    not: null,
-                    not: '',
-                },
+                AND: [
+                    { phone: { not: null } },
+                    { phone: { not: '' } }
+                ]
             },
             select: {
                 id: true,
