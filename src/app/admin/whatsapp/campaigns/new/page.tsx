@@ -324,7 +324,7 @@ export default function NewCampaignPage() {
 
                     {/* Meta Restriction Note */}
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                        <loader2 className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
+                        <Loader2 className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
                         <div>
                             <h4 className="text-sm font-bold text-amber-800 uppercase tracking-wide">Important Note</h4>
                             <p className="text-xs text-amber-700 mt-1">
