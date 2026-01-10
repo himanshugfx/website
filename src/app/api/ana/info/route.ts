@@ -7,9 +7,10 @@ export async function GET(req: NextRequest) {
         const promos = await prisma.promoCode.findMany({
             where: {
                 isActive: true,
-                expiresAt: {
-                    gt: new Date()
-                }
+                OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: new Date() } }
+                ]
             },
             take: 3,
             orderBy: {

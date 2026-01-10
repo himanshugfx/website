@@ -29,12 +29,20 @@ export async function GET(req: NextRequest) {
 
         // If query provided, search for specific product
         if (query && query.length >= 2) {
+            const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+            const queryWithoutSpaces = query.replace(/\s+/g, '').toLowerCase();
+
             const products = await prisma.product.findMany({
                 where: {
                     OR: [
                         { name: { contains: query, mode: 'insensitive' } },
+                        { name: { contains: queryWithoutSpaces, mode: 'insensitive' } },
                         { category: { contains: query, mode: 'insensitive' } },
                         { ingredients: { contains: query, mode: 'insensitive' } },
+                        // Add individual word matches for better suggestions
+                        ...searchTerms.map(term => ({
+                            name: { contains: term, mode: 'insensitive' }
+                        }))
                     ],
                 },
                 select: {

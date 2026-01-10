@@ -266,7 +266,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
                         {product.ingredients && (
                             <div className="ingredients-block mt-10 p-6 rounded-2xl border-2 border-dashed border-purple-100 bg-purple-50/20">
-                                <div className="caption1 font-bold text-purple-600 uppercase tracking-widest mb-4">✨ Key Ingredients</div>
+                                <div className="caption1 font-bold text-purple-600 uppercase tracking-widest mb-4">✨ Ingredients</div>
                                 <div className="flex flex-wrap gap-2">
                                     {product.ingredients.split(',').map((item, index) => (
                                         <div key={index} className="px-4 py-1.5 bg-white border border-purple-100 rounded-full text-sm font-medium text-purple-700 shadow-sm hover:shadow-md transition-shadow">
