@@ -25,7 +25,8 @@ import {
     ClipboardList,
     Shield,
     UserCircle,
-    Menu
+    Menu,
+    X
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -223,7 +224,7 @@ const SidebarContent = ({
                 className="lg:hidden ml-auto p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
                 aria-label="Close menu"
             >
-                <Menu className="w-6 h-6" />
+                <X className="w-6 h-6" />
             </button>
         </div>
 
@@ -253,7 +254,7 @@ const SidebarContent = ({
                 className="lg:hidden flex items-center justify-center gap-2 w-full p-3 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors group"
             >
                 <ChevronsLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="font-medium">Close Menu</span>
+                <span className="font-medium">Close Sidebar</span>
             </button>
 
             {/* Desktop Collapse Button */}
@@ -282,8 +283,13 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
     return (
         <>
             {/* Mobile Sidebar */}
-            <div className={`fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}>
+            <div
+                className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#1a1c23] transition-transform duration-300 ease-in-out lg:hidden max-h-screen overflow-hidden`}
+                style={{
+                    transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+                    visibility: isOpen ? 'visible' : 'hidden' // Ensure it's hidden when closed to prevent accidental clicks
+                }}
+            >
                 <SidebarContent
                     isCollapsed={false}
                     onClose={onClose}
