@@ -111,7 +111,11 @@ class WhatsAppService {
             }
 
             const successData = data as WhatsAppResponse;
-            return { success: true, messageId: successData.messages?.[0]?.id };
+            if (successData.messages && successData.messages.length > 0) {
+                return { success: true, messageId: successData.messages[0].id };
+            }
+
+            return { success: false, error: 'Meta API returned success but no message ID was found' };
         } catch (error) {
             console.error('WhatsApp API Error:', error);
             return { success: false, error: 'Failed to connect to WhatsApp API' };
@@ -168,7 +172,11 @@ class WhatsAppService {
             }
 
             const successData = data as WhatsAppResponse;
-            return { success: true, messageId: successData.messages?.[0]?.id };
+            if (successData.messages && successData.messages.length > 0) {
+                return { success: true, messageId: successData.messages[0].id };
+            }
+
+            return { success: false, error: 'Meta API returned success but no message ID was found' };
         } catch (error) {
             console.error('WhatsApp API Error:', error);
             return { success: false, error: 'Failed to connect to WhatsApp API' };

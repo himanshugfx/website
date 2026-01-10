@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         }
 
         if (result.success) {
+            console.log('WhatsApp send success:', result);
             // Log the message
             await prisma.whatsAppMessage.create({
                 data: {
@@ -45,6 +46,7 @@ export async function POST(request: Request) {
                 messageId: result.messageId,
             });
         } else {
+            console.error('WhatsApp send failure:', result);
             return NextResponse.json({
                 success: false,
                 error: result.error,
