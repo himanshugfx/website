@@ -241,6 +241,58 @@ class WhatsAppService {
             return { success: false, error: 'Failed to connect to WhatsApp API' };
         }
     }
+
+    /**
+     * Create a template in Meta WhatsApp Business Account
+     */
+    async createTemplate(
+        name: string,
+        category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION',
+        bodyText: string,
+        languageCode: string = 'en_US'
+    ): Promise<{ success: boolean; templateId?: string; error?: string }> {
+        if (!this.isConfigured() || !this.businessAccountId) {
+            return { success: false, error: 'WhatsApp API or WABA ID not configured' };
+        }
+
+        const payload = {
+            name: name,
+            category: category,
+            components: [
+                {
+                    type: 'BODY',
+                    text: bodyText,
+                }
+            ],
+            language: languageCode,
+        };
+
+        try {
+            const response = await fetch(
+                `https://graph.facebook.com/${this.apiVersion}/${this.businessAccountId}/message_templates`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${this.apiToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('WhatsApp API Error:', data);
+                return { success: false, error: data.error?.message || 'Failed to create template' };
+            }
+
+            return { success: true, templateId: data.id };
+        } catch (error) {
+            console.error('WhatsApp API Error:', error);
+            return { success: false, error: 'Failed to connect to WhatsApp API' };
+        }
+    }
 }
 
 // Export singleton instance
