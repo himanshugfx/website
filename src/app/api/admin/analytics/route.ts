@@ -31,7 +31,16 @@ async function getAccessToken(): Promise<{ token: string | null; error: string |
         return { token: null, error: 'GOOGLE_PRIVATE_KEY not configured' };
     }
 
-    // Handle escaped newlines in private key
+    // Handle environment variable formatting issues
+    privateKey = privateKey.trim();
+    // Remove surrounding quotes if present
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.substring(1, privateKey.length - 1);
+    }
+    if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
+        privateKey = privateKey.substring(1, privateKey.length - 1);
+    }
+    // Handle escaped newlines
     privateKey = privateKey.replace(/\\n/g, '\n');
 
     try {
