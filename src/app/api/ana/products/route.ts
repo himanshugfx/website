@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
                     description: true,
                     ingredients: true,
                     sizes: true,
+                    thumbImage: true,
                     quantity: true,
                 },
                 take: 20,
@@ -56,6 +57,7 @@ export async function GET(req: NextRequest) {
                     sizes: true,
                     quantity: true,
                     slug: true,
+                    thumbImage: true,
                 },
                 take: 5,
             });

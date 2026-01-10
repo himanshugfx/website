@@ -7,6 +7,8 @@ interface Message {
   id: string;
   type: "user" | "assistant";
   content: string;
+  products?: any[];
+  isIngredientSearch?: boolean;
 }
 
 interface QuickReply {
@@ -175,22 +177,21 @@ Example: "face wash", "hair oil", "serum"`,
       setTimeout(() => {
         setIsTyping(false);
         let response = "";
+        let isIngredientSearch = false;
+        const lowerSearch = searchQuery.toLowerCase();
 
         if (data.products && data.products.length > 0) {
-          response = `✨ **Found ${data.products.length} product(s):**\n\n`;
-          data.products.forEach((product: { name: string; price: number; category: string; description: string; ingredients: string | null; sizes: string | null }) => {
-            response += `**${product.name}**\n`;
-            response += `💰 Price: ₹${product.price}\n`;
-            response += `📁 Category: ${product.category}\n`;
-            if (product.ingredients) {
-              response += `🧪 **Ingredients:** ${product.ingredients}\n`;
-            }
-            if (product.sizes) {
-              response += `📏 Sizes: ${product.sizes}\n`;
-            }
-            response += `\n---\n\n`;
-          });
-          response += `💡 Want to know about another product? Just type its name!`;
+          // Check if searched for an ingredient
+          const matchedByIngredient = data.products.some((p: any) =>
+            p.ingredients?.toLowerCase().includes(lowerSearch)
+          );
+
+          if (matchedByIngredient) {
+            isIngredientSearch = true;
+            response = `🌿 **${searchQuery}** found in these products:`;
+          } else {
+            response = `✨ Found ${data.products.length} product(s) matching your search:`;
+          }
         } else {
           response = `😔 Sorry, I couldn't find any products matching "${searchQuery}".\n\nTry searching for:\n• Face wash\n• Hair oil\n• Serum\n• Moisturizer`;
         }
@@ -199,6 +200,8 @@ Example: "face wash", "hair oil", "serum"`,
           id: `assistant-${Date.now()}`,
           type: "assistant",
           content: response,
+          products: data.products || [],
+          isIngredientSearch
         };
         setMessages((prev) => [...prev, assistantMessage]);
       }, 1000);
@@ -263,6 +266,39 @@ Example: "face wash", "hair oil", "serum"`,
               )}
               <div className="anose-message-bubble">
                 <div dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }} />
+
+                {/* Product Cards */}
+                {msg.products && msg.products.length > 0 && (
+                  <div className="anose-product-cards mt-3">
+                    {msg.products.map((product) => (
+                      <a
+                        key={product.id}
+                        href={`/product/${product.slug}`}
+                        className="anose-product-card"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="anose-card-img">
+                          <Image
+                            src={product.thumbImage || '/assets/images/placeholder.png'}
+                            alt={product.name}
+                            width={50}
+                            height={50}
+                          />
+                        </div>
+                        <div className="anose-card-details">
+                          <div className="anose-card-name">{product.name}</div>
+                          <div className="anose-card-price">₹{product.price}</div>
+                        </div>
+                        <div className="anose-card-arrow">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 18l6-6-6-6" />
+                          </svg>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -517,6 +553,79 @@ Example: "face wash", "hair oil", "serum"`,
           background: linear-gradient(135deg, #9333ea, #7c3aed);
           color: white;
           border-radius: 18px 18px 4px 18px;
+        }
+
+        /* Product Cards in Chat */
+        .anose-product-cards {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 10px;
+        }
+
+        .anose-product-card {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px;
+          background: #fdfaff;
+          border: 1px solid rgba(147, 51, 234, 0.15);
+          border-radius: 12px;
+          text-decoration: none;
+          color: inherit;
+          transition: all 0.2s;
+        }
+
+        .anose-product-card:hover {
+          background: white;
+          border-color: #9333ea;
+          box-shadow: 0 4px 12px rgba(147, 51, 234, 0.1);
+          transform: translateX(4px);
+        }
+
+        .anose-card-img {
+          flex-shrink: 0;
+          width: 50px;
+          height: 50px;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #f3f4f6;
+        }
+
+        .anose-card-img img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .anose-card-details {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .anose-card-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1f2937;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .anose-card-price {
+          font-size: 12px;
+          font-weight: 700;
+          color: #9333ea;
+          margin-top: 2px;
+        }
+
+        .anose-card-arrow {
+          color: #9333ea;
+          opacity: 0.5;
+        }
+
+        .anose-product-card:hover .anose-card-arrow {
+          opacity: 1;
         }
 
         .anose-message-bubble.typing {
