@@ -64,6 +64,7 @@ const navigation: NavItem[] = [
     { name: 'Abandoned Carts', href: '/admin/abandoned-carts', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
+    { name: 'Subscribers', href: '/admin/subscribers', icon: UserCircle },
     { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
     { name: 'Import Orders', href: '/admin/import', icon: Upload },
 ];
