@@ -215,7 +215,6 @@ export default async function AdminDashboard() {
                     {/* Additional widgets can go here */}
                 </div>
             </div>
-        </div>
-        </AdminLayout >
+        </AdminLayout>
     );
 }
