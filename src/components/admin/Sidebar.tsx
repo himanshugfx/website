@@ -218,13 +218,6 @@ const SidebarContent = ({
                 </div>
                 {!isCollapsed && <span className="text-lg font-bold tracking-wide">Anose Admin</span>}
             </div>
-            {/* Mobile close button */}
-            <button
-                onClick={onClose}
-                className="lg:hidden ml-auto text-gray-400 hover:text-white"
-            >
-                <X className="w-6 h-6" />
-            </button>
         </div>
 
         {/* Navigation */}
@@ -244,9 +237,18 @@ const SidebarContent = ({
             </nav>
         </div>
 
-        {/* Bottom Section - Only Collapse button remains */}
-        <div className="p-4 border-t border-gray-800">
-            {/* Collapse Button (Desktop Only) */}
+        {/* Bottom Section */}
+        <div className="p-4 border-t border-gray-800 space-y-2">
+            {/* Mobile Close Button */}
+            <button
+                onClick={onClose}
+                className="lg:hidden flex items-center justify-center gap-2 w-full p-3 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors group"
+            >
+                <ChevronsLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                <span className="font-medium">Collapse Sidebar</span>
+            </button>
+
+            {/* Desktop Collapse Button */}
             <button
                 onClick={onToggleCollapse}
                 className={`hidden lg:flex items-center justify-center w-full p-2 text-gray-500 hover:text-white rounded-lg transition-colors`}
