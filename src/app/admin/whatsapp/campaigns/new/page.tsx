@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Users, Send, FileText, Loader2, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, Send, FileText, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -21,7 +21,7 @@ interface Lead {
 export default function NewCampaignPage() {
     const [name, setName] = useState('');
     const [templateId, setTemplateId] = useState('');
-    const [audience, setAudience] = useState<'ALL' | 'LEADS'>('ALL');
+
     const [templates, setTemplates] = useState<Template[]>([]);
     const [leads, setLeads] = useState<Lead[]>([]);
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
@@ -66,7 +66,7 @@ export default function NewCampaignPage() {
         }
 
         // Collect recipients
-        let recipients: { phone: string; name: string }[] = [];
+        const recipients: { phone: string; name: string }[] = [];
 
         // Add leads
         leads
@@ -123,7 +123,7 @@ export default function NewCampaignPage() {
             } else {
                 setResult({ success: false, message: campaignData.error || 'Failed to create campaign' });
             }
-        } catch (error) {
+        } catch {
             setResult({ success: false, message: 'Failed to connect to server' });
         } finally {
             setSending(false);
@@ -328,7 +328,7 @@ export default function NewCampaignPage() {
                         <div>
                             <h4 className="text-sm font-bold text-amber-800 uppercase tracking-wide">Important Note</h4>
                             <p className="text-xs text-amber-700 mt-1">
-                                Meta restricts regular messages to a 24-hour window from the user's last message.
+                                Meta restricts regular messages to a 24-hour window from the user&apos;s last message.
                                 For older leads, please ensure you use **Meta Approved Templates** for best delivery rates.
                             </p>
                         </div>
