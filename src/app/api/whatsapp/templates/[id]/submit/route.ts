@@ -30,11 +30,31 @@ export async function POST(
         const body = await request.json().catch(() => ({}));
         const category = body.category || 'MARKETING';
 
+        // Transform content variables from {{name}} to {{1}} for Meta API
+        let metaContent = template.content;
+        const variablesMatch = template.content.match(/\{\{[^}]+\}\}/g);
+
+        if (variablesMatch) {
+            variablesMatch.forEach((variable, index) => {
+                // Replace first occurrence of {{...}} with {{index+1}}
+                // We use a specific regex to ensure we replace only the specific instance if needed, 
+                // but for simple templates, global replace of specific variable string might be safer if used multiple times? 
+                // Meta expects strictly sequential {{1}}, {{2}}. 
+                // Creating a completely new string by strictly replacing {{anything}} with {{1}}, {{2}} in order.
+
+                // Better approach: Split by regex and reconstruct
+            });
+
+            // Robust approach: Replace all {{...}} with {{1}}, {{2}} sequentially
+            let i = 1;
+            metaContent = metaContent.replace(/\{\{[^}]+\}\}/g, () => `{{${i++}}}`);
+        }
+
         // Submit to Meta
         const result = await whatsappService.createTemplate(
             template.name,
             category,
-            template.content,
+            metaContent,
             'en_US' // Default language
         );
 
