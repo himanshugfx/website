@@ -24,7 +24,8 @@ import {
     Wallet,
     ClipboardList,
     Shield,
-    UserCircle
+    UserCircle,
+    Menu
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -215,6 +216,15 @@ const SidebarContent = ({
                 </div>
                 {!isCollapsed && <span className="text-lg font-bold tracking-wide">Anose Admin</span>}
             </div>
+            {/* Mobile Toggle (Hamburger) - Replaces the X */}
+            <button
+                type="button"
+                onClick={onClose}
+                className="lg:hidden ml-auto p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                aria-label="Close menu"
+            >
+                <Menu className="w-6 h-6" />
+            </button>
         </div>
 
         {/* Navigation */}
@@ -238,15 +248,17 @@ const SidebarContent = ({
         <div className="p-4 border-t border-gray-800 space-y-2">
             {/* Mobile Close Button */}
             <button
+                type="button"
                 onClick={onClose}
                 className="lg:hidden flex items-center justify-center gap-2 w-full p-3 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors group"
             >
                 <ChevronsLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="font-medium">Collapse Sidebar</span>
+                <span className="font-medium">Close Menu</span>
             </button>
 
             {/* Desktop Collapse Button */}
             <button
+                type="button"
                 onClick={onToggleCollapse}
                 className={`hidden lg:flex items-center justify-center w-full p-2 text-gray-500 hover:text-white rounded-lg transition-colors`}
                 title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
