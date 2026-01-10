@@ -17,7 +17,7 @@ interface GAResponse {
 // Helper to get access token using service account
 async function getAccessToken(): Promise<{ token: string | null; error: string | null }> {
     const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
     if (!serviceAccountEmail) {
         return { token: null, error: 'GOOGLE_SERVICE_ACCOUNT_EMAIL not configured' };
@@ -91,9 +91,9 @@ async function getAccessToken(): Promise<{ token: string | null; error: string |
         }
 
         return { token: tokenData.access_token, error: null };
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error getting access token:', error);
-        return { token: null, error: `Auth error: ${error.message}` };
+        return { token: null, error: `Auth error: ${(error as Error).message}` };
     }
 }
 
@@ -104,11 +104,11 @@ async function runReport(
     dateRanges: { startDate: string; endDate: string }[],
     metrics: { name: string }[],
     dimensions?: { name: string }[],
-    orderBys?: any[],
+    orderBys?: unknown[],
     limit?: number
 ): Promise<{ data: GAResponse | null; error: string | null }> {
     try {
-        const body: any = {
+        const body: Record<string, unknown> = {
             dateRanges,
             metrics
         };
@@ -137,9 +137,9 @@ async function runReport(
         }
 
         return { data, error: null };
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error running GA report:', error);
-        return { data: null, error: error.message };
+        return { data: null, error: (error as Error).message };
     }
 }
 
@@ -241,8 +241,8 @@ export async function getAnalyticsData() {
             }
         };
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Analytics Fetch Error:', error);
-        return { error: `Failed to fetch analytics: ${error.message}` };
+        return { error: `Failed to fetch analytics: ${(error as Error).message}` };
     }
 }

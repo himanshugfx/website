@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+
 import {
     LayoutDashboard,
     Package,
     ShoppingCart,
     Users,
-    X,
     ChevronRight,
     ChevronDown,
     ChevronsLeft,
@@ -21,11 +20,9 @@ import {
     Target,
     MessageCircle,
     BarChart,
-    LogOut,
     Receipt,
     Wallet,
     ClipboardList,
-    Settings,
     Shield,
     UserCircle
 } from 'lucide-react';
