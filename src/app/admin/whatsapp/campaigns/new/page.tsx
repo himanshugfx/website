@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Users, Send, FileText, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Users, Send, FileText, Loader2, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -38,7 +38,7 @@ export default function NewCampaignPage() {
         try {
             const [templatesRes, leadsRes] = await Promise.all([
                 fetch('/api/whatsapp/templates'),
-                fetch('/api/funnel/leads'),
+                fetch('/api/whatsapp/leads'),
             ]);
 
             const templatesData = await templatesRes.json();
@@ -65,40 +65,45 @@ export default function NewCampaignPage() {
             return;
         }
 
-        // Collect phone numbers
-        let phones: string[] = [];
+        // Collect recipients
+        let recipients: { phone: string; name: string }[] = [];
 
-        if (audience === 'LEADS') {
-            phones = leads
-                .filter(l => selectedLeads.includes(l.id) && l.phone)
-                .map(l => l.phone as string);
-        }
+        // Add leads
+        leads
+            .filter(l => selectedLeads.includes(l.id) && l.phone)
+            .forEach(l => {
+                recipients.push({ phone: l.phone as string, name: l.name });
+            });
 
         // Add custom numbers
         if (customNumbers) {
             const customList = customNumbers
                 .split(/[,\n]/)
-                .map(p => p.trim().replace(/\D/g, ''))
+                .map(p => p.trim())
                 .filter(p => p.length >= 10);
-            phones = [...phones, ...customList];
+
+            customList.forEach(p => {
+                // If it's already in the list, skip
+                if (!recipients.some(r => r.phone.replace(/\D/g, '') === p.replace(/\D/g, ''))) {
+                    recipients.push({ phone: p, name: 'Customer' });
+                }
+            });
         }
 
-        if (phones.length === 0) {
-            setResult({ success: false, message: 'No phone numbers to send to' });
+        if (recipients.length === 0) {
+            setResult({ success: false, message: 'No recipients selected' });
             setSending(false);
             return;
         }
 
         try {
-            // Create campaign
             const campaignRes = await fetch('/api/whatsapp/campaigns', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name,
                     templateId,
-                    audience,
-                    phones,
+                    recipients,
                 }),
             });
 
@@ -107,9 +112,14 @@ export default function NewCampaignPage() {
             if (campaignData.success) {
                 setResult({
                     success: true,
-                    message: `Campaign created! Sending to ${campaignData.sentCount} recipients...`,
+                    message: `Campaign created! Sent to ${campaignData.sentCount} recipients.`,
                     sent: campaignData.sentCount,
                 });
+                // Reset form
+                setName('');
+                setTemplateId('');
+                setSelectedLeads([]);
+                setCustomNumbers('');
             } else {
                 setResult({ success: false, message: campaignData.error || 'Failed to create campaign' });
             }
@@ -157,15 +167,15 @@ export default function NewCampaignPage() {
                     </Link>
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">New Campaign</h1>
-                        <p className="text-sm text-gray-500 mt-1">Send bulk WhatsApp messages</p>
+                        <p className="text-sm text-gray-500 mt-1">Send bulk WhatsApp messages with variables</p>
                     </div>
                 </div>
 
                 {/* Result */}
                 {result && (
                     <div className={`p-4 rounded-xl flex items-center gap-3 ${result.success
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-red-50 border border-red-200'
+                        ? 'bg-green-50 border border-green-200'
+                        : 'bg-red-50 border border-red-200'
                         }`}>
                         {result.success ? (
                             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -181,7 +191,7 @@ export default function NewCampaignPage() {
                 {/* Form */}
                 <form onSubmit={handleSend} className="space-y-6">
                     {/* Campaign Name */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Campaign Name *
                         </label>
@@ -189,17 +199,17 @@ export default function NewCampaignPage() {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g., New Year Sale 2026"
+                            placeholder="e.g., Seasonal Greetings 2026"
                             required
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                     </div>
 
                     {/* Template Selection */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-5 h-5 text-green-600" />
-                            <h2 className="font-semibold text-gray-900">Select Template</h2>
+                            <h2 className="font-semibold text-gray-900">Select Message Template</h2>
                         </div>
 
                         {templates.length === 0 ? (
@@ -219,8 +229,8 @@ export default function NewCampaignPage() {
                                     <label
                                         key={template.id}
                                         className={`flex items-start gap-3 p-4 border rounded-xl cursor-pointer transition-colors ${templateId === template.id
-                                                ? 'border-green-500 bg-green-50'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-green-500 bg-green-50 shadow-sm'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <input
@@ -233,7 +243,7 @@ export default function NewCampaignPage() {
                                         />
                                         <div className="flex-1">
                                             <p className="font-medium text-gray-900">{template.name}</p>
-                                            <p className="text-sm text-gray-500 line-clamp-2 mt-1">{template.content}</p>
+                                            <p className="text-sm text-gray-500 line-clamp-2 mt-1 font-mono text-xs">{template.content}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -242,18 +252,18 @@ export default function NewCampaignPage() {
                     </div>
 
                     {/* Recipients */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <Users className="w-5 h-5 text-green-600" />
-                            <h2 className="font-semibold text-gray-900">Recipients</h2>
+                            <h2 className="font-semibold text-gray-900">Select Recipients</h2>
                         </div>
 
                         {/* Leads Selection */}
                         {leads.length > 0 && (
-                            <div className="mb-4">
+                            <div className="mb-6">
                                 <div className="flex items-center justify-between mb-2">
                                     <label className="text-sm font-medium text-gray-700">
-                                        Select from Leads ({selectedLeads.length} selected)
+                                        Qualified Leads ({selectedLeads.length} selected)
                                     </label>
                                     <button
                                         type="button"
@@ -263,7 +273,7 @@ export default function NewCampaignPage() {
                                         {selectedLeads.length === leads.length ? 'Deselect All' : 'Select All'}
                                     </button>
                                 </div>
-                                <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-xl p-2 space-y-1">
+                                <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-xl p-2 space-y-1">
                                     {leads.map((lead) => (
                                         <label
                                             key={lead.id}
@@ -274,9 +284,9 @@ export default function NewCampaignPage() {
                                                 type="checkbox"
                                                 checked={selectedLeads.includes(lead.id)}
                                                 onChange={() => toggleLead(lead.id)}
-                                                className="rounded"
+                                                className="rounded h-4 w-4 text-green-600"
                                             />
-                                            <div>
+                                            <div className="flex-1">
                                                 <p className="text-sm font-medium text-gray-900">{lead.name}</p>
                                                 <p className="text-xs text-gray-500">{lead.phone}</p>
                                             </div>
@@ -298,8 +308,28 @@ export default function NewCampaignPage() {
                                 rows={3}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                             />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Total recipients: {selectedLeads.length + (customNumbers.split(/[,\n]/).filter(p => p.trim()).length)}
+                            <div className="flex items-center justify-between mt-2">
+                                <p className="text-xs text-gray-500">
+                                    Total unique recipients: {
+                                        // Simple count for UI display
+                                        selectedLeads.length + (customNumbers.split(/[,\n]/).filter(p => p.trim()).length)
+                                    }
+                                </p>
+                                <p className="text-[10px] text-amber-600 font-medium">
+                                    * Messages will be sent one by one
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Meta Restriction Note */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                        <loader2 className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
+                        <div>
+                            <h4 className="text-sm font-bold text-amber-800 uppercase tracking-wide">Important Note</h4>
+                            <p className="text-xs text-amber-700 mt-1">
+                                Meta restricts regular messages to a 24-hour window from the user's last message.
+                                For older leads, please ensure you use **Meta Approved Templates** for best delivery rates.
                             </p>
                         </div>
                     </div>
@@ -308,7 +338,7 @@ export default function NewCampaignPage() {
                     <button
                         type="submit"
                         disabled={sending || !name || !templateId || (selectedLeads.length === 0 && !customNumbers)}
-                        className="w-full flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-[0.99]"
                     >
                         {sending ? (
                             <>
@@ -318,7 +348,7 @@ export default function NewCampaignPage() {
                         ) : (
                             <>
                                 <Send className="w-5 h-5" />
-                                Send Campaign
+                                Launch Campaign
                             </>
                         )}
                     </button>

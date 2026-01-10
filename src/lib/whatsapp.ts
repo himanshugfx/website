@@ -41,12 +41,14 @@ interface WhatsAppErrorResponse {
 class WhatsAppService {
     private apiToken: string;
     private phoneNumberId: string;
+    private businessAccountId: string;
     private apiVersion: string;
     private baseUrl: string;
 
     constructor() {
-        this.apiToken = process.env.WHATSAPP_API_TOKEN || '';
-        this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+        this.apiToken = (process.env.WHATSAPP_API_TOKEN || '').trim();
+        this.phoneNumberId = (process.env.WHATSAPP_PHONE_NUMBER_ID || '').trim();
+        this.businessAccountId = (process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '').trim();
         this.apiVersion = process.env.WHATSAPP_API_VERSION || 'v21.0';
         this.baseUrl = `https://graph.facebook.com/${this.apiVersion}/${this.phoneNumberId}`;
     }
@@ -84,20 +86,33 @@ class WhatsAppService {
     }
 
     /**
+     * Replace variables like {{name}} in content
+     */
+    replaceVariables(content: string, variables: Record<string, string>): string {
+        let result = content;
+        for (const [key, value] of Object.entries(variables)) {
+            const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+            result = result.replace(regex, value);
+        }
+        return result;
+    }
+
+    /**
      * Send a text message
      */
-    async sendTextMessage(phone: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    async sendTextMessage(phone: string, message: string, variables?: Record<string, string>): Promise<{ success: boolean; messageId?: string; error?: string }> {
         if (!this.isConfigured()) {
             return { success: false, error: 'WhatsApp API not configured' };
         }
 
         const formattedPhone = this.formatPhoneNumber(phone);
+        const finalMessage = variables ? this.replaceVariables(message, variables) : message;
 
         const payload: WhatsAppMessagePayload = {
             messaging_product: 'whatsapp',
             to: formattedPhone,
             type: 'text',
-            text: { body: message },
+            text: { body: finalMessage },
         };
 
         try {
@@ -199,14 +214,13 @@ class WhatsAppService {
             return { success: false, error: 'WhatsApp API not configured' };
         }
 
-        const wabaId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
-        if (!wabaId) {
+        if (!this.businessAccountId) {
             return { success: false, error: 'WABA ID not configured' };
         }
 
         try {
             const response = await fetch(
-                `https://graph.facebook.com/${this.apiVersion}/${wabaId}/message_templates`,
+                `https://graph.facebook.com/${this.apiVersion}/${this.businessAccountId}/message_templates`,
                 {
                     headers: {
                         'Authorization': `Bearer ${this.apiToken}`,

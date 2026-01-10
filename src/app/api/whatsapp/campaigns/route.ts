@@ -21,11 +21,11 @@ export async function GET() {
 // Create and send a campaign
 export async function POST(request: Request) {
     try {
-        const { name, templateId, phones, audience = 'MANUAL' } = await request.json();
+        const { name, templateId, recipients, audience = 'MANUAL' } = await request.json();
 
-        if (!name || !templateId || !phones || phones.length === 0) {
+        if (!name || !templateId || !recipients || recipients.length === 0) {
             return NextResponse.json({
-                error: 'Name, template, and at least one phone number are required'
+                error: 'Name, template, and at least one recipient are required'
             }, { status: 400 });
         }
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Template not found' }, { status: 404 });
         }
 
-        // Create the campaign
+        // Create the campaign record first
         const campaign = await prisma.whatsAppCampaign.create({
             data: {
                 name,
@@ -54,38 +54,52 @@ export async function POST(request: Request) {
         let sentCount = 0;
         let failedCount = 0;
 
-        // Process messages (limit to 50 for now)
-        for (const phone of phones.slice(0, 50)) {
+        // Process message sending in a controlled way (sequential for now to be safe with Meta limits)
+        // In a real production environment, you might use a queue/worker
+        for (const recipient of recipients) {
+            const { phone, name: recipientName } = recipient;
+
+            // Replace variables if present (like {{name}})
+            const variables = {
+                name: recipientName || 'Customer',
+                // Add more default variables if needed
+            };
+
             const result = await whatsappService.sendTextMessage(
                 phone,
-                template.content
+                template.content,
+                variables
             );
 
             if (result.success) {
                 sentCount++;
-                // Log message
+                // Log individual message
                 await prisma.whatsAppMessage.create({
                     data: {
                         campaignId: campaign.id,
                         phone: whatsappService.formatPhoneNumber(phone),
-                        content: template.content,
+                        content: whatsappService.replaceVariables(template.content, variables),
                         status: 'SENT',
                     },
                 });
             } else {
                 failedCount++;
+                console.error(`Failed to send campaign message to ${phone}:`, result.error);
                 await prisma.whatsAppMessage.create({
                     data: {
                         campaignId: campaign.id,
                         phone: whatsappService.formatPhoneNumber(phone),
-                        content: template.content,
+                        content: whatsappService.replaceVariables(template.content, variables),
                         status: 'FAILED',
                     },
                 });
             }
+
+            // Small delay to prevent hitting rate limits too fast
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
 
-        // Update campaign with final counts
+        // Update campaign with final results
         await prisma.whatsAppCampaign.update({
             where: { id: campaign.id },
             data: {
@@ -99,7 +113,7 @@ export async function POST(request: Request) {
             campaignId: campaign.id,
             sentCount,
             failedCount,
-            totalCount: phones.length,
+            totalCount: recipients.length,
         });
     } catch (error) {
         console.error('Error creating campaign:', error);

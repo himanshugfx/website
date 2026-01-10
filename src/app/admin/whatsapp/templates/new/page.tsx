@@ -1,31 +1,51 @@
+'use client';
+
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, FileText, Sparkles } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import prisma from '@/lib/prisma';
-import { redirect } from 'next/navigation';
-
-async function createTemplate(formData: FormData) {
-    'use server';
-
-    const name = formData.get('name') as string;
-    const content = formData.get('content') as string;
-
-    // Extract variables from content (format: {{variable_name}})
-    const variableMatches = content.match(/\{\{(\w+)\}\}/g) || [];
-    const variables = variableMatches.map(v => v.replace(/\{\{|\}\}/g, ''));
-
-    await prisma.whatsAppTemplate.create({
-        data: {
-            name,
-            content,
-            variables: JSON.stringify(variables),
-        },
-    });
-
-    redirect('/admin/whatsapp/templates');
-}
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function NewTemplatePage() {
+    const router = useRouter();
+    const [name, setName] = useState('');
+    const [content, setContent] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSaving(true);
+        setError(null);
+
+        // Extract variables from content (format: {{variable_name}} or {{variable}})
+        // Improved regex to handle spaces and common characters
+        const variableMatches = content.match(/\{\{\s*(\w+)\s*\}\}/g) || [];
+        const variables = variableMatches.map(v => v.replace(/\{\{|\}\}|\s/g, ''));
+
+        try {
+            const res = await fetch('/api/whatsapp/templates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, content, variables }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                router.push('/admin/whatsapp/templates');
+                router.refresh();
+            } else {
+                setError(data.error || 'Failed to create template');
+                setSaving(false);
+            }
+        } catch (err) {
+            console.error('Error creating template:', err);
+            setError('Failed to connect to server');
+            setSaving(false);
+        }
+    };
+
     return (
         <AdminLayout>
             <div className="max-w-2xl mx-auto space-y-6">
@@ -43,8 +63,16 @@ export default function NewTemplatePage() {
                     </div>
                 </div>
 
+                {/* Error Message */}
+                {error && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+                        <XCircle className="w-5 h-5 flex-shrink-0" />
+                        <span>{error}</span>
+                    </div>
+                )}
+
                 {/* Form */}
-                <form action={createTemplate} className="space-y-6">
+                <form onSubmit={handleCreate} className="space-y-6">
                     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-5 h-5 text-green-600" />
@@ -58,7 +86,8 @@ export default function NewTemplatePage() {
                                 </label>
                                 <input
                                     type="text"
-                                    name="name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     required
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                                     placeholder="e.g., Order Confirmation"
@@ -70,7 +99,8 @@ export default function NewTemplatePage() {
                                     Message Content *
                                 </label>
                                 <textarea
-                                    name="content"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
                                     required
                                     rows={6}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 resize-none font-mono text-sm"
@@ -115,9 +145,17 @@ Thank you for shopping with us.
                         </Link>
                         <button
                             type="submit"
-                            className="px-6 py-3 font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700"
+                            disabled={saving || !name || !content}
+                            className="px-6 py-3 font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 flex items-center justify-center gap-2"
                         >
-                            Create Template
+                            {saving ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create Template'
+                            )}
                         </button>
                     </div>
                 </form>
