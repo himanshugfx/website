@@ -211,6 +211,7 @@ export async function GET() {
         const [
             realtimeUsers,
             overviewRes,
+            ecommerceRes,
             previousPeriodRes,
             topPagesRes,
             trafficSourcesRes,
@@ -219,7 +220,7 @@ export async function GET() {
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),
 
-            // 2. Current period overview (last 30 days)
+            // 2. Current period overview (last 30 days) - Basic Traffic
             runReport(accessToken, propertyId,
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [
@@ -229,7 +230,14 @@ export async function GET() {
                     { name: 'screenPageViews' },
                     { name: 'bounceRate' },
                     { name: 'averageSessionDuration' },
-                    { name: 'engagementRate' },
+                    { name: 'engagementRate' }
+                ]
+            ),
+
+            // 3. Current period overview (last 30 days) - eCommerce
+            runReport(accessToken, propertyId,
+                [{ startDate: '30daysAgo', endDate: 'today' }],
+                [
                     { name: 'ecommercePurchases' },
                     { name: 'purchaseRevenue' },
                     { name: 'transactions' },
@@ -237,7 +245,7 @@ export async function GET() {
                 ]
             ),
 
-            // 3. Previous period (for comparison)
+            // 4. Previous period (for comparison)
             runReport(accessToken, propertyId,
                 [{ startDate: '60daysAgo', endDate: '31daysAgo' }],
                 [
@@ -247,7 +255,7 @@ export async function GET() {
                 ]
             ),
 
-            // 4. Top pages
+            // 5. Top pages
             runReport(accessToken, propertyId,
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [
@@ -259,7 +267,7 @@ export async function GET() {
                 10
             ),
 
-            // 5. Traffic sources
+            // 6. Traffic sources
             runReport(accessToken, propertyId,
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [{ name: 'sessions' }, { name: 'totalUsers' }],
@@ -267,7 +275,7 @@ export async function GET() {
                 [{ metric: { metricName: 'sessions' }, desc: true }]
             ),
 
-            // 6. Device breakdown
+            // 7. Device breakdown
             runReport(accessToken, propertyId,
                 [{ startDate: '30daysAgo', endDate: 'today' }],
                 [{ name: 'sessions' }],
@@ -277,12 +285,17 @@ export async function GET() {
 
         if (overviewRes.error) {
             return NextResponse.json({
-                error: `GA Report error: ${overviewRes.error}`,
+                error: `GA Overview error: ${overviewRes.error}`,
                 data: null
             }, { status: 500 });
         }
 
+        if (ecommerceRes.error) {
+            console.warn('GA eCommerce error:', ecommerceRes.error);
+        }
+
         const overviewData = overviewRes.data;
+        const ecommerceData = ecommerceRes.data;
         const previousPeriodData = previousPeriodRes.data;
         const topPagesData = topPagesRes.data;
         const trafficSourcesData = trafficSourcesRes.data;
@@ -310,10 +323,11 @@ export async function GET() {
         const newUsers = parseInt(currentMetrics[2]?.value || '0', 10);
 
         // eCommerce Metrics
-        const purchases = parseInt(currentMetrics[7]?.value || '0', 10);
-        const revenue = parseFloat(currentMetrics[8]?.value || '0');
-        const transactions = parseInt(currentMetrics[9]?.value || '0', 10);
-        const conversionRate = parseFloat(currentMetrics[10]?.value || '0') * 100;
+        const eMetrics = ecommerceData?.rows?.[0]?.metricValues || [];
+        const purchases = parseInt(eMetrics[0]?.value || '0', 10);
+        const revenue = parseFloat(eMetrics[1]?.value || '0');
+        const transactions = parseInt(eMetrics[2]?.value || '0', 10);
+        const conversionRate = parseFloat(eMetrics[3]?.value || '0') * 100;
 
         // Parse top pages
         const topPages = (topPagesData?.rows || []).map(row => ({
