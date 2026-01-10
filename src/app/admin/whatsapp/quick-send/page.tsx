@@ -1,15 +1,92 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Send, MessageCircle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, MessageCircle, CheckCircle, XCircle, Loader2, User, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface Lead {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+}
+
+interface Template {
+    id: string;
+    name: string;
+    content: string;
+}
 
 export default function QuickSendPage() {
     const [phone, setPhone] = useState('');
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
     const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+
+    // New state for selection
+    const [leads, setLeads] = useState<Lead[]>([]);
+    const [templates, setTemplates] = useState<Template[]>([]);
+    const [loadingData, setLoadingData] = useState(true);
+    const [selectedLeadId, setSelectedLeadId] = useState('');
+    const [selectedTemplateId, setSelectedTemplateId] = useState('');
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [leadsRes, templatesRes] = await Promise.all([
+                fetch('/api/whatsapp/leads'),
+                fetch('/api/whatsapp/templates')
+            ]);
+
+            const leadsData = await leadsRes.json();
+            const templatesData = await templatesRes.json();
+
+            if (leadsData.success) setLeads(leadsData.leads);
+            if (templatesData.success) setTemplates(templatesData.localTemplates || []); // Use local templates for quick send preview
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    const handleLeadSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const leadId = e.target.value;
+        setSelectedLeadId(leadId);
+
+        if (leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (lead && lead.phone) {
+                // Strip non-digits and ensure 10 digits
+                const cleanPhone = lead.phone.replace(/\D/g, '').slice(-10);
+                setPhone(cleanPhone);
+            }
+        }
+    };
+
+    const handleTemplateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const templateId = e.target.value;
+        setSelectedTemplateId(templateId);
+
+        if (templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (template) {
+                // If a lead is selected, try to replace {{name}}
+                let content = template.content;
+                if (selectedLeadId) {
+                    const lead = leads.find(l => l.id === selectedLeadId);
+                    if (lead) {
+                        content = content.replace(/{{name}}/g, lead.name.split(' ')[0]);
+                    }
+                }
+                setMessage(content);
+            }
+        }
+    };
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,6 +106,8 @@ export default function QuickSendPage() {
                 setResult({ success: true, message: 'Message sent successfully!' });
                 setPhone('');
                 setMessage('');
+                setSelectedLeadId('');
+                setSelectedTemplateId('');
             } else {
                 setResult({ success: false, message: data.error || 'Failed to send message' });
             }
@@ -59,8 +138,8 @@ export default function QuickSendPage() {
                 {/* Result Message */}
                 {result && (
                     <div className={`p-4 rounded-xl flex items-center gap-3 ${result.success
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-red-50 border border-red-200'
+                        ? 'bg-green-50 border border-green-200'
+                        : 'bg-red-50 border border-red-200'
                         }`}>
                         {result.success ? (
                             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -75,6 +154,54 @@ export default function QuickSendPage() {
 
                 {/* Send Form */}
                 <form onSubmit={handleSend} className="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
+
+                    {/* Selectors Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Lead Selector */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <User className="w-4 h-4 text-gray-400" />
+                                Select Lead (Optional)
+                            </label>
+                            <select
+                                value={selectedLeadId}
+                                onChange={handleLeadSelect}
+                                disabled={loadingData}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                            >
+                                <option value="">-- Manual Entry --</option>
+                                {leads.map(lead => (
+                                    <option key={lead.id} value={lead.id}>
+                                        {lead.name} ({lead.source})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Template Selector */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-gray-400" />
+                                Select Template (Optional)
+                            </label>
+                            <select
+                                value={selectedTemplateId}
+                                onChange={handleTemplateSelect}
+                                disabled={loadingData}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                            >
+                                <option value="">-- Custom Message --</option>
+                                {templates.map(tmpl => (
+                                    <option key={tmpl.id} value={tmpl.id}>
+                                        {tmpl.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-gray-100" />
+
                     {/* Phone Number */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -107,7 +234,7 @@ export default function QuickSendPage() {
                             required
                             rows={5}
                             maxLength={1000}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 resize-none font-sans"
                         />
                         <p className="text-xs text-gray-500 mt-1">{message.length}/1000 characters</p>
                     </div>

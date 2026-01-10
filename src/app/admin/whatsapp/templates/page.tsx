@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Plus, FileText, CheckCircle, XCircle, Trash2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, CheckCircle, XCircle, Trash2, Loader2, RefreshCw, AlertCircle, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -27,6 +27,7 @@ export default function WhatsAppTemplatesPage() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [submittingId, setSubmittingId] = useState<string | null>(null);
     const [metaError, setMetaError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -48,6 +49,32 @@ export default function WhatsAppTemplatesPage() {
         } finally {
             setLoading(false);
             setRefreshing(false);
+        }
+    };
+
+    const handleSubmitToMeta = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to submit "${name}" to Meta for approval?`)) return;
+
+        setSubmittingId(id);
+        try {
+            const res = await fetch(`/api/whatsapp/templates/${id}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Template submitted successfully! It may take some time to appear in Meta templates.');
+                // Optimistically update local state to approved
+                setLocalTemplates(prev => prev.map(t => t.id === id ? { ...t, approved: true } : t));
+                // Trigger refresh to see if it appears in meta templates immediately (unlikely but good practice)
+                fetchData();
+            } else {
+                alert(data.error || 'Failed to submit template');
+            }
+        } catch (error) {
+            alert('Failed to connect to server');
+        } finally {
+            setSubmittingId(null);
         }
     };
 
@@ -163,17 +190,33 @@ export default function WhatsAppTemplatesPage() {
                                         <span className="text-[10px] text-gray-400 font-medium">
                                             {new Date(template.createdAt).toLocaleDateString()}
                                         </span>
-                                        <button
-                                            onClick={() => handleDelete(template.id, template.name)}
-                                            disabled={deletingId === template.id}
-                                            className="p-1.5 text-gray-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"
-                                        >
-                                            {deletingId === template.id ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <Trash2 className="w-4 h-4" />
+                                        <div className="flex items-center gap-2">
+                                            {!template.approved && (
+                                                <button
+                                                    onClick={() => handleSubmitToMeta(template.id, template.name)}
+                                                    disabled={submittingId === template.id}
+                                                    className="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-1"
+                                                >
+                                                    {submittingId === template.id ? (
+                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                    ) : (
+                                                        <Upload className="w-3 h-3" />
+                                                    )}
+                                                    Submit
+                                                </button>
                                             )}
-                                        </button>
+                                            <button
+                                                onClick={() => handleDelete(template.id, template.name)}
+                                                disabled={deletingId === template.id}
+                                                className="p-1.5 text-gray-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                                            >
+                                                {deletingId === template.id ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <Trash2 className="w-4 h-4" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))
