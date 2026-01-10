@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
                         { ingredients: { contains: query, mode: 'insensitive' } },
                         // Add individual word matches for better suggestions
                         ...searchTerms.map(term => ({
-                            name: { contains: term, mode: 'insensitive' }
+                            name: { contains: term, mode: 'insensitive' as const }
                         }))
                     ],
                 },
