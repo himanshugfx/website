@@ -51,6 +51,12 @@ const defaultQuickReplies: QuickReply[] = [
     response: "EXPERT_ADVICE_MODE",
   },
   {
+    id: "remedies",
+    label: "Home Remedies",
+    icon: "🌿",
+    response: "HOME_REMEDIES_MODE",
+  },
+  {
     id: "products",
     label: "Search Products",
     icon: "🔍",
@@ -147,6 +153,27 @@ Ask me anything about your skin concerns! For example:
 • "How to treat active acne?"
 • "Best ingredients for dry skin?"
 • "How to fade dark spots?"`,
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }, 800);
+      return;
+    }
+
+    // Check if this is home remedies mode
+    if (reply.response === "HOME_REMEDIES_MODE") {
+      setProductSearchMode(true); // Re-use search UI
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          type: "assistant",
+          content: `🌿 **Indian Home Remedies**
+          
+Ask me for natural secrets for your skin! For example:
+• "Home remedy for glow?"
+• "How to remove tan naturally?"
+• "Multani mitti for oily skin?"`,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       }, 800);

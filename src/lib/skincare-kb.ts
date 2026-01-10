@@ -47,6 +47,31 @@ export const SKINCARE_KB: Record<string, SkincareIntent> = {
         title: "Hair Health & Care",
         advice: "Healthy hair starts at the scalp. Use a clarifying shampoo for dandruff and follow up with a nourishing oil or mask. Avoid excessive heat styling and use a heat protectant when you do.",
         searchTerms: "hair oil shampoo hair care"
+    },
+    // Home Remedies
+    glow_remedy: {
+        keywords: ["glow", "brighten", "radiance", "home remedy for glow", "face pack"],
+        title: "Natural Glow Home Remedy",
+        advice: "For an instant glow, try this: Mix **1 tbsp Besan (Gram Flour)**, **a pinch of Turmeric**, and **1 tbsp Curd (Yogurt)**. Apply for 15 mins and wash off. This traditional 'Ubtan' helps exfoliate and brighten naturally!",
+        searchTerms: "saffron face wash glow"
+    },
+    tan_remedy: {
+        keywords: ["tan", "sunburn", "de-tan", "burnt skin", "remove tan"],
+        title: "De-Tan Home Remedy",
+        advice: "To remove tan, mix **Potato Juice** with a few drops of **Lemon**. Apply on tanned areas for 20 mins. Potato acts as a natural bleach, and Vitamin C in lemon helps brighten.",
+        searchTerms: "aloe vera gel sunscreen"
+    },
+    dark_circles_remedy: {
+        keywords: ["dark circles", "puffy eyes", "tired eyes", "under eye"],
+        title: "Home Remedy for Dark Circles",
+        advice: "Soothe tired eyes with **Cold Cucumber slices** or **Chilled Green Tea bags** for 10-15 mins. Massaging a drop of **Almond Oil** under your eyes every night also helps lighten dark circles over time.",
+        searchTerms: "under eye cream serum"
+    },
+    oily_remedy: {
+        keywords: ["multani mitti", "clay mask", "greasy skin help", "natural oily skin"],
+        title: "Home Remedy for Oily Skin",
+        advice: "Use **Multani Mitti (Fuller's Earth)** mixed with **Rose Water**. This traditional clay mask absorbs excess oil and tightens pores without over-drying. Use it once or twice a week.",
+        searchTerms: "multani mitti face wash"
     }
 };
 
