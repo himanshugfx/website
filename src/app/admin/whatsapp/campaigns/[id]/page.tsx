@@ -38,8 +38,9 @@ const messageStatusColors: Record<string, string> = {
     FAILED: 'text-red-600',
 };
 
-export default async function CampaignDetailsPage({ params }: { params: { id: string } }) {
-    const campaign = await getCampaign(params.id);
+export default async function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const campaign = await getCampaign(id);
 
     if (!campaign) {
         notFound();
