@@ -215,7 +215,8 @@ export async function GET() {
             previousPeriodRes,
             topPagesRes,
             trafficSourcesRes,
-            deviceRes
+            deviceRes,
+            cityRes
         ] = await Promise.all([
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),

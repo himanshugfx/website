@@ -276,10 +276,10 @@ export default function PromoCodesPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-zinc-900">
-                                                    {code.discountType === 'PERCENTAGE' ? `${code.discountValue}%` : `$${code.discountValue}`} OFF
+                                                    {code.discountType === 'PERCENTAGE' ? `${code.discountValue}%` : `₹${code.discountValue}`} OFF
                                                 </div>
                                                 {code.maxDiscount && (
-                                                    <div className="text-xs text-zinc-500">Max disc. ${code.maxDiscount}</div>
+                                                    <div className="text-xs text-zinc-500">Max disc. ₹{code.maxDiscount}</div>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-zinc-600">
@@ -287,7 +287,7 @@ export default function PromoCodesPage() {
                                                 {code.usageLimit && <span className="text-zinc-400"> / {code.usageLimit}</span>} uses
                                             </td>
                                             <td className="px-6 py-4 text-sm text-zinc-600">
-                                                {code.minOrderValue ? `Min. Order: $${code.minOrderValue}` : 'No min. order'}
+                                                {code.minOrderValue ? `Min. Order: ₹${code.minOrderValue}` : 'No min. order'}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button
@@ -369,7 +369,7 @@ export default function PromoCodesPage() {
                                             className="w-full rounded-lg border border-zinc-300 px-3 py-2"
                                         >
                                             <option value="PERCENTAGE">Percentage (%)</option>
-                                            <option value="FIXED">Fixed Amount ($)</option>
+                                            <option value="FIXED">Fixed Amount (₹)</option>
                                         </select>
                                     </div>
                                     <div>
@@ -388,7 +388,7 @@ export default function PromoCodesPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-zinc-700 mb-1">Min. Order Value ($)</label>
+                                        <label className="block text-sm font-medium text-zinc-700 mb-1">Min. Order Value (₹)</label>
                                         <input
                                             type="number"
                                             min="0"
@@ -399,7 +399,7 @@ export default function PromoCodesPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-zinc-700 mb-1">Max Discount ($)</label>
+                                        <label className="block text-sm font-medium text-zinc-700 mb-1">Max Discount (₹)</label>
                                         <input
                                             type="number"
                                             min="0"
