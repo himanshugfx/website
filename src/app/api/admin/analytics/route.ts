@@ -95,7 +95,7 @@ async function runReport(
     dimensions?: { name: string }[],
     orderBys?: any[],
     limit?: number
-): Promise<GAResponse | null> {
+): Promise<{ data: GAResponse | null; error: string | null }> {
     try {
         const body: any = {
             dateRanges,
@@ -122,13 +122,13 @@ async function runReport(
 
         if (data.error) {
             console.error('GA Report Error:', data.error);
-            return null;
+            return { data: null, error: data.error.message || 'Unknown GA error' };
         }
 
-        return data;
-    } catch (error) {
+        return { data, error: null };
+    } catch (error: any) {
         console.error('Error running GA report:', error);
-        return null;
+        return { data: null, error: error.message };
     }
 }
 
@@ -191,11 +191,11 @@ export async function GET() {
         // Fetch all analytics data in parallel
         const [
             realtimeUsers,
-            overviewData,
-            previousPeriodData,
-            topPagesData,
-            trafficSourcesData,
-            deviceData
+            overviewRes,
+            previousPeriodRes,
+            topPagesRes,
+            trafficSourcesRes,
+            deviceRes
         ] = await Promise.all([
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),
@@ -210,7 +210,11 @@ export async function GET() {
                     { name: 'screenPageViews' },
                     { name: 'bounceRate' },
                     { name: 'averageSessionDuration' },
-                    { name: 'engagementRate' }
+                    { name: 'engagementRate' },
+                    { name: 'ecommercePurchases' },
+                    { name: 'purchaseRevenue' },
+                    { name: 'transactions' },
+                    { name: 'sessionConversionRate' }
                 ]
             ),
 
@@ -252,6 +256,19 @@ export async function GET() {
             )
         ]);
 
+        if (overviewRes.error) {
+            return NextResponse.json({
+                error: `GA Report error: ${overviewRes.error}`,
+                data: null
+            }, { status: 500 });
+        }
+
+        const overviewData = overviewRes.data;
+        const previousPeriodData = previousPeriodRes.data;
+        const topPagesData = topPagesRes.data;
+        const trafficSourcesData = trafficSourcesRes.data;
+        const deviceData = deviceRes.data;
+
         // Parse overview metrics
         const currentMetrics = overviewData?.rows?.[0]?.metricValues || [];
         const prevMetrics = previousPeriodData?.rows?.[0]?.metricValues || [];
@@ -272,6 +289,12 @@ export async function GET() {
         const avgSessionDuration = parseFloat(currentMetrics[5]?.value || '0');
         const engagementRate = parseFloat(currentMetrics[6]?.value || '0') * 100;
         const newUsers = parseInt(currentMetrics[2]?.value || '0', 10);
+
+        // eCommerce Metrics
+        const purchases = parseInt(currentMetrics[7]?.value || '0', 10);
+        const revenue = parseFloat(currentMetrics[8]?.value || '0');
+        const transactions = parseInt(currentMetrics[9]?.value || '0', 10);
+        const conversionRate = parseFloat(currentMetrics[10]?.value || '0') * 100;
 
         // Parse top pages
         const topPages = (topPagesData?.rows || []).map(row => ({
@@ -311,10 +334,10 @@ export async function GET() {
                 trafficSources,
                 devices,
                 ecommerce: {
-                    purchases: 0,
-                    revenue: 0,
-                    transactions: 0,
-                    conversionRate: 0
+                    purchases,
+                    revenue,
+                    transactions,
+                    conversionRate
                 },
                 period: 'Last 30 days',
                 lastUpdated: new Date().toISOString()
