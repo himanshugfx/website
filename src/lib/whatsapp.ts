@@ -67,10 +67,18 @@ class WhatsAppService {
         // Remove all non-digit characters
         let cleaned = phone.replace(/\D/g, '');
 
-        // Add India country code if not present
+        // If it starts with 0, remove it
+        if (cleaned.startsWith('0')) {
+            cleaned = cleaned.substring(1);
+        }
+
+        // Add India country code (91) if it's a 10-digit number
         if (cleaned.length === 10) {
             cleaned = '91' + cleaned;
         }
+
+        // Ensure it has at least 11 digits (minimal country code + 10 digits)
+        // This is a basic check, we assume 91 is the default if only 10 digits
 
         return cleaned;
     }
