@@ -16,63 +16,36 @@ interface QuickReply {
   response: string;
 }
 
-const quickReplies: QuickReply[] = [
+const defaultQuickReplies: QuickReply[] = [
   {
     id: "promo",
     label: "Active Promo Codes",
     icon: "🎁",
-    response: `🎉 **Current Active Promo Codes:**
-
-• **DR-OAS** - Get flat 30% OFF on all products!
-• **FIRST20** - 20% OFF on your first order
-• **FREESHIP** - Free shipping on orders above ₹499
-
-💡 Apply these codes at checkout to save big!`,
+    response: "LOADING",
   },
   {
     id: "shipping",
     label: "Shipping Policy",
     icon: "🚚",
-    response: `📦 **Shipping Policy:**
-
-• **Free Shipping** on orders above ₹499
-• **Standard Delivery**: 5-7 business days
-• **Express Delivery**: 2-3 business days (₹99 extra)
-• We ship to all Indian pin codes!
-
-🔔 You'll receive tracking details via SMS & Email once your order is dispatched.`,
+    response: "LOADING",
   },
   {
     id: "refund",
     label: "Refund Policy",
     icon: "💰",
-    response: `💸 **Refund & Return Policy:**
-
-• **7-Day Easy Returns** - No questions asked!
-• Products must be unused and in original packaging
-• Refunds processed within 5-7 business days
-• For damaged items, contact us within 48 hours with photos
-
-📧 Email us at support@anose.in for any issues!`,
+    response: "LOADING",
   },
   {
     id: "contact",
     label: "Contact Us",
     icon: "📞",
-    response: `📱 **Contact Information:**
-
-• **Email**: support@anose.in
-• **Phone**: +91-XXXXXXXXXX
-• **WhatsApp**: Chat with us for quick support!
-• **Hours**: Mon-Sat, 10 AM - 6 PM IST
-
-Follow us on Instagram: @anosebeauty 💜`,
+    response: "LOADING",
   },
   {
     id: "products",
     label: "Search Products",
     icon: "🔍",
-    response: `PRODUCT_SEARCH_MODE`,
+    response: "PRODUCT_SEARCH_MODE",
   },
 ];
 
@@ -89,6 +62,8 @@ export default function AnoseAssistant() {
   const [showGreeting, setShowGreeting] = useState(false);
   const [productSearchMode, setProductSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dynamicInfo, setDynamicInfo] = useState<any>(null);
+  const [currentQuickReplies, setCurrentQuickReplies] = useState<QuickReply[]>(defaultQuickReplies);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +71,27 @@ export default function AnoseAssistant() {
     const timer = setTimeout(() => {
       setShowGreeting(true);
     }, 2000);
+
+    // Fetch dynamic info
+    const fetchInfo = async () => {
+      try {
+        const res = await fetch('/api/ana/info');
+        const data = await res.json();
+        setDynamicInfo(data);
+
+        // Update quick replies with real data
+        setCurrentQuickReplies(prev => prev.map(reply => {
+          if (data[reply.id]) {
+            return { ...reply, response: data[reply.id].content };
+          }
+          return reply;
+        }));
+      } catch (err) {
+        console.error("Failed to fetch Ana info", err);
+      }
+    };
+    fetchInfo();
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -111,6 +107,21 @@ export default function AnoseAssistant() {
       content: `${reply.icon} ${reply.label}`,
     };
     setMessages((prev) => [...prev, userMessage]);
+
+    // Check if data is still loading
+    if (reply.response === "LOADING") {
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          type: "assistant",
+          content: "⌛ Just a second, I'm fetching the latest information for you...",
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }, 500);
+      return;
+    }
 
     // Check if this is product search mode
     if (reply.response === "PRODUCT_SEARCH_MODE") {
@@ -297,7 +308,7 @@ Example: "face wash", "hair oil", "serum"`,
               </button>
             </div>
           ) : (
-            quickReplies.map((reply) => (
+            currentQuickReplies.map((reply) => (
               <button
                 key={reply.id}
                 onClick={() => handleQuickReply(reply)}

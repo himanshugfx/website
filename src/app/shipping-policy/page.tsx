@@ -23,12 +23,11 @@ export default function ShippingPolicyPage() {
                             <section className="mb-8">
                                 <h3 className="text-xl font-semibold text-zinc-900 mb-4">Delivery Time</h3>
                                 <p className="text-zinc-700 mb-4">
-                                    We aim to process and ship all orders within 2-3 business days. Once your order is shipped, 
-                                    delivery typically takes 5-7 business days for standard shipping, depending on your location.
+                                    We aim to process and ship all orders within 1-2 business days. Once your order is shipped, 
+                                    delivery typically takes 4-5 business days for standard shipping, depending on your location.
                                 </p>
                                 <ul className="list-disc list-inside text-zinc-700 space-y-2">
-                                    <li>Standard Shipping: 5-7 business days</li>
-                                    <li>Express Shipping: 2-3 business days (additional charges apply)</li>
+                                    <li>Standard Shipping: 4-5 business days</li>
                                 </ul>
                             </section>
 
