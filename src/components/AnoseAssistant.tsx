@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { detectIntent } from "@/lib/skincare-kb";
 
 interface Message {
   id: string;
@@ -42,6 +43,12 @@ const defaultQuickReplies: QuickReply[] = [
     label: "Contact Us",
     icon: "📞",
     response: "LOADING",
+  },
+  {
+    id: "expert",
+    label: "Skincare Advice",
+    icon: "✨",
+    response: "EXPERT_ADVICE_MODE",
   },
   {
     id: "products",
@@ -125,6 +132,27 @@ export default function AnoseAssistant() {
       return;
     }
 
+    // Check if this is expert advice mode
+    if (reply.response === "EXPERT_ADVICE_MODE") {
+      setProductSearchMode(true); // Re-use search UI
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          type: "assistant",
+          content: `✨ **Ana Skincare Expert**
+          
+Ask me anything about your skin concerns! For example:
+• "How to treat active acne?"
+• "Best ingredients for dry skin?"
+• "How to fade dark spots?"`,
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }, 800);
+      return;
+    }
+
     // Check if this is product search mode
     if (reply.response === "PRODUCT_SEARCH_MODE") {
       setProductSearchMode(true);
@@ -135,9 +163,9 @@ export default function AnoseAssistant() {
           id: `assistant-${Date.now()}`,
           type: "assistant",
           content: `🔍 **Product Search**
-
+          
 Type the name of a product you want to know about, and I'll show you details including **ingredients**!
-
+          
 Example: "face wash", "hair oil", "serum"`,
         };
         setMessages((prev) => [...prev, assistantMessage]);
@@ -171,6 +199,40 @@ Example: "face wash", "hair oil", "serum"`,
     setIsTyping(true);
 
     try {
+      // Check for skincare advice first
+      const intent = detectIntent(searchQuery);
+
+      if (intent) {
+        setTimeout(async () => {
+          setIsTyping(false);
+          // Show advice message
+          const adviceMessage: Message = {
+            id: `assistant-advice-${Date.now()}`,
+            type: "assistant",
+            content: `💡 **${intent.title}**\n\n${intent.advice}`,
+          };
+          setMessages((prev) => [...prev, adviceMessage]);
+
+          // Now fetch products based on searchTerms
+          setIsTyping(true);
+          const res = await fetch(`/api/ana/products?q=${encodeURIComponent(intent.searchTerms)}`);
+          const data = await res.json();
+
+          setTimeout(() => {
+            setIsTyping(false);
+            const assistantMessage: Message = {
+              id: `assistant-prod-${Date.now()}`,
+              type: "assistant",
+              content: `✨ Based on your concern, I recommend these products:`,
+              products: data.products || [],
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
+          }, 1000);
+        }, 800);
+        return;
+      }
+
+      // Default product search if no specific advice intent matches
       const res = await fetch(`/api/ana/products?q=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
 
@@ -193,7 +255,7 @@ Example: "face wash", "hair oil", "serum"`,
             response = `✨ Found ${data.products.length} product(s) matching your search:`;
           }
         } else {
-          response = `😔 Sorry, I couldn't find any products matching "${searchQuery}".\n\nTry searching for:\n• Face wash\n• Hair oil\n• Serum\n• Moisturizer`;
+          response = `😔 Sorry, I couldn't find any specific skincare advice or products for "${searchQuery}".\n\nTry asking about:\n• Acne\n• Dry Skin\n• Oily Skin\n• Pigmentation`;
         }
 
         const assistantMessage: Message = {
