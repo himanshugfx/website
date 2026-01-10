@@ -274,7 +274,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse
             <div className={`fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}>
                 <SidebarContent
-                    isCollapsed={isCollapsed}
+                    isCollapsed={false}
                     onClose={onClose}
                     onToggleCollapse={onToggleCollapse}
                     pathname={pathname}
