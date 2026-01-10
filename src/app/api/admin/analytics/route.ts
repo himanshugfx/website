@@ -32,16 +32,21 @@ async function getAccessToken(): Promise<{ token: string | null; error: string |
     }
 
     // Handle environment variable formatting issues
-    privateKey = privateKey.trim();
-    // Remove surrounding quotes if present
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-        privateKey = privateKey.substring(1, privateKey.length - 1);
+    let cleanedKey = privateKey.trim();
+
+    // Remove surrounding quotes
+    if (cleanedKey.startsWith('"') && cleanedKey.endsWith('"')) {
+        cleanedKey = cleanedKey.substring(1, cleanedKey.length - 1);
+    } else if (cleanedKey.startsWith("'") && cleanedKey.endsWith("'")) {
+        cleanedKey = cleanedKey.substring(1, cleanedKey.length - 1);
     }
-    if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
-        privateKey = privateKey.substring(1, privateKey.length - 1);
-    }
-    // Handle escaped newlines
-    privateKey = privateKey.replace(/\\n/g, '\n');
+
+    // Replace literal \n and also handle actual newlines if present
+    cleanedKey = cleanedKey.replace(/\\n/g, '\n');
+
+    // Last resort: if it's missing the actual newlines (some environments strip them)
+    // and it doesn't have any actual newlines, we might need to add them.
+    // However, usually the \n replace is enough.
 
     try {
         // Create JWT header
@@ -60,10 +65,15 @@ async function getAccessToken(): Promise<{ token: string | null; error: string |
             iat: now
         })).toString('base64url');
 
+        // Validate key format
+        if (!cleanedKey.includes('-----BEGIN PRIVATE KEY-----') || !cleanedKey.includes('-----END PRIVATE KEY-----')) {
+            return { token: null, error: 'GOOGLE_PRIVATE_KEY is malformed (missing BEGIN/END headers)' };
+        }
+
         // Sign JWT with private key
         const sign = crypto.createSign('RSA-SHA256');
         sign.update(`${header}.${payload}`);
-        const signature = sign.sign(privateKey, 'base64url');
+        const signature = sign.sign(cleanedKey, 'base64url');
 
         const jwt = `${header}.${payload}.${signature}`;
 
