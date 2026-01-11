@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import emailService from '@/lib/email';
 
 export async function POST(request: Request) {
     try {
@@ -33,6 +34,19 @@ export async function POST(request: Request) {
                 message: finalMessage,
             },
         });
+
+        // Send email notification asynchronously
+        // We don't await this to keep the API response fast
+        // unless strict delivery confirmation is needed for the client
+        emailService.sendInquiryNotification({
+            name,
+            email,
+            phone,
+            message: message || '',
+            type,
+            hotelName,
+            quantity
+        }).catch(err => console.error('Failed to send email notif:', err));
 
         return NextResponse.json({ success: true, inquiry });
     } catch (error) {

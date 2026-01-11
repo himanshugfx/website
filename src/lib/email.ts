@@ -190,6 +190,77 @@ class EmailService {
             return { success: false, error: String(error) };
         }
     }
+
+    /**
+     * Send inquiry notification to admin
+     */
+    async sendInquiryNotification(data: {
+        name: string;
+        email: string;
+        phone?: string;
+        message: string;
+        type?: string;
+        hotelName?: string;
+        quantity?: string;
+    }): Promise<{ success: boolean; error?: string }> {
+        const transporter = this.getTransporter();
+
+        if (!transporter) {
+            console.warn('Email service not configured, skipping inquiry notification');
+            return { success: false, error: 'Email service not configured' };
+        }
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; text-align: center;">📩 New Inquiry Received</h1>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #333; margin-top: 0;">👤 Contact Details</h3>
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
+                    </div>
+
+                    ${(data.type === 'AMENITIES' || data.hotelName || data.quantity) ? `
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #333; margin-top: 0;">🏢 Business Details</h3>
+                        ${data.hotelName ? `<p><strong>Hotel/Business:</strong> ${data.hotelName}</p>` : ''}
+                        ${data.quantity ? `<p><strong>Quantity:</strong> ${data.quantity}</p>` : ''}
+                        ${data.type ? `<p><strong>Inquiry Type:</strong> ${data.type}</p>` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #333; margin-top: 0;">💬 Message</h3>
+                        <p style="white-space: pre-wrap; color: #4b5563;">${data.message}</p>
+                    </div>
+                </div>
+                
+                <div style="background: #1f2937; color: #9ca3af; padding: 15px; border-radius: 0 0 10px 10px; text-align: center;">
+                    <p style="margin: 0;">Anose Beauty - Data & Notifications</p>
+                </div>
+            </div>
+        `;
+
+        try {
+            await transporter.sendMail({
+                from: `"Anose Website" <anosebeauty@gmail.com>`,
+                to: this.adminEmail,
+                replyTo: data.email,
+                subject: `📩 New Inquiry from ${data.name}`,
+                html: htmlContent,
+            });
+
+            console.log(`Inquiry notification email sent from ${data.email}`);
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to send inquiry notification email:', error);
+            return { success: false, error: String(error) };
+        }
+    }
 }
 
 // Export singleton instance

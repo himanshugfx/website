@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { getMediaUrl, getMediaUrls } from '@/lib/media';
+import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
 
 interface Variation {
     id: string;
@@ -236,6 +237,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             >
                                 Add To Cart
                             </button>
+                        </div>
+
+                        <div className="mt-8">
+                            <RazorpayTrustBadge />
                         </div>
 
                         <div className="other-actions mt-6 flex items-center gap-8 border-t border-line pt-6">
