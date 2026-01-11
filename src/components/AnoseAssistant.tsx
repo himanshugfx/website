@@ -62,6 +62,12 @@ const defaultQuickReplies: QuickReply[] = [
     icon: "🔍",
     response: "PRODUCT_SEARCH_MODE",
   },
+  {
+    id: "order",
+    label: "Track My Order",
+    icon: "📦",
+    response: "ORDER_TRACKING_MODE",
+  },
 ];
 
 export default function AnoseAssistant() {
@@ -79,6 +85,11 @@ export default function AnoseAssistant() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dynamicInfo, setDynamicInfo] = useState<any>(null);
   const [currentQuickReplies, setCurrentQuickReplies] = useState<QuickReply[]>(defaultQuickReplies);
+  const [orderTrackingMode, setOrderTrackingMode] = useState(false);
+  const [escalationMode, setEscalationMode] = useState(false);
+  const [escalationStep, setEscalationStep] = useState(0); // 0: phone, 1: email, 2: concern
+  const [escalationData, setEscalationData] = useState({ phone: '', email: '', concern: '' });
+  const [failedSearchCount, setFailedSearchCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -200,6 +211,26 @@ Example: "face wash", "hair oil", "serum"`,
       return;
     }
 
+    // Check if this is order tracking mode
+    if (reply.response === "ORDER_TRACKING_MODE") {
+      setOrderTrackingMode(true);
+      setProductSearchMode(false);
+      setEscalationMode(false);
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          type: "assistant",
+          content: `📦 **Track Your Order**
+          
+Enter your **Order Number** (e.g., 1234) or your **Phone Number** to find your order status.`,
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }, 800);
+      return;
+    }
+
     // Simulate typing for regular replies
     setIsTyping(true);
     setTimeout(() => {
@@ -293,6 +324,22 @@ Example: "face wash", "hair oil", "serum"`,
           isIngredientSearch
         };
         setMessages((prev) => [...prev, assistantMessage]);
+
+        // Track failed searches for escalation
+        if (!data.products || data.products.length === 0) {
+          setFailedSearchCount(prev => {
+            const newCount = prev + 1;
+            if (newCount >= 2) {
+              // Trigger escalation after 2 failed searches
+              setTimeout(() => {
+                triggerEscalation();
+              }, 1500);
+            }
+            return newCount;
+          });
+        } else {
+          setFailedSearchCount(0);
+        }
       }, 1000);
     } catch (error) {
       setTimeout(() => {
@@ -304,6 +351,179 @@ Example: "face wash", "hair oil", "serum"`,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       }, 500);
+    }
+  };
+
+  // Order lookup handler
+  const handleOrderLookup = async () => {
+    if (!searchQuery.trim()) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      type: "user",
+      content: `📦 ${searchQuery}`,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    const query = searchQuery.trim();
+    setSearchQuery("");
+    setIsTyping(true);
+
+    try {
+      // Determine if it's an order number or phone
+      const isOrderNumber = /^\d{1,10}$/.test(query) && query.length <= 6;
+      const param = isOrderNumber ? `orderNumber=${query}` : `phone=${encodeURIComponent(query)}`;
+
+      const res = await fetch(`/api/ana/order?${param}`);
+      const data = await res.json();
+
+      setTimeout(() => {
+        setIsTyping(false);
+
+        if (data.success && data.order) {
+          const order = data.order;
+          const statusEmoji = order.status === 'DELIVERED' ? '✅' : order.status === 'SHIPPED' ? '🚚' : order.status === 'PROCESSING' ? '⏳' : '📋';
+
+          const itemsList = order.items.map((item: any) => `• ${item.name} x${item.quantity} - ₹${item.price}`).join('\n');
+
+          const response = `${statusEmoji} **Order #${order.orderNumber}**
+
+**Status:** ${order.status}
+**Payment:** ${order.paymentStatus} (${order.paymentMethod})
+**Total:** ₹${order.total}
+
+**Items:**
+${itemsList}
+
+**Shipping to:** ${order.shipping.name}
+${order.shipping.address}, ${order.shipping.city} - ${order.shipping.pincode}
+
+📅 Ordered: ${new Date(order.createdAt).toLocaleDateString('en-IN')}`;
+
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            type: "assistant",
+            content: response,
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        } else {
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            type: "assistant",
+            content: `😔 ${data.error || 'Order not found'}\n\nPlease check the order number or phone number and try again.`,
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }
+      }, 1000);
+    } catch (error) {
+      setTimeout(() => {
+        setIsTyping(false);
+        const assistantMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          type: "assistant",
+          content: "😔 Sorry, I had trouble looking up your order. Please try again!",
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }, 500);
+    }
+  };
+
+  // Trigger escalation mode
+  const triggerEscalation = () => {
+    setEscalationMode(true);
+    setProductSearchMode(false);
+    setOrderTrackingMode(false);
+    setEscalationStep(0);
+    setEscalationData({ phone: '', email: '', concern: '' });
+
+    const assistantMessage: Message = {
+      id: `assistant-escalation-${Date.now()}`,
+      type: "assistant",
+      content: `🤝 **I'd like to help you further!**
+
+It seems your query needs personal attention from our team. Please share your details and we'll get back to you soon.
+
+**Step 1/3:** Enter your **Phone Number**`,
+    };
+    setMessages((prev) => [...prev, assistantMessage]);
+  };
+
+  // Handle escalation form submission
+  const handleEscalationInput = async () => {
+    if (!searchQuery.trim()) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      type: "user",
+      content: searchQuery,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    const input = searchQuery.trim();
+    setSearchQuery("");
+
+    if (escalationStep === 0) {
+      // Phone number
+      setEscalationData(prev => ({ ...prev, phone: input }));
+      setEscalationStep(1);
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        type: "assistant",
+        content: `✅ Got it!\n\n**Step 2/3:** Enter your **Email Address**`,
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    } else if (escalationStep === 1) {
+      // Email
+      setEscalationData(prev => ({ ...prev, email: input }));
+      setEscalationStep(2);
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        type: "assistant",
+        content: `✅ Perfect!\n\n**Step 3/3:** Please describe your **concern or query**`,
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    } else if (escalationStep === 2) {
+      // Concern - submit to API
+      const finalData = { ...escalationData, concern: input };
+      setIsTyping(true);
+
+      try {
+        await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Ana Chatbot User',
+            email: finalData.email,
+            phone: finalData.phone,
+            message: `[Chatbot Escalation]\n\n${finalData.concern}`,
+          }),
+        });
+
+        setTimeout(() => {
+          setIsTyping(false);
+          setEscalationMode(false);
+          setFailedSearchCount(0);
+
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            type: "assistant",
+            content: `🎉 **Thank you!**
+
+Your inquiry has been submitted successfully. Our team will get back to you soon at **${finalData.email}** or **${finalData.phone}**.
+
+Is there anything else I can help you with?`,
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }, 1000);
+      } catch (error) {
+        setTimeout(() => {
+          setIsTyping(false);
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            type: "assistant",
+            content: "😔 Sorry, I had trouble submitting your inquiry. Please try again or contact us directly.",
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }, 500);
+      }
     }
   };
 
@@ -415,7 +635,45 @@ Example: "face wash", "hair oil", "serum"`,
 
         {/* Quick Replies */}
         <div className="anose-quick-replies">
-          {productSearchMode ? (
+          {escalationMode ? (
+            <div className="anose-search-container">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleEscalationInput()}
+                placeholder={
+                  escalationStep === 0 ? "Enter phone number..." :
+                    escalationStep === 1 ? "Enter email address..." :
+                      "Describe your concern..."
+                }
+                className="anose-search-input"
+              />
+              <button onClick={handleEscalationInput} className="anose-search-btn">
+                {escalationStep === 2 ? 'Submit' : 'Next'}
+              </button>
+              <button onClick={() => { setEscalationMode(false); setFailedSearchCount(0); }} className="anose-back-btn">
+                ← Cancel
+              </button>
+            </div>
+          ) : orderTrackingMode ? (
+            <div className="anose-search-container">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleOrderLookup()}
+                placeholder="Order # or Phone..."
+                className="anose-search-input"
+              />
+              <button onClick={handleOrderLookup} className="anose-search-btn">
+                Track
+              </button>
+              <button onClick={() => setOrderTrackingMode(false)} className="anose-back-btn">
+                ← Back
+              </button>
+            </div>
+          ) : productSearchMode ? (
             <div className="anose-search-container">
               <input
                 type="text"
