@@ -25,6 +25,89 @@ interface Order {
 
 const STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'CANCELLED', 'DRAFT'];
 
+// OrderRow component for reusable table row rendering
+function OrderRow({ order, handleStatusUpdate, shipWithRapidShyp, shippingOrderId }: {
+    order: any;
+    handleStatusUpdate: (orderId: string, newStatus: string) => void;
+    shipWithRapidShyp: (orderId: string) => void;
+    shippingOrderId: string | null;
+}) {
+    return (
+        <tr className="group hover:bg-gray-50/50 transition-colors">
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
+                    #{order.orderNumber}
+                </span>
+            </td>
+            <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs ring-2 ring-white">
+                        {(order.customerName || order.user?.name || 'G').charAt(0)}
+                    </div>
+                    <div>
+                        <div className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</div>
+                        <div className="text-xs text-gray-500">{order.customerEmail || order.user?.email || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <select
+                    value={order.status}
+                    onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-purple-500 cursor-pointer appearance-none pr-8 relative ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
+                        order.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
+                            order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700' :
+                                order.status === 'CANCELLED' ? 'bg-red-50 text-red-700' :
+                                    'bg-gray-100 text-gray-700'
+                        }`}
+                    style={{ backgroundImage: 'none' }}
+                >
+                    {STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                            {status}
+                        </option>
+                    ))}
+                </select>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                })}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
+                    order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
+                ) && (
+                        <button
+                            onClick={() => shipWithRapidShyp(order.id)}
+                            disabled={shippingOrderId === order.id}
+                            className="inline-flex items-center justify-center p-2 bg-blue-600 text-white rounded-lg transition-all hover:bg-blue-700 disabled:opacity-50"
+                            title="Ship with RapidShyp"
+                        >
+                            {shippingOrderId === order.id ? (
+                                <RefreshCw className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Truck className="w-5 h-5" />
+                            )}
+                        </button>
+                    )}
+                <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all hover:bg-purple-700"
+                    title="View Details"
+                >
+                    <Eye className="w-5 h-5" />
+                </Link>
+            </td>
+        </tr>
+    );
+}
+
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -211,80 +294,54 @@ export default function OrdersPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    orders.map((order: any) => (
-                                        <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
-                                                    #{order.orderNumber}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs ring-2 ring-white">
-                                                        {(order.customerName || order.user?.name || 'G').charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</div>
-                                                        <div className="text-xs text-gray-500">{order.customerEmail || order.user?.email || ''}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <select
-                                                    value={order.status}
-                                                    onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                                                    className={`px-3 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-purple-500 cursor-pointer appearance-none pr-8 relative ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
-                                                        order.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
-                                                            order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700' :
-                                                                order.status === 'CANCELLED' ? 'bg-red-50 text-red-700' :
-                                                                    'bg-gray-100 text-gray-700'
-                                                        }`}
-                                                    style={{ backgroundImage: 'none' }}
-                                                >
-                                                    {STATUS_OPTIONS.map((status) => (
-                                                        <option key={status} value={status}>
-                                                            {status}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric'
-                                                })}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                                {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
-                                                    order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
-                                                ) && (
-                                                        <button
-                                                            onClick={() => shipWithRapidShyp(order.id)}
-                                                            disabled={shippingOrderId === order.id}
-                                                            className="inline-flex items-center justify-center p-2 bg-blue-600 text-white rounded-lg transition-all hover:bg-blue-700 disabled:opacity-50"
-                                                            title="Ship with RapidShyp"
-                                                        >
-                                                            {shippingOrderId === order.id ? (
-                                                                <RefreshCw className="w-5 h-5 animate-spin" />
-                                                            ) : (
-                                                                <Truck className="w-5 h-5" />
-                                                            )}
-                                                        </button>
-                                                    )}
-                                                <Link
-                                                    href={`/admin/orders/${order.id}`}
-                                                    className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all hover:bg-purple-700"
-                                                    title="View Details"
-                                                >
-                                                    <Eye className="w-5 h-5" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    <>
+                                        {/* Pending Orders Section */}
+                                        {orders.filter((o: any) => o.status === 'PENDING').length > 0 && !statusFilter && (
+                                            <>
+                                                <tr className="bg-amber-50">
+                                                    <td colSpan={6} className="px-6 py-2 text-xs font-bold text-amber-700 uppercase tracking-wider">
+                                                        ⏳ Pending Orders ({orders.filter((o: any) => o.status === 'PENDING').length})
+                                                    </td>
+                                                </tr>
+                                                {orders.filter((o: any) => o.status === 'PENDING').map((order: any) => (
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* Processing Orders Section */}
+                                        {orders.filter((o: any) => o.status === 'PROCESSING').length > 0 && !statusFilter && (
+                                            <>
+                                                <tr className="bg-blue-50">
+                                                    <td colSpan={6} className="px-6 py-2 text-xs font-bold text-blue-700 uppercase tracking-wider">
+                                                        🔄 Processing Orders ({orders.filter((o: any) => o.status === 'PROCESSING').length})
+                                                    </td>
+                                                </tr>
+                                                {orders.filter((o: any) => o.status === 'PROCESSING').map((order: any) => (
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* Other Orders Section */}
+                                        {orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length > 0 && !statusFilter && (
+                                            <>
+                                                <tr className="bg-gray-50">
+                                                    <td colSpan={6} className="px-6 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                                        📋 Other Orders ({orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length})
+                                                    </td>
+                                                </tr>
+                                                {orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').map((order: any) => (
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* When status filter is active, show all matching orders without sections */}
+                                        {statusFilter && orders.map((order: any) => (
+                                            <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                        ))}
+                                    </>
                                 )}
                             </tbody>
                         </table>

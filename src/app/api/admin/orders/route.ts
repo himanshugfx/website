@@ -74,7 +74,7 @@ export async function GET(request: Request) {
                 skip,
                 take: limit,
                 orderBy: {
-                    orderNumber: 'desc', // Newest order on top
+                    createdAt: 'desc', // Newest order on top
                 },
                 select: {
                     id: true,
