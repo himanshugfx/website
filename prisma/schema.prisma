@@ -52,6 +52,7 @@ model Product {
   images          String
   thumbImage      String
   videoUrl        String?     // Optional video URL - if set, shows video instead of image
+  ingredients     String?     // Added back to prevent data loss
   priority        Int         @default(0)
   variations      Variation[]
   items           OrderItem[]
@@ -184,8 +185,8 @@ model Lead {
   value       Float?
   notes       String?
   activities  LeadActivity[]
-  convertedAt DateTime?
-  orderId     String?
+  nextFollowUpAt DateTime?
+  convertedAt DateTime?       // Added back to prevent data loss
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }

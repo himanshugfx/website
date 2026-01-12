@@ -12,9 +12,14 @@ export async function PATCH(
         const { id } = await params;
         const data = await request.json();
 
-        const { stageId, value } = data;
-
-        const updateData: { stageId?: string; value?: number | null; convertedAt?: Date | null } = {};
+        const { stageId, value, notes, nextFollowUpAt } = data;
+        const updateData: {
+            stageId?: string;
+            value?: number | null;
+            convertedAt?: Date | null;
+            notes?: string;
+            nextFollowUpAt?: Date | null;
+        } = {};
 
         if (stageId !== undefined) {
             updateData.stageId = stageId;
@@ -51,6 +56,14 @@ export async function PATCH(
 
         if (value !== undefined) {
             updateData.value = value === null || value === '' ? null : parseFloat(value);
+        }
+
+        if (notes !== undefined) {
+            updateData.notes = notes;
+        }
+
+        if (nextFollowUpAt !== undefined) {
+            updateData.nextFollowUpAt = nextFollowUpAt ? new Date(nextFollowUpAt) : null;
         }
 
         const lead = await prisma.lead.update({

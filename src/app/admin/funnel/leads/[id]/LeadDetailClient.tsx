@@ -32,6 +32,7 @@ interface Lead {
     stageId: string;
     stage: Stage;
     activities: Activity[];
+    nextFollowUpAt?: string;
     createdAt: string;
 }
 
@@ -48,6 +49,9 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [notes, setNotes] = useState(initialLead.notes || '');
+    const [newActivity, setNewActivity] = useState({ type: 'NOTE', content: '', nextFollowUpAt: '' });
+    const [recording, setRecording] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleStageChange = async (newStageId: string) => {
@@ -96,6 +100,57 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
             console.error('Error updating value:', error);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleNotesSave = async () => {
+        setSaving(true);
+        setSaved(false);
+
+        try {
+            const res = await fetch(`/api/admin/leads/${lead.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notes }),
+            });
+
+            if (res.ok) {
+                const updatedLead = await res.json();
+                setLead(updatedLead);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+            }
+        } catch (error) {
+            console.error('Error updating notes:', error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRecordActivity = async () => {
+        if (!newActivity.content) return;
+        setRecording(true);
+
+        try {
+            const res = await fetch(`/api/admin/leads/${lead.id}/activities`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newActivity),
+            });
+
+            if (res.ok) {
+                const activity = await res.json();
+                setLead(prev => ({
+                    ...prev,
+                    activities: [activity, ...prev.activities],
+                    nextFollowUpAt: newActivity.nextFollowUpAt || prev.nextFollowUpAt
+                }));
+                setNewActivity({ type: 'NOTE', content: '', nextFollowUpAt: '' });
+            }
+        } catch (error) {
+            console.error('Error recording activity:', error);
+        } finally {
+            setRecording(false);
         }
     };
 
@@ -189,6 +244,58 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                             </div>
                         </div>
 
+                        {/* Record Activity */}
+                        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                            <h2 className="text-lg font-bold text-gray-900 mb-4">Record Activity</h2>
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs text-gray-500 mb-2 block">Activity Type</label>
+                                        <select
+                                            value={newActivity.type}
+                                            onChange={(e) => setNewActivity({ ...newActivity, type: e.target.value })}
+                                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-500 outline-none"
+                                        >
+                                            <option value="NOTE">Note</option>
+                                            <option value="CALL">Call</option>
+                                            <option value="EMAIL">Email</option>
+                                            <option value="WHATSAPP">WhatsApp</option>
+                                            <option value="MEETING">Meeting</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-500 mb-2 block">Schedule Follow-up (Optional)</label>
+                                        <input
+                                            type="datetime-local"
+                                            value={newActivity.nextFollowUpAt}
+                                            onChange={(e) => setNewActivity({ ...newActivity, nextFollowUpAt: e.target.value })}
+                                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-500 mb-2 block">Content</label>
+                                    <textarea
+                                        value={newActivity.content}
+                                        onChange={(e) => setNewActivity({ ...newActivity, content: e.target.value })}
+                                        placeholder="Enter details about the activity..."
+                                        rows={3}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                                    />
+                                </div>
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={handleRecordActivity}
+                                        disabled={recording || !newActivity.content}
+                                        className="px-6 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+                                    >
+                                        {recording ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
+                                        Record Activity
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Recent Activity */}
                         <div className="bg-white rounded-2xl border border-gray-100 p-6">
                             <h2 className="text-lg font-bold text-gray-900 mb-4">Activity Timeline</h2>
@@ -199,13 +306,18 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                     lead.activities.map((activity) => (
                                         <div key={activity.id} className="flex gap-4">
                                             <div className="mt-1">
-                                                <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center">
-                                                    <MessageSquare className="w-4 h-4 text-purple-600" />
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === 'STAGE_CHANGE' ? 'bg-blue-50' : 'bg-purple-50'
+                                                    }`}>
+                                                    {activity.type === 'STAGE_CHANGE' ? (
+                                                        <Tag className="w-4 h-4 text-blue-600" />
+                                                    ) : (
+                                                        <MessageSquare className="w-4 h-4 text-purple-600" />
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">{activity.type}</p>
-                                                <p className="text-sm text-gray-600 mt-1">{activity.content}</p>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-900 capitalize">{activity.type.replace('_', ' ').toLowerCase()}</p>
+                                                <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{activity.content}</p>
                                                 <p className="text-xs text-gray-400 mt-2">
                                                     {new Date(activity.createdAt).toLocaleString()}
                                                 </p>
@@ -268,6 +380,19 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                     </div>
                                 </div>
 
+                                {/* Next Follow-up (Read-only) */}
+                                {lead.nextFollowUpAt && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Next Follow-up</p>
+                                        <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-3 py-2 rounded-xl">
+                                            <Calendar className="w-4 h-4" />
+                                            <span className="text-sm font-bold">
+                                                {new Date(lead.nextFollowUpAt).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Source (Read-only) */}
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Source</p>
@@ -291,12 +416,25 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                         </div>
 
                         {/* Notes */}
-                        {lead.notes && (
-                            <div className="bg-yellow-50 rounded-2xl border border-yellow-100 p-6">
-                                <h2 className="text-sm font-bold text-yellow-900 uppercase tracking-wider mb-3">Notes</h2>
-                                <p className="text-sm text-yellow-800 whitespace-pre-wrap">{lead.notes}</p>
+                        <div className="bg-yellow-50 rounded-2xl border border-yellow-100 p-6">
+                            <div className="flex items-center justify-between mb-3">
+                                <h2 className="text-sm font-bold text-yellow-900 uppercase tracking-wider">Internal Notes</h2>
+                                <button
+                                    onClick={handleNotesSave}
+                                    disabled={saving || notes === lead.notes}
+                                    className="text-xs font-bold text-yellow-700 hover:text-yellow-900 disabled:opacity-50"
+                                >
+                                    {saving ? 'Saving...' : 'Save Notes'}
+                                </button>
                             </div>
-                        )}
+                            <textarea
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="Add general lead notes here..."
+                                rows={4}
+                                className="w-full bg-transparent border-none text-sm text-yellow-800 placeholder:text-yellow-600/50 focus:ring-0 outline-none resize-none p-0"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

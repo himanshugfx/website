@@ -4,6 +4,7 @@ import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, ChevronRight } f
 import prisma from '@/lib/prisma';
 import { getAnalyticsData } from '@/lib/analytics';
 import Link from 'next/link';
+import IndiaMap from '@/components/admin/IndiaMap';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,6 +90,9 @@ export default async function AdminDashboard() {
     return (
         <AdminLayout>
             <div className="space-y-6">
+                {/* India Active Users Map */}
+                <IndiaMap />
+
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 gap-y-6 gap-x-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12">
