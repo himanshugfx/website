@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, Download } from 'lucide-react';
 
 export default function ImportOrdersPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -13,6 +13,7 @@ export default function ImportOrdersPage() {
         imported?: number;
         errors?: string[];
     } | null>(null);
+    const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -75,6 +76,29 @@ export default function ImportOrdersPage() {
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        setDownloadingTemplate(true);
+        try {
+            const res = await fetch('/api/admin/import-orders/template');
+            if (!res.ok) throw new Error('Failed to download template');
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Order_Import_Template.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading template:', error);
+            alert('Failed to download template');
+        } finally {
+            setDownloadingTemplate(false);
+        }
+    };
+
     return (
         <AdminLayout>
             <div className="space-y-8">
@@ -89,24 +113,42 @@ export default function ImportOrdersPage() {
                         <AlertCircle className="w-5 h-5" />
                         Excel File Format Requirements
                     </h3>
-                    <div className="space-y-2 text-blue-800">
-                        <p className="font-medium">Required columns (in order):</p>
-                        <ol className="list-decimal list-inside space-y-1 ml-4">
-                            <li><strong>Order Number</strong> - Unique order identifier</li>
-                            <li><strong>Customer Name</strong> - Full name of the customer</li>
-                            <li><strong>Customer Email</strong> - Email address (required for account creation)</li>
-                            <li><strong>Customer Phone</strong> - Phone number (optional)</li>
-                            <li><strong>Product Name</strong> - Name of the product</li>
-                            <li><strong>Quantity</strong> - Number of items</li>
-                            <li><strong>Price</strong> - Price per item</li>
-                            <li><strong>Total Amount</strong> - Total order amount</li>
-                            <li><strong>Order Status</strong> - PENDING, PROCESSING, COMPLETED, or CANCELLED</li>
-                            <li><strong>Payment Status</strong> - PENDING, SUCCESSFUL, or FAILED</li>
-                            <li><strong>Payment Method</strong> - ONLINE, COD, etc.</li>
-                            <li><strong>Order Date</strong> - Date in YYYY-MM-DD format</li>
-                            <li><strong>Shipping Address</strong> - Delivery address (optional)</li>
-                        </ol>
-                        <p className="mt-4 text-sm">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                        <div className="space-y-2 text-blue-800">
+                            <p className="font-medium">Required columns (in order):</p>
+                            <ol className="list-decimal list-inside space-y-1 ml-4 text-sm">
+                                <li><strong>Order Number</strong> - Unique order identifier</li>
+                                <li><strong>Customer Name</strong> - Full name of the customer</li>
+                                <li><strong>Customer Email</strong> - Email address (required for account creation)</li>
+                                <li><strong>Customer Phone</strong> - Phone number (optional)</li>
+                                <li><strong>Product Name</strong> - Name of the product (see dropdown in template)</li>
+                                <li><strong>Quantity</strong> - Number of items</li>
+                                <li><strong>Price</strong> - Price per item</li>
+                                <li><strong>Total Amount</strong> - Total order amount</li>
+                                <li><strong>Order Status</strong> - PENDING, PROCESSING, COMPLETED, or CANCELLED</li>
+                                <li><strong>Payment Status</strong> - PENDING, SUCCESSFUL, or FAILED</li>
+                                <li><strong>Payment Method</strong> - ONLINE, COD, etc.</li>
+                                <li><strong>Order Date</strong> - Date in YYYY-MM-DD format</li>
+                                <li><strong>Shipping Address</strong> - Delivery address (optional)</li>
+                            </ol>
+                        </div>
+                        <div className="flex-shrink-0">
+                            <button
+                                onClick={handleDownloadTemplate}
+                                disabled={downloadingTemplate}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-md hover:bg-blue-700 transition-all disabled:opacity-50"
+                            >
+                                {downloadingTemplate ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                    <Download className="w-5 h-5" />
+                                )}
+                                Download Template
+                            </button>
+                        </div>
+                    </div>
+                    <div className="mt-4 text-blue-800">
+                        <p className="text-sm">
                             <strong>Note:</strong> Each row represents an order item. Multiple items from the same order should have the same Order Number.
                         </p>
                     </div>
@@ -172,8 +214,8 @@ export default function ImportOrdersPage() {
                 {result && (
                     <div
                         className={`rounded-2xl border p-6 ${result.success
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-red-50 border-red-200'
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-red-50 border-red-200'
                             }`}
                     >
                         <div className="flex items-start gap-3">
