@@ -1,5 +1,6 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import StatsCard from '@/components/admin/StatsCard';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, ChevronRight } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
@@ -293,6 +294,11 @@ export default async function AdminDashboard() {
 
                         {/* Additional widgets can go here */}
                     </div>
+                </div>
+
+                {/* Analytics Section */}
+                <div className="mt-8">
+                    <AnalyticsDashboard />
                 </div>
             </div>
         </AdminLayout>
