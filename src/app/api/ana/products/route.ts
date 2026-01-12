@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
                     price: true,
                     category: true,
                     description: true,
+                    ingredients: true,
                     sizes: true,
                     thumbImage: true,
                     quantity: true,
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
                         { name: { contains: query, mode: 'insensitive' } },
                         { name: { contains: queryWithoutSpaces, mode: 'insensitive' } },
                         { category: { contains: query, mode: 'insensitive' } },
+                        { ingredients: { contains: query, mode: 'insensitive' } },
                         // Add individual word matches for better suggestions
                         ...searchTerms.map(term => ({
                             name: { contains: term, mode: 'insensitive' as const }
@@ -51,6 +53,7 @@ export async function GET(req: NextRequest) {
                     originPrice: true,
                     category: true,
                     description: true,
+                    ingredients: true,
                     sizes: true,
                     quantity: true,
                     slug: true,

@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
             where: {
                 OR: [
                     { name: { contains: query, mode: 'insensitive' } },
+                    { ingredients: { contains: query, mode: 'insensitive' } },
                     { description: { contains: query, mode: 'insensitive' } },
                     { category: { contains: query, mode: 'insensitive' } },
                     { brand: { contains: query, mode: 'insensitive' } },
