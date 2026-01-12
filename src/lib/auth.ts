@@ -67,6 +67,10 @@ export const authOptions: AuthOptions = {
             // For Google sign-in, check if user exists or create them
             if (account?.provider === "google" && user.email) {
                 try {
+                    // Admin emails that should have admin role when signing in with Google
+                    const adminEmails = ['anosebeauty@gmail.com', 'himanshu@anosebeauty.com'];
+                    const isAdmin = adminEmails.includes(user.email.toLowerCase());
+
                     const existingUser = await prisma.user.findUnique({
                         where: { email: user.email },
                     });
@@ -77,9 +81,15 @@ export const authOptions: AuthOptions = {
                             data: {
                                 email: user.email,
                                 name: user.name || user.email.split('@')[0],
-                                role: "USER",
+                                role: isAdmin ? "admin" : "customer",
                                 // No password for Google users
                             },
+                        });
+                    } else if (isAdmin && existingUser.role !== "admin") {
+                        // Upgrade to admin if they're in the admin list
+                        await prisma.user.update({
+                            where: { email: user.email },
+                            data: { role: "admin" },
                         });
                     }
                 } catch (error) {

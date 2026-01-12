@@ -26,7 +26,8 @@ import {
     Shield,
     UserCircle,
     Menu,
-    X
+    X,
+    Building2
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -46,6 +47,7 @@ interface NavItem {
 const navigation: NavItem[] = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Products', href: '/admin/products', icon: Package },
+    { name: 'Hotel Catalogue', href: '/admin/hotel-catalogue', icon: Building2 },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     {
         name: 'Finances',

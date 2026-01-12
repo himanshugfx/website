@@ -346,3 +346,31 @@ model AbandonedCheckout {
   updatedAt     DateTime @updatedAt
 }
 
+// Hotel Amenities Catalogue
+model HotelAmenity {
+  id            String   @id @default(cuid())
+  name          String
+  category      String   // COSMETIC, DENTAL_KIT, SHAVING_KIT, SLIPPER, COASTER, LAUNDRY_BAG, GARBAGE_BAG, VANITY_KIT, SHOWER_CAP, COMB, OTHER
+  description   String?  @db.Text
+  image         String   // Media ID or path
+  
+  // Pricing
+  price         Float
+  minOrderQty   Int      @default(100)
+  
+  // For Cosmetics (sizes + packing)
+  sizes         String?  // JSON: ["30ml", "50ml", "100ml"]
+  packing       String?  // e.g., "Box of 100", "Carton of 500"
+  
+  // For Kits & Others
+  contents      String?  // JSON: ["toothbrush", "toothpaste"] for kits
+  material      String?  // e.g., "Non-woven fabric", "Plastic"
+  dimensions    String?  // e.g., "40cm x 30cm"
+  color         String?  // e.g., "White", "Brown"
+  
+  isActive      Boolean  @default(true)
+  priority      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
