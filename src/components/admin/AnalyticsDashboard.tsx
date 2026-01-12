@@ -198,7 +198,7 @@ export default function AnalyticsDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.topPages.slice(0, 10).map((page) => (
+                                {data.topPages.filter(page => !page.path.startsWith('/admin')).slice(0, 10).map((page) => (
                                     <tr key={page.path} className="border-b border-gray-50 last:border-0">
                                         <td className="py-2.5 pr-4">
                                             <span className="text-sm text-gray-700 font-mono truncate block max-w-xs">
