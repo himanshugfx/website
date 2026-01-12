@@ -82,10 +82,15 @@ async function getStats() {
     }
 }
 
-async function getRecentOrders() {
+async function getPendingOrders() {
     try {
         const orders = await prisma.order.findMany({
-            take: 10,
+            where: {
+                status: {
+                    in: ['PENDING', 'PROCESSING']
+                }
+            },
+            take: 15,
             orderBy: {
                 createdAt: 'desc'
             },
@@ -100,14 +105,14 @@ async function getRecentOrders() {
         });
         return orders;
     } catch (error) {
-        console.error('Error fetching recent orders:', error);
+        console.error('Error fetching pending orders:', error);
         return [];
     }
 }
 
 export default async function AdminDashboard() {
     const stats = await getStats();
-    const recentOrders = await getRecentOrders();
+    const pendingOrders = await getPendingOrders();
 
     return (
         <AdminLayout>
@@ -141,17 +146,17 @@ export default async function AdminDashboard() {
                     />
                 </div>
 
-                {/* Recent Orders */}
+                {/* Pending & Processing Orders */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-amber-50/50">
                             <div>
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Transactions</h2>
-                                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Latest orders from your store</p>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Pending & Processing Orders</h2>
+                                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Orders that need attention</p>
                             </div>
                             <Link
                                 href="/admin/orders"
-                                className="group flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-purple-600 rounded-xl"
+                                className="group flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-amber-600 rounded-xl"
                             >
                                 View All
                                 <TrendingUp className="w-4 h-4" />
@@ -160,16 +165,16 @@ export default async function AdminDashboard() {
 
                         {/* Mobile View - Card Layout */}
                         <div className="md:hidden p-4 space-y-3">
-                            {recentOrders.length === 0 ? (
+                            {pendingOrders.length === 0 ? (
                                 <div className="flex flex-col items-center gap-3 py-8">
                                     <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-2">
                                         <ShoppingCart className="w-7 h-7 text-gray-300" />
                                     </div>
-                                    <p className="text-gray-900 font-medium text-sm">No orders yet</p>
-                                    <p className="text-gray-500 text-xs">When you get orders, they&apos;ll show up here.</p>
+                                    <p className="text-gray-900 font-medium text-sm">No pending orders</p>
+                                    <p className="text-gray-500 text-xs">All orders are processed! 🎉</p>
                                 </div>
                             ) : (
-                                recentOrders.map((order) => (
+                                pendingOrders.map((order) => (
                                     <Link
                                         key={order.id}
                                         href={`/admin/orders/${order.id}`}
@@ -220,14 +225,14 @@ export default async function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {recentOrders.length === 0 ? (
+                                    {pendingOrders.length === 0 ? (
                                         <tr>
                                             <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                                No orders yet
+                                                No pending orders - All caught up! 🎉
                                             </td>
                                         </tr>
                                     ) : (
-                                        recentOrders.map((order) => (
+                                        pendingOrders.map((order) => (
                                             <tr key={order.id} className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
