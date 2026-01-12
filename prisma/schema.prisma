@@ -47,12 +47,10 @@ model Product {
   quantityPurchase Int        @default(1)
   sizes           String?
   description     String
-  ingredients     String?     // Product ingredients list
   slug            String      @unique
   images          String
   thumbImage      String
   videoUrl        String?     // Optional video URL - if set, shows video instead of image
-  ingredients     String?     // Added back to prevent data loss
   priority        Int         @default(0)
   variations      Variation[]
   items           OrderItem[]
@@ -185,10 +183,27 @@ model Lead {
   value       Float?
   notes       String?
   activities  LeadActivity[]
-  nextFollowUpAt DateTime?
-  convertedAt DateTime?       // Added back to prevent data loss
+  followUps   LeadFollowUp[]
+  convertedAt DateTime?
+  orderId     String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+}
+
+model LeadFollowUp {
+  id          String    @id @default(cuid())
+  leadId      String
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  scheduledAt DateTime  // When to follow up
+  notes       String?   // Notes about what to discuss
+  status      String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([leadId])
+  @@index([scheduledAt])
+  @@index([status])
 }
 
 model LeadActivity {

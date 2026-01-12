@@ -301,17 +301,7 @@ Enter your **Order Number** (e.g., 1234) or your **Phone Number** to find your o
         const lowerSearch = searchQuery.toLowerCase();
 
         if (data.products && data.products.length > 0) {
-          // Check if searched for an ingredient
-          const matchedByIngredient = data.products.some((p: any) =>
-            p.ingredients?.toLowerCase().includes(lowerSearch)
-          );
-
-          if (matchedByIngredient) {
-            isIngredientSearch = true;
-            response = `🌿 **${searchQuery}** found in these products:`;
-          } else {
-            response = `✨ Found ${data.products.length} product(s) matching your search:`;
-          }
+          response = `✨ Found ${data.products.length} product(s) matching your search:`;
         } else {
           response = `😔 Sorry, I couldn't find any specific skincare advice or products for "${searchQuery}".\n\nTry asking about:\n• Acne\n• Dry Skin\n• Oily Skin\n• Pigmentation`;
         }

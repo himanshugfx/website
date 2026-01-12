@@ -30,7 +30,7 @@ interface Product {
     category: string;
     type: string;
     videoUrl?: string; // Optional video URL - if set, shows video
-    ingredients: string | null;
+    ingredients?: string | null;
 }
 
 export default function ProductDetailClient({ product }: { product: Product }) {

@@ -2,9 +2,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import StatsCard from '@/components/admin/StatsCard';
 import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, ChevronRight } from 'lucide-react';
 import prisma from '@/lib/prisma';
-import { getAnalyticsData } from '@/lib/analytics';
 import Link from 'next/link';
-import IndiaMap from '@/components/admin/IndiaMap';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,16 +81,36 @@ async function getStats() {
     }
 }
 
+async function getRecentOrders() {
+    try {
+        const orders = await prisma.order.findMany({
+            take: 10,
+            orderBy: {
+                createdAt: 'desc'
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        });
+        return orders;
+    } catch (error) {
+        console.error('Error fetching recent orders:', error);
+        return [];
+    }
+}
+
 export default async function AdminDashboard() {
     const stats = await getStats();
-    const analytics = await getAnalyticsData();
+    const recentOrders = await getRecentOrders();
 
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* India Active Users Map */}
-                <IndiaMap />
-
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 gap-y-6 gap-x-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12">
@@ -122,127 +140,159 @@ export default async function AdminDashboard() {
                     />
                 </div>
 
-                {/* Analytics Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                    {/* Active Users */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-sm font-medium text-gray-500 mb-1">Active Users</h3>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {analytics?.data?.realtimeUsers || 0}
-                            </span>
-                            <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full animate-pulse">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></span>
-                                Live
-                            </span>
+                {/* Recent Orders */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                            <div>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Transactions</h2>
+                                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Latest orders from your store</p>
+                            </div>
+                            <Link
+                                href="/admin/orders"
+                                className="group flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-purple-600 rounded-xl"
+                            >
+                                View All
+                                <TrendingUp className="w-4 h-4" />
+                            </Link>
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">Users currently on site</p>
-                    </div>
 
-                    {/* Traffic Sources */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-sm font-medium text-gray-500 mb-4">Traffic Sources</h3>
-                        <div className="space-y-3">
-                            {(analytics?.data?.trafficSources || []).slice(0, 4).map((source: any, i: number) => (
-                                <div key={i} className="space-y-1">
-                                    <div className="flex justify-between text-xs">
-                                        <span className="font-medium text-gray-700 capitalize">{source.source}</span>
-                                        <span className="text-gray-500">{source.sessions}</span>
+                        {/* Mobile View - Card Layout */}
+                        <div className="md:hidden p-4 space-y-3">
+                            {recentOrders.length === 0 ? (
+                                <div className="flex flex-col items-center gap-3 py-8">
+                                    <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                                        <ShoppingCart className="w-7 h-7 text-gray-300" />
                                     </div>
-                                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-purple-500 rounded-full"
-                                            style={{ width: `${Math.min((source.sessions / (analytics?.data?.trafficSources?.[0]?.sessions || 1)) * 100, 100)}%` }}
-                                        />
-                                    </div>
+                                    <p className="text-gray-900 font-medium text-sm">No orders yet</p>
+                                    <p className="text-gray-500 text-xs">When you get orders, they&apos;ll show up here.</p>
                                 </div>
-                            ))}
-                            {(!analytics?.data?.trafficSources?.length) && (
-                                <p className="text-xs text-gray-400 text-center py-2">No traffic data available</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Top Cities */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-sm font-medium text-gray-500 mb-4">Top Cities</h3>
-                        <div className="space-y-3">
-                            {(analytics?.data?.cities || []).slice(0, 4).map((cityTarget: any, i: number) => (
-                                <div key={i} className="space-y-1">
-                                    <div className="flex justify-between text-xs">
-                                        <span className="font-medium text-gray-700 capitalize">
-                                            {cityTarget.city === '(not set)' ? 'Other' : cityTarget.city}
-                                        </span>
-                                        <span className="text-gray-500">{cityTarget.sessions}</span>
-                                    </div>
-                                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-orange-500 rounded-full"
-                                            style={{ width: `${Math.min((cityTarget.sessions / (analytics?.data?.cities?.[0]?.sessions || 1)) * 100, 100)}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                            {(!analytics?.data?.cities?.length) && (
-                                <p className="text-xs text-gray-400 text-center py-2">No city data available</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Device Breakdown */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-sm font-medium text-gray-500 mb-4">Device Breakdown</h3>
-                        <div className="space-y-4">
-                            {(analytics?.data?.devices || []).map((device: any, i: number) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`p-1.5 rounded-lg ${device.device === 'mobile' ? 'bg-blue-50 text-blue-600' :
-                                            device.device === 'desktop' ? 'bg-purple-50 text-purple-600' :
-                                                'bg-gray-50 text-gray-600'
-                                            }`}>
-                                            {device.device === 'mobile' ? (
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                </svg>
-                                            ) : device.device === 'desktop' ? (
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                </svg>
-                                            ) : (
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                </svg>
-                                            )}
+                            ) : (
+                                recentOrders.map((order) => (
+                                    <Link
+                                        key={order.id}
+                                        href={`/admin/orders/${order.id}`}
+                                        className="block bg-gray-50 rounded-xl p-4 active:bg-gray-100 transition-colors"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
+                                                    {(order.customerName || order.user?.name || 'G').charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</p>
+                                                    <p className="text-xs text-gray-500">#{order.orderNumber}</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700 capitalize">{device.device}</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-gray-900">
-                                        {((device.sessions / (analytics?.data?.devices?.reduce((a: any, b: any) => a + b.sessions, 0) || 1)) * 100).toFixed(0)}%
-                                    </span>
-                                </div>
-                            ))}
-                            {(!analytics?.data?.devices?.length) && (
-                                <p className="text-xs text-gray-400 text-center py-2">No device data available</p>
+                                        <div className="flex items-center justify-between">
+                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                                order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                                    order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                        'bg-red-50 text-red-700 border-red-100'
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' :
+                                                    order.status === 'PENDING' ? 'bg-amber-500' :
+                                                        order.status === 'PROCESSING' ? 'bg-blue-500' :
+                                                            'bg-red-500'
+                                                    }`}></span>
+                                                {order.status}
+                                            </span>
+                                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                                        </div>
+                                    </Link>
+                                ))
                             )}
                         </div>
-                    </div>
-                </div>
 
-                {/* Quick Actions / Mini Stats */}
-                <div className="space-y-4 sm:space-y-8">
-                    <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 sm:p-8 text-white shadow-lg shadow-gray-200">
-                        <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
-                        <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new leads to your sales funnel.</p>
-                        <Link
-                            href="/admin/funnel/leads/add"
-                            className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-white text-black rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base mb-3"
-                        >
-                            <Users className="w-5 h-5" />
-                            Add Lead
-                        </Link>
+                        {/* Desktop View - Table Layout */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {recentOrders.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                                No orders yet
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        recentOrders.map((order) => (
+                                            <tr key={order.id} className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <span className="font-mono text-sm font-medium text-gray-600 group-hover:text-purple-600 transition-colors">
+                                                        #{order.orderNumber}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                                            {(order.customerName || order.user?.name || 'G').charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</div>
+                                                            <div className="text-xs text-gray-500">{order.customerEmail || order.user?.email || ''}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                                        order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                                            order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                                'bg-red-50 text-red-700 border-red-100'
+                                                        }`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' :
+                                                            order.status === 'PENDING' ? 'bg-amber-500' :
+                                                                order.status === 'PROCESSING' ? 'bg-blue-500' :
+                                                                    'bg-red-500'
+                                                            }`}></span>
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <Link
+                                                        href={`/admin/orders/${order.id}`}
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                                    >
+                                                        <ChevronRight className="w-5 h-5" />
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    {/* Additional widgets can go here */}
+                    {/* Quick Actions / Mini Stats */}
+                    <div className="space-y-4 sm:space-y-8">
+                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 sm:p-8 text-white shadow-lg shadow-gray-200">
+                            <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
+                            <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new leads to your sales funnel.</p>
+                            <Link
+                                href="/admin/funnel/leads/add"
+                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-white text-black rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base mb-3"
+                            >
+                                <Users className="w-5 h-5" />
+                                Add Lead
+                            </Link>
+                        </div>
+
+                        {/* Additional widgets can go here */}
+                    </div>
                 </div>
             </div>
         </AdminLayout>
