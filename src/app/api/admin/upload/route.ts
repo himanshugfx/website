@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import { requireAdmin } from '@/lib/admin/auth';
 
 // Route segment config for App Router
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,12 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB for images
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB for videos
 
 export async function POST(request: Request) {
+    try {
+        await requireAdmin();
+    } catch (error) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     console.log('[Upload API] Starting upload...');
 
     try {
