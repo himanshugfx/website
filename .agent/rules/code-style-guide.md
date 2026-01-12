@@ -12,3 +12,7 @@ Database is hosted on Neon.
 
 
 While testiing in bowser as admin always clear the fileds before entring the credentials.
+
+Contact Details of Anose Beauty is:
+Email: wecare@anosebeauty.com
+Phone: +91 9110134408

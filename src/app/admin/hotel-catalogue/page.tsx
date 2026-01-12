@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Plus, Search, Edit, Trash2, Building2, Download, Package, Filter } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Download, Package, Eye } from 'lucide-react';
 
 interface HotelAmenity {
     id: string;
@@ -58,7 +58,6 @@ const getCategoryColor = (category: string) => {
     return colors[category] || 'bg-gray-100 text-gray-700';
 };
 
-// Get image URL - handle both media IDs and direct paths
 const getImageUrl = (image: string): string => {
     if (!image) return '/assets/images/product/1000x1000.png';
     if (image.startsWith('/') || image.startsWith('http')) return image;
@@ -141,22 +140,15 @@ export default function HotelCataloguePage() {
         try {
             setGeneratingPdf(true);
 
-            // Fetch all amenities for PDF
             const res = await fetch('/api/admin/hotel-catalogue?limit=1000');
             const data = await res.json();
-            const allAmenities = data.amenities || [];
+            const allAmenities: HotelAmenity[] = data.amenities || [];
 
-            // Group by category
-            const grouped: Record<string, HotelAmenity[]> = {};
-            allAmenities.forEach((a: HotelAmenity) => {
-                if (!grouped[a.category]) grouped[a.category] = [];
-                grouped[a.category].push(a);
-            });
+            // Sort by priority (highest first)
+            allAmenities.sort((a, b) => b.priority - a.priority);
 
-            // Generate HTML for PDF
-            const html = generatePdfHtml(grouped);
+            const html = generatePdfHtml(allAmenities);
 
-            // Open in new window for printing
             const printWindow = window.open('', '_blank');
             if (printWindow) {
                 printWindow.document.write(html);
@@ -173,135 +165,223 @@ export default function HotelCataloguePage() {
         }
     };
 
-    const generatePdfHtml = (grouped: Record<string, HotelAmenity[]>) => {
-        const categoryOrder = ['COSMETIC', 'DENTAL_KIT', 'SHAVING_KIT', 'VANITY_KIT', 'SLIPPER', 'COASTER', 'LAUNDRY_BAG', 'GARBAGE_BAG', 'SHOWER_CAP', 'COMB', 'OTHER'];
+    const generatePdfHtml = (products: HotelAmenity[]) => {
+        const totalProducts = products.length;
 
-        let productsHtml = '';
-        categoryOrder.forEach(cat => {
-            const items = grouped[cat];
-            if (!items || items.length === 0) return;
-
-            productsHtml += `
-                <div class="category-section">
-                    <h2 class="category-title">${getCategoryLabel(cat)}</h2>
-                    <div class="products-grid">
-                        ${items.map(item => `
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <img src="${getImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/assets/images/product/1000x1000.png'" />
-                                </div>
-                                <div class="product-info">
-                                    <h3 class="product-name">${item.name}</h3>
-                                    <p class="product-price">₹${item.price.toFixed(2)} per unit</p>
-                                    <p class="product-moq">Min. Order: ${item.minOrderQty} units</p>
-                                    ${item.sizes ? `<p class="product-detail"><strong>Sizes:</strong> ${JSON.parse(item.sizes).join(', ')}</p>` : ''}
-                                    ${item.packing ? `<p class="product-detail"><strong>Packing:</strong> ${item.packing}</p>` : ''}
-                                    ${item.contents ? `<p class="product-detail"><strong>Contents:</strong> ${JSON.parse(item.contents).join(', ')}</p>` : ''}
-                                    ${item.material ? `<p class="product-detail"><strong>Material:</strong> ${item.material}</p>` : ''}
-                                    ${item.color ? `<p class="product-detail"><strong>Colors:</strong> ${item.color}</p>` : ''}
-                                    ${item.dimensions ? `<p class="product-detail"><strong>Sizes/Dimensions:</strong> ${item.dimensions}</p>` : ''}
-                                    ${item.description ? `<p class="product-description">${item.description}</p>` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+        const productsHtml = products.map((item, idx) => `
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img src="${getImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/assets/images/product/1000x1000.png'" />
+                    <div class="product-badge">${String(idx + 1).padStart(2, '0')}</div>
                 </div>
-            `;
-        });
+                <div class="product-details">
+                    <h3 class="product-title">${item.name}</h3>
+                    <div class="product-price-row">
+                        <span class="product-price">₹${item.price.toFixed(2)}</span>
+                        <span class="product-unit">per unit</span>
+                    </div>
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <span class="spec-label">MOQ</span>
+                            <span class="spec-value">${item.minOrderQty} units</span>
+                        </div>
+                        ${item.sizes ? `
+                            <div class="spec-item">
+                                <span class="spec-label">Sizes</span>
+                                <span class="spec-value">${JSON.parse(item.sizes).join(', ')}</span>
+                            </div>
+                        ` : ''}
+                        ${item.packing ? `
+                            <div class="spec-item">
+                                <span class="spec-label">Packing</span>
+                                <span class="spec-value">${item.packing}</span>
+                            </div>
+                        ` : ''}
+                        ${item.contents ? `
+                            <div class="spec-item">
+                                <span class="spec-label">Contents</span>
+                                <span class="spec-value">${JSON.parse(item.contents).join(', ')}</span>
+                            </div>
+                        ` : ''}
+                        ${item.material ? `
+                            <div class="spec-item">
+                                <span class="spec-label">Material</span>
+                                <span class="spec-value">${item.material}</span>
+                            </div>
+                        ` : ''}
+                        ${item.color ? `
+                            <div class="spec-item">
+                                <span class="spec-label">Colors</span>
+                                <span class="spec-value">${item.color}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${item.description ? `<p class="product-desc">${item.description}</p>` : ''}
+                </div>
+            </div>
+        `).join('');
 
         return `
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Anose Beauty - Hotel Amenities Catalogue</title>
+                <title>Anose Beauty - Hotel Amenities Catalogue ${new Date().getFullYear()}</title>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+                    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
                     
-                    * {
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
+                    :root {
+                        --primary: #7c3aed;
+                        --primary-light: #a855f7;
+                        --primary-dark: #5b21b6;
+                        --dark: #1a1c23;
+                        --dark-light: #2d2f36;
+                        --text: #374151;
+                        --text-light: #6b7280;
+                        --bg-cream: #faf9f7;
                     }
+                    
+                    @page { size: A4; margin: 0; }
+                    
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
                     
                     body {
-                        font-family: 'Poppins', sans-serif;
-                        color: #333;
+                        font-family: 'Inter', sans-serif;
+                        color: var(--text);
                         background: #fff;
-                        line-height: 1.6;
+                        line-height: 1.5;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
                     
-                    .header {
-                        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-                        color: white;
-                        padding: 40px;
+                    .cover-page {
+                        width: 100%;
+                        height: 100vh;
+                        background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 50%, var(--primary-dark) 100%);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        position: relative;
+                        overflow: hidden;
+                        page-break-after: always;
+                    }
+                    
+                    .cover-decoration {
+                        position: absolute;
+                        width: 500px;
+                        height: 500px;
+                        border: 1px solid rgba(168, 85, 247, 0.2);
+                        border-radius: 50%;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    
+                    .cover-content {
+                        position: relative;
+                        z-index: 10;
                         text-align: center;
+                        padding: 40px;
                     }
                     
-                    .logo {
+                    .cover-logo {
                         width: 120px;
                         height: auto;
-                        margin-bottom: 20px;
+                        margin-bottom: 25px;
+                        filter: brightness(0) invert(1);
                     }
                     
-                    .header h1 {
-                        font-size: 32px;
-                        font-weight: 700;
+                    .cover-brand {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 16px;
+                        letter-spacing: 6px;
+                        text-transform: uppercase;
+                        color: var(--primary-light);
+                        margin-bottom: 15px;
+                    }
+                    
+                    .cover-title {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 60px;
+                        font-weight: 400;
+                        color: white;
+                        line-height: 1.1;
+                        margin-bottom: 15px;
+                    }
+                    
+                    .cover-subtitle {
+                        font-size: 14px;
+                        font-weight: 300;
+                        color: rgba(255,255,255,0.7);
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        margin-bottom: 30px;
+                    }
+                    
+                    .cover-stats {
+                        display: flex;
+                        justify-content: center;
+                        gap: 50px;
+                        margin-bottom: 40px;
+                    }
+                    
+                    .cover-stat { text-align: center; }
+                    
+                    .cover-stat-number {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 42px;
+                        color: var(--primary-light);
+                        display: block;
+                    }
+                    
+                    .cover-stat-label {
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        color: rgba(255,255,255,0.5);
+                    }
+                    
+                    .cover-footer {
+                        position: absolute;
+                        bottom: 30px;
+                        left: 0;
+                        right: 0;
+                        display: flex;
+                        justify-content: center;
+                        gap: 30px;
+                        color: rgba(255,255,255,0.5);
+                        font-size: 11px;
+                    }
+                    
+                    .cover-footer span {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+                    
+                    .products-page {
+                        padding: 60px 50px;
+                        background: var(--bg-cream);
+                        min-height: 100vh;
+                    }
+                    
+                    .products-header {
+                        text-align: center;
+                        margin-bottom: 40px;
+                        padding-bottom: 30px;
+                        border-bottom: 2px solid var(--primary);
+                    }
+                    
+                    .products-header h2 {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 36px;
+                        color: var(--dark);
                         margin-bottom: 8px;
                     }
                     
-                    .header p {
-                        font-size: 16px;
-                        opacity: 0.9;
-                    }
-                    
-                    .contact-bar {
-                        background: #1a1c23;
-                        color: white;
-                        padding: 15px 40px;
-                        display: flex;
-                        justify-content: space-between;
-                        flex-wrap: wrap;
-                        gap: 15px;
-                        font-size: 13px;
-                    }
-                    
-                    .contact-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    }
-                    
-                    .content {
-                        padding: 40px;
-                        max-width: 1200px;
-                        margin: 0 auto;
-                    }
-                    
-                    .intro {
-                        text-align: center;
-                        margin-bottom: 40px;
-                        padding: 30px;
-                        background: #f8f9fc;
-                        border-radius: 12px;
-                    }
-                    
-                    .intro h2 {
-                        color: #7c3aed;
-                        font-size: 24px;
-                        margin-bottom: 10px;
-                    }
-                    
-                    .category-section {
-                        margin-bottom: 50px;
-                        page-break-inside: avoid;
-                    }
-                    
-                    .category-title {
-                        font-size: 22px;
-                        color: #7c3aed;
-                        padding-bottom: 10px;
-                        border-bottom: 3px solid #7c3aed;
-                        margin-bottom: 25px;
+                    .products-header p {
+                        font-size: 14px;
+                        color: var(--text-light);
                     }
                     
                     .products-grid {
@@ -311,140 +391,286 @@ export default function HotelCataloguePage() {
                     }
                     
                     .product-card {
-                        border: 1px solid #e5e7eb;
-                        border-radius: 12px;
+                        background: white;
+                        border-radius: 10px;
                         overflow: hidden;
-                        display: flex;
+                        box-shadow: 0 3px 15px rgba(0,0,0,0.06);
                         page-break-inside: avoid;
                     }
                     
-                    .product-image {
-                        width: 150px;
-                        min-width: 150px;
-                        height: 150px;
-                        background: #f3f4f6;
+                    .product-image-container {
+                        width: 100%;
+                        height: 160px;
+                        position: relative;
+                        background: #f8f8f8;
                     }
                     
-                    .product-image img {
+                    .product-image-container img {
                         width: 100%;
                         height: 100%;
                         object-fit: cover;
                     }
                     
-                    .product-info {
-                        padding: 15px;
-                        flex: 1;
+                    .product-badge {
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        width: 30px;
+                        height: 30px;
+                        background: var(--primary);
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 11px;
+                        font-weight: 600;
                     }
                     
-                    .product-name {
+                    .product-details { padding: 15px; }
+                    
+                    .product-title {
+                        font-family: 'Playfair Display', serif;
                         font-size: 16px;
-                        font-weight: 600;
-                        color: #1a1c23;
-                        margin-bottom: 5px;
+                        font-weight: 500;
+                        color: var(--dark);
+                        margin-bottom: 8px;
+                    }
+                    
+                    .product-price-row {
+                        display: flex;
+                        align-items: baseline;
+                        gap: 6px;
+                        margin-bottom: 12px;
+                        padding-bottom: 12px;
+                        border-bottom: 1px solid #eee;
                     }
                     
                     .product-price {
-                        font-size: 18px;
+                        font-size: 20px;
                         font-weight: 700;
-                        color: #7c3aed;
-                        margin-bottom: 5px;
+                        color: var(--primary);
                     }
                     
-                    .product-moq {
-                        font-size: 12px;
-                        color: #6b7280;
+                    .product-unit {
+                        font-size: 11px;
+                        color: var(--text-light);
+                    }
+                    
+                    .product-specs {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 8px;
                         margin-bottom: 10px;
                     }
                     
-                    .product-detail {
-                        font-size: 12px;
-                        color: #4b5563;
-                        margin-bottom: 3px;
+                    .spec-item {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1px;
                     }
                     
-                    .product-description {
+                    .spec-label {
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        color: var(--text-light);
+                    }
+                    
+                    .spec-value {
                         font-size: 11px;
-                        color: #6b7280;
-                        margin-top: 8px;
-                        line-height: 1.4;
+                        font-weight: 500;
+                        color: var(--dark);
                     }
                     
-                    .footer {
-                        background: #1a1c23;
-                        color: white;
-                        padding: 40px;
+                    .product-desc {
+                        font-size: 10px;
+                        color: var(--text-light);
+                        line-height: 1.5;
+                        border-top: 1px solid #eee;
+                        padding-top: 10px;
+                    }
+                    
+                    .back-cover {
+                        width: 100%;
+                        height: 100vh;
+                        background: var(--dark);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
                         text-align: center;
+                        padding: 50px;
+                        page-break-before: always;
                     }
                     
-                    .footer h3 {
-                        font-size: 20px;
+                    .back-brand {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 12px;
+                        letter-spacing: 5px;
+                        text-transform: uppercase;
+                        color: var(--primary-light);
+                        margin-bottom: 25px;
+                    }
+                    
+                    .back-title {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 40px;
+                        font-weight: 400;
+                        color: white;
                         margin-bottom: 15px;
-                        color: #a855f7;
                     }
                     
-                    .footer p {
+                    .back-subtitle {
+                        font-size: 14px;
+                        color: rgba(255,255,255,0.6);
+                        margin-bottom: 50px;
+                        max-width: 450px;
+                    }
+                    
+                    .contact-grid {
+                        display: flex;
+                        justify-content: center;
+                        gap: 50px;
+                        margin-bottom: 50px;
+                    }
+                    
+                    .contact-box { text-align: center; }
+                    
+                    .contact-icon {
+                        width: 50px;
+                        height: 50px;
+                        background: var(--primary);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 15px;
+                        font-size: 20px;
+                    }
+                    
+                    .contact-label {
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        color: rgba(255,255,255,0.5);
+                        margin-bottom: 5px;
+                    }
+                    
+                    .contact-value {
                         font-size: 13px;
-                        margin-bottom: 8px;
-                        opacity: 0.8;
+                        color: white;
+                        font-weight: 500;
                     }
                     
-                    .terms {
-                        margin-top: 30px;
-                        padding-top: 20px;
-                        border-top: 1px solid #333;
+                    .back-cta {
+                        display: inline-block;
+                        padding: 15px 40px;
+                        background: var(--primary);
+                        color: white;
+                        font-size: 12px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        border-radius: 40px;
+                        margin-bottom: 40px;
+                    }
+                    
+                    .back-terms {
+                        font-size: 10px;
+                        color: rgba(255,255,255,0.4);
+                        line-height: 1.8;
+                    }
+                    
+                    .back-copyright {
+                        margin-top: 25px;
+                        padding-top: 25px;
+                        border-top: 1px solid rgba(255,255,255,0.1);
                         font-size: 11px;
-                        opacity: 0.6;
+                        color: rgba(255,255,255,0.3);
                     }
-                    
+
                     @media print {
-                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        .contact-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        .footer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .cover-page, .products-page, .back-cover {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
                     }
                 </style>
             </head>
             <body>
-                <div class="header">
-                    <img src="/assets/images/anose-logo.png" alt="Anose Beauty" class="logo" />
-                    <h1>Hotel Amenities Catalogue</h1>
-                    <p>Premium Quality Products for Hospitality Industry</p>
+                <div class="cover-page">
+                    <div class="cover-decoration"></div>
+                    <div class="cover-content">
+                        <img src="/assets/images/anose-logo.png" alt="Anose Beauty" class="cover-logo" onerror="this.style.display='none'" />
+                        <div class="cover-brand">Anose Beauty</div>
+                        <h1 class="cover-title">Catalogue</h1>
+                        <p class="cover-subtitle">Premium Hotel Amenities</p>
+                        <div class="cover-stats">
+                            <div class="cover-stat">
+                                <span class="cover-stat-number">${totalProducts}</span>
+                                <span class="cover-stat-label">Products</span>
+                            </div>
+                            <div class="cover-stat">
+                                <span class="cover-stat-number">100+</span>
+                                <span class="cover-stat-label">Hotels Served</span>
+                            </div>
+                            <div class="cover-stat">
+                                <span class="cover-stat-number">${new Date().getFullYear()}</span>
+                                <span class="cover-stat-label">Edition</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cover-footer">
+                        <span>📧 wecare@anosebeauty.com</span>
+                        <span>📞 +91 9110134408</span>
+                        <span>🌐 www.anosebeauty.com</span>
+                    </div>
                 </div>
                 
-                <div class="contact-bar">
-                    <div class="contact-item">
-                        <span>📍</span>
-                        <span>India</span>
+                <div class="products-page">
+                    <div class="products-header">
+                        <h2>Our Products</h2>
+                        <p>Premium quality hotel amenities for exceptional guest experiences</p>
                     </div>
-                    <div class="contact-item">
-                        <span>📧</span>
-                        <span>contact@anosebeauty.com</span>
-                    </div>
-                    <div class="contact-item">
-                        <span>🌐</span>
-                        <span>www.anosebeauty.com</span>
+                    <div class="products-grid">
+                        ${productsHtml}
                     </div>
                 </div>
                 
-                <div class="content">
-                    <div class="intro">
-                        <h2>Welcome to Anose Beauty</h2>
-                        <p>We provide premium quality hotel amenities that enhance your guests' experience. Our products are crafted with care using the finest ingredients and materials.</p>
+                <div class="back-cover">
+                    <div class="back-brand">Anose Beauty</div>
+                    <h2 class="back-title">Ready to Order?</h2>
+                    <p class="back-subtitle">Contact us today for bulk pricing, customization options, and exclusive partnership opportunities.</p>
+                    
+                    <div class="contact-grid">
+                        <div class="contact-box">
+                            <div class="contact-icon">📧</div>
+                            <div class="contact-label">Email</div>
+                            <div class="contact-value">wecare@anosebeauty.com</div>
+                        </div>
+                        <div class="contact-box">
+                            <div class="contact-icon">📞</div>
+                            <div class="contact-label">Phone</div>
+                            <div class="contact-value">+91 9110134408</div>
+                        </div>
+                        <div class="contact-box">
+                            <div class="contact-icon">🌐</div>
+                            <div class="contact-label">Website</div>
+                            <div class="contact-value">www.anosebeauty.com</div>
+                        </div>
                     </div>
                     
-                    ${productsHtml}
-                </div>
-                
-                <div class="footer">
-                    <h3>Ready to Order?</h3>
-                    <p>Contact us for bulk pricing and customization options</p>
-                    <p>📧 Email: contact@anosebeauty.com</p>
-                    <p>🌐 Website: www.anosebeauty.com</p>
+                    <div class="back-cta">Get Quote Now</div>
                     
-                    <div class="terms">
+                    <div class="back-terms">
                         <p>* Prices are subject to change without prior notice</p>
-                        <p>* Minimum order quantities apply | Customization available for orders above 500 units</p>
-                        <p>© ${new Date().getFullYear()} Anose Beauty. All rights reserved.</p>
+                        <p>* Minimum order quantities apply</p>
+                        <p>* Customization available for orders above 500 units</p>
+                    </div>
+                    
+                    <div class="back-copyright">
+                        © ${new Date().getFullYear()} Anose Beauty. All rights reserved.
                     </div>
                 </div>
             </body>
@@ -467,6 +693,14 @@ export default function HotelCataloguePage() {
                         </p>
                     </div>
                     <div className="flex gap-3">
+                        <Link
+                            href="/catalogue"
+                            target="_blank"
+                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border-2 border-purple-600 text-purple-600 rounded-xl font-medium hover:bg-purple-50 transition-colors"
+                        >
+                            <Eye className="w-5 h-5" />
+                            View Catalogue
+                        </Link>
                         <button
                             onClick={handleDownloadPdf}
                             disabled={generatingPdf || amenities.length === 0}
