@@ -37,12 +37,11 @@ declare global {
 }
 
 export default function CheckoutClient() {
-    const { cart, cartTotal, clearCart } = useCart();
+    const { cart, cartTotal, clearCart, abandonedCheckoutId } = useCart();
     const { data: session } = useSession();
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [abandonedCheckoutId, setAbandonedCheckoutId] = useState<string | null>(null);
 
     // Shipping Constants
     const SHIPPING_THRESHOLD = 199;
@@ -103,11 +102,9 @@ export default function CheckoutClient() {
         setShippingInfo(prev => ({ ...prev, [name]: value }));
     };
 
-    // Abandoned Checkout Tracking Helper
+    // Abandoned Checkout Tracking Helper - now syncs to CHECKOUT source
     const syncAbandonedCheckout = async () => {
-        // Only sync if at least some details are filled
-        if (!shippingInfo.firstName && !shippingInfo.email && !shippingInfo.phone) return;
-
+        // Always sync when on checkout page (user has intent to purchase)
         try {
             const res = await fetch('/api/checkout/abandoned', {
                 method: 'POST',
@@ -115,10 +112,10 @@ export default function CheckoutClient() {
                 body: JSON.stringify({
                     checkoutId: abandonedCheckoutId,
                     userId: (session?.user as any)?.id || null,
-                    customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
-                    customerEmail: shippingInfo.email,
-                    customerPhone: shippingInfo.phone,
-                    shippingInfo,
+                    customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim() || null,
+                    customerEmail: shippingInfo.email || null,
+                    customerPhone: shippingInfo.phone || null,
+                    shippingInfo: (shippingInfo.firstName || shippingInfo.email || shippingInfo.phone) ? shippingInfo : null,
                     cartItems: cart.map(item => ({
                         id: item.id,
                         name: item.name,
@@ -128,26 +125,33 @@ export default function CheckoutClient() {
                     total: (() => {
                         const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
                         return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
-                    })()
+                    })(),
+                    source: 'CHECKOUT' // Mark as checkout stage
                 }),
             });
             const data = await res.json();
-            if (data.success && !abandonedCheckoutId) {
-                setAbandonedCheckoutId(data.id);
+            if (!data.success) {
+                console.error('Abandoned checkout sync failed:', data.error);
             }
         } catch (err) {
             console.error('Failed to sync abandoned checkout:', err);
         }
     };
 
-    // Debounce tracking
+    // Sync immediately on checkout page load, then debounce on changes
+    React.useEffect(() => {
+        // Sync immediately when landing on checkout
+        syncAbandonedCheckout();
+    }, []); // Only on mount
+
+    // Debounce tracking for shipping info changes
     React.useEffect(() => {
         const timer = setTimeout(() => {
             syncAbandonedCheckout();
         }, 3000); // Sync after 3 seconds of inactivity
 
         return () => clearTimeout(timer);
-    }, [shippingInfo, cart, appliedPromo]);
+    }, [shippingInfo, appliedPromo]);
 
 
     const validateForm = () => {

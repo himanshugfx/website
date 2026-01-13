@@ -341,6 +341,10 @@ model AbandonedCheckout {
   shippingInfo  String?  @db.Text // Store as JSON string
   cartItems     String?  @db.Text // Store as JSON string
   total         Float?
+  city          String?  // From IP geolocation or browser
+  country       String?
+  ip            String?
+  source        String?  // "CART" or "CHECKOUT"
   status        String   @default("ABANDONED") // ABANDONED, RECOVERED
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

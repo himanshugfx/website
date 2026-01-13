@@ -1,9 +1,27 @@
 
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { headers } from 'next/headers';
+
+// Helper to extract client IP from headers
+function getClientIP(headersList: Headers): string | null {
+    // Check various headers for client IP
+    const forwardedFor = headersList.get('x-forwarded-for');
+    if (forwardedFor) {
+        return forwardedFor.split(',')[0].trim();
+    }
+    const realIP = headersList.get('x-real-ip');
+    if (realIP) {
+        return realIP;
+    }
+    return null;
+}
 
 export async function POST(request: Request) {
     try {
+        const headersList = await headers();
+        const clientIP = getClientIP(headersList);
+
         const body = await request.json();
         const {
             checkoutId,
@@ -13,7 +31,10 @@ export async function POST(request: Request) {
             customerPhone,
             shippingInfo,
             cartItems,
-            total
+            total,
+            city,
+            country,
+            source // "CART" or "CHECKOUT"
         } = body;
 
         // Use upsert if checkoutId is provided, otherwise create new
@@ -28,6 +49,10 @@ export async function POST(request: Request) {
                     shippingInfo: shippingInfo ? JSON.stringify(shippingInfo) : undefined,
                     cartItems: cartItems ? JSON.stringify(cartItems) : undefined,
                     total,
+                    city: city || undefined,
+                    country: country || undefined,
+                    ip: clientIP || undefined,
+                    source: source || undefined,
                 }
             });
             return NextResponse.json({ success: true, id: updated.id });
@@ -41,6 +66,10 @@ export async function POST(request: Request) {
                     shippingInfo: shippingInfo ? JSON.stringify(shippingInfo) : undefined,
                     cartItems: cartItems ? JSON.stringify(cartItems) : undefined,
                     total,
+                    city: city || null,
+                    country: country || null,
+                    ip: clientIP || null,
+                    source: source || 'CART',
                 }
             });
             return NextResponse.json({ success: true, id: created.id });
