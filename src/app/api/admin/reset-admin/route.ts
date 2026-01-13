@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
         const { secretKey, email, password, name } = body;
 
         // Simple secret key check for security
-        if (secretKey !== 'anose-admin-reset-2024') {
+        if (!process.env.ADMIN_RESET_SECRET || secretKey !== process.env.ADMIN_RESET_SECRET) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

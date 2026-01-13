@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 // Size limits in bytes
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
@@ -7,6 +8,7 @@ const MAX_VIDEO_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(request: NextRequest) {
     try {
+        await requireAdmin();
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
@@ -61,6 +63,7 @@ export async function POST(request: NextRequest) {
 // GET: List all media (optional, for media library)
 export async function GET() {
     try {
+        await requireAdmin();
         const media = await prisma.media.findMany({
             orderBy: { createdAt: 'desc' },
             select: {

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
 // Seed hotel amenities with dummy data
 export async function POST(request: NextRequest) {
     try {
+        await requireAdmin();
         // Check if already seeded
         const existingCount = await prisma.hotelAmenity.count();
         if (existingCount > 0) {

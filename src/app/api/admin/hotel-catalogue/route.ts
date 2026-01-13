@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
 // GET - List all hotel amenities
 export async function GET(request: NextRequest) {
     try {
+        await requireAdmin();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '50');
@@ -53,6 +55,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new hotel amenity
 export async function POST(request: NextRequest) {
     try {
+        await requireAdmin();
         const body = await request.json();
 
         const {

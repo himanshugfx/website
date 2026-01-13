@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import whatsappService from '@/lib/whatsapp';
+import { requireAdmin } from '@/lib/admin/auth';
 
 /**
  * API Route for Abandoned Cart WhatsApp Alerts
  * This should be triggered by a Cron Job every 30-60 minutes
  */
 export async function GET(req: NextRequest) {
+    try {
+        await requireAdmin();
+    } catch (error) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // 1. Define time window (orders created between 1 and 2 hours ago)
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const twoHoursAgo = new Date(Date.now() - 120 * 60 * 1000);

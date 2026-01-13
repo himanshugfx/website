@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAdmin } from '@/lib/admin/auth';
 
 // POST - Update all existing orders to DELIVERED status
 export async function POST(request: Request) {
     try {
-        // Check admin authorization
-        const session = await getServerSession(authOptions);
-        if (!session || (session.user as any)?.role !== 'admin') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        await requireAdmin();
 
         // Use updateMany for efficient bulk update - only update status field
         // This will update generic status fields
@@ -43,6 +39,7 @@ export async function POST(request: Request) {
 // GET - Check current order statuses
 export async function GET() {
     try {
+        await requireAdmin();
         const orders = await prisma.order.findMany({
             select: {
                 id: true,
