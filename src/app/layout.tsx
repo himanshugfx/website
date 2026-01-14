@@ -99,10 +99,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css" />
-        <link rel="stylesheet" href="/assets/css/style.css" />
-        <link rel="stylesheet" href="/dist/output-scss.css" />
-        <link rel="stylesheet" href="/dist/output-tailwind.css" />
       </head>
       <body
         className={`${poppins.variable} font-sans antialiased`}
