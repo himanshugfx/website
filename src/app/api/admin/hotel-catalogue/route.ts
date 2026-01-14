@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 
+import { Prisma } from '@prisma/client';
+
 export const dynamic = 'force-dynamic';
 
 // GET - List all hotel amenities
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
         const search = searchParams.get('search') || '';
         const category = searchParams.get('category') || '';
 
-        const where: any = {};
+        const where: Prisma.HotelAmenityWhereInput = {};
 
         if (search) {
             where.OR = [
@@ -75,9 +77,15 @@ export async function POST(request: NextRequest) {
             priority,
         } = body;
 
-        if (!name || !category || !image || price === undefined) {
+        const errors = [];
+        if (!name) errors.push('Product name is required');
+        if (!category) errors.push('Category is required');
+        if (!image) errors.push('Product image is required');
+        if (price === undefined || price === '' || isNaN(parseFloat(price))) errors.push('Valid price is required');
+
+        if (errors.length > 0) {
             return NextResponse.json(
-                { error: 'Name, category, image, and price are required' },
+                { error: errors.join(', ') },
                 { status: 400 }
             );
         }
