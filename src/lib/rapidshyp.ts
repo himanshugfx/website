@@ -79,7 +79,7 @@ export async function createRapidShypOrder(orderData: {
         let result;
         try {
             result = text ? JSON.parse(text) : {};
-        } catch (e) {
+        } catch (_e) {
             console.error('RapidShyp response was not JSON:', text);
             return { success: false, error: `Invalid response from RapidShyp (Status ${response.status}): ${text.slice(0, 100) || '(empty body)'}` };
         }
@@ -118,7 +118,7 @@ export async function trackRapidShypShipment(awbNumber: string) {
         let result;
         try {
             result = text ? JSON.parse(text) : {};
-        } catch (e) {
+        } catch (_e) {
             console.error('RapidShyp tracking response was not JSON:', text);
             return { success: false, error: `Invalid response from RapidShyp: ${text.slice(0, 100)}` };
         }

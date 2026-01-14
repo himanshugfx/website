@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Eye, ShoppingCart, Filter, Search, MoreHorizontal, Download, Truck, RefreshCw } from 'lucide-react';
+import { Eye, ShoppingCart, Filter, Search, Download, Truck, RefreshCw } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -27,7 +27,7 @@ const STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLE
 
 // OrderRow component for reusable table row rendering
 function OrderRow({ order, handleStatusUpdate, shipWithRapidShyp, shippingOrderId }: {
-    order: any;
+    order: Order;
     handleStatusUpdate: (orderId: string, newStatus: string) => void;
     shipWithRapidShyp: (orderId: string) => void;
     shippingOrderId: string | null;
@@ -123,7 +123,7 @@ export default function OrdersPage() {
         return () => clearTimeout(timer);
     }, [page, statusFilter, searchQuery]);
 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         try {
             setLoading(true);
             const url = `/api/admin/orders?page=${page}${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`;
@@ -136,7 +136,7 @@ export default function OrdersPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, statusFilter, searchQuery]);
 
     const handleStatusUpdate = async (orderId: string, newStatus: string) => {
         try {
@@ -176,7 +176,7 @@ export default function OrdersPage() {
             let data;
             try {
                 data = text ? JSON.parse(text) : {};
-            } catch (e) {
+            } catch (_e) {
                 console.error('Failed to parse shipping response:', text);
                 alert(`Error: Invalid response from server. Status: ${res.status}. ${text.slice(0, 100)}`);
                 return;
@@ -296,49 +296,49 @@ export default function OrdersPage() {
                                 ) : (
                                     <>
                                         {/* Pending Orders Section */}
-                                        {orders.filter((o: any) => o.status === 'PENDING').length > 0 && !statusFilter && (
+                                        {orders.filter((o: Order) => o.status === 'PENDING').length > 0 && !statusFilter && (
                                             <>
                                                 <tr className="bg-amber-50">
                                                     <td colSpan={6} className="px-6 py-2 text-xs font-bold text-amber-700 uppercase tracking-wider">
-                                                        ⏳ Pending Orders ({orders.filter((o: any) => o.status === 'PENDING').length})
+                                                        ⏳ Pending Orders ({orders.filter((o: Order) => o.status === 'PENDING').length})
                                                     </td>
                                                 </tr>
-                                                {orders.filter((o: any) => o.status === 'PENDING').map((order: any) => (
+                                                {orders.filter((o: Order) => o.status === 'PENDING').map((order: Order) => (
                                                     <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
                                                 ))}
                                             </>
                                         )}
 
                                         {/* Processing Orders Section */}
-                                        {orders.filter((o: any) => o.status === 'PROCESSING').length > 0 && !statusFilter && (
+                                        {orders.filter((o: Order) => o.status === 'PROCESSING').length > 0 && !statusFilter && (
                                             <>
                                                 <tr className="bg-blue-50">
                                                     <td colSpan={6} className="px-6 py-2 text-xs font-bold text-blue-700 uppercase tracking-wider">
-                                                        🔄 Processing Orders ({orders.filter((o: any) => o.status === 'PROCESSING').length})
+                                                        🔄 Processing Orders ({orders.filter((o: Order) => o.status === 'PROCESSING').length})
                                                     </td>
                                                 </tr>
-                                                {orders.filter((o: any) => o.status === 'PROCESSING').map((order: any) => (
+                                                {orders.filter((o: Order) => o.status === 'PROCESSING').map((order: Order) => (
                                                     <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
                                                 ))}
                                             </>
                                         )}
 
                                         {/* Other Orders Section */}
-                                        {orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length > 0 && !statusFilter && (
+                                        {orders.filter((o: Order) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length > 0 && !statusFilter && (
                                             <>
                                                 <tr className="bg-gray-50">
                                                     <td colSpan={6} className="px-6 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                                        📋 Other Orders ({orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length})
+                                                        📋 Other Orders ({orders.filter((o: Order) => o.status !== 'PENDING' && o.status !== 'PROCESSING').length})
                                                     </td>
                                                 </tr>
-                                                {orders.filter((o: any) => o.status !== 'PENDING' && o.status !== 'PROCESSING').map((order: any) => (
+                                                {orders.filter((o: Order) => o.status !== 'PENDING' && o.status !== 'PROCESSING').map((order: Order) => (
                                                     <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
                                                 ))}
                                             </>
                                         )}
 
                                         {/* When status filter is active, show all matching orders without sections */}
-                                        {statusFilter && orders.map((order: any) => (
+                                        {statusFilter && orders.map((order: Order) => (
                                             <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
                                         ))}
                                     </>
