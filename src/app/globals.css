@@ -22,9 +22,9 @@
   --surface2: rgba(255, 255, 255, 0.2);
 
   /* Spacing */
-  --spacing-section: 3rem;
-  --spacing-section-lg: 4.5rem;
-  --spacing-section-xl: 6rem;
+  --spacing-section: 2.5rem;
+  --spacing-section-lg: 3.5rem;
+  --spacing-section-xl: 4.5rem;
   --spacing-card: 1.5rem;
   --spacing-card-lg: 2rem;
 }
@@ -10457,9 +10457,8 @@ button.swiper-pagination-bullet {
   margin-bottom: var(--spacing-section-xl);
 }
 
-/* Section spacing - applies padding and margin together */
 section {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 section:first-child {
