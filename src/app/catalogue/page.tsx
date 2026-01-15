@@ -36,7 +36,7 @@ export default function CataloguePage() {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('/api/admin/hotel-catalogue?limit=1000');
+            const res = await fetch('/api/public/catalogue?limit=1000');
             const data = await res.json();
             const allProducts: HotelAmenity[] = data.amenities || [];
             allProducts.sort((a, b) => b.priority - a.priority);
