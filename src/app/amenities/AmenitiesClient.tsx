@@ -200,9 +200,9 @@ export default function AmenitiesPage() {
                                 Request a Free Quote
                                 <ArrowRightIcon className="w-5 h-5" />
                             </a>
-                            <a href="#products" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-xl font-bold text-lg transition-all">
-                                Get Samples
-                            </a>
+                            <Link href="/catalogue" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-xl font-bold text-lg transition-all">
+                                View Catalogue
+                            </Link>
                         </div>
                         <div className="mt-12 flex flex-wrap gap-8 items-center text-sm font-medium">
                             <div className="flex items-center gap-3">
