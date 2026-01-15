@@ -15,6 +15,11 @@ export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Sync context popup state with drawer (optional but good for consistency)
     useEffect(() => {
@@ -145,7 +150,7 @@ export default function Header() {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
-                                    <span className="quantity wishlist-quantity absolute -right-1 -top-1 text-[10px] text-white bg-purple-600 w-4 h-4 flex items-center justify-center rounded-full font-bold">{wishlistCount}</span>
+                                    <span className="quantity wishlist-quantity absolute -right-1 -top-1 text-[10px] text-white bg-purple-600 w-4 h-4 flex items-center justify-center rounded-full font-bold">{mounted ? wishlistCount : 0}</span>
                                 </Link>
 
                                 {/* Cart Icon */}
@@ -156,7 +161,7 @@ export default function Header() {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    <span className="quantity cart-quantity absolute -right-1 -top-1 text-[10px] text-white bg-purple-600 w-4 h-4 flex items-center justify-center rounded-full font-bold">{cartCount}</span>
+                                    <span className="quantity cart-quantity absolute -right-1 -top-1 text-[10px] text-white bg-purple-600 w-4 h-4 flex items-center justify-center rounded-full font-bold">{mounted ? cartCount : 0}</span>
                                 </div>
                             </div>
                         </div>
@@ -194,12 +199,12 @@ export default function Header() {
                             </li>
                             <li className="border-t border-line pt-4">
                                 <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 hover:bg-zinc-50 rounded-lg font-semibold">
-                                    Wishlist ({wishlistCount})
+                                    Wishlist ({mounted ? wishlistCount : 0})
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/cart" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 hover:bg-zinc-50 rounded-lg font-semibold">
-                                    Cart ({cartCount})
+                                    Cart ({mounted ? cartCount : 0})
                                 </Link>
                             </li>
                         </ul>

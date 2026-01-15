@@ -48,36 +48,42 @@ async function getLocationData(): Promise<{ city?: string; country?: string }> {
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [cart, setCart] = useState<CartItem[]>(() => {
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedCart = localStorage.getItem('anose_cart');
             if (savedCart) {
                 try {
-                    return JSON.parse(savedCart);
+                    setCart(JSON.parse(savedCart));
                 } catch (e) {
                     console.error("Failed to parse cart", e);
                 }
             }
+            setIsLoaded(true);
         }
-        return [];
-    });
+    }, []);
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
-    const [abandonedCheckoutId, setAbandonedCheckoutId] = useState<string | null>(() => {
+    const [abandonedCheckoutId, setAbandonedCheckoutId] = useState<string | null>(null);
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('anose_abandoned_checkout_id');
+            setAbandonedCheckoutId(localStorage.getItem('anose_abandoned_checkout_id'));
         }
-        return null;
-    });
+    }, []);
 
     // Track if we've synced this session
     const hasSyncedRef = useRef(false);
 
     // Save cart to local storage
     useEffect(() => {
-        localStorage.setItem('anose_cart', JSON.stringify(cart));
-    }, [cart]);
+        if (isLoaded) {
+            localStorage.setItem('anose_cart', JSON.stringify(cart));
+        }
+    }, [cart, isLoaded]);
 
     // Save abandoned checkout ID to local storage
     useEffect(() => {
