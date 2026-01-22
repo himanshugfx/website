@@ -30,7 +30,7 @@ export default async function Home() {
   return (
     <main>
       {/* Slider Hero - Enhanced */}
-      <div className="slider-block style-two relative bg-zinc-900 2xl:h-[800px] xl:h-[740px] lg:h-[680px] md:h-[580px] sm:h-[500px] h-[450px] w-full overflow-hidden">
+      <div className="slider-block relative 2xl:h-[800px] xl:h-[740px] lg:h-[680px] md:h-[580px] sm:h-[500px] h-[450px] w-full overflow-hidden">
         <div className="slider-main h-full w-full relative z-10">
           <div className="container mx-auto h-full px-6 flex items-center">
             <div className="text-content sm:w-1/2 w-full animate-fade-in">
@@ -58,17 +58,15 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Hero Image with Gradient Overlay */}
+        {/* Hero Image */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/assets/images/banner/oas-banner.png"
             alt="Hero Banner"
             fill
-            className="object-cover brightness-75 scale-105"
+            className="object-cover scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
 
         {/* Decorative Blur Elements */}

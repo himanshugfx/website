@@ -76,7 +76,7 @@ export default function CataloguePage() {
                     --text: #374151;
                     --text-light: #6b7280;
                     --bg-cream: #faf9f7;
-                }
+                }n
                 
                 @keyframes float {
                     0%, 100% { transform: translateY(0px); }

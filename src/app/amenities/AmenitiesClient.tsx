@@ -165,7 +165,6 @@ export default function AmenitiesPage() {
         <div className="amenities-page bg-white min-h-screen overflow-x-hidden">
             {/* 1. Hero Section - Enhanced */}
             <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-                {/* Background Image with Gradient Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
                         src="/assets/images/hotel_amenities_banner.png"
@@ -220,10 +219,10 @@ export default function AmenitiesPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 2. Problem → Solution Section - Fixed overflow */}
-            <section className="py-20 md:py-28 bg-zinc-50">
+            < section className="py-20 md:py-28 bg-zinc-50" >
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto">
                         <div className="text-center mb-16">
@@ -284,10 +283,10 @@ export default function AmenitiesPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 3. Product & Service Overview - Fixed icons */}
-            <section id="products" className="py-20 md:py-28 bg-white">
+            < section id="products" className="py-20 md:py-28 bg-white" >
                 <div className="container mx-auto px-6 text-center">
                     <div className="mb-16">
                         <h2 className="text-3xl md:text-4xl font-black text-zinc-900 mb-4 uppercase tracking-tight">Our Hospitality Range</h2>
@@ -307,10 +306,10 @@ export default function AmenitiesPage() {
                         ))}
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 4. Why Choose Anose Beauty - Fixed icons and layout */}
-            <section className="py-20 md:py-28 bg-zinc-900 text-white mx-6 md:mx-10 lg:mx-16 rounded-3xl overflow-hidden relative">
+            < section className="py-20 md:py-28 bg-zinc-900 text-white mx-6 md:mx-10 lg:mx-16 rounded-3xl overflow-hidden relative" >
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-600/10 to-transparent pointer-events-none" />
                 <div className="container mx-auto px-6 sm:px-10 md:px-14 lg:px-20 grid lg:grid-cols-2 gap-16 items-center">
                     <div>
@@ -359,10 +358,10 @@ export default function AmenitiesPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 5. Simple Process Section */}
-            <section className="py-20 md:py-28 bg-white overflow-hidden">
+            < section className="py-20 md:py-28 bg-white overflow-hidden" >
                 <div className="container mx-auto px-6">
                     <div className="max-w-5xl mx-auto">
                         <div className="text-center mb-16">
@@ -389,10 +388,10 @@ export default function AmenitiesPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* 6. Final CTA & Form Section */}
-            <section id="quote-form" className="py-20 md:py-28 bg-zinc-50 relative overflow-hidden">
+            < section id="quote-form" className="py-20 md:py-28 bg-zinc-50 relative overflow-hidden" >
                 <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl" />
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -538,7 +537,7 @@ export default function AmenitiesPage() {
                         </div>
                     </div>
                 </div>
-            </section>
-        </div>
+            </section >
+        </div >
     );
 }
