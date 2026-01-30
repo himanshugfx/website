@@ -202,8 +202,14 @@ export default function SalesFunnelPage() {
                 )}
 
                 {/* Kanban Board */}
-                <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                    <div className="flex gap-4" style={{ minWidth: `${stages.length * 300}px` }}>
+                <div
+                    className="overflow-x-auto pt-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+                    style={{ transform: 'scaleY(-1)' }}
+                >
+                    <div
+                        className="flex gap-4"
+                        style={{ minWidth: `${stages.length * 300}px`, transform: 'scaleY(-1)' }}
+                    >
                         {stages.map((stage) => (
                             <div
                                 key={stage.id}
