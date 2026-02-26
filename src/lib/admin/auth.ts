@@ -1,5 +1,9 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { jwtVerify } from 'jose';
+
+const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
 
 export async function getAdminSession() {
     const session = await getServerSession(authOptions);
@@ -11,10 +15,29 @@ export async function isAdmin() {
     return session?.user?.role === 'admin';
 }
 
-export async function requireAdmin() {
-    const admin = await isAdmin();
-    if (!admin) {
-        throw new Error('Unauthorized: Admin access required');
+// Verify mobile JWT token from Authorization header
+async function isAdminFromMobileToken(): Promise<boolean> {
+    try {
+        const headersList = await headers();
+        const authHeader = headersList.get('authorization');
+        if (!authHeader?.startsWith('Bearer ')) return false;
+
+        const token = authHeader.split(' ')[1];
+        const { payload } = await jwtVerify(token, SECRET);
+        return (payload as any).role === 'admin';
+    } catch {
+        return false;
     }
-    return true;
+}
+
+export async function requireAdmin() {
+    // First try session-based auth (web panel)
+    const sessionAdmin = await isAdmin();
+    if (sessionAdmin) return true;
+
+    // Then try mobile token auth
+    const mobileAdmin = await isAdminFromMobileToken();
+    if (mobileAdmin) return true;
+
+    throw new Error('Unauthorized: Admin access required');
 }
