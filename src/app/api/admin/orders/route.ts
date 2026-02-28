@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
     try {
         await requireAdmin(request);

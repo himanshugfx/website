@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import { SignJWT, jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+const getSecret = () => new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
 
 // Sign a JWT for mobile auth
 async function signMobileToken(payload: { id: string; email: string; name: string; role: string }) {
@@ -11,13 +11,13 @@ async function signMobileToken(payload: { id: string; email: string; name: strin
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('7d')
-        .sign(SECRET);
+        .sign(getSecret());
 }
 
 // Verify a mobile JWT token
 export async function verifyMobileToken(token: string) {
     try {
-        const { payload } = await jwtVerify(token, SECRET);
+        const { payload } = await jwtVerify(token, getSecret());
         return payload as { id: string; email: string; name: string; role: string };
     } catch {
         return null;
