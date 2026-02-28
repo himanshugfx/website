@@ -20,12 +20,16 @@ async function isAdminFromMobileToken(): Promise<boolean> {
     try {
         const headersList = await headers();
         const authHeader = headersList.get('authorization');
+        console.log('[MobileAuth] Authorization header present:', !!authHeader);
         if (!authHeader?.startsWith('Bearer ')) return false;
 
         const token = authHeader.split(' ')[1];
+        console.log('[MobileAuth] Token length:', token.length);
         const { payload } = await jwtVerify(token, SECRET);
+        console.log('[MobileAuth] Token verified, role:', (payload as any).role);
         return (payload as any).role === 'admin';
-    } catch {
+    } catch (e: any) {
+        console.error('[MobileAuth] Token verification error:', e?.message || e);
         return false;
     }
 }
