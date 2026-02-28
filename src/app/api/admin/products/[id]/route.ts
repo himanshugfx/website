@@ -15,7 +15,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         // Need to await params in Next.js 15+
         const { id } = await params;
 
@@ -48,7 +48,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
         const data = await request.json();
         console.log('[API] PUT Product payload:', { id, videoUrl: data.videoUrl, thumbImage: data.thumbImage });
@@ -100,7 +100,7 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
 
         // Explicitly delete related records to be safe

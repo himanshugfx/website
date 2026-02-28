@@ -14,7 +14,7 @@ const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB for videos
 
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
     } catch (error) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

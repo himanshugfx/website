@@ -3,9 +3,9 @@ import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 import { revalidatePath } from 'next/cache';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
 
         const inquiries = await prisma.contactInquiry.findMany({
             orderBy: {
@@ -25,7 +25,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id, status } = await request.json();
 
         if (!id || !status) {
@@ -54,7 +54,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

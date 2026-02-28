@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const promoCodes = await prisma.promoCode.findMany({
             orderBy: { createdAt: 'desc' },
         });
@@ -42,7 +42,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const body = await request.json();
         const { code, discountType, discountValue, minOrderValue, maxDiscount, usageLimit, expiresAt, isActive } = body;
 

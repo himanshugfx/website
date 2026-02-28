@@ -8,7 +8,7 @@ const MAX_VIDEO_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: List all media (optional, for media library)
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const media = await prisma.media.findMany({
             orderBy: { createdAt: 'desc' },
             select: {

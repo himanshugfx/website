@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/admin/auth';
 // GET all reviews with pagination
 export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
 // PUT - Approve/reject a review
 export async function PUT(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id, isApproved } = await request.json();
 
         if (!id || typeof isApproved !== 'boolean') {
@@ -80,7 +80,7 @@ export async function PUT(request: Request) {
 // DELETE - Remove a review
 export async function DELETE(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

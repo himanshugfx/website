@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/admin/auth';
 
 export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
@@ -134,7 +134,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id, status } = await request.json();
 
         if (!id || !status) {

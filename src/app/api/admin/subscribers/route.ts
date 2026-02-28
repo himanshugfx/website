@@ -4,9 +4,9 @@ import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const subscribers = await prisma.newsletterSubscriber.findMany({
             orderBy: { subscribedAt: 'desc' },
         });

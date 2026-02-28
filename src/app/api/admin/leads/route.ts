@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const data = await request.json();
 
         const { name, email, phone, company, stageId, source, value, notes } = data;

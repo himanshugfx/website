@@ -8,7 +8,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
 
         const order = await prisma.order.findUnique({
@@ -88,7 +88,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
         const { status } = await request.json();
 

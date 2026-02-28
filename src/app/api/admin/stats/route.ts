@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
 
         // Get total revenue
         const orders = await prisma.order.findMany({

@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 /**
  * GET: Fetch all abandoned checkouts for admin view
  */
 export async function GET(request: Request) {
     try {
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
@@ -57,6 +59,7 @@ export async function GET(request: Request) {
  */
 export async function DELETE(request: Request) {
     try {
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
