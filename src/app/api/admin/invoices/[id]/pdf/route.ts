@@ -4,11 +4,11 @@ import { getInvoicePdfBuffer } from '@/lib/zoho';
 import prisma from '@/lib/prisma';
 
 export async function GET(
-    _request: Request,
+    request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
 
         // Find invoice in database to get zohoInvoiceId

@@ -7,9 +7,9 @@ import { requireAdmin } from '@/lib/admin/auth';
  * API Route for Abandoned Cart WhatsApp Alerts
  * This should be triggered by a Cron Job every 30-60 minutes
  */
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
     } catch (error) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 // GET - List all hotel amenities
 export async function GET(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '50');
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new hotel amenity
 export async function POST(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const body = await request.json();
 
         const {

@@ -182,9 +182,9 @@ async function getRealtimeData(accessToken: string, propertyId: string): Promise
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
 
         const propertyId = process.env.GA4_PROPERTY_ID;
 

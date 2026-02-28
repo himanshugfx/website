@@ -3,9 +3,9 @@ import prisma from '@/lib/prisma';
 import { getInvoices } from '@/lib/zoho';
 import { requireAdmin } from '@/lib/admin/auth';
 
-export async function POST() {
+export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
 
         // Check if Zoho is configured
         if (!process.env.ZOHO_CLIENT_ID || !process.env.ZOHO_REFRESH_TOKEN) {

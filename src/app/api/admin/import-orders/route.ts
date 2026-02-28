@@ -31,7 +31,7 @@ async function parseExcel(buffer: ArrayBuffer) {
 
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const formData = await request.formData();
         const file = formData.get('file') as File;
 

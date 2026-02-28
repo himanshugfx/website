@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 // Seed hotel amenities with dummy data
 export async function POST(request: NextRequest) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         // Check if already seeded
         const existingCount = await prisma.hotelAmenity.count();
         if (existingCount > 0) {

@@ -6,7 +6,7 @@ import { requireAdmin } from '@/lib/admin/auth';
 // POST - Update all existing orders to DELIVERED status
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
 
         // Use updateMany for efficient bulk update - only update status field
         // This will update generic status fields
@@ -37,9 +37,9 @@ export async function POST(request: Request) {
 }
 
 // GET - Check current order statuses
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const orders = await prisma.order.findMany({
             select: {
                 id: true,

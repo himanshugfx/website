@@ -9,7 +9,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
 
         const followUps = await prisma.leadFollowUp.findMany({
@@ -33,7 +33,7 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const { id } = await params;
         const { scheduledAt, notes } = await request.json();
 
