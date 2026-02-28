@@ -3,7 +3,10 @@ import { authOptions } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+// We use a getter to ensure we always have the latest env var
+function getSecret() {
+    return new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+}
 
 export async function getAdminSession() {
     const session = await getServerSession(authOptions);
@@ -22,46 +25,77 @@ async function isAdminFromMobileToken(request?: Request): Promise<boolean> {
 
         // Try to get auth header from request object first (most reliable in route handlers)
         if (request) {
-            authHeader = request.headers.get('authorization');
+            authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
         }
 
-        // Fallback to next/headers  
+        // Fallback to next/headers (for Server Components calling this, unlikely in API routes)
         if (!authHeader) {
             try {
                 const headersList = await headers();
-                authHeader = headersList.get('authorization');
+                authHeader = headersList.get('authorization') || headersList.get('Authorization');
             } catch (e) {
-                console.log('[MobileAuth] headers() failed:', e);
+                // headers() can throw in some contexts
             }
         }
 
-        console.log('[MobileAuth] Authorization header present:', !!authHeader);
-        if (!authHeader?.startsWith('Bearer ')) return false;
+        if (!authHeader) {
+            console.log('[MobileAuth] No Authorization header found');
+            return false;
+        }
+
+        if (!authHeader.startsWith('Bearer ')) {
+            console.log('[MobileAuth] Auth header does not start with Bearer');
+            return false;
+        }
 
         const token = authHeader.split(' ')[1];
-        console.log('[MobileAuth] Token length:', token.length);
-        const { payload } = await jwtVerify(token, SECRET);
-        console.log('[MobileAuth] Token verified, role:', (payload as any).role);
-        return (payload as any).role === 'admin';
+        if (!token) {
+            console.log('[MobileAuth] Empty Bearer token');
+            return false;
+        }
+
+        const { payload } = await jwtVerify(token, getSecret());
+
+        const role = (payload as any).role;
+        const email = (payload as any).email;
+
+        console.log(`[MobileAuth] SUCCESS: Verified token for ${email} with role ${role}`);
+        return role === 'admin';
     } catch (e: any) {
-        console.error('[MobileAuth] Token verification error:', e?.message || e);
+        console.error('[MobileAuth] ERROR verifying token:', e?.message || String(e));
         return false;
     }
 }
 
 export async function requireAdmin(request?: Request) {
-    // First try session-based auth (web panel)
+    // 1. If an Authorization header is present, it's likely a mobile/API request.
+    // Try mobile token auth FIRST to avoid session lookup overhead/errors.
+    const hasAuthHeader = request?.headers.get('authorization') || request?.headers.get('Authorization');
+
+    if (hasAuthHeader) {
+        console.log('[requireAdmin] Auth header detected, trying mobile token first');
+        const mobileAdmin = await isAdminFromMobileToken(request);
+        if (mobileAdmin) return true;
+
+        // If mobile auth failed but header was present, don't fall back to session
+        // because session cookies are unlikely to be present on mobile requests.
+        console.log('[requireAdmin] Mobile token validation failed');
+        throw new Error('Unauthorized: Invalid mobile token');
+    }
+
+    // 2. Otherwise (web/browser request), try session-based auth
     try {
         const sessionAdmin = await isAdmin();
         if (sessionAdmin) return true;
     } catch (e) {
-        // Session check may fail for mobile requests — continue to token auth
-        console.log('[requireAdmin] Session check failed, trying mobile token');
+        console.log('[requireAdmin] Session check failed');
     }
 
-    // Then try mobile token auth
-    const mobileAdmin = await isAdminFromMobileToken(request);
-    if (mobileAdmin) return true;
+    // 3. Last resort fallback for edge cases
+    if (!hasAuthHeader) {
+        const mobileAdminFallback = await isAdminFromMobileToken(request);
+        if (mobileAdminFallback) return true;
+    }
 
     throw new Error('Unauthorized: Admin access required');
 }

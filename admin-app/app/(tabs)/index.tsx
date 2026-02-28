@@ -56,8 +56,16 @@ export default function DashboardScreen() {
             setStats(statsData);
             setPendingOrders(ordersData.orders || []);
         } catch (err: any) {
+            console.error('[Dashboard] Error loading data:', err);
             if (err.message === 'SESSION_EXPIRED') {
                 router.replace('/login');
+            } else {
+                // Surface the error to the user for debugging
+                const PlatformAlert = Platform.OS === 'web' ? window.alert : (require('react-native').Alert).alert;
+                PlatformAlert(
+                    'Error Loading Data',
+                    `Failed to fetch dashboard data: ${err.message || 'Unknown error'}. Please check your connection or re-login.`
+                );
             }
         } finally {
             setLoading(false);
