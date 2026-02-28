@@ -64,4 +64,4 @@ export const FontSize = {
     hero: 40,
 };
 
-export const API_BASE_URL = 'https://anosebeauty.com';
+export const API_BASE_URL = 'https://www.anosebeauty.com';

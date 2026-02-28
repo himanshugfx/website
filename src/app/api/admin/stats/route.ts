@@ -51,12 +51,16 @@ export async function GET(request: Request) {
         const recentRevenue = recentOrders.reduce((sum, order) => sum + order.total, 0);
 
         return NextResponse.json({
-            totalRevenue,
-            totalOrders,
-            totalProducts,
-            totalUsers,
-            recentOrdersCount,
-            recentRevenue,
+            totalRevenue: totalRevenue || 0,
+            totalOrders: totalOrders || 0,
+            totalProducts: totalProducts || 0,
+            totalUsers: totalUsers || 0,
+            recentOrdersCount: recentOrdersCount || 0,
+            recentRevenue: recentRevenue || 0,
+            _debug: {
+                counts: { orders: totalOrders, products: totalProducts, users: totalUsers },
+                revenue_calc: { ordersLength: orders.length, total: totalRevenue }
+            }
         });
     } catch (error: any) {
         console.error('Error fetching stats:', error);
