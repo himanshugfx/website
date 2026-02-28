@@ -57,16 +57,21 @@ export async function GET(request: Request) {
 
     // 3. Check DB
     try {
-        const [orders, products, users, leads, abandoned] = await Promise.all([
+        const [ordersCount, productsCount, usersCount, leadsCount, abandonedCount] = await Promise.all([
             prisma.order.count(),
             prisma.product.count(),
             prisma.user.count(),
             prisma.lead.count(),
             prisma.abandonedCheckout.count(),
         ]);
+
+        const sampleOrders = await prisma.order.findMany({ select: { id: true, orderNumber: true }, take: 5, orderBy: { createdAt: 'desc' } });
+        const sampleProducts = await prisma.product.findMany({ select: { id: true, name: true }, take: 5, orderBy: { createdAt: 'desc' } });
+
         debugInfo.db = {
             connected: true,
-            counts: { orders, products, users, leads, abandoned }
+            counts: { orders: ordersCount, products: productsCount, users: usersCount, leads: leadsCount, abandoned: abandonedCount },
+            samples: { orders: sampleOrders, products: sampleProducts }
         };
     } catch (e: any) {
         debugInfo.db = {
