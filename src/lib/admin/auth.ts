@@ -32,8 +32,13 @@ async function isAdminFromMobileToken(): Promise<boolean> {
 
 export async function requireAdmin() {
     // First try session-based auth (web panel)
-    const sessionAdmin = await isAdmin();
-    if (sessionAdmin) return true;
+    try {
+        const sessionAdmin = await isAdmin();
+        if (sessionAdmin) return true;
+    } catch (e) {
+        // Session check may fail for mobile requests — continue to token auth
+        console.log('[requireAdmin] Session check failed, trying mobile token:', e);
+    }
 
     // Then try mobile token auth
     const mobileAdmin = await isAdminFromMobileToken();
