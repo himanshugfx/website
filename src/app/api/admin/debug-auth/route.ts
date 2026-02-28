@@ -7,8 +7,7 @@ const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback
 // Debug endpoint to test mobile token authentication
 export async function GET(request: Request) {
     try {
-        const headersList = await headers();
-        const authHeader = headersList.get('authorization');
+        const authHeader = request.headers.get('authorization');
 
         const debugInfo: any = {
             hasAuthHeader: !!authHeader,
