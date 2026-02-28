@@ -58,10 +58,14 @@ export async function GET() {
             recentOrdersCount,
             recentRevenue,
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching stats:', error);
+        const msg = error?.message || String(error);
+        if (msg.includes('Unauthorized') || msg.includes('Admin')) {
+            return NextResponse.json({ error: msg }, { status: 401 });
+        }
         return NextResponse.json(
-            { error: 'Failed to fetch statistics' },
+            { error: 'Failed to fetch statistics', details: msg },
             { status: 500 }
         );
     }
