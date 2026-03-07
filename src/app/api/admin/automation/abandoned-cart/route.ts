@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ message: 'No abandoned checkouts found in this window.' });
         }
 
-        const results = [];
+        const results: any[] = [];
 
         for (const order of abandonedOrders) {
             if (!order.customerPhone) continue;

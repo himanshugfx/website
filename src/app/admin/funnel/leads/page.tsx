@@ -78,7 +78,7 @@ export default async function LeadsListPage() {
                     </div>
                     <select className="px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
                         <option value="">All Stages</option>
-                        {stages.map((stage) => (
+                        {stages.map((stage: any) => (
                             <option key={stage.id} value={stage.id}>{stage.name}</option>
                         ))}
                     </select>
@@ -98,7 +98,7 @@ export default async function LeadsListPage() {
                                 <p className="text-gray-500 text-sm mt-1">Add your first lead to get started</p>
                             </div>
                         ) : (
-                            leads.map((lead) => (
+                            leads.map((lead: any) => (
                                 <Link
                                     key={lead.id}
                                     href={`/admin/funnel/leads/${lead.id}`}
@@ -158,7 +158,7 @@ export default async function LeadsListPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    leads.map((lead) => (
+                                    leads.map((lead: any) => (
                                         <tr key={lead.id} className="group hover:bg-gray-50/50">
                                             <td className="px-6 py-4">
                                                 <div>

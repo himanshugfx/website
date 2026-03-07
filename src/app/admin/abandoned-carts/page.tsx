@@ -121,7 +121,7 @@ export default function AbandonedCartsPage() {
     };
 
     const getLocation = (checkout: AbandonedCheckout): string => {
-        const parts = [];
+        const parts: string[] = [];
         if (checkout.city) parts.push(checkout.city);
         if (checkout.country) parts.push(checkout.country);
         return parts.length > 0 ? parts.join(', ') : 'Unknown';

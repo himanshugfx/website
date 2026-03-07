@@ -37,8 +37,8 @@ async function getStats() {
             select: { total: true, customerId: true, customerName: true }
         });
 
-        const storeRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-        const invoiceRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+        const storeRevenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
+        const invoiceRevenue = invoices.reduce((sum: number, inv: any) => sum + inv.total, 0);
         const totalRevenue = storeRevenue + invoiceRevenue;
 
         const totalOrders = await prisma.order.count({

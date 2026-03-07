@@ -91,7 +91,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    <Mail className="w-3 h-3 inline mr-1" /> Email *
+                                    <Mail className="w-3 h-3 inline mr-1" /> Email
                                 </label>
                                 <input
                                     type="email"
@@ -144,7 +144,7 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                     defaultValue={preselectedStage || stages[0]?.id}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 >
-                                    {stages.map((stage) => (
+                                    {stages.map((stage: any) => (
                                         <option key={stage.id} value={stage.id}>{stage.name}</option>
                                     ))}
                                 </select>

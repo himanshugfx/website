@@ -779,7 +779,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                                             className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
                                                             title="Delete"
                                                         >
-                                                            <X className="w-4 h-4" />
+                                                            <Trash2 className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -835,7 +835,10 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                         Deleting...
                                     </>
                                 ) : (
-                                    'Delete Lead'
+                                    <>
+                                        <Trash2 className="w-4 h-4" />
+                                        Delete Lead
+                                    </>
                                 )}
                             </button>
                         </div>

@@ -67,7 +67,6 @@ const navigation: NavItem[] = [
     { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
     { name: 'Subscribers', href: '/admin/subscribers', icon: UserCircle },
     { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
-    { name: 'Import Orders', href: '/admin/import', icon: Upload },
 ];
 
 const NavItemComponent = ({

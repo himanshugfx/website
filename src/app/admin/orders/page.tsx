@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Eye, ShoppingCart, Filter, Search, Download, Truck, RefreshCw } from 'lucide-react';
+import { Eye, ShoppingCart, Filter, Search, Download, Truck, RefreshCw, Plus } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -212,6 +212,13 @@ export default function OrdersPage() {
                             <Download className="w-4 h-4" />
                             Export
                         </button>
+                        <Link
+                            href="/admin/orders/add"
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Order
+                        </Link>
                     </div>
                 </div>
 
