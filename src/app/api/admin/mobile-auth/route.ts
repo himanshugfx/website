@@ -3,7 +3,13 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import { SignJWT, jwtVerify } from 'jose';
 
-const getSecret = () => new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+function getSecret() {
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+        throw new Error('NEXTAUTH_SECRET MUST be set in production environment.');
+    }
+    return new TextEncoder().encode(secret || 'fallback-secret');
+}
 
 // Sign a JWT for mobile auth
 async function signMobileToken(payload: { id: string; email: string; name: string; role: string }) {

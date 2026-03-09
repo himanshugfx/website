@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
-import whatsappService from '@/lib/whatsapp';
+
 import nodemailer from 'nodemailer';
 import { authOptions } from '@/lib/auth';
 
@@ -56,19 +56,7 @@ export async function POST(req: Request) {
         console.log(`Recovering order ${orderId} via ${type} for ${customerName}`);
 
         if (type === 'whatsapp') {
-            if (!customerPhone) {
-                return NextResponse.json({ error: 'Customer phone number not found' }, { status: 400 });
-            }
-
-            // Generate recovery link
-            const recoveryLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/checkout?orderId=${order.id}`;
-            const message = `Hi ${customerName}, you left some items in your cart at Anose Beauty! 🛍️\n\nComplete your purchase here: ${recoveryLink}\n\nWe've reserved these items for you!`;
-
-            const result = await whatsappService.sendTextMessage(customerPhone, message);
-
-            if (!result.success) {
-                return NextResponse.json({ error: result.error || 'Failed to send WhatsApp message' }, { status: 500 });
-            }
+            return NextResponse.json({ error: 'WhatsApp recovery is no longer supported' }, { status: 400 });
         }
 
         if (type === 'email') {

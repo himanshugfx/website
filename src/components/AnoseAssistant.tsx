@@ -1,1206 +1,720 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { detectIntent } from "@/lib/skincare-kb";
+import Link from "next/link";
+import DOMPurify from "isomorphic-dompurify";
 
 interface Message {
   id: string;
-  type: "user" | "assistant";
+  role: "user" | "assistant";
   content: string;
-  products?: any[];
-  isIngredientSearch?: boolean;
+  timestamp: Date;
 }
 
-interface QuickReply {
-  id: string;
+interface QuickChip {
   label: string;
   icon: string;
-  response: string;
+  message: string;
 }
 
-const defaultQuickReplies: QuickReply[] = [
-  {
-    id: "promo",
-    label: "Active Promo Codes",
-    icon: "🎁",
-    response: "LOADING",
-  },
-  {
-    id: "shipping",
-    label: "Shipping Policy",
-    icon: "🚚",
-    response: "LOADING",
-  },
-  {
-    id: "refund",
-    label: "Refund Policy",
-    icon: "💰",
-    response: "LOADING",
-  },
-  {
-    id: "contact",
-    label: "Contact Us",
-    icon: "📞",
-    response: "LOADING",
-  },
-  {
-    id: "expert",
-    label: "Skincare Advice",
-    icon: "✨",
-    response: "EXPERT_ADVICE_MODE",
-  },
-  {
-    id: "remedies",
-    label: "Home Remedies",
-    icon: "🌿",
-    response: "HOME_REMEDIES_MODE",
-  },
-  {
-    id: "products",
-    label: "Search Products",
-    icon: "🔍",
-    response: "PRODUCT_SEARCH_MODE",
-  },
-  {
-    id: "order",
-    label: "Track My Order",
-    icon: "📦",
-    response: "ORDER_TRACKING_MODE",
-  },
+const QUICK_CHIPS: QuickChip[] = [
+  { label: "Skincare Routine", icon: "✨", message: "Help me build a skincare routine for my skin type" },
+  { label: "Best Products", icon: "🌸", message: "What are your best selling products?" },
+  { label: "Active Offers", icon: "🎁", message: "What promo codes or offers are available?" },
+  { label: "Shipping Info", icon: "🚚", message: "Tell me about your shipping policy" },
+  { label: "Indian Remedies", icon: "🌿", message: "Share some Indian home remedies for glowing skin" },
+  { label: "Track Order", icon: "📦", message: "How can I track my order?" },
 ];
 
-export default function AnoseAssistant() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      type: "assistant",
-      content: "👋 Hi there! I'm **Ana**! How can I help you today? Click on any option below!",
-    },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [showGreeting, setShowGreeting] = useState(false);
-  const [productSearchMode, setProductSearchMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dynamicInfo, setDynamicInfo] = useState<any>(null);
-  const [currentQuickReplies, setCurrentQuickReplies] = useState<QuickReply[]>(defaultQuickReplies);
-  const [orderTrackingMode, setOrderTrackingMode] = useState(false);
-  const [escalationMode, setEscalationMode] = useState(false);
-  const [escalationStep, setEscalationStep] = useState(0); // 0: phone, 1: email, 2: concern
-  const [escalationData, setEscalationData] = useState({ phone: '', email: '', concern: '' });
-  const [failedSearchCount, setFailedSearchCount] = useState(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Show greeting bubble after 2 seconds
-    const timer = setTimeout(() => {
-      setShowGreeting(true);
-    }, 2000);
-
-    // Fetch dynamic info
-    const fetchInfo = async () => {
-      try {
-        const res = await fetch('/api/ana/info');
-        const data = await res.json();
-        setDynamicInfo(data);
-
-        // Update quick replies with real data
-        setCurrentQuickReplies(prev => prev.map(reply => {
-          if (data[reply.id]) {
-            return { ...reply, response: data[reply.id].content };
-          }
-          return reply;
-        }));
-      } catch (err) {
-        console.error("Failed to fetch Ana info", err);
-      }
-    };
-    fetchInfo();
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleQuickReply = (reply: QuickReply) => {
-    // Add user message
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      type: "user",
-      content: `${reply.icon} ${reply.label}`,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-
-    // Check if data is still loading
-    if (reply.response === "LOADING") {
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: "⌛ Just a second, I'm fetching the latest information for you...",
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 500);
-      return;
-    }
-
-    // Check if this is expert advice mode
-    if (reply.response === "EXPERT_ADVICE_MODE") {
-      setProductSearchMode(true); // Re-use search UI
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: `✨ **Ana Skincare Expert**
-          
-Ask me anything about your skin concerns! For example:
-• "How to treat active acne?"
-• "Best ingredients for dry skin?"
-• "How to fade dark spots?"`,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 800);
-      return;
-    }
-
-    // Check if this is home remedies mode
-    if (reply.response === "HOME_REMEDIES_MODE") {
-      setProductSearchMode(true); // Re-use search UI
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: `🌿 **Indian Home Remedies**
-          
-Ask me for natural secrets for your skin! For example:
-• "Home remedy for glow?"
-• "How to remove tan naturally?"
-• "Multani mitti for oily skin?"`,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 800);
-      return;
-    }
-
-    // Check if this is product search mode
-    if (reply.response === "PRODUCT_SEARCH_MODE") {
-      setProductSearchMode(true);
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: `🔍 **Product Search**
-          
-Type the name of a product you want to know about, and I'll show you details including **ingredients**!
-          
-Example: "face wash", "hair oil", "serum"`,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 800);
-      return;
-    }
-
-    // Check if this is order tracking mode
-    if (reply.response === "ORDER_TRACKING_MODE") {
-      setOrderTrackingMode(true);
-      setProductSearchMode(false);
-      setEscalationMode(false);
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: `📦 **Track Your Order**
-          
-Enter your **Order Number** (e.g., 1234) or your **Phone Number** to find your order status.`,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 800);
-      return;
-    }
-
-    // Simulate typing for regular replies
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        type: "assistant",
-        content: reply.response,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    }, 1000 + Math.random() * 500);
-  };
-
-  const handleProductSearch = async () => {
-    if (!searchQuery.trim()) return;
-
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      type: "user",
-      content: `🔍 ${searchQuery}`,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setSearchQuery("");
-    setIsTyping(true);
-
-    try {
-      // Check for skincare advice first
-      const intent = detectIntent(searchQuery);
-
-      if (intent) {
-        setTimeout(async () => {
-          setIsTyping(false);
-          // Show advice message
-          const adviceMessage: Message = {
-            id: `assistant-advice-${Date.now()}`,
-            type: "assistant",
-            content: `💡 **${intent.title}**\n\n${intent.advice}`,
-          };
-          setMessages((prev) => [...prev, adviceMessage]);
-
-          // Now fetch products based on searchTerms
-          setIsTyping(true);
-          const res = await fetch(`/api/ana/products?q=${encodeURIComponent(intent.searchTerms)}`);
-          const data = await res.json();
-
-          setTimeout(() => {
-            setIsTyping(false);
-            const assistantMessage: Message = {
-              id: `assistant-prod-${Date.now()}`,
-              type: "assistant",
-              content: `✨ Based on your concern, I recommend these products:`,
-              products: data.products || [],
-            };
-            setMessages((prev) => [...prev, assistantMessage]);
-          }, 1000);
-        }, 800);
-        return;
-      }
-
-      // Default product search if no specific advice intent matches
-      const res = await fetch(`/api/ana/products?q=${encodeURIComponent(searchQuery)}`);
-      const data = await res.json();
-
-      setTimeout(() => {
-        setIsTyping(false);
-        let response = "";
-        let isIngredientSearch = false;
-        const lowerSearch = searchQuery.toLowerCase();
-
-        if (data.products && data.products.length > 0) {
-          response = `✨ Found ${data.products.length} product(s) matching your search:`;
-        } else {
-          response = `😔 Sorry, I couldn't find any specific skincare advice or products for "${searchQuery}".\n\nTry asking about:\n• Acne\n• Dry Skin\n• Oily Skin\n• Pigmentation`;
-        }
-
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: response,
-          products: data.products || [],
-          isIngredientSearch
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-
-        // Track failed searches for escalation
-        if (!data.products || data.products.length === 0) {
-          setFailedSearchCount(prev => {
-            const newCount = prev + 1;
-            if (newCount >= 2) {
-              // Trigger escalation after 2 failed searches
-              setTimeout(() => {
-                triggerEscalation();
-              }, 1500);
-            }
-            return newCount;
-          });
-        } else {
-          setFailedSearchCount(0);
-        }
-      }, 1000);
-    } catch (error) {
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: "😔 Sorry, I had trouble searching for products. Please try again!",
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 500);
-    }
-  };
-
-  // Order lookup handler
-  const handleOrderLookup = async () => {
-    if (!searchQuery.trim()) return;
-
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      type: "user",
-      content: `📦 ${searchQuery}`,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    const query = searchQuery.trim();
-    setSearchQuery("");
-    setIsTyping(true);
-
-    try {
-      // Determine if it's an order number or phone
-      const isOrderNumber = /^\d{1,10}$/.test(query) && query.length <= 6;
-      const param = isOrderNumber ? `orderNumber=${query}` : `phone=${encodeURIComponent(query)}`;
-
-      const res = await fetch(`/api/ana/order?${param}`);
-      const data = await res.json();
-
-      setTimeout(() => {
-        setIsTyping(false);
-
-        if (data.success && data.order) {
-          const order = data.order;
-          const statusEmoji = order.status === 'DELIVERED' ? '✅' : order.status === 'SHIPPED' ? '🚚' : order.status === 'PROCESSING' ? '⏳' : '📋';
-
-          const itemsList = order.items.map((item: any) => `• ${item.name} x${item.quantity} - ₹${item.price}`).join('\n');
-
-          const response = `${statusEmoji} **Order #${order.orderNumber}**
-
-**Status:** ${order.status}
-**Payment:** ${order.paymentStatus} (${order.paymentMethod})
-**Total:** ₹${order.total}
-
-**Items:**
-${itemsList}
-
-**Shipping to:** ${order.shipping.name}
-${order.shipping.address}, ${order.shipping.city} - ${order.shipping.pincode}
-
-📅 Ordered: ${new Date(order.createdAt).toLocaleDateString('en-IN')}`;
-
-          const assistantMessage: Message = {
-            id: `assistant-${Date.now()}`,
-            type: "assistant",
-            content: response,
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        } else {
-          const assistantMessage: Message = {
-            id: `assistant-${Date.now()}`,
-            type: "assistant",
-            content: `😔 ${data.error || 'Order not found'}\n\nPlease check the order number or phone number and try again.`,
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }
-      }, 1000);
-    } catch (error) {
-      setTimeout(() => {
-        setIsTyping(false);
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          type: "assistant",
-          content: "😔 Sorry, I had trouble looking up your order. Please try again!",
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-      }, 500);
-    }
-  };
-
-  // Trigger escalation mode
-  const triggerEscalation = () => {
-    setEscalationMode(true);
-    setProductSearchMode(false);
-    setOrderTrackingMode(false);
-    setEscalationStep(0);
-    setEscalationData({ phone: '', email: '', concern: '' });
-
-    const assistantMessage: Message = {
-      id: `assistant-escalation-${Date.now()}`,
-      type: "assistant",
-      content: `🤝 **I'd like to help you further!**
-
-It seems your query needs personal attention from our team. Please share your details and we'll get back to you soon.
-
-**Step 1/3:** Enter your **Phone Number**`,
-    };
-    setMessages((prev) => [...prev, assistantMessage]);
-  };
-
-  // Handle escalation form submission
-  const handleEscalationInput = async () => {
-    if (!searchQuery.trim()) return;
-
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      type: "user",
-      content: searchQuery,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    const input = searchQuery.trim();
-    setSearchQuery("");
-
-    if (escalationStep === 0) {
-      // Phone number
-      setEscalationData(prev => ({ ...prev, phone: input }));
-      setEscalationStep(1);
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        type: "assistant",
-        content: `✅ Got it!\n\n**Step 2/3:** Enter your **Email Address**`,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } else if (escalationStep === 1) {
-      // Email
-      setEscalationData(prev => ({ ...prev, email: input }));
-      setEscalationStep(2);
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        type: "assistant",
-        content: `✅ Perfect!\n\n**Step 3/3:** Please describe your **concern or query**`,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } else if (escalationStep === 2) {
-      // Concern - submit to API
-      const finalData = { ...escalationData, concern: input };
-      setIsTyping(true);
-
-      try {
-        await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'Ana Chatbot User',
-            email: finalData.email,
-            phone: finalData.phone,
-            message: `[Chatbot Escalation]\n\n${finalData.concern}`,
-          }),
-        });
-
-        setTimeout(() => {
-          setIsTyping(false);
-          setEscalationMode(false);
-          setFailedSearchCount(0);
-
-          const assistantMessage: Message = {
-            id: `assistant-${Date.now()}`,
-            type: "assistant",
-            content: `🎉 **Thank you!**
-
-Your inquiry has been submitted successfully. Our team will get back to you soon at **${finalData.email}** or **${finalData.phone}**.
-
-Is there anything else I can help you with?`,
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }, 1000);
-      } catch (error) {
-        setTimeout(() => {
-          setIsTyping(false);
-          const assistantMessage: Message = {
-            id: `assistant-${Date.now()}`,
-            type: "assistant",
-            content: "😔 Sorry, I had trouble submitting your inquiry. Please try again or contact us directly.",
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }, 500);
-      }
-    }
-  };
-
-  const toggleChat = () => {
-    setIsOpen(!isOpen);
-    setShowGreeting(false);
-  };
-
+function TypingIndicator() {
   return (
-    <div className="anose-assistant-container">
-      {/* Chat Window */}
-      <div className={`anose-chat-window ${isOpen ? "open" : ""}`}>
-        {/* Header */}
-        <div className="anose-chat-header">
-          <div className="anose-header-avatar">
-            <Image
-              src="/assets/images/ana-character.png"
-              alt="Ana"
-              width={45}
-              height={45}
-              className="anose-avatar-img"
-            />
-            <span className="anose-status-dot"></span>
-          </div>
-          <div className="anose-header-info">
-            <h3>Ana</h3>
-            <p>Online • Ready to help!</p>
-          </div>
-          <button className="anose-close-btn" onClick={toggleChat}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div className="anose-chat-messages">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`anose-message ${msg.type}`}>
-              {msg.type === "assistant" && (
-                <div className="anose-message-avatar">
-                  <Image
-                    src="/assets/images/ana-character.png"
-                    alt="Ana"
-                    width={32}
-                    height={32}
-                  />
-                </div>
-              )}
-              <div className="anose-message-bubble">
-                <div dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }} />
-
-                {/* Product Cards */}
-                {msg.products && msg.products.length > 0 && (
-                  <div className="anose-product-cards mt-3">
-                    {msg.products.map((product) => (
-                      <a
-                        key={product.id}
-                        href={`/product/${product.slug}`}
-                        className="anose-product-card"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="anose-card-img">
-                          <Image
-                            src={product.thumbImage || '/assets/images/placeholder.png'}
-                            alt={product.name}
-                            width={50}
-                            height={50}
-                          />
-                        </div>
-                        <div className="anose-card-details">
-                          <div className="anose-card-name">{product.name}</div>
-                          <div className="anose-card-price">₹{product.price}</div>
-                        </div>
-                        <div className="anose-card-arrow">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 18l6-6-6-6" />
-                          </svg>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="anose-message assistant">
-              <div className="anose-message-avatar">
-                <Image
-                  src="/assets/images/ana-character.png"
-                  alt="Ana"
-                  width={32}
-                  height={32}
-                />
-              </div>
-              <div className="anose-message-bubble typing">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Quick Replies */}
-        <div className="anose-quick-replies">
-          {escalationMode ? (
-            <div className="anose-search-container">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleEscalationInput()}
-                placeholder={
-                  escalationStep === 0 ? "Enter phone number..." :
-                    escalationStep === 1 ? "Enter email address..." :
-                      "Describe your concern..."
-                }
-                className="anose-search-input"
-              />
-              <button onClick={handleEscalationInput} className="anose-search-btn">
-                {escalationStep === 2 ? 'Submit' : 'Next'}
-              </button>
-              <button onClick={() => { setEscalationMode(false); setFailedSearchCount(0); }} className="anose-back-btn">
-                ← Cancel
-              </button>
-            </div>
-          ) : orderTrackingMode ? (
-            <div className="anose-search-container">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleOrderLookup()}
-                placeholder="Order # or Phone..."
-                className="anose-search-input"
-              />
-              <button onClick={handleOrderLookup} className="anose-search-btn">
-                Track
-              </button>
-              <button onClick={() => setOrderTrackingMode(false)} className="anose-back-btn">
-                ← Back
-              </button>
-            </div>
-          ) : productSearchMode ? (
-            <div className="anose-search-container">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleProductSearch()}
-                placeholder="Type product name..."
-                className="anose-search-input"
-              />
-              <button onClick={handleProductSearch} className="anose-search-btn">
-                Search
-              </button>
-              <button onClick={() => setProductSearchMode(false)} className="anose-back-btn">
-                ← Back
-              </button>
-            </div>
-          ) : (
-            currentQuickReplies.map((reply) => (
-              <button
-                key={reply.id}
-                onClick={() => handleQuickReply(reply)}
-                className="anose-quick-btn"
-              >
-                <span className="anose-quick-icon">{reply.icon}</span>
-                <span>{reply.label}</span>
-              </button>
-            ))
-          )}
+    <div className="flex items-end gap-2 mb-3 animate-fadeIn">
+      <div className="ana-avatar">
+        <Image src="/assets/images/ana-character.png" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+      </div>
+      <div className="ana-bubble-bot">
+        <div className="ana-typing-dots">
+          <span /><span /><span />
         </div>
       </div>
-
-      {/* Floating Button with Greeting */}
-      <div className="anose-floating-container">
-        {showGreeting && !isOpen && (
-          <div className="anose-greeting-bubble" onClick={toggleChat}>
-            <span>👋 Hi, I am Ana!</span>
-            <button
-              className="anose-greeting-close"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowGreeting(false);
-              }}
-            >
-              ×
-            </button>
-          </div>
-        )}
-        <button className="anose-floating-btn" onClick={toggleChat}>
-          <Image
-            src="/assets/images/ana-character.png"
-            alt="Chat with Ana"
-            width={60}
-            height={60}
-            className="anose-btn-avatar"
-          />
-          <span className="anose-pulse-ring"></span>
-        </button>
-      </div>
-
-      <style jsx>{`
-        .anose-assistant-container {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          z-index: 9999;
-          font-family: var(--font-poppins), system-ui, sans-serif;
-        }
-
-        /* Chat Window */
-        .anose-chat-window {
-          position: absolute;
-          bottom: 90px;
-          right: 0;
-          width: 380px;
-          max-width: calc(100vw - 40px);
-          height: 550px;
-          max-height: calc(100vh - 150px);
-          background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(250, 245, 255, 0.98));
-          backdrop-filter: blur(20px);
-          border-radius: 24px;
-          box-shadow: 0 25px 80px rgba(147, 51, 234, 0.25),
-                      0 10px 30px rgba(0, 0, 0, 0.1);
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          opacity: 0;
-          transform: translateY(20px) scale(0.95);
-          pointer-events: none;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          border: 1px solid rgba(147, 51, 234, 0.1);
-        }
-
-        .anose-chat-window.open {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-          pointer-events: all;
-        }
-
-        /* Header */
-        .anose-chat-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 20px;
-          background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6366f1 100%);
-          color: white;
-        }
-
-        .anose-header-avatar {
-          position: relative;
-        }
-
-        .anose-avatar-img {
-          border-radius: 50%;
-          border: 3px solid rgba(255, 255, 255, 0.3);
-          object-fit: cover;
-        }
-
-        .anose-status-dot {
-          position: absolute;
-          bottom: 2px;
-          right: 2px;
-          width: 12px;
-          height: 12px;
-          background: #22c55e;
-          border-radius: 50%;
-          border: 2px solid white;
-          animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.1); }
-        }
-
-        .anose-header-info h3 {
-          margin: 0;
-          font-size: 16px;
-          font-weight: 700;
-        }
-
-        .anose-header-info p {
-          margin: 2px 0 0;
-          font-size: 12px;
-          opacity: 0.9;
-        }
-
-        .anose-close-btn {
-          margin-left: auto;
-          background: rgba(255, 255, 255, 0.2);
-          border: none;
-          border-radius: 50%;
-          width: 36px;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .anose-close-btn:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: rotate(90deg);
-        }
-
-        /* Messages */
-        .anose-chat-messages {
-          flex: 1;
-          overflow-y: auto;
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .anose-message {
-          display: flex;
-          gap: 10px;
-          max-width: 85%;
-          animation: messageIn 0.3s ease-out;
-        }
-
-        @keyframes messageIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .anose-message.user {
-          align-self: flex-end;
-          flex-direction: row-reverse;
-        }
-
-        .anose-message-avatar {
-          flex-shrink: 0;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          overflow: hidden;
-        }
-
-        .anose-message-bubble {
-          padding: 12px 16px;
-          border-radius: 18px;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-
-        .anose-message.assistant .anose-message-bubble {
-          background: white;
-          color: #1f2937;
-          border: 1px solid rgba(147, 51, 234, 0.1);
-          border-radius: 18px 18px 18px 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .anose-message.user .anose-message-bubble {
-          background: linear-gradient(135deg, #9333ea, #7c3aed);
-          color: white;
-          border-radius: 18px 18px 4px 18px;
-        }
-
-        /* Product Cards in Chat */
-        .anose-product-cards {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-top: 10px;
-        }
-
-        .anose-product-card {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 10px;
-          background: #fdfaff;
-          border: 1px solid rgba(147, 51, 234, 0.15);
-          border-radius: 12px;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.2s;
-        }
-
-        .anose-product-card:hover {
-          background: white;
-          border-color: #9333ea;
-          box-shadow: 0 4px 12px rgba(147, 51, 234, 0.1);
-          transform: translateX(4px);
-        }
-
-        .anose-card-img {
-          flex-shrink: 0;
-          width: 50px;
-          height: 50px;
-          border-radius: 8px;
-          overflow: hidden;
-          background: #f3f4f6;
-        }
-
-        .anose-card-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .anose-card-details {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .anose-card-name {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1f2937;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .anose-card-price {
-          font-size: 12px;
-          font-weight: 700;
-          color: #9333ea;
-          margin-top: 2px;
-        }
-
-        .anose-card-arrow {
-          color: #9333ea;
-          opacity: 0.5;
-        }
-
-        .anose-product-card:hover .anose-card-arrow {
-          opacity: 1;
-        }
-
-        .anose-message-bubble.typing {
-          display: flex;
-          gap: 5px;
-          padding: 16px 20px;
-        }
-
-        .anose-message-bubble.typing span {
-          width: 8px;
-          height: 8px;
-          background: #9333ea;
-          border-radius: 50%;
-          animation: typing 1.4s infinite;
-        }
-
-        .anose-message-bubble.typing span:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-
-        .anose-message-bubble.typing span:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-          30% { transform: translateY(-8px); opacity: 1; }
-        }
-
-        /* Quick Replies */
-        .anose-quick-replies {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          padding: 16px;
-          background: rgba(147, 51, 234, 0.03);
-          border-top: 1px solid rgba(147, 51, 234, 0.1);
-        }
-
-        .anose-quick-btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 8px 14px;
-          background: white;
-          border: 1px solid rgba(147, 51, 234, 0.2);
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 500;
-          color: #6b21a8;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .anose-quick-btn:hover {
-          background: linear-gradient(135deg, #9333ea, #7c3aed);
-          color: white;
-          border-color: transparent;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
-        }
-
-        .anose-quick-icon {
-          font-size: 14px;
-        }
-
-        /* Search Container */
-        .anose-search-container {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          width: 100%;
-        }
-
-        .anose-search-input {
-          flex: 1;
-          min-width: 150px;
-          padding: 10px 14px;
-          border: 1px solid rgba(147, 51, 234, 0.3);
-          border-radius: 12px;
-          font-size: 13px;
-          outline: none;
-          transition: all 0.2s;
-        }
-
-        .anose-search-input:focus {
-          border-color: #9333ea;
-          box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
-        }
-
-        .anose-search-btn {
-          padding: 10px 18px;
-          background: linear-gradient(135deg, #9333ea, #7c3aed);
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .anose-search-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
-        }
-
-        .anose-back-btn {
-          padding: 10px 14px;
-          background: #f3f4f6;
-          color: #6b7280;
-          border: none;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .anose-back-btn:hover {
-          background: #e5e7eb;
-          color: #374151;
-        }
-
-        /* Floating Container */
-        .anose-floating-container {
-          display: flex;
-          align-items: flex-end;
-          gap: 12px;
-        }
-
-        /* Greeting Bubble */
-        .anose-greeting-bubble {
-          position: absolute;
-          bottom: 80px;
-          right: 0;
-          background: white;
-          padding: 12px 40px 12px 16px;
-          border-radius: 20px 20px 4px 20px;
-          box-shadow: 0 8px 30px rgba(147, 51, 234, 0.2);
-          font-size: 14px;
-          font-weight: 500;
-          color: #1f2937;
-          white-space: nowrap;
-          cursor: pointer;
-          animation: bounceIn 0.5s ease-out;
-          border: 1px solid rgba(147, 51, 234, 0.1);
-        }
-
-        @keyframes bounceIn {
-          0% { opacity: 0; transform: scale(0.8) translateY(10px); }
-          50% { transform: scale(1.05) translateY(-3px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .anose-greeting-close {
-          position: absolute;
-          top: 50%;
-          right: 10px;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          font-size: 18px;
-          color: #9ca3af;
-          cursor: pointer;
-          line-height: 1;
-        }
-
-        .anose-greeting-close:hover {
-          color: #6b7280;
-        }
-
-        /* Floating Button */
-        .anose-floating-btn {
-          position: relative;
-          width: 70px;
-          height: 70px;
-          border-radius: 50%;
-          border: none;
-          background: linear-gradient(145deg, #9333ea, #7c3aed);
-          cursor: pointer;
-          overflow: visible;
-          transition: all 0.3s;
-          box-shadow: 0 8px 25px rgba(147, 51, 234, 0.4);
-          padding: 5px;
-        }
-
-        .anose-floating-btn:hover {
-          transform: scale(1.1) translateY(-3px);
-          box-shadow: 0 12px 35px rgba(147, 51, 234, 0.5);
-        }
-
-        .anose-btn-avatar {
-          border-radius: 50%;
-          object-fit: cover;
-        }
-
-        .anose-pulse-ring {
-          position: absolute;
-          inset: -4px;
-          border-radius: 50%;
-          border: 3px solid rgba(147, 51, 234, 0.4);
-          animation: ringPulse 2s infinite;
-        }
-
-        @keyframes ringPulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.15); opacity: 0; }
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 440px) {
-          .anose-chat-window {
-            width: calc(100vw - 40px);
-            bottom: 80px;
-            right: -10px;
-            height: 70vh;
-          }
-
-          .anose-floating-btn {
-            width: 60px;
-            height: 60px;
-          }
-
-          .anose-greeting-bubble {
-            font-size: 13px;
-            max-width: 200px;
-            white-space: normal;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
-// Helper function to format message content with basic markdown
-function formatMessage(content: string): string {
-  return content
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\n/g, "<br />");
+function formatMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/^## (.+)$/gm, "<p class='ana-heading2'>$1</p>")
+    .replace(/^# (.+)$/gm, "<p class='ana-heading1'>$1</p>")
+    .replace(/^- (.+)$/gm, "<span class='ana-li'>$1</span>")
+    .replace(/^• (.+)$/gm, "<span class='ana-li'>$1</span>")
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/\n/g, "<br/>");
+}
+
+export default function AnoseAssistant() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(false);
+  const [chipsUsed, setChipsUsed] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowGreeting(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          content:
+            "👋 Hi, I'm **Ana**, your personal beauty assistant from Anose Beauty!\n\nI'm powered by AI and can help you with skincare routines, product recommendations, Indian home remedies, order tracking, and more.\n\nWhat can I help you with today? ✨",
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  }, [isOpen, messages.length]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  const sendMessage = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isLoading) return;
+
+      const userMsg: Message = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: trimmed,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      setInput("");
+      setIsLoading(true);
+      setChipsUsed(true);
+
+      // Build history for the API (exclude the welcome message)
+      const historyForApi = messages
+        .filter((m) => m.id !== "welcome")
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      try {
+        const res = await fetch("/api/ana/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: trimmed, history: historyForApi }),
+        });
+
+        const data = await res.json();
+        const reply = data.response || (data.debug ? `⚠️ **Debug:** ${data.debug}` : data.error) || "I'm sorry, something went wrong!";
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `assistant-${Date.now()}`,
+            role: "assistant",
+            content: reply,
+            timestamp: new Date(),
+          },
+        ]);
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `error-${Date.now()}`,
+            role: "assistant",
+            content:
+              "⚠️ I'm having trouble connecting right now. Please try again in a moment, or contact us at wecare@anosebeauty.com",
+            timestamp: new Date(),
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isLoading, messages]
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const handleChip = (chip: QuickChip) => {
+    sendMessage(chip.message);
+  };
+
+  const handleOpen = () => {
+    setIsOpen(true);
+    setShowGreeting(false);
+  };
+
+  return (
+    <>
+      <style>{`
+        /* === Ana Assistant Styles === */
+        .ana-fab {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 9998;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 10px;
+        }
+
+        .ana-greeting {
+          background: white;
+          border-radius: 16px 16px 4px 16px;
+          padding: 10px 14px;
+          font-size: 13px;
+          color: #1a1a2e;
+          font-weight: 500;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+          max-width: 190px;
+          white-space: normal;
+          word-break: break-word;
+          line-height: 1.4;
+          animation: anaSlideIn 0.4s ease;
+          border: 1px solid rgba(124, 58, 237, 0.1);
+        }
+
+        .ana-trigger-btn {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+          transition: transform 0.2s, box-shadow 0.2s;
+          position: relative;
+          overflow: visible;
+        }
+        .ana-trigger-btn:hover {
+          transform: scale(1.08);
+          box-shadow: 0 6px 28px rgba(124, 58, 237, 0.5);
+        }
+        .ana-trigger-btn .ana-trigger-icon {
+          width: 36px;
+          height: 36px;
+          fill: white;
+        }
+        .ana-trigger-pulse {
+          position: absolute;
+          inset: -4px;
+          border-radius: 50%;
+          border: 2px solid rgba(124, 58, 237, 0.4);
+          animation: anaPulse 2s infinite;
+        }
+        .ana-unread-badge {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 14px;
+          height: 14px;
+          background: #f43f5e;
+          border-radius: 50%;
+          border: 2px solid white;
+        }
+
+        /* === Chat Window === */
+        .ana-window {
+          position: fixed;
+          bottom: 100px;
+          right: 24px;
+          width: 380px;
+          max-height: 560px;
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(124,58,237,0.08);
+          display: flex;
+          flex-direction: column;
+          z-index: 9999;
+          overflow: hidden;
+          animation: anaWindowIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @media (max-width: 420px) {
+          .ana-window {
+            width: calc(100vw - 24px);
+            right: 12px;
+            bottom: 90px;
+            max-height: calc(100dvh - 110px);
+          }
+          .ana-fab {
+            bottom: 16px;
+            right: 16px;
+          }
+        }
+
+        /* === Header === */
+        .ana-header {
+          background: linear-gradient(135deg, #5b21b6, #7c3aed, #a855f7);
+          padding: 14px 18px 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
+        }
+        .ana-header-avatar {
+          width: 40px;
+          height: 40px;
+          background: rgba(255,255,255,0.25);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          font-weight: 800;
+          color: white;
+          flex-shrink: 0;
+          border: 2px solid rgba(255,255,255,0.4);
+        }
+        .ana-header-info { flex: 1; min-width: 0; }
+        .ana-header-name {
+          color: white;
+          font-size: 15px;
+          font-weight: 700;
+          line-height: 1.2;
+        }
+        .ana-header-status {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 11px;
+          color: rgba(255,255,255,0.85);
+          margin-top: 2px;
+        }
+        .ana-status-dot {
+          width: 7px;
+          height: 7px;
+          background: #4ade80;
+          border-radius: 50%;
+          animation: anaStatusPulse 2s infinite;
+        }
+        .ana-close-btn {
+          background: rgba(255,255,255,0.15);
+          border: none;
+          cursor: pointer;
+          color: white;
+          padding: 6px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s;
+          flex-shrink: 0;
+        }
+        .ana-close-btn:hover { background: rgba(255,255,255,0.3); }
+        .ana-powered-by {
+          font-size: 9.5px;
+          color: rgba(255,255,255,0.7);
+          margin-top: 1px;
+          letter-spacing: 0.3px;
+        }
+
+        /* === Messages === */
+        .ana-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 16px 14px 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          background: #f9f7fe;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(124,58,237,0.2) transparent;
+        }
+        .ana-messages::-webkit-scrollbar { width: 4px; }
+        .ana-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.2); border-radius: 4px; }
+
+        /* === Message rows === */
+        .ana-row-user {
+          display: flex;
+          justify-content: flex-end;
+          margin-bottom: 8px;
+          animation: anaFadeIn 0.25s ease;
+        }
+        .ana-row-bot {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          margin-bottom: 8px;
+          animation: anaFadeIn 0.25s ease;
+        }
+        .ana-avatar {
+          width: 30px;
+          height: 30px;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .ana-bubble-user {
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          color: white;
+          padding: 10px 14px;
+          border-radius: 16px 16px 4px 16px;
+          max-width: 78%;
+          font-size: 13.5px;
+          line-height: 1.5;
+          word-break: break-word;
+          box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+        }
+
+        .ana-bubble-bot {
+          background: white;
+          color: #1a1a2e;
+          padding: 10px 14px;
+          border-radius: 16px 16px 16px 4px;
+          max-width: 84%;
+          font-size: 13.5px;
+          line-height: 1.55;
+          word-break: break-word;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+          border: 1px solid rgba(124,58,237,0.08);
+        }
+        .ana-bubble-bot strong { color: #6d28d9; }
+        .ana-bubble-bot .ana-li {
+          display: flex;
+          align-items: flex-start;
+          gap: 6px;
+          margin: 3px 0;
+          color: #374151;
+        }
+        .ana-bubble-bot .ana-li::before {
+          content: "•";
+          color: #7c3aed;
+          font-weight: 700;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+        .ana-bubble-bot .ana-heading1 {
+          font-size: 14px;
+          font-weight: 700;
+          color: #5b21b6;
+          margin: 6px 0 2px;
+        }
+        .ana-bubble-bot .ana-heading2 {
+          font-size: 13px;
+          font-weight: 700;
+          color: #6d28d9;
+          margin: 4px 0 2px;
+        }
+        .ana-bubble-bot p + p { margin-top: 6px; }
+
+        /* === Typing dots === */
+        .ana-typing-dots {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 0;
+        }
+        .ana-typing-dots span {
+          width: 7px;
+          height: 7px;
+          background: #a855f7;
+          border-radius: 50%;
+          animation: anaDot 1.2s infinite;
+          opacity: 0.5;
+        }
+        .ana-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .ana-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* === Quick Chips === */
+        .ana-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          padding: 10px 14px;
+          background: #f9f7fe;
+          border-top: 1px solid rgba(124,58,237,0.08);
+        }
+        .ana-chip {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: white;
+          border: 1px solid rgba(124,58,237,0.25);
+          border-radius: 20px;
+          padding: 5px 11px;
+          font-size: 11.5px;
+          color: #6d28d9;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .ana-chip:hover {
+          background: #f3e8ff;
+          border-color: #7c3aed;
+          transform: scale(1.02);
+        }
+        .ana-chip-icon { font-size: 13px; }
+
+        /* === Input Area === */
+        .ana-input-area {
+          padding: 10px 12px 14px;
+          background: white;
+          border-top: 1px solid rgba(124,58,237,0.1);
+          flex-shrink: 0;
+        }
+        .ana-input-form {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #f5f3ff;
+          border: 1.5px solid rgba(124,58,237,0.2);
+          border-radius: 50px;
+          padding: 6px 6px 6px 14px;
+          transition: border-color 0.2s;
+        }
+        .ana-input-form:focus-within {
+          border-color: #7c3aed;
+          background: white;
+          box-shadow: 0 0 0 3px rgba(124,58,237,0.08);
+        }
+        .ana-input {
+          flex: 1;
+          border: none;
+          background: transparent;
+          font-size: 13.5px;
+          color: #1a1a2e;
+          outline: none;
+          font-family: inherit;
+          min-width: 0;
+        }
+        .ana-input::placeholder { color: #9ca3af; }
+        .ana-send-btn {
+          width: 34px;
+          height: 34px;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: opacity 0.2s, transform 0.15s;
+          color: white;
+        }
+        .ana-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .ana-send-btn:not(:disabled):hover { transform: scale(1.08); }
+        .ana-footer-text {
+          text-align: center;
+          font-size: 10px;
+          color: #9ca3af;
+          margin-top: 6px;
+        }
+
+        /* === Keyframes === */
+        @keyframes anaWindowIn {
+          from { opacity: 0; transform: scale(0.85) translateY(20px); transform-origin: bottom right; }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes anaSlideIn {
+          from { opacity: 0; transform: translateX(10px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes anaFadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes anaPulse {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 0; transform: scale(1.5); }
+        }
+        @keyframes anaStatusPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        @keyframes anaDot {
+          0%, 80%, 100% { opacity: 0.3; transform: scale(0.9); }
+          40% { opacity: 1; transform: scale(1.1); }
+        }
+      `}</style>
+
+      <div className="ana-fab">
+        {/* Greeting bubble */}
+        {showGreeting && !isOpen && (
+          <div className="ana-greeting">
+            💜 Hi! I&apos;m Ana, your beauty guide!
+          </div>
+        )}
+
+        {/* FAB Button */}
+        {!isOpen && (
+          <button
+            onClick={handleOpen}
+            className="ana-trigger-btn"
+            aria-label="Open Ana Assistant"
+          >
+            <div className="ana-trigger-pulse" />
+            {!chipsUsed && <div className="ana-unread-badge" />}
+            <Image
+              src="/assets/images/ana-character.png"
+              alt="Ana"
+              width={48}
+              height={48}
+              style={{ objectFit: 'cover', borderRadius: '50%' }}
+            />
+          </button>
+        )}
+
+        {/* Close FAB when open */}
+        {isOpen && (
+          <button
+            onClick={() => setIsOpen(false)}
+            className="ana-trigger-btn"
+            aria-label="Close Ana Assistant"
+            style={{ background: "linear-gradient(135deg, #374151, #6b7280)" }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Chat Window */}
+      {isOpen && (
+        <div className="ana-window" role="dialog" aria-label="Ana Beauty Assistant">
+          {/* Header */}
+          <div className="ana-header">
+            <div className="ana-header-avatar" style={{ padding: 0, overflow: 'hidden' }}>
+            <Image src="/assets/images/ana-character.png" alt="Ana" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+          </div>
+            <div className="ana-header-info">
+              <div className="ana-header-name">Ana — Beauty Assistant</div>
+              <div className="ana-header-status">
+                <div className="ana-status-dot" />
+                <span>Online • Ready to help</span>
+              </div>
+              <div className="ana-powered-by">✦ Powered by Google Gemini AI</div>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="ana-close-btn"
+              aria-label="Close chat"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="ana-messages">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={msg.role === "user" ? "ana-row-user" : "ana-row-bot"}
+              >
+                {msg.role === "assistant" && (
+                  <div className="ana-avatar" style={{ padding: 0, overflow: 'hidden' }}>
+                    <Image src="/assets/images/ana-character.png" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '50%' }} />
+                  </div>
+                )}
+                {msg.role === "user" ? (
+                  <div className="ana-bubble-user">{msg.content}</div>
+                ) : (
+                  <div
+                    className="ana-bubble-bot"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        `<p>${formatMarkdown(msg.content)}</p>`
+                      ),
+                    }}
+                  />
+                )}
+              </div>
+            ))}
+
+            {isLoading && <TypingIndicator />}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Quick Chips */}
+          {!chipsUsed && (
+            <div className="ana-chips">
+              {QUICK_CHIPS.map((chip) => (
+                <button
+                  key={chip.label}
+                  className="ana-chip"
+                  onClick={() => handleChip(chip)}
+                  disabled={isLoading}
+                >
+                  <span className="ana-chip-icon">{chip.icon}</span>
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="ana-input-area">
+            <form className="ana-input-form" onSubmit={handleSubmit}>
+              <input
+                ref={inputRef}
+                className="ana-input"
+                type="text"
+                placeholder="Ask me anything about skincare..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={isLoading}
+                maxLength={500}
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                className="ana-send-btn"
+                disabled={isLoading || !input.trim()}
+                aria-label="Send message"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              </button>
+            </form>
+            <div className="ana-footer-text">
+              Ana by{" "}
+              <Link href="/" style={{ color: "#7c3aed", textDecoration: "none" }}>
+                Anose Beauty
+              </Link>{" "}
+              • AI responses may vary
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

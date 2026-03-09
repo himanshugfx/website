@@ -2,7 +2,15 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+function getSecret() {
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+        throw new Error('NEXTAUTH_SECRET MUST be set in production environment.');
+    }
+    return new TextEncoder().encode(secret || 'fallback-secret');
+}
+
+const SECRET = getSecret();
 
 // Debug endpoint to test mobile token authentication
 export async function GET(request: Request) {

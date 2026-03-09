@@ -5,7 +5,11 @@ import { jwtVerify } from 'jose';
 
 // We use a getter to ensure we always have the latest env var
 function getSecret() {
-    return new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'fallback-secret');
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+        throw new Error('NEXTAUTH_SECRET MUST be set in production environment.');
+    }
+    return new TextEncoder().encode(secret || 'fallback-secret');
 }
 
 export async function getAdminSession() {
