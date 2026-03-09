@@ -60,7 +60,6 @@ const navigation: NavItem[] = [
         ],
     },
     { name: 'Sales Funnel', href: '/admin/funnel', icon: Target },
-    { name: 'WhatsApp', href: '/admin/whatsapp', icon: MessageCircle },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart },
     { name: 'Abandoned Carts', href: '/admin/abandoned-carts', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },

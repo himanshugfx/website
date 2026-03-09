@@ -316,6 +316,98 @@ export async function updateLead(id: string, data: any) {
     return res.json();
 }
 
+export async function getLeadDetail(id: string) {
+    const res = await apiFetch(`/api/admin/leads/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch lead');
+    return res.json();
+}
+
+export async function deleteLead(id: string) {
+    const res = await apiFetch(`/api/admin/leads/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete lead');
+    return res.json();
+}
+
+export async function addLeadNote(leadId: string, content: string) {
+    const res = await apiFetch(`/api/admin/leads/${leadId}/notes`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+    });
+    if (!res.ok) throw new Error('Failed to add note');
+    return res.json();
+}
+
+export async function getFollowUps(leadId: string) {
+    const res = await apiFetch(`/api/admin/leads/${leadId}/followups`);
+    if (!res.ok) throw new Error('Failed to fetch follow-ups');
+    return res.json();
+}
+
+export async function addFollowUp(leadId: string, data: { scheduledAt: string; notes?: string }) {
+    const res = await apiFetch(`/api/admin/leads/${leadId}/followups`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to add follow-up');
+    return res.json();
+}
+
+export async function completeFollowUp(leadId: string, followUpId: string) {
+    const res = await apiFetch(`/api/admin/leads/${leadId}/followups/${followUpId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'COMPLETED' }),
+    });
+    if (!res.ok) throw new Error('Failed to complete follow-up');
+    return res.json();
+}
+
+export async function deleteFollowUp(leadId: string, followUpId: string) {
+    const res = await apiFetch(`/api/admin/leads/${leadId}/followups/${followUpId}`, {
+        method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete follow-up');
+    return res.json();
+}
+
+export async function registerPushToken(token: string, platform: string) {
+    const res = await apiFetch('/api/admin/push-token', {
+        method: 'POST',
+        body: JSON.stringify({ token, platform }),
+    });
+    if (!res.ok) throw new Error('Failed to register push token');
+    return res.json();
+}
+
+export async function removePushToken(token: string) {
+    const res = await apiFetch(`/api/admin/push-token?token=${encodeURIComponent(token)}`, {
+        method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to remove push token');
+    return res.json();
+}
+
+// ========================
+// Products
+// ========================
+export async function getAdminProducts(params: any = {}) {
+    const query = new URLSearchParams(params).toString();
+    const res = await apiFetch(`/api/admin/products?${query}`);
+    if (!res.ok) throw new Error('Failed to fetch products');
+    return res.json();
+}
+
+// ========================
+// Manual Order Creation
+// ========================
+export async function createOrder(data: any) {
+    const res = await apiFetch('/api/admin/orders/create', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create order');
+    return res.json();
+}
+
 // ========================
 // Abandoned Checkouts
 // ========================

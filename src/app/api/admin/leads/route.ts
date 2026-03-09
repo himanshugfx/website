@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 import { revalidatePath } from 'next/cache';
+import { sendAdminPushNotification } from '@/lib/notifications';
 
 export async function POST(request: Request) {
     try {
@@ -29,6 +30,13 @@ export async function POST(request: Request) {
 
         revalidatePath('/admin/funnel');
         revalidatePath('/admin/funnel/leads');
+
+        // Send push notification to admin devices
+        sendAdminPushNotification(
+            '📋 New Lead',
+            `${name}${company ? ` (${company})` : ''} — ${source}`,
+            { type: 'new_lead', leadId: newLead.id }
+        ).catch(err => console.error('Failed to send lead push notification:', err));
 
         return NextResponse.json(newLead);
     } catch (error) {

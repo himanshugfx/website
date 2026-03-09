@@ -1,5 +1,6 @@
 import prisma from './prisma';
 import { revalidatePath } from 'next/cache';
+import { sendAdminPushNotification } from './notifications';
 
 /**
  * Finalizes an order by updating its status, reducing product stock,
@@ -58,6 +59,13 @@ export async function finalizeOrder(orderId: string): Promise<void> {
         revalidatePath('/');
         revalidatePath('/shop');
         console.log(`Successfully finalized order ${orderId}`);
+
+        // Send push notification to admin devices
+        sendAdminPushNotification(
+            '💰 Order Paid',
+            `Order #${order.orderNumber} — ₹${order.total.toLocaleString('en-IN')} is now PAID`,
+            { type: 'order_paid', orderId: order.id, orderNumber: order.orderNumber }
+        ).catch(err => console.error('Failed to send order paid push notification:', err));
 
     } catch (error) {
         console.error(`Error finalizing order ${orderId}:`, error);

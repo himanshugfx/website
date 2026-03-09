@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { emailService } from '@/lib/email';
+import { sendAdminPushNotification } from '@/lib/notifications';
 
 interface CartItem {
     id: string;
@@ -91,6 +92,13 @@ export async function POST(request: Request) {
             paymentMethod: order.paymentMethod || 'ONLINE',
             shippingInfo: shippingInfo || null,
         }).catch(err => console.error('Failed to send order notification:', err));
+
+        // Send push notification to admin devices
+        sendAdminPushNotification(
+            '🛒 New Order',
+            `Order #${order.orderNumber} — ₹${order.total.toLocaleString('en-IN')} (${order.paymentMethod})`,
+            { type: 'new_order', orderId: order.id, orderNumber: order.orderNumber }
+        ).catch(err => console.error('Failed to send push notification:', err));
 
         return NextResponse.json({
             success: true,

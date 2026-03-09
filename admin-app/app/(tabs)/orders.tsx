@@ -213,6 +213,14 @@ export default function OrdersScreen() {
                     }
                 />
             )}
+            {/* Floating Action Button */}
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => router.push('/order/add')}
+                activeOpacity={0.8}
+            >
+                <Ionicons name="add" size={30} color={Colors.white} />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -361,13 +369,30 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     emptyState: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: Spacing.xxxl * 2,
-        gap: Spacing.md,
+        paddingTop: 80,
     },
     emptyText: {
         color: Colors.textMuted,
         fontSize: FontSize.md,
         fontWeight: '500',
+    },
+    fab: {
+        position: 'absolute',
+        right: Spacing.xxl,
+        bottom: Spacing.xxl + 20, // Tab bar offset
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: Colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
 });

@@ -15,7 +15,7 @@ interface Stage {
 
 interface Activity {
     id: string;
-    type: string;
+    type: string; // NOTE, CALL, EMAIL, STAGE_CHANGE
     content: string;
     createdAt: string;
 }

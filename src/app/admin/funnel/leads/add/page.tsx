@@ -3,6 +3,7 @@ import { ArrowLeft, User, Building2, Mail, Phone, Target, IndianRupee, FileText 
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import { sendAdminPushNotification } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ async function addLead(formData: FormData) {
     const value = formData.get('value') as string;
     const notes = formData.get('notes') as string;
 
-    await prisma.lead.create({
+    const newLead = await prisma.lead.create({
         data: {
             name,
             email,
@@ -42,6 +43,13 @@ async function addLead(formData: FormData) {
             notes: notes || null,
         },
     });
+
+    // Send push notification to admin devices
+    sendAdminPushNotification(
+        '📋 New Lead',
+        `${name}${company ? ` (${company})` : ''} — ${source}`,
+        { type: 'new_lead', leadId: newLead.id }
+    ).catch(err => console.error('Failed to send lead push notification:', err));
 
     redirect('/admin/funnel');
 }
@@ -159,7 +167,6 @@ export default async function AddLeadPage({ searchParams }: { searchParams: Prom
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 >
                                     <option value="WEBSITE">Website</option>
-                                    <option value="WHATSAPP">WhatsApp</option>
                                     <option value="REFERRAL">Referral</option>
                                     <option value="SOCIAL">Social Media</option>
                                     <option value="IMPORT">Import</option>

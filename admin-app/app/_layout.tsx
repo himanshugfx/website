@@ -97,6 +97,26 @@ export default function RootLayout() {
                     }}
                 />
                 <Stack.Screen
+                    name="lead/[id]"
+                    options={{
+                        headerShown: true,
+                        headerTitle: 'Lead Details',
+                        headerStyle: { backgroundColor: Colors.surface },
+                        headerTintColor: Colors.text,
+                        headerTitleStyle: { fontWeight: '700' },
+                    }}
+                />
+                <Stack.Screen
+                    name="order/add"
+                    options={{
+                        headerShown: true,
+                        headerTitle: 'Add New Order',
+                        headerStyle: { backgroundColor: Colors.surface },
+                        headerTintColor: Colors.text,
+                        headerTitleStyle: { fontWeight: '700' },
+                    }}
+                />
+                <Stack.Screen
                     name="abandoned"
                     options={{
                         headerShown: true,

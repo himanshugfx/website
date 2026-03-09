@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as api from '@/services/api';
+import { registerForPushNotifications, unregisterPushNotifications } from '@/services/notifications';
 
 interface User {
     id: string;
@@ -41,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await api.verifyToken();
             setUser(data.user);
+            // Register for push notifications after successful auth
+            registerForPushNotifications().catch(console.error);
         } catch {
             setUser(null);
         } finally {
@@ -53,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await api.login(email, password);
             setUser(data.user);
+            // Register for push notifications after login
+            registerForPushNotifications().catch(console.error);
         } catch (err: any) {
             setError(err.message || 'Login failed');
             throw err;
@@ -64,6 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await api.loginWithGoogle(token);
             setUser(data.user);
+            // Register for push notifications after Google login
+            registerForPushNotifications().catch(console.error);
         } catch (err: any) {
             setError(err.message || 'Google login failed');
             throw err;
@@ -71,6 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     async function logout() {
+        // Unregister push notifications before logout
+        await unregisterPushNotifications().catch(console.error);
         await api.logout();
         setUser(null);
     }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
+import { sendAdminPushNotification } from '@/lib/notifications';
 
 export async function PATCH(
     request: Request,
@@ -103,6 +104,13 @@ export async function PATCH(
                     content: `Lead moved to ${lead.stage.name} stage`,
                 },
             });
+
+            // Send push notification for stage change
+            sendAdminPushNotification(
+                '🔄 Lead Status Changed',
+                `${lead.name} moved to ${lead.stage.name}`,
+                { type: 'lead_stage_change', leadId: id, stageName: lead.stage.name }
+            ).catch(err => console.error('Failed to send stage change push notification:', err));
         }
 
         revalidatePath('/admin/funnel');

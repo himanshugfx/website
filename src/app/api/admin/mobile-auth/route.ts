@@ -142,9 +142,13 @@ export async function GET(request: Request) {
         }
 
         const token = authHeader.split(' ')[1];
+        const secret = getSecret();
+        console.log(`[MobileAuth:GET] Verifying token with secret length: ${secret.length}`);
+        
         const payload = await verifyMobileToken(token);
 
         if (!payload || payload.role !== 'admin') {
+            console.log('[MobileAuth:GET] Invalid payload or not admin');
             return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
         }
 

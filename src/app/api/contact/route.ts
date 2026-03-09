@@ -48,6 +48,14 @@ export async function POST(request: Request) {
             quantity
         }).catch(err => console.error('Failed to send email notif:', err));
 
+        // Send push notification to admin devices
+        const { sendAdminPushNotification } = await import('@/lib/notifications');
+        sendAdminPushNotification(
+            '💬 New Web Inquiry',
+            `${name}${hotelName ? ` (${hotelName})` : ''} — ${type || 'Inquiry'}`,
+            { type: 'new_inquiry', inquiryId: inquiry.id }
+        ).catch(err => console.error('Failed to send inquiry push notification:', err));
+
         return NextResponse.json({ success: true, inquiry });
     } catch (error) {
         console.error('Error saving inquiry:', error);

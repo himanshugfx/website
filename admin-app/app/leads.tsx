@@ -3,13 +3,15 @@ import {
     View, Text, FlatList, StyleSheet, RefreshControl, ActivityIndicator,
     TouchableOpacity, Modal, TextInput, ScrollView, Alert, Platform
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as api from '@/services/api';
 import { Colors, Spacing, BorderRadius, FontSize } from '@/constants/theme';
 
 export default function LeadsScreen() {
+    const router = useRouter();
     const [stages, setStages] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [expandedStage, setExpandedStage] = useState<string | null>(null);
@@ -25,7 +27,11 @@ export default function LeadsScreen() {
     const loadLeads = useCallback(async () => {
         try {
             const data = await api.getLeads();
-            setStages(Array.isArray(data) ? data : data.stages || []);
+            const stagesData = Array.isArray(data) ? data : data.stages || [];
+            setStages(stagesData);
+            if (data.stats) {
+                setStats(data.stats);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -73,7 +79,35 @@ export default function LeadsScreen() {
         }
     };
 
+    const handleDeleteLead = (leadId: string, leadName: string) => {
+        Alert.alert(
+            'Delete Lead',
+            `Are you sure you want to delete "${leadName}"? This cannot be undone.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete', style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await api.deleteLead(leadId);
+                            loadLeads();
+                        } catch (e: any) {
+                            Alert.alert('Error', e.message || 'Failed to delete lead');
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    // Calculate stats from stages data
     const totalLeads = stages.reduce((sum: number, s: any) => sum + (s.leads?.length || 0), 0);
+    const wonLeads = stages
+        .filter((s: any) => s.name?.toUpperCase() === 'WON')
+        .reduce((sum: number, s: any) => sum + (s.leads?.length || 0), 0);
+    const lostLeads = stages
+        .filter((s: any) => s.name?.toUpperCase() === 'LOST')
+        .reduce((sum: number, s: any) => sum + (s.leads?.length || 0), 0);
 
     const renderStage = ({ item: stage }: { item: any }) => {
         const isExpanded = expandedStage === stage.id;
@@ -104,7 +138,8 @@ export default function LeadsScreen() {
                             <TouchableOpacity
                                 key={lead.id}
                                 style={[styles.leadCard, idx < stage.leads.length - 1 && styles.leadBorder]}
-                                onPress={() => openEditModal(lead)}
+                                onPress={() => router.push(`/lead/${lead.id}`)}
+                                onLongPress={() => handleDeleteLead(lead.id, lead.name)}
                                 activeOpacity={0.7}
                             >
                                 <View style={styles.leadRow}>
@@ -115,19 +150,30 @@ export default function LeadsScreen() {
                                     </View>
                                     <View style={styles.leadInfo}>
                                         <Text style={styles.leadName}>{lead.name}</Text>
-                                        <Text style={styles.leadEmail}>{lead.email}</Text>
+                                        {lead.email ? <Text style={styles.leadEmail}>{lead.email}</Text> : null}
                                         {lead.phone && <Text style={styles.leadPhone}>{lead.phone}</Text>}
                                     </View>
-                                    {lead.value && (
-                                        <Text style={styles.leadValue}>₹{lead.value.toLocaleString('en-IN')}</Text>
+                                    <View style={styles.leadRight}>
+                                        {lead.value ? (
+                                            <Text style={styles.leadValue}>₹{lead.value.toLocaleString('en-IN')}</Text>
+                                        ) : null}
+                                        <Ionicons name="chevron-forward" size={16} color={Colors.textDim} />
+                                    </View>
+                                </View>
+                                <View style={styles.leadMeta}>
+                                    {lead.source && (
+                                        <View style={styles.sourceTag}>
+                                            <Ionicons name="location-outline" size={12} color={Colors.textMuted} />
+                                            <Text style={styles.sourceText}>{lead.source}</Text>
+                                        </View>
+                                    )}
+                                    {lead.company && (
+                                        <View style={styles.sourceTag}>
+                                            <Ionicons name="business-outline" size={12} color={Colors.textMuted} />
+                                            <Text style={styles.sourceText}>{lead.company}</Text>
+                                        </View>
                                     )}
                                 </View>
-                                {lead.source && (
-                                    <View style={styles.sourceTag}>
-                                        <Ionicons name="location-outline" size={12} color={Colors.textMuted} />
-                                        <Text style={styles.sourceText}>{lead.source}</Text>
-                                    </View>
-                                )}
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -144,15 +190,19 @@ export default function LeadsScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Summary */}
+            {/* Summary — Total Leads, Won Leads, Lost Leads */}
             <View style={styles.summaryBar}>
                 <View style={styles.summaryCard}>
                     <Text style={styles.summaryValue}>{totalLeads}</Text>
                     <Text style={styles.summaryLabel}>Total Leads</Text>
                 </View>
                 <View style={styles.summaryCard}>
-                    <Text style={[styles.summaryValue, { color: Colors.primary }]}>{stages.length}</Text>
-                    <Text style={styles.summaryLabel}>Stages</Text>
+                    <Text style={[styles.summaryValue, { color: Colors.success }]}>{wonLeads}</Text>
+                    <Text style={styles.summaryLabel}>Won Leads</Text>
+                </View>
+                <View style={styles.summaryCard}>
+                    <Text style={[styles.summaryValue, { color: Colors.error }]}>{lostLeads}</Text>
+                    <Text style={styles.summaryLabel}>Lost Leads</Text>
                 </View>
             </View>
 
@@ -255,6 +305,30 @@ export default function LeadsScreen() {
                             placeholderTextColor={Colors.textDim}
                         />
 
+                        <Text style={styles.label}>Notes - Optional</Text>
+                        <TextInput
+                            style={[styles.input, { minHeight: 80, textAlignVertical: 'top' }]}
+                            value={formData.notes}
+                            onChangeText={t => setFormData({ ...formData, notes: t })}
+                            placeholder="Any notes about this lead..."
+                            placeholderTextColor={Colors.textDim}
+                            multiline
+                            numberOfLines={3}
+                        />
+
+                        {editingLeadId && (
+                            <TouchableOpacity
+                                style={styles.deleteBtn}
+                                onPress={() => {
+                                    setModalVisible(false);
+                                    handleDeleteLead(editingLeadId, formData.name);
+                                }}
+                            >
+                                <Ionicons name="trash-outline" size={18} color={Colors.error} />
+                                <Text style={styles.deleteBtnText}>Delete Lead</Text>
+                            </TouchableOpacity>
+                        )}
+
                         <View style={{ height: 60 }} />
                     </ScrollView>
 
@@ -273,11 +347,11 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.background },
     loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     summaryBar: {
-        flexDirection: 'row', paddingHorizontal: Spacing.xxl, paddingTop: Spacing.md, gap: Spacing.md,
+        flexDirection: 'row', paddingHorizontal: Spacing.xxl, paddingTop: Spacing.md, gap: Spacing.sm,
     },
     summaryCard: {
         flex: 1, backgroundColor: Colors.surface, borderRadius: BorderRadius.md,
-        padding: Spacing.lg, alignItems: 'center',
+        padding: Spacing.md, alignItems: 'center',
         borderWidth: 1, borderColor: Colors.cardBorder,
     },
     summaryValue: { fontSize: FontSize.xxl, fontWeight: '800', color: Colors.text },
@@ -307,10 +381,14 @@ const styles = StyleSheet.create({
     leadName: { fontSize: FontSize.sm, fontWeight: '600', color: Colors.text },
     leadEmail: { fontSize: FontSize.xs, color: Colors.textMuted },
     leadPhone: { fontSize: FontSize.xs, color: Colors.textDim },
+    leadRight: { alignItems: 'flex-end', gap: 4 },
     leadValue: { fontSize: FontSize.md, fontWeight: '700', color: Colors.success },
+    leadMeta: {
+        flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+        marginTop: Spacing.sm, paddingLeft: 46,
+    },
     sourceTag: {
         flexDirection: 'row', alignItems: 'center', gap: 4,
-        marginTop: Spacing.sm, paddingLeft: 46,
     },
     sourceText: { fontSize: FontSize.xs, color: Colors.textMuted },
     emptyLeads: { padding: Spacing.lg, borderTopWidth: 1, borderTopColor: Colors.cardBorder },
@@ -344,6 +422,13 @@ const styles = StyleSheet.create({
     },
     stageSelectBtnActive: { backgroundColor: Colors.elevated, borderWidth: 2 },
     stageSelectText: { color: Colors.textMuted, fontSize: FontSize.sm, fontWeight: '600' },
+    deleteBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
+        marginTop: Spacing.xxl, padding: Spacing.lg,
+        backgroundColor: Colors.errorBg, borderRadius: BorderRadius.md,
+        borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)',
+    },
+    deleteBtnText: { color: Colors.error, fontSize: FontSize.md, fontWeight: '600' },
     modalFooter: {
         padding: Spacing.xl, borderTopWidth: 1, borderTopColor: Colors.cardBorder,
         backgroundColor: Colors.surface, paddingBottom: Platform.OS === 'ios' ? 40 : Spacing.xl,

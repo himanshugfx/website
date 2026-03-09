@@ -10,6 +10,11 @@ function getSecret() {
 
 export async function getAdminSession() {
     const session = await getServerSession(authOptions);
+    if (session) {
+        console.log(`[getAdminSession] Found session for user: ${session.user?.email}, role: ${session.user?.role}`);
+    } else {
+        // console.log('[getAdminSession] No session found');
+    }
     return session;
 }
 
@@ -54,7 +59,10 @@ async function isAdminFromMobileToken(request?: Request): Promise<boolean> {
             return false;
         }
 
-        const { payload } = await jwtVerify(token, getSecret());
+        const secret = getSecret();
+        console.log(`[MobileAuth] Verifying token with secret length: ${secret.length}`);
+        
+        const { payload } = await jwtVerify(token, secret);
 
         const role = (payload as any).role;
         const email = (payload as any).email;
@@ -79,7 +87,7 @@ export async function requireAdmin(request?: Request) {
 
         // If mobile auth failed but header was present, don't fall back to session
         // because session cookies are unlikely to be present on mobile requests.
-        console.log('[requireAdmin] Mobile token validation failed');
+        console.log('[requireAdmin] Mobile token validation failed, throwing 401');
         throw new Error('Unauthorized: Invalid mobile token');
     }
 
@@ -87,15 +95,17 @@ export async function requireAdmin(request?: Request) {
     try {
         const sessionAdmin = await isAdmin();
         if (sessionAdmin) return true;
-    } catch (e) {
-        console.log('[requireAdmin] Session check failed');
+    } catch (e: any) {
+        console.log('[requireAdmin] Session check failed:', e?.message || String(e));
     }
 
     // 3. Last resort fallback for edge cases
     if (!hasAuthHeader) {
+        console.log('[requireAdmin] No auth header or session, trying fallback token check');
         const mobileAdminFallback = await isAdminFromMobileToken(request);
         if (mobileAdminFallback) return true;
     }
 
+    console.log('[requireAdmin] All auth methods failed, throwing 401');
     throw new Error('Unauthorized: Admin access required');
 }

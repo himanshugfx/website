@@ -4,9 +4,9 @@
     "slug": "anose-admin",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.svg",
     "scheme": "anose-admin",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "backgroundColor": "#0F0D1A",
@@ -14,11 +14,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anosebeauty.admin"
+      "bundleIdentifier": "com.anosebeauty.admin",
+      "icon": "./assets/icon.svg"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0F0D1A"
+        "foregroundImage": "./assets/icon.svg",
+        "backgroundColor": "#ffffff"
       },
       "package": "com.anosebeauty.admin"
     },
@@ -29,7 +31,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "sounds": [],
+          "color": "#7C3AED"
+        }
+      ]
     ],
     "extra": {
       "router": {},
