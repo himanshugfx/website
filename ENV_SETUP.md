@@ -13,7 +13,7 @@ NEXTAUTH_SECRET="your-random-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
-## PhonePe Payment (Optional)
+## PhonePe Payment (Optional)y
 
 ```env
 PHONEPE_MERCHANT_ID="your_merchant_id"

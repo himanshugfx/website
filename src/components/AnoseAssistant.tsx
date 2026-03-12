@@ -234,7 +234,7 @@ export default function AnoseAssistant() {
           right: -2px;
           width: 14px;
           height: 14px;
-          background: #f43f5e;
+          background: #4ade80;
           border-radius: 50%;
           border: 2px solid white;
         }
@@ -619,7 +619,6 @@ export default function AnoseAssistant() {
                 <div className="ana-status-dot" />
                 <span>Online • Ready to help</span>
               </div>
-              <div className="ana-powered-by">✦ Powered by Google Gemini AI</div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
