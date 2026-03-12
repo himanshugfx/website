@@ -106,7 +106,7 @@ ${promoList}
 - Keep your answers highly informative and scientific but concise enough to be readable in a chat window. Break up long scientific explanations with short paragraphs and bullet points so it is easy to read.
 - Always end by asking if they'd like to try the scientifically proven recommended product today.`;
 
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyCMXmNf6ojCHEsCCS_Gd_SVS4DCF55wTLw';
+    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAIAU9TzajhW9OZHGBo4p7FZ-fedece36I';
 
     if (!apiKey) {
       console.error('Ana chat: GEMINI_API_KEY is not set');
