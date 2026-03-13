@@ -128,7 +128,6 @@ ${promoList}
     const chat = model.startChat({
       history: chatHistory,
       generationConfig: {
-        maxOutputTokens: 1024,
         temperature: 0.7,
       },
     });
