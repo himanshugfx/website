@@ -50,6 +50,7 @@ function formatMarkdown(text: string): string {
     .replace(/^# (.+)$/gm, "<p class='ana-heading1'>$1</p>")
     .replace(/^- (.+)$/gm, "<span class='ana-li'>$1</span>")
     .replace(/^• (.+)$/gm, "<span class='ana-li'>$1</span>")
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="ana-buy-btn">$1</a>')
     .replace(/\n{2,}/g, "</p><p>")
     .replace(/\n/g, "<br/>");
 }
@@ -430,6 +431,26 @@ export default function AnoseAssistant() {
           margin: 4px 0 2px;
         }
         .ana-bubble-bot p + p { margin-top: 6px; }
+        .ana-buy-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          color: white !important;
+          padding: 8px 16px;
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 600;
+          text-decoration: none !important;
+          margin-top: 8px;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+          transition: all 0.2s;
+        }
+        .ana-buy-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+          background: linear-gradient(135deg, #6d28d9, #9333ea);
+        }
 
         /* === Typing dots === */
         .ana-typing-dots {
