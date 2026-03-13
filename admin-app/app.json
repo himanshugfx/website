@@ -4,7 +4,7 @@
     "slug": "anose-admin",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.svg",
+    "icon": "./assets/icon.png",
     "scheme": "anose-admin",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,11 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anosebeauty.admin",
-      "icon": "./assets/icon.svg"
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.svg",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anosebeauty.admin"
