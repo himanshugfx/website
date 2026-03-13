@@ -103,10 +103,11 @@ ${promoList}
 - Weave product recommendations naturally into your advice, explaining exactly why that specific product solves their problem.
 - Always include the price of the product you are recommending.
 - If relevant, mention active promo codes to encourage immediate purchase.
-- Keep your answers highly informative and scientific but concise enough to be readable in a chat window. Break up long scientific explanations with short paragraphs and bullet points so it is easy to read.
+- MISSION CRITICAL: Keep your answers very short, concise, and precise by default. Provide the scientific logic in 1-2 sentences only. 
+- ONLY give detailed, deep-dive scientific explanations if the user explicitly asks for more detail or "why".
 - Always end by asking if they'd like to try the scientifically proven recommended product today.`;
 
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAIAU9TzajhW9OZHGBo4p7FZ-fedece36I';
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       console.error('Ana chat: GEMINI_API_KEY is not set');
