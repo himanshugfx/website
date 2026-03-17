@@ -84,7 +84,7 @@ export default async function Home() {
         {/* Hero Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/assets/images/banner/oas-banner.png"
+            src="/assets/images/banner/oas-banner.webp"
             alt="Hero Banner"
             fill
             className="object-cover scale-105"
@@ -132,9 +132,9 @@ export default async function Home() {
         <div className="container mx-auto">
           <div className="list-banner grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
             {[
-              { title: "Skin Care", img: "/assets/images/banner/oas-skin.png" },
-              { title: "Hair Care", img: "/assets/images/banner/oas-hair.png" },
-              { title: "Travel Kits", img: "/assets/images/banner/oas-travel.png" },
+              { title: "Skin Care", img: "/assets/images/banner/oas-skin.webp" },
+              { title: "Hair Care", img: "/assets/images/banner/oas-hair.webp" },
+              { title: "Travel Kits", img: "/assets/images/banner/oas-travel.webp" },
             ].map((banner, i) => (
               <Link key={i} href="/shop" className="banner-item relative bg-surface block rounded-[20px] overflow-hidden group">
                 <div className="banner-img w-full transition-transform duration-500 group-hover:scale-105">

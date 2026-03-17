@@ -340,9 +340,9 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                             }
                                                                             return item.product.thumbImage;
                                                                         }
-                                                                        return '/images/placeholder.jpg';
+                                                                        return '/images/placeholder.webp';
                                                                     } catch (e) {
-                                                                        return '/images/placeholder.jpg';
+                                                                        return '/images/placeholder.webp';
                                                                     }
                                                                 })()}
                                                                 alt={item.product.name}

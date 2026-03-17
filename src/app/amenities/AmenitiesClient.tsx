@@ -167,7 +167,7 @@ export default function AmenitiesPage() {
             <section className="relative min-h-[90vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/assets/images/hotel_amenities_banner.png"
+                        src="/assets/images/hotel_amenities_banner.webp"
                         alt="Premium Hotel Amenities"
                         className="w-full h-full object-cover scale-110"
                     />

@@ -49,12 +49,12 @@ export default function Header() {
 
                         {/* Logo - Mobile Center */}
                         <Link href="/" className="flex items-center lg:hidden absolute left-1/2 -translate-x-1/2">
-                            <div> <img height={60} width={60} src="/assets/images/anose-logo.png" alt="Anose" className="object-contain" /></div>
+                            <div> <img height={60} width={60} src="/assets/images/anose-logo.webp" alt="Anose" className="object-contain" /></div>
                         </Link>
 
                         {/* Logo - Desktop Left */}
                         <Link href="/" className="hidden lg:flex items-center">
-                            <div> <img height={80} width={80} src="/assets/images/anose-logo.png" alt="Anose" className="object-contain" /></div>
+                            <div> <img height={80} width={80} src="/assets/images/anose-logo.webp" alt="Anose" className="object-contain" /></div>
                         </Link>
 
                         {/* Desktop Navigation Menu */}

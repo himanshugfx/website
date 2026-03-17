@@ -264,7 +264,7 @@ export default function CheckoutClient() {
                     currency: data.currency,
                     name: "Anose",
                     description: "Order Payment",
-                    // image: "/logo.png", // Add your logo here
+                    // image: "/logo.webp", // Add your logo here
                     order_id: data.razorpayOrderId,
                     handler: async function (response: RazorpayResponse) {
                         // Validate payment on server

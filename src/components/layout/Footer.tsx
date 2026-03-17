@@ -136,8 +136,8 @@ export default function Footer() {
                     <div className="caption1 text-secondary text-xs sm:text-sm order-2 sm:order-1">© 2026 Anose. All Rights Reserved.</div>
                     <div className="list-payment flex items-center justify-center gap-3 sm:gap-4 flex-wrap order-1 sm:order-2">
                         <img src="/assets/images/payment_methods/upi.webp" alt="payment" className="h-5 sm:h-6 object-contain" />
-                        <img src="/assets/images/payment_methods/rupay.png" alt="payment" className="h-5 sm:h-6 object-contain" />
-                        <img src="/assets/images/payment_methods/visa.png" alt="payment" className="h-5 sm:h-6 object-contain" />
+                        <img src="/assets/images/payment_methods/rupay.webp" alt="payment" className="h-5 sm:h-6 object-contain" />
+                        <img src="/assets/images/payment_methods/visa.webp" alt="payment" className="h-5 sm:h-6 object-contain" />
                     </div>
                 </div>
             </div>

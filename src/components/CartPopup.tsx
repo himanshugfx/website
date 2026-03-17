@@ -97,7 +97,7 @@ export default function CartPopup() {
                                 >
                                     <div className="w-16 aspect-square relative rounded bg-zinc-100 overflow-hidden flex-shrink-0">
                                         <Image
-                                            src={product.thumbImage || (product.images ? product.images.split(',')[0] : '/assets/images/placeholder.png')}
+                                            src={product.thumbImage || (product.images ? product.images.split(',')[0] : '/assets/images/placeholder.webp')}
                                             alt={product.name}
                                             fill
                                             className="object-cover group-hover:scale-110 duration-500"
@@ -133,10 +133,10 @@ export default function CartPopup() {
                                 <Image src="/assets/images/payment_methods/upi.webp" alt="UPI" width={24} height={12} className="w-auto h-3 object-contain" />
                             </div>
                             <div className="h-4 w-auto bg-white rounded px-1 flex items-center justify-center">
-                                <Image src="/assets/images/payment_methods/rupay.png" alt="Rupay" width={24} height={12} className="w-auto h-3 object-contain" />
+                                <Image src="/assets/images/payment_methods/rupay.webp" alt="Rupay" width={24} height={12} className="w-auto h-3 object-contain" />
                             </div>
                             <div className="h-4 w-auto bg-white rounded px-1 flex items-center justify-center">
-                                <Image src="/assets/images/payment_methods/visa.png" alt="Visa" width={24} height={12} className="w-auto h-3 object-contain" />
+                                <Image src="/assets/images/payment_methods/visa.webp" alt="Visa" width={24} height={12} className="w-auto h-3 object-contain" />
                             </div>
                         </div>
                     </Link>

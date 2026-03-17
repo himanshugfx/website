@@ -21,7 +21,7 @@ interface HotelAmenity {
 }
 
 const getImageUrl = (image: string): string => {
-    if (!image) return '/assets/images/product/1000x1000.png';
+    if (!image) return '/assets/images/product/1000x1000.webp';
     if (image.startsWith('/') || image.startsWith('http')) return image;
     return `/api/media/${image}`;
 };
@@ -117,7 +117,7 @@ export default function CataloguePage() {
 
                 <div className="relative z-10 text-center p-4 sm:p-6 md:p-10 animate-fadeInUp">
                     <img
-                        src="/assets/images/anose-logo.png"
+                        src="/assets/images/anose-logo.webp"
                         alt="Anose Beauty"
                         className="w-24 sm:w-28 md:w-36 h-auto mx-auto mb-4 sm:mb-6 md:mb-8 brightness-0 invert drop-shadow-2xl"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -188,7 +188,7 @@ export default function CataloguePage() {
                                         src={getImageUrl(item.image)}
                                         alt={item.name}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        onError={(e) => { (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.png'; }}
+                                        onError={(e) => { (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.webp'; }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-purple-600 text-white rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm font-bold shadow-lg">

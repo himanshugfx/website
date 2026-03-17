@@ -37,7 +37,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-    const DEFAULT_IMAGE = '/assets/images/product/1000x1000.png';
+    const DEFAULT_IMAGE = '/assets/images/product/1000x1000.webp';
 
     // Use helper to get all gallery images as proper URLs
     let images: string[] = getMediaUrls(product.images);

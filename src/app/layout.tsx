@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "Anose",
     images: [
       {
-        url: "/assets/images/banner/khushi-banner.png",
+        url: "/assets/images/banner/khushi-banner.webp",
         width: 1200,
         height: 630,
         alt: "Anose Premium Skincare",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Anose - Premium Cosmetics",
     description: "Transform your skincare routine with Anose's premium organic products.",
-    images: ["/assets/images/banner/khushi-banner.png"],
+    images: ["/assets/images/banner/khushi-banner.webp"],
   },
   icons: {
     icon: "/assets/images/fav.png",

@@ -59,7 +59,7 @@ const getCategoryColor = (category: string) => {
 };
 
 const getImageUrl = (image: string): string => {
-    if (!image) return '/assets/images/product/1000x1000.png';
+    if (!image) return '/assets/images/product/1000x1000.webp';
     if (image.startsWith('/') || image.startsWith('http')) return image;
     return `/api/media/${image}`;
 };
@@ -171,7 +171,7 @@ export default function HotelCataloguePage() {
         const productsHtml = products.map((item, idx) => `
             <div class="product-card">
                 <div class="product-image-container">
-                    <img src="${getImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/assets/images/product/1000x1000.png'" />
+                    <img src="${getImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/assets/images/product/1000x1000.webp'" />
                     <div class="product-badge">${String(idx + 1).padStart(2, '0')}</div>
                 </div>
                 <div class="product-details">
@@ -602,7 +602,7 @@ export default function HotelCataloguePage() {
                 <div class="cover-page">
                     <div class="cover-decoration"></div>
                     <div class="cover-content">
-                        <img src="/assets/images/anose-logo.png" alt="Anose Beauty" class="cover-logo" onerror="this.style.display='none'" />
+                        <img src="/assets/images/anose-logo.webp" alt="Anose Beauty" class="cover-logo" onerror="this.style.display='none'" />
                         <div class="cover-brand">Anose Beauty</div>
                         <h1 class="cover-title">Catalogue</h1>
                         <p class="cover-subtitle">Premium Hotel Amenities</p>
@@ -789,7 +789,7 @@ export default function HotelCataloguePage() {
                                             alt={amenity.name}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                             onError={(e) => {
-                                                (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.png';
+                                                (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.webp';
                                             }}
                                         />
                                         <div className="absolute top-3 left-3">

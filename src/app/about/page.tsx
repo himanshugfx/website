@@ -96,7 +96,7 @@ export default function AboutPage() {
                         </div>
                         <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
                             <Image
-                                src="/assets/images/banner/about.jpg"
+                                src="/assets/images/banner/about.webp"
                                 alt="Anose Beauty - Crafted with Love"
                                 fill
                                 className="object-cover"

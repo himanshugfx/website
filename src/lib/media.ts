@@ -6,7 +6,7 @@
  * - If the value is already a URL (starts with '/' or 'http'), return it as-is.
  * - Otherwise, return the default fallback image.
  */
-export function getMediaUrl(value: string | undefined | null, fallback = '/assets/images/product/1000x1000.png'): string {
+export function getMediaUrl(value: string | undefined | null, fallback = '/assets/images/product/1000x1000.webp'): string {
     if (!value || value === '' || value === '[]' || value === '{}') {
         return fallback;
     }
@@ -52,7 +52,7 @@ export function getMediaUrls(value: string | undefined | null): string[] {
     try {
         const parsed = JSON.parse(value);
         if (Array.isArray(parsed)) {
-            return parsed.map(item => getMediaUrl(item)).filter(url => url !== '/assets/images/product/1000x1000.png');
+            return parsed.map(item => getMediaUrl(item)).filter(url => url !== '/assets/images/product/1000x1000.webp');
         }
         return [getMediaUrl(value)];
     } catch {

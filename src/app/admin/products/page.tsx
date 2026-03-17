@@ -46,7 +46,7 @@ const getProductImage = (product: Product): string => {
         }
     }
 
-    return imageUrl || '/assets/images/product/1000x1000.png';
+    return imageUrl || '/assets/images/product/1000x1000.webp';
 };
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);

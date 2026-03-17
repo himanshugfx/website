@@ -306,7 +306,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                     <div key={item.id} className="flex gap-4 sm:gap-6">
                                         <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-100">
                                             <img
-                                                src={item.product.thumbImage || '/placeholder.png'}
+                                                src={item.product.thumbImage || '/placeholder.webp'}
                                                 alt={item.product.name}
                                                 className="w-full h-full object-cover"
                                             />

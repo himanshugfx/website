@@ -76,7 +76,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                 <div
                     className="breadcrumb-main overflow-hidden relative"
                     style={{
-                        backgroundImage: 'url(/assets/images/banner/shop.png)',
+                        backgroundImage: 'url(/assets/images/banner/shop.webp)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center'
                     }}

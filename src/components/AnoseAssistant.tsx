@@ -31,7 +31,7 @@ function TypingIndicator() {
   return (
     <div className="flex items-end gap-2 mb-3 animate-fadeIn">
       <div className="ana-avatar">
-        <Image src="/assets/images/ana-character.png" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', borderRadius: '50%' }} />
+        <Image src="/assets/images/ana-character.webp" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', borderRadius: '50%' }} />
       </div>
       <div className="ana-bubble-bot">
         <div className="ana-typing-dots">
@@ -602,7 +602,7 @@ export default function AnoseAssistant() {
             <div className="ana-trigger-pulse" />
             {!chipsUsed && <div className="ana-unread-badge" />}
             <Image
-              src="/assets/images/ana-character.png"
+              src="/assets/images/ana-character.webp"
               alt="Ana"
               width={48}
               height={48}
@@ -632,7 +632,7 @@ export default function AnoseAssistant() {
           {/* Header */}
           <div className="ana-header">
             <div className="ana-header-avatar" style={{ padding: 0, overflow: 'hidden' }}>
-            <Image src="/assets/images/ana-character.png" alt="Ana" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+            <Image src="/assets/images/ana-character.webp" alt="Ana" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
           </div>
             <div className="ana-header-info">
               <div className="ana-header-name">Ana — Beauty Assistant</div>
@@ -661,7 +661,7 @@ export default function AnoseAssistant() {
               >
                 {msg.role === "assistant" && (
                   <div className="ana-avatar" style={{ padding: 0, overflow: 'hidden' }}>
-                    <Image src="/assets/images/ana-character.png" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '50%' }} />
+                    <Image src="/assets/images/ana-character.webp" alt="Ana" width={30} height={30} style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '50%' }} />
                   </div>
                 )}
                 {msg.role === "user" ? (
