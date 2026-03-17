@@ -8,24 +8,35 @@ import type { ProductCardProduct } from "@/components/ProductCard";
 import { ShieldCheck, BadgeCheck, Rabbit, Award } from "lucide-react";
 
 export default async function Home() {
-  const bestSellers = await prisma.product.findMany({
-    take: 8,
-    where: { bestSeller: true },
-    orderBy: { sold: 'desc' },
-  });
+  let bestSellers: ProductCardProduct[] = [];
+  let onSale: ProductCardProduct[] = [];
+  let newArrivals: ProductCardProduct[] = [];
 
-
-  const onSale = await prisma.product.findMany({
-    take: 8,
-    where: { sale: true },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  const newArrivals = await prisma.product.findMany({
-    take: 8,
-    where: { new: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  try {
+    const [bestSellersData, onSaleData, newArrivalsData] = await Promise.all([
+      prisma.product.findMany({
+        take: 8,
+        where: { bestSeller: true },
+        orderBy: { sold: 'desc' },
+      }),
+      prisma.product.findMany({
+        take: 8,
+        where: { sale: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.product.findMany({
+        take: 8,
+        where: { new: true },
+        orderBy: { createdAt: 'desc' },
+      })
+    ]);
+    bestSellers = bestSellersData as unknown as ProductCardProduct[];
+    onSale = onSaleData as unknown as ProductCardProduct[];
+    newArrivals = newArrivalsData as unknown as ProductCardProduct[];
+  } catch (error) {
+    console.error("Home page data fetch error:", error);
+    // Fallback to empty arrays if database is unavailable
+  }
 
   return (
     <main>

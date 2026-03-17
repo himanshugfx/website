@@ -10,31 +10,43 @@ import prisma from "@/lib/prisma";
 import ShopClient from "./ShopClient";
 
 export default async function ShopPage() {
-    const products = await prisma.product.findMany({
-        orderBy: [
-            { priority: 'desc' },
-            { createdAt: 'desc' },
-        ],
-    });
+    let products: unknown[] = [];
+    let categories: { category: string }[] = [];
+    let types: { type: string }[] = [];
+    let brands: { brand: string }[] = [];
 
-    const categories = await prisma.product.findMany({
-        select: { category: true },
-        distinct: ['category'],
-    });
-
-    const types = await prisma.product.findMany({
-        select: { type: true },
-        distinct: ['type'],
-    });
-
-    const brands = await prisma.product.findMany({
-        select: { brand: true },
-        distinct: ['brand'],
-    });
+    try {
+        const [productsData, categoriesData, typesData, brandsData] = await Promise.all([
+            prisma.product.findMany({
+                orderBy: [
+                    { priority: 'desc' },
+                    { createdAt: 'desc' },
+                ],
+            }),
+            prisma.product.findMany({
+                select: { category: true },
+                distinct: ['category'],
+            }),
+            prisma.product.findMany({
+                select: { type: true },
+                distinct: ['type'],
+            }),
+            prisma.product.findMany({
+                select: { brand: true },
+                distinct: ['brand'],
+            })
+        ]);
+        products = productsData;
+        categories = categoriesData;
+        types = typesData;
+        brands = brandsData;
+    } catch (error) {
+        console.error("Shop page data fetch error:", error);
+    }
 
     return (
         <ShopClient
-            initialProducts={products as Parameters<typeof ShopClient>[0]['initialProducts']}
+            initialProducts={products as any}
             categories={categories.map(c => c.category)}
             types={types.map(t => t.type)}
             brands={brands.map(b => b.brand)}
