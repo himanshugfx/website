@@ -115,7 +115,7 @@ ${promoList}
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash',
       systemInstruction: systemPrompt,
     });
 
@@ -138,7 +138,11 @@ ${promoList}
     return NextResponse.json({ response });
   } catch (error: any) {
     const msg = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-    console.error('Ana chat API error:', msg);
+    console.error('Ana chat API error (path: /api/ana/chat):', {
+      message: msg,
+      stack: error?.stack,
+      model: 'gemini-3-flash'
+    });
     const isDev = process.env.NODE_ENV !== 'production';
     return NextResponse.json(
       { 

@@ -17,8 +17,8 @@ export async function POST(request: Request) {
             sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
         }
 
-        // Record page view
-        await prisma.pageView.create({
+        // Record page view with a timeout/race to prevent DB lag from blocking the response
+        const trackPromise = prisma.pageView.create({
             data: {
                 path: path || '/',
                 sessionId,
@@ -26,6 +26,19 @@ export async function POST(request: Request) {
                 referrer: referrer || undefined,
             },
         });
+
+        // Use a timeout of 2 seconds for the database operation
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Database timeout')), 2000)
+        );
+
+        try {
+            await Promise.race([trackPromise, timeoutPromise]);
+        } catch (dbError) {
+            console.error('Analytics DB error or timeout:', dbError);
+            // We still want to return a success response to the client even if tracking fails
+            // to avoid impacting user experience and error rates.
+        }
 
         const response = NextResponse.json({ success: true });
 
