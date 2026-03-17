@@ -169,6 +169,8 @@ export default function AmenitiesPage() {
                     <img
                         src="/assets/images/hotel_amenities_banner.webp"
                         alt="Premium Hotel Amenities"
+                        width={1920}
+                        height={1080}
                         className="w-full h-full object-cover scale-110"
                     />
                     {/* Enhanced gradient overlay */}

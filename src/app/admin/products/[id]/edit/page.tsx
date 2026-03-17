@@ -423,6 +423,8 @@ export default function EditProductPage({ params }: PageProps) {
                                                 <img
                                                     src={displayThumb}
                                                     alt="Thumbnail"
+                                                    width={96}
+                                                    height={96}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <button
@@ -516,6 +518,8 @@ export default function EditProductPage({ params }: PageProps) {
                                                             <img
                                                                 src={img}
                                                                 alt={`Gallery ${index + 1}`}
+                                                                width={200}
+                                                                height={200}
                                                                 className="w-full h-full object-cover rounded-lg shadow-sm"
                                                             />
                                                             <button
@@ -751,7 +755,7 @@ export default function EditProductPage({ params }: PageProps) {
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.colorImage ? (
                                                         <>
-                                                            <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
+                                                            <img src={variant.colorImage} width={200} height={200} className="w-full h-full object-cover rounded-lg" />
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
@@ -818,7 +822,7 @@ export default function EditProductPage({ params }: PageProps) {
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-100 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.image ? (
                                                         <>
-                                                            <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
+                                                            <img src={variant.image} width={200} height={200} className="w-full h-full object-cover rounded-lg" />
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {

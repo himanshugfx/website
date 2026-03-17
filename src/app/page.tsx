@@ -138,7 +138,7 @@ export default async function Home() {
             ].map((banner, i) => (
               <Link key={i} href="/shop" className="banner-item relative bg-surface block rounded-[20px] overflow-hidden group">
                 <div className="banner-img w-full transition-transform duration-500 group-hover:scale-105">
-                  <img src={banner.img} alt={banner.title} className="w-full" />
+                  <img src={banner.img} alt={banner.title} width={800} height={1000} className="w-full h-auto object-cover" />
                 </div>
                 <div className="banner-content absolute left-[30px] bottom-[30px]">
                   <div className="heading4 text-white">{banner.title}</div>

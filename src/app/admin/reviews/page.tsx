@@ -142,6 +142,8 @@ export default function AdminReviewsPage() {
                                             <img
                                                 src={review.product.thumbImage}
                                                 alt={review.product.name}
+                                                width={64}
+                                                height={64}
                                                 className="w-full h-full object-cover"
                                             />
                                         )}

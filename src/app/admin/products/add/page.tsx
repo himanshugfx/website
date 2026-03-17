@@ -450,7 +450,7 @@ export default function AddProductPage() {
                                                 />
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.colorImage ? (
-                                                        <img src={variant.colorImage} className="w-full h-full object-cover rounded-lg" />
+                                                        <img src={variant.colorImage} width={200} height={200} className="w-full h-full object-cover rounded-lg" />
                                                     ) : (
                                                         <div className="text-center">
                                                             <Plus className="w-5 h-5 mx-auto text-gray-300" />
@@ -492,7 +492,7 @@ export default function AddProductPage() {
                                                 />
                                                 <div className="relative aspect-square border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-1 bg-white">
                                                     {variant.image ? (
-                                                        <img src={variant.image} className="w-full h-full object-cover rounded-lg" />
+                                                        <img src={variant.image} width={200} height={200} className="w-full h-full object-cover rounded-lg" />
                                                     ) : (
                                                         <div className="text-center">
                                                             <Plus className="w-5 h-5 mx-auto text-gray-300" />

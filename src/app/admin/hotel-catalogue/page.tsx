@@ -171,7 +171,7 @@ export default function HotelCataloguePage() {
         const productsHtml = products.map((item, idx) => `
             <div class="product-card">
                 <div class="product-image-container">
-                    <img src="${getImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/assets/images/product/1000x1000.webp'" />
+                    <img src="${getImageUrl(item.image)}" alt="${item.name}" width="600" height="600" onerror="this.src='/assets/images/product/1000x1000.webp'" />
                     <div class="product-badge">${String(idx + 1).padStart(2, '0')}</div>
                 </div>
                 <div class="product-details">
@@ -602,7 +602,7 @@ export default function HotelCataloguePage() {
                 <div class="cover-page">
                     <div class="cover-decoration"></div>
                     <div class="cover-content">
-                        <img src="/assets/images/anose-logo.webp" alt="Anose Beauty" class="cover-logo" onerror="this.style.display='none'" />
+                        <img src="/assets/images/anose-logo.webp" alt="Anose Beauty" width="144" height="144" class="cover-logo" onerror="this.style.display='none'" />
                         <div class="cover-brand">Anose Beauty</div>
                         <h1 class="cover-title">Catalogue</h1>
                         <p class="cover-subtitle">Premium Hotel Amenities</p>
@@ -787,6 +787,8 @@ export default function HotelCataloguePage() {
                                         <img
                                             src={getImageUrl(amenity.image)}
                                             alt={amenity.name}
+                                            width={600}
+                                            height={600}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                             onError={(e) => {
                                                 (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.webp';

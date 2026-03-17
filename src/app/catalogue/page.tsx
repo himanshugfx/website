@@ -119,9 +119,12 @@ export default function CataloguePage() {
                     <img
                         src="/assets/images/anose-logo.webp"
                         alt="Anose Beauty"
+                        width={144}
+                        height={144}
                         className="w-24 sm:w-28 md:w-36 h-auto mx-auto mb-4 sm:mb-6 md:mb-8 brightness-0 invert drop-shadow-2xl"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
+
                     <p className="font-['Playfair_Display'] text-xs sm:text-sm md:text-base tracking-[4px] sm:tracking-[6px] md:tracking-[8px] uppercase text-purple-400 mb-3 sm:mb-4 md:mb-6 font-medium">Anose Beauty</p>
                     <h1 className="font-['Playfair_Display'] text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-normal text-white mb-3 sm:mb-4 md:mb-6 tracking-tight">Catalogue</h1>
                     <p className="text-sm sm:text-base md:text-lg font-light text-white/70 tracking-[2px] sm:tracking-[3px] md:tracking-[4px] uppercase mb-8 sm:mb-10 md:mb-12">Premium Hotel Amenities</p>
@@ -187,6 +190,8 @@ export default function CataloguePage() {
                                     <img
                                         src={getImageUrl(item.image)}
                                         alt={item.name}
+                                        width={600}
+                                        height={600}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         onError={(e) => { (e.target as HTMLImageElement).src = '/assets/images/product/1000x1000.webp'; }}
                                     />

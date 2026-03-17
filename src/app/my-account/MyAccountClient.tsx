@@ -346,6 +346,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                     }
                                                                 })()}
                                                                 alt={item.product.name}
+                                                                width={64}
+                                                                height={64}
                                                                 className="w-16 h-16 object-cover rounded-lg"
                                                             />
                                                             <div className="flex-1">
