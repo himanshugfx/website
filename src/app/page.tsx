@@ -1,4 +1,4 @@
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 import prisma from "@/lib/prisma";
 
 import ProductTabs from "@/components/ProductTabs";
@@ -12,10 +12,11 @@ export default async function Home() {
   let onSale: ProductCardProduct[] = [];
   let newArrivals: ProductCardProduct[] = [];
 
+  let timeoutId: NodeJS.Timeout | undefined;
   try {
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Database timeout')), 5000)
-    );
+    const timeout = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Database timeout')), 5000);
+    });
 
     const [bestSellersData, onSaleData, newArrivalsData] = await Promise.race([
       Promise.all([
@@ -38,10 +39,13 @@ export default async function Home() {
       timeout
     ]) as any[];
 
+    if (timeoutId) clearTimeout(timeoutId);
+
     bestSellers = bestSellersData as unknown as ProductCardProduct[];
     onSale = onSaleData as unknown as ProductCardProduct[];
     newArrivals = newArrivalsData as unknown as ProductCardProduct[];
   } catch (error) {
+    if (timeoutId) clearTimeout(timeoutId);
     console.error("Home page data fetch error or timeout:", error);
     // Fallback to empty arrays if database is unavailable or slow
   }

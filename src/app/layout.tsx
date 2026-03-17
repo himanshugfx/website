@@ -14,11 +14,7 @@ import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
-import dynamic from "next/dynamic";
-
-const AnoseAssistant = dynamic(() => import("@/components/AnoseAssistant"), {
-  ssr: false,
-});
+import AnoseAssistant from "@/components/AnoseAssistant";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800", "900"],

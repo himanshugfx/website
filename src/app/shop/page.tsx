@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
     title: "Shop Premium Skincare & Cosmetics",
@@ -15,10 +15,11 @@ export default async function ShopPage() {
     let types: { type: string }[] = [];
     let brands: { brand: string }[] = [];
 
+    let timeoutId: NodeJS.Timeout | undefined;
     try {
-        const timeout = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Database timeout')), 5000)
-        );
+        const timeout = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error('Database timeout')), 5000);
+        });
 
         const [productsData, categoriesData, typesData, brandsData] = await Promise.race([
             Promise.all([
@@ -44,11 +45,14 @@ export default async function ShopPage() {
             timeout
         ]) as any;
 
+        if (timeoutId) clearTimeout(timeoutId);
+
         products = productsData;
         categories = categoriesData;
         types = typesData;
         brands = brandsData;
     } catch (error) {
+        if (timeoutId) clearTimeout(timeoutId);
         console.error("Shop page data fetch error or timeout:", error);
     }
 
