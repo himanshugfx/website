@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Anose - Premium Cosmetics & Hotel Amenities",
     description: "Discover high-quality organic skincare and premium hotel amenities from Anose.",
-    url: "https://www.anosebeauty.com",
+    url: "https://anosebeauty.com",
     siteName: "Anose",
     images: [
       {
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   alternates: {
-    canonical: "https://www.anosebeauty.com",
+    canonical: "https://anosebeauty.com",
   }
 };
 
@@ -75,8 +75,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Anose",
-  "url": "https://www.anosebeauty.com",
-  "logo": "https://www.anosebeauty.com/assets/images/fav.png",
+  "url": "https://anosebeauty.com",
+  "logo": "https://anosebeauty.com/assets/images/fav.png",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+91-XXXXXXXXXX",

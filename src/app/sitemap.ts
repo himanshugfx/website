@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { blogPosts } from './blog/blogData';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://anose.in';
+    const baseUrl = 'https://anosebeauty.com';
 
     // Fetch products
     const products = await prisma.product.findMany({

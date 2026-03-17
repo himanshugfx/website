@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/register',
             ],
         },
-        sitemap: 'https://www.anosebeauty.com/sitemap.xml',
+        sitemap: 'https://anosebeauty.com/sitemap.xml',
     };
 }
