@@ -1,5 +1,5 @@
 import React from 'react';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 import Image from 'next/image';
 import Link from 'next/link';
 import { blogPosts } from '../blogData';
@@ -122,7 +122,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ id:
                     <article className="prose prose-zinc max-w-none pt-10 border-t border-zinc-100">
                         <div
                             className="blog-content text-zinc-700 leading-relaxed text-lg"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content || '') }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content || '') }}
                         />
                     </article>
 

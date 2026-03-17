@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 interface Message {
   id: string;
@@ -670,8 +670,16 @@ export default function AnoseAssistant() {
                   <div
                     className="ana-bubble-bot"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        `<p>${formatMarkdown(msg.content)}</p>`
+                      __html: sanitizeHtml(
+                        `<p>${formatMarkdown(msg.content)}</p>`,
+                        {
+                          allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+                          allowedAttributes: {
+                            a: ['href', 'name', 'target', 'class', 'rel'],
+                            p: ['class'],
+                            span: ['class']
+                          }
+                        }
                       ),
                     }}
                   />
