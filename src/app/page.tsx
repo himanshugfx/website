@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 import prisma from "@/lib/prisma";
 
 import ProductTabs from "@/components/ProductTabs";
@@ -13,29 +13,37 @@ export default async function Home() {
   let newArrivals: ProductCardProduct[] = [];
 
   try {
-    const [bestSellersData, onSaleData, newArrivalsData] = await Promise.all([
-      prisma.product.findMany({
-        take: 8,
-        where: { bestSeller: true },
-        orderBy: { sold: 'desc' },
-      }),
-      prisma.product.findMany({
-        take: 8,
-        where: { sale: true },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.product.findMany({
-        take: 8,
-        where: { new: true },
-        orderBy: { createdAt: 'desc' },
-      })
-    ]);
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database timeout')), 5000)
+    );
+
+    const [bestSellersData, onSaleData, newArrivalsData] = await Promise.race([
+      Promise.all([
+        prisma.product.findMany({
+          take: 8,
+          where: { bestSeller: true },
+          orderBy: { sold: 'desc' },
+        }),
+        prisma.product.findMany({
+          take: 8,
+          where: { sale: true },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.product.findMany({
+          take: 8,
+          where: { new: true },
+          orderBy: { createdAt: 'desc' },
+        })
+      ]),
+      timeout
+    ]) as any[];
+
     bestSellers = bestSellersData as unknown as ProductCardProduct[];
     onSale = onSaleData as unknown as ProductCardProduct[];
     newArrivals = newArrivalsData as unknown as ProductCardProduct[];
   } catch (error) {
-    console.error("Home page data fetch error:", error);
-    // Fallback to empty arrays if database is unavailable
+    console.error("Home page data fetch error or timeout:", error);
+    // Fallback to empty arrays if database is unavailable or slow
   }
 
   return (

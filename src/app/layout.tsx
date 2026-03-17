@@ -14,7 +14,11 @@ import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
-import AnoseAssistant from "@/components/AnoseAssistant";
+import dynamic from "next/dynamic";
+
+const AnoseAssistant = dynamic(() => import("@/components/AnoseAssistant"), {
+  ssr: false,
+});
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -41,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Anose - Premium Cosmetics & Hotel Amenities",
     description: "Discover high-quality organic skincare and premium hotel amenities from Anose.",
-    url: "https://anose.in",
+    url: "https://www.anosebeauty.com",
     siteName: "Anose",
     images: [
       {
@@ -67,7 +71,7 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   alternates: {
-    canonical: "https://anose.in",
+    canonical: "https://www.anosebeauty.com",
   }
 };
 
@@ -75,8 +79,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Anose",
-  "url": "https://anose.in",
-  "logo": "https://anose.in/assets/images/fav.png",
+  "url": "https://www.anosebeauty.com",
+  "logo": "https://www.anosebeauty.com/assets/images/fav.png",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+91-XXXXXXXXXX",
@@ -116,7 +120,7 @@ export default function RootLayout({
               />
               <AdminAutoLogout />
               <PageViewTracker />
-              <Script src="/assets/js/phosphor-icons.js" strategy="beforeInteractive" />
+              <Script src="/assets/js/phosphor-icons.js" strategy="afterInteractive" />
               {/* Google Analytics */}
               <Script
                 src="https://www.googletagmanager.com/gtag/js?id=G-E2J25CTNXK"

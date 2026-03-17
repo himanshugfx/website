@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
     title: "Shop Premium Skincare & Cosmetics",
@@ -16,32 +16,40 @@ export default async function ShopPage() {
     let brands: { brand: string }[] = [];
 
     try {
-        const [productsData, categoriesData, typesData, brandsData] = await Promise.all([
-            prisma.product.findMany({
-                orderBy: [
-                    { priority: 'desc' },
-                    { createdAt: 'desc' },
-                ],
-            }),
-            prisma.product.findMany({
-                select: { category: true },
-                distinct: ['category'],
-            }),
-            prisma.product.findMany({
-                select: { type: true },
-                distinct: ['type'],
-            }),
-            prisma.product.findMany({
-                select: { brand: true },
-                distinct: ['brand'],
-            })
-        ]);
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Database timeout')), 5000)
+        );
+
+        const [productsData, categoriesData, typesData, brandsData] = await Promise.race([
+            Promise.all([
+                prisma.product.findMany({
+                    orderBy: [
+                        { priority: 'desc' },
+                        { createdAt: 'desc' },
+                    ],
+                }),
+                prisma.product.findMany({
+                    select: { category: true },
+                    distinct: ['category'],
+                }),
+                prisma.product.findMany({
+                    select: { type: true },
+                    distinct: ['type'],
+                }),
+                prisma.product.findMany({
+                    select: { brand: true },
+                    distinct: ['brand'],
+                })
+            ]),
+            timeout
+        ]) as any;
+
         products = productsData;
         categories = categoriesData;
         types = typesData;
         brands = brandsData;
     } catch (error) {
-        console.error("Shop page data fetch error:", error);
+        console.error("Shop page data fetch error or timeout:", error);
     }
 
     return (
