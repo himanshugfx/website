@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2486b57a-7cbb-4d23-8c23-339e9e232a67" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/studiobot.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/website.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.agent/rules/code-style-guide.md" beforeDir="false" afterPath="$PROJECT_DIR$/.agent/rules/code-style-guide.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/.easignore" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/.easignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/android/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build/libs/react-native-gradle-plugin.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/react-native-gradle-plugin/build/libs/react-native-gradle-plugin.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/settings-plugin/build/libs/settings-plugin.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/settings-plugin/build/libs/settings-plugin.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/shared/build/libs/shared.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/@react-native/gradle-plugin/shared/build/libs/shared.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/kotlin/compileKotlin/cacheable/last-build.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/kotlin/compileKotlin/cacheable/last-build.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/kotlin/compileKotlin/local-state/build-history.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/kotlin/compileKotlin/local-state/build-history.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/libs/expo-autolinking-plugin-shared-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin-shared/build/libs/expo-autolinking-plugin-shared-1.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/libs/expo-autolinking-plugin.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-plugin/build/libs/expo-autolinking-plugin.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/libs/expo-autolinking-settings-plugin.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-autolinking/android/expo-gradle-plugin/expo-autolinking-settings-plugin/build/libs/expo-autolinking-settings-plugin.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/8.14.3/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/kotlin/compileKotlin/cacheable/last-build.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/kotlin/compileKotlin/local-state/build-history.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/libs/expo-module-gradle-plugin.jar" beforeDir="false" afterPath="$PROJECT_DIR$/admin-app/node_modules/expo-modules-core/expo-module-gradle-plugin/build/libs/expo-module-gradle-plugin.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/ana/chat/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/ana/chat/route.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="3AhmEXMaS3UT6C9v8ULDXviA5rs" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "G:/Himanshu/website"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2486b57a-7cbb-4d23-8c23-339e9e232a67" name="Changes" comment="" />
+      <created>1773053065506</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773053065506</updated>
+    </task>
+    <servers />
+  </component>
+</project>

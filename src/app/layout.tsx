@@ -71,24 +71,80 @@ export const metadata: Metadata = {
   }
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Anose",
-  "url": "https://anosebeauty.com",
-  "logo": "https://anosebeauty.com/assets/images/fav.png",
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "telephone": "+91-XXXXXXXXXX",
-    "contactType": "customer service",
-    "availableLanguage": ["en", "Hindi"]
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Anose Beauty",
+    "alternateName": "Anose",
+    "url": "https://anosebeauty.com",
+    "logo": "https://anosebeauty.com/assets/images/fav.png",
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "telephone": "+91-9110134408",
+        "contactType": "customer service",
+        "email": "wecare@anosebeauty.com",
+        "availableLanguage": ["en", "Hindi"],
+        "areaServed": "IN"
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/AnoseBeauty",
+      "https://www.instagram.com/anosebeauty",
+      "https://www.youtube.com/@AnoseBeauty",
+      "https://www.linkedin.com/company/anosebeauty"
+    ]
   },
-  "sameAs": [
-    "https://www.facebook.com/AnoseBeauty",
-    "https://www.instagram.com/anosebeauty",
-    "https://www.youtube.com/@AnoseBeauty"
-  ]
-};
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Anose Beauty Private Limited",
+    "image": "https://anosebeauty.com/assets/images/banner/khushi-banner.webp",
+    "@id": "https://anosebeauty.com",
+    "url": "https://anosebeauty.com",
+    "telephone": "+919110134408",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "B-103, B Block, Sector 6",
+      "addressLocality": "Noida",
+      "addressRegion": "UP",
+      "postalCode": "201301",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 28.592879,
+      "longitude": 77.314281
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "10:30",
+      "closes": "18:30"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://anosebeauty.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://anosebeauty.com/shop?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+];
 
 
 export default function RootLayout({

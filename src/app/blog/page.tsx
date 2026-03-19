@@ -1,14 +1,41 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import type { Metadata } from 'next';
 import { blogPosts } from './blogData';
 
+export const metadata: Metadata = {
+    title: "Skincare Science & Ingredients Guide - Anose Beauty Blog",
+    description: "Deep dive into the science of skincare. Our experts guide you through ingredients, organic beauty trends, and tips for maintain healthy, glowing skin.",
+    keywords: ["skincare science", "organic ingredients guide", "Anose beauty blog", "skincare tips India", "dermatology blog"],
+};
+
 export default function BlogPage() {
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://anosebeauty.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": "https://anosebeauty.com/blog"
+            }
+        ]
+    };
+
     return (
         <div className="blog-page">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
             <div className="breadcrumb-block style-shared">
                 <div className="breadcrumb-main bg-linear overflow-hidden bg-zinc-50 py-10">
                     <div className="container mx-auto relative">

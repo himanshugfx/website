@@ -1,5 +1,12 @@
 export const dynamic = "force-dynamic";
 import prisma from "@/lib/prisma";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Anose Beauty - Premium Cosmetics & Luxury Hotel Amenities Manufacturer",
+  description: "Anose Beauty is India's leading manufacturer of premium organic skincare, high-end cosmetics, and luxury hotel amenities. Crafted for 5-star quality and excellence.",
+  keywords: ["Anose Beauty", "premium cosmetics India", "hotel amenities manufacturer", "organic skincare brand", "luxury bath products", "private label cosmetics Noida"],
+};
 
 import ProductTabs from "@/components/ProductTabs";
 import Image from "next/image";

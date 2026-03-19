@@ -56,12 +56,37 @@ export default async function ShopPage() {
         console.error("Shop page data fetch error or timeout:", error);
     }
 
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://anosebeauty.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Shop",
+                "item": "https://anosebeauty.com/shop"
+            }
+        ]
+    };
+
     return (
-        <ShopClient
-            initialProducts={products as any}
-            categories={categories.map(c => c.category)}
-            types={types.map(t => t.type)}
-            brands={brands.map(b => b.brand)}
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <ShopClient
+                initialProducts={products as any}
+                categories={categories.map(c => c.category)}
+                types={types.map(t => t.type)}
+                brands={brands.map(b => b.brand)}
+            />
+        </>
     );
 }

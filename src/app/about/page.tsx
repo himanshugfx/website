@@ -1,12 +1,40 @@
-'use client';
-
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShieldCheck, BadgeCheck, Rabbit, Sparkles, Heart, Award } from 'lucide-react';
 
+export const metadata: Metadata = {
+    title: "Our Story - From 5-Star Spa Quality to Your Home",
+    description: "Learn how Anose Beauty transitioned from crafting luxury hotel amenities for 5-star properties to providing premium, organic skincare directly to you.",
+    keywords: ["Anose story", "about Anose", "skincare manufacturer India", "luxury spa quality", "cruelty-free cosmetics"],
+};
+
 export default function AboutPage() {
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://anosebeauty.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "About Us",
+                "item": "https://anosebeauty.com/about"
+            }
+        ]
+    };
+
     return (
         <main className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
             {/* Hero Section */}
             <section className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700 text-white py-24 md:py-32 overflow-hidden">
                 <div className="absolute inset-0 opacity-20">

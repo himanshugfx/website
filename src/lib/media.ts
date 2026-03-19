@@ -37,8 +37,13 @@ export function getMediaUrl(value: string | undefined | null, fallback = '/asset
         return `/api/media/${processedValue}`;
     }
 
-    // Fallback: assume it's a media ID anyway
-    return `/api/media/${processedValue}`;
+    // Fallback: assume it's a media ID if it's not a path, but first ensure it's not a basic path with spaces
+    // Encode spaces for all paths returned to ensure browser compatibility
+    const finalUrl = processedValue.startsWith('/') || processedValue.includes('.') || !/^c[a-z0-9]{20,}$/i.test(processedValue)
+        ? processedValue
+        : `/api/media/${processedValue}`;
+    
+    return finalUrl.split(' ').join('%20');
 }
 
 /**
@@ -58,4 +63,20 @@ export function getMediaUrls(value: string | undefined | null): string[] {
     } catch {
         return [getMediaUrl(value)];
     }
+}
+
+/**
+ * Returns an absolute URL for media, required for SEO and Google Merchant Center.
+ */
+export function getAbsoluteMediaUrl(value: string | undefined | null): string {
+    const url = getMediaUrl(value);
+    const baseUrl = 'https://anosebeauty.com';
+    
+    if (url.startsWith('http')) {
+        return url.split(' ').join('%20');
+    }
+    
+    // Combine baseUrl and url, ensuring no double slashes and encoded spaces
+    const fullUrl = `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    return fullUrl.split(' ').join('%20');
 }

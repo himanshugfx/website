@@ -6,6 +6,7 @@ import ProductDetailClient from "./ProductDetailClient";
 import ProductCard from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 import type { ProductCardProduct } from "@/components/ProductCard";
+import { getAbsoluteMediaUrl } from '@/lib/media';
 
 export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> },
@@ -19,12 +20,13 @@ export async function generateMetadata(
     if (!product) return { title: 'Product Not Found' };
 
     const previousImages = (await parent).openGraph?.images || [];
+    const absoluteThumb = getAbsoluteMediaUrl(product.thumbImage);
 
     return {
         title: product.name,
         description: product.description?.substring(0, 160) || `Buy ${product.name} at Anose - Premium Skincare.`,
         openGraph: {
-            images: [product.thumbImage || '', ...previousImages],
+            images: [absoluteThumb || '', ...previousImages],
         },
     };
 }
@@ -52,22 +54,28 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         take: 4,
     });
 
+    const isAvailable = (product.quantity && product.quantity > 0);
+    const absoluteThumb = getAbsoluteMediaUrl(product.thumbImage);
+
     const productJsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
         "name": product.name,
-        "image": product.thumbImage,
+        "image": absoluteThumb,
         "description": product.description,
+        "sku": `ANS-${product.id.substring(0, 8)}`,
         "brand": {
             "@type": "Brand",
-            "name": "Anose"
+            "name": "Anose Beauty"
         },
         "offers": {
             "@type": "Offer",
-            "url": `https://anose.in/product/${product.slug}`,
+            "url": `https://anosebeauty.com/product/${product.slug}`,
             "priceCurrency": "INR",
             "price": product.price,
-            "availability": "https://schema.org/InStock"
+            "availability": isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "priceValidUntil": new Date(new Date().getFullYear() + 1, 0, 1).toISOString().split('T')[0],
+            "itemCondition": "https://schema.org/NewCondition"
         }
     };
 

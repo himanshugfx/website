@@ -8,5 +8,32 @@ export const metadata: Metadata = {
 };
 
 export default function AmenitiesPage() {
-    return <AmenitiesClient />;
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://anosebeauty.com"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Hotel Amenities",
+                "item": "https://anosebeauty.com/amenities"
+            }
+        ]
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <AmenitiesClient />
+        </>
+    );
 }
