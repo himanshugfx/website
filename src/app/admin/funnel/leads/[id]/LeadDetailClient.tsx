@@ -156,7 +156,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
             });
 
             if (res.ok) {
-                router.push('/admin/funnel/leads');
+                router.push('/admin/funnel');
             } else {
                 const data = await res.json();
                 alert(data.error || 'Failed to delete lead');
@@ -342,7 +342,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link
-                            href="/admin/funnel/leads"
+                            href="/admin/funnel"
                             className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
                         >
                             <ArrowLeft className="w-5 h-5" />

@@ -14,6 +14,8 @@ export async function sendAdminPushNotification(
             select: { token: true },
         });
 
+        console.log(`[Push] Found ${tokens.length} registered admin tokens`);
+
         if (tokens.length === 0) {
             console.log('[Push] No admin push tokens registered, skipping notification');
             return;

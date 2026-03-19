@@ -150,13 +150,6 @@ export default function SalesFunnelPage() {
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
                         <Link
-                            href="/admin/funnel/leads"
-                            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50"
-                        >
-                            <Users className="w-4 h-4" />
-                            <span className="hidden sm:inline">All Leads</span>
-                        </Link>
-                        <Link
                             href="/admin/funnel/leads/add"
                             className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
                         >

@@ -23,7 +23,7 @@ export async function POST(request: Request) {
                 company: company || null,
                 stageId,
                 source: source || 'MANUAL',
-                value: value ? parseFloat(value) : null,
+                value: (value && !isNaN(parseFloat(value))) ? parseFloat(value) : null,
                 notes: notes || null,
             },
         });
