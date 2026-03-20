@@ -5,7 +5,12 @@ import {
     ThumbsUp, HelpCircle 
 } from 'lucide-react';
 
-export default function CustomerExperience() {
+export default function CustomerExperience({ data }: { data?: any }) {
+    if (!data) return null;
+
+    const avgRating = data.avgRating.toFixed(1);
+    const totalReviews = data.totalReviews;
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* KPI Cards */}
@@ -17,10 +22,13 @@ export default function CustomerExperience() {
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-purple-200">Net Promoter Score (NPS)</span>
-                            <div className="px-2 py-0.5 bg-purple-500 rounded text-[9px] font-bold">SIMULATED</div>
+                            <div className="px-2 py-0.5 bg-purple-500 rounded text-[9px] font-bold">ESTIMATED</div>
                         </div>
-                        <div className="text-5xl font-black tracking-tighter mb-2">72</div>
-                        <p className="text-xs font-bold text-purple-200">World-class brand loyalty</p>
+                        <div className="text-5xl font-black tracking-tighter mb-2">
+                            {/* Estimate NPS based on ratings for now: 70+ is excellent */}
+                            {totalReviews > 0 ? Math.round((data.ratingCounts['5'] / totalReviews) * 100) : '--'}
+                        </div>
+                        <p className="text-xs font-bold text-purple-200">% of 5-star buyers</p>
                     </div>
                 </div>
 
@@ -29,16 +37,20 @@ export default function CustomerExperience() {
                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Avg Review Sentiment</span>
                     </div>
                     <div className="flex items-end gap-2 mb-2">
-                        <div className="text-4xl font-black tracking-tighter text-gray-900">4.8</div>
+                        <div className="text-4xl font-black tracking-tighter text-gray-900">{totalReviews > 0 ? avgRating : '--'}</div>
                         <div className="flex items-center gap-1 text-amber-400 mb-1.5">
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current opacity-50" />
+                            {[1, 2, 3, 4, 5].map(star => (
+                                <Star key={star} className={`w-4 h-4 fill-current ${star <= Math.round(data.avgRating) ? '' : 'opacity-30'}`} />
+                            ))}
                         </div>
                     </div>
-                    <p className="text-xs font-bold text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded">Highly Positive (92%)</p>
+                    <p className={`text-xs font-bold inline-block px-2 py-1 rounded ${
+                        data.avgRating >= 4.5 ? 'text-emerald-600 bg-emerald-50' : 
+                        data.avgRating >= 3.5 ? 'text-amber-600 bg-amber-50' : 
+                        totalReviews === 0 ? 'text-gray-500 bg-gray-50' : 'text-rose-600 bg-rose-50'
+                    }`}>
+                        {totalReviews > 0 ? `${totalReviews} Total Reviews` : 'No reviews yet'}
+                    </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
@@ -47,6 +59,7 @@ export default function CustomerExperience() {
                     </div>
                     <div className="text-4xl font-black tracking-tighter text-gray-900 mb-2">85%</div>
                     <p className="text-xs font-bold text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Solves without contacting support</p>
+                    <p className="text-[9px] text-gray-400 mt-1 uppercase tracking-widest">*Simulated KPI</p>
                 </div>
             </div>
 
@@ -73,39 +86,38 @@ export default function CustomerExperience() {
                             </div>
                         ))}
                     </div>
-                    <p className="text-[10px] font-medium text-gray-400 mt-6 italic">Tracking what users type in the store search bar.</p>
+                    <p className="text-[10px] font-medium text-gray-400 mt-6 italic">Tracking what users type in the store search bar. (Requires Google Analytics Site Search integration)</p>
                 </div>
 
-                {/* Feedback Stream */}
+                {/* Rating Distribution */}
                 <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
                     <div className="flex items-center gap-2 mb-6">
                         <MessageCircle className="w-4 h-4 text-emerald-600" />
-                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Recent Feedback Stream</h3>
+                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Rating Distribution</h3>
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
-                            <div className="flex gap-1 text-amber-400 mb-2">
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current" />
-                            </div>
-                            <p className="text-sm font-medium text-gray-800">"Absolutely love the new packing. The pump works perfectly now!"</p>
-                            <p className="text-[10px] text-gray-400 mt-2 font-black uppercase">Product: Vitamin C Serum</p>
-                        </div>
-                        
-                        <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                            <div className="flex gap-1 text-amber-400 mb-2">
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current" />
-                                <Star className="w-3 h-3 fill-current opacity-30" />
-                                <Star className="w-3 h-3 fill-current opacity-30" />
-                                <Star className="w-3 h-3 fill-current opacity-30" />
-                            </div>
-                            <p className="text-sm font-medium text-gray-800">"Delivery took a bit longer than expected, but product is good."</p>
-                            <p className="text-[10px] text-gray-400 mt-2 font-black uppercase">Logistics Issue</p>
-                        </div>
+                    <div className="space-y-3">
+                        {[5, 4, 3, 2, 1].map((stars) => {
+                            const count = data.ratingCounts[stars] || 0;
+                            const percent = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+                            return (
+                                <div key={stars} className="flex items-center gap-4 text-sm font-bold text-gray-700">
+                                    <div className="flex items-center gap-1 w-12 text-amber-500">
+                                        <span>{stars}</span>
+                                        <Star className="w-3 h-3 fill-current" />
+                                    </div>
+                                    <div className="flex-1 h-3 bg-gray-50 rounded-full border border-gray-100 overflow-hidden">
+                                        <div 
+                                            className="h-full bg-emerald-400 rounded-full transition-all duration-1000"
+                                            style={{ width: `${percent}%` }}
+                                        />
+                                    </div>
+                                    <div className="w-20 flex justify-between text-xs">
+                                        <span className="text-gray-900">{count}</span>
+                                        <span className="text-gray-400">{percent.toFixed(0)}%</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

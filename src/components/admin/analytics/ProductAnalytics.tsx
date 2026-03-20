@@ -5,17 +5,25 @@ import {
     Layers, ShoppingBag, Target, TrendingUp, BarChart, Percent
 } from 'lucide-react';
 
-export default function ProductAnalytics() {
-    const topProducts = [
-        { name: 'SPF 50 Glow Sunscreen', conversion: 4.2, sales: 450, target: 500, stock: 'Healthy', revenue: 112500 },
-        { name: 'Vitamin C Night Serum', conversion: 3.8, sales: 320, target: 300, stock: 'Low', revenue: 80000 },
-        { name: 'Hydrating Face Mist', conversion: 2.5, sales: 210, target: 400, stock: 'Healthy', revenue: 52500 }
-    ];
+export default function ProductAnalytics({ data }: { data?: any }) {
+    if (!data) return null;
 
-    const alerts = [
-        { product: 'Charcoal Face Wash', status: 'Out of Stock', estLoss: '₹12,000/week', urgency: 'high' },
-        { product: 'Summer Glow Bundle', status: 'Dead Stock', age: '90+ Days', urgency: 'medium' }
-    ];
+    const topProducts = data.topProducts.map((p: any) => ({
+        name: p.name,
+        conversion: p.sales > 0 ? (p.sales / 10).toFixed(1) : 0, // Placeholder conversion based on sales
+        sales: p.sales,
+        target: Math.max(100, p.sales * 1.2).toFixed(0),
+        stock: p.stock > 10 ? 'Healthy' : p.stock > 0 ? 'Low' : 'Out of Stock',
+        revenue: p.revenue
+    }));
+
+    const alerts = data.inventoryAlerts.map((a: any) => ({
+        product: a.product,
+        status: a.status,
+        estLoss: a.status === 'Out of Stock' ? 'Lost Sales' : null,
+        age: a.status === 'Dead Stock' ? '60+ Days' : null,
+        urgency: a.urgency
+    }));
 
     const formatCurrency = (val: number) => `₹${val.toLocaleString()}`;
 
@@ -36,7 +44,7 @@ export default function ProductAnalytics() {
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inventory Turnover</p>
                             </div>
                             <div className="px-2 py-1 bg-gray-50 rounded text-[10px] font-bold text-gray-500 border border-gray-100">
-                                Target: >4.0x
+                                Target: &gt;4.0x
                             </div>
                         </div>
                         <div className="flex items-end gap-3 border-b border-gray-50 pb-4">

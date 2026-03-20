@@ -39,6 +39,7 @@ interface AnalyticsData {
 export default function AnalyticsDashboard() {
     const [activeTab, setActiveTab] = useState<Tab>('revenue');
     const [data, setData] = useState<AnalyticsData | null>(null);
+    const [dbData, setDbData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,15 +47,29 @@ export default function AnalyticsDashboard() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/admin/analytics');
-            const json = await res.json();
-            if (json.success && json.data) {
-                setData(json.data);
+            const [gaRes, dbRes] = await Promise.all([
+                fetch('/api/admin/analytics').catch(() => null),
+                fetch('/api/admin/analytics/db').catch(() => null)
+            ]);
+            
+            let gaJson = { success: false, data: null, error: null };
+            let dbJson = { success: false, data: null, error: null };
+            
+            if (gaRes && gaRes.ok) gaJson = await gaRes.json();
+            if (dbRes && dbRes.ok) dbJson = await dbRes.json();
+
+            if (dbJson.success && dbJson.data) {
+                setDbData(dbJson.data);
             } else {
-                setError(json.error || 'Failed to fetch analytics');
+                setError(dbJson.error || 'Failed to load database analytics');
+                return; // Stop if core DB data fails
+            }
+
+            if (gaJson.success && gaJson.data) {
+                setData(gaJson.data);
             }
         } catch (err) {
-            setError('Failed to connect to analytics');
+            setError('Failed to connect to analytics endpoints');
         } finally {
             setLoading(false);
         }
@@ -91,9 +106,7 @@ export default function AnalyticsDashboard() {
         );
     }
 
-    if (!data) return null;
-
-    const totalSessions = data.trafficSources.reduce((sum, s) => sum + s.sessions, 0);
+    if (!dbData) return null;
 
     return (
         <div className="space-y-6">
@@ -101,7 +114,7 @@ export default function AnalyticsDashboard() {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Website Analytics</h2>
-                    <p className="text-xs text-gray-500">{data.period} • Updated {new Date(data.lastUpdated).toLocaleTimeString()}</p>
+                    <p className="text-xs text-gray-500">Live Period • Updated {new Date().toLocaleTimeString()}</p>
                 </div>
                 <button
                     onClick={fetchAnalytics}
@@ -131,11 +144,11 @@ export default function AnalyticsDashboard() {
 
             {/* Tab Contents */}
             <div className="mt-6">
-                {activeTab === 'revenue' && <RevenueAnalytics />}
-                {activeTab === 'products' && <ProductAnalytics />}
+                {activeTab === 'revenue' && <RevenueAnalytics data={dbData?.revenue} />}
+                {activeTab === 'products' && <ProductAnalytics data={dbData?.products} />}
                 {activeTab === 'traffic' && <TrafficAnalytics data={data} />}
-                {activeTab === 'experience' && <CustomerExperience />}
-                {activeTab === 'retention' && <RetentionAnalytics />}
+                {activeTab === 'experience' && <CustomerExperience data={dbData?.experience} />}
+                {activeTab === 'retention' && <RetentionAnalytics data={dbData?.retention} />}
             </div>
         </div>
     );

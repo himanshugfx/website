@@ -5,27 +5,30 @@ import {
     Tag, CreditCard, BarChart2, Target, Zap, PieChart, Focus
 } from 'lucide-react';
 
-export default function RevenueAnalytics() {
-    // Simulated deep analytics data
+export default function RevenueAnalytics({ data }: { data?: any }) {
+    if (!data) return null;
+
+    // Use DB data + static targets
     const metrics = {
-        totalRevenue: 245000,
-        revenueTarget: 300000,
-        revenueGrowth: 12.5,
-        aov: 1540,
-        aovTarget: 1800,
-        aovGrowth: 4.2,
-        refundRate: 1.2,
+        totalRevenue: data.totalRevenue,
+        revenueTarget: Math.max(300000, data.thisMonthRevenue * 1.2), // Dynamic target
+        revenueGrowth: data.totalRevenue > 0 ? ((data.thisMonthRevenue / data.totalRevenue) * 100) : 0, 
+        aov: data.aov,
+        aovTarget: Math.max(1500, data.aov * 1.1),
+        aovGrowth: 0, // Need historical DB table for growth, using 0 for now
+        refundRate: data.refundRate.toFixed(1),
         refundTarget: 2.0, // stay below
-        refundTrend: -0.5,
-        discountImpact: 12400,
-        discountROI: 3.4
+        refundTrend: 0,
+        discountImpact: data.discountImpact,
+        discountROI: data.discountImpact > 0 ? Number((data.totalRevenue / data.discountImpact).toFixed(1)) : 0
     };
 
-    const revenueByCategory = [
-        { name: 'Skincare', value: 125000, target: 140000, color: 'bg-purple-600' },
-        { name: 'Haircare', value: 85000, target: 100000, color: 'bg-blue-500' },
-        { name: 'Accessories', value: 35000, target: 40000, color: 'bg-emerald-500' }
-    ];
+    const revenueByCategory = data.categoryRevenue.map((cat: any, i: number) => ({
+        name: cat.name,
+        value: cat.value,
+        target: cat.value * 1.2, // Arbitrary 20% growth target
+        color: ['bg-purple-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'][i % 5]
+    }));
 
     const formatCurrency = (val: number) => `₹${val.toLocaleString()}`;
 
