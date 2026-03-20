@@ -8,6 +8,10 @@ async function getAdminContext() {
   try {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Last 6 months range
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(now.getMonth() - 6);
 
     const [
       revenueData,
@@ -16,7 +20,10 @@ async function getAdminContext() {
       lowStockProducts,
       expenseData,
       unpaidInvoices,
-      leadCount
+      leadCount,
+      topProducts,
+      recentInvoices,
+      expenseCategories
     ] = await Promise.all([
       // Revenue (Total and Month)
       prisma.invoice.aggregate({
@@ -47,11 +54,42 @@ async function getAdminContext() {
         take: 10
       }),
       // Leads
-      prisma.lead.count()
+      prisma.lead.count(),
+      // Top Products by Sales
+      prisma.product.findMany({
+        orderBy: { sold: 'desc' },
+        select: { name: true, sold: true, price: true },
+        take: 5
+      }),
+      // Recent Invoices for trend analysis
+      prisma.invoice.findMany({
+        where: { 
+          invoiceDate: { gte: sixMonthsAgo },
+          status: 'PAID'
+        },
+        select: { total: true, invoiceDate: true },
+        orderBy: { invoiceDate: 'asc' }
+      }),
+      // Expense categories
+      prisma.expense.groupBy({
+        by: ['category'],
+        _sum: { amount: true },
+        where: { date: { gte: firstDayOfMonth } }
+      })
     ]);
 
     const totalRevenue = revenueData._sum.total || 0;
     const monthlyExpenses = expenseData._sum.amount || 0;
+
+    // Process Revenue Trend (Group by Month)
+    const monthlyTrend: Record<string, number> = {};
+    recentInvoices.forEach(inv => {
+      const monthYear = inv.invoiceDate.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+      monthlyTrend[monthYear] = (monthlyTrend[monthYear] || 0) + inv.total;
+    });
+    const salesTrendStr = Object.entries(monthlyTrend)
+      .map(([month, total]) => `${month}: ₹${total.toLocaleString('en-IN')}`)
+      .join(', ');
 
     const lowStockList = lowStockProducts.length > 0
       ? lowStockProducts.map(p => `- ${p.name}: ${p.quantity} units left`).join('\n')
@@ -61,6 +99,10 @@ async function getAdminContext() {
       ? unpaidInvoices.map(i => `- ${i.invoiceNumber} (${i.customerName}): ₹${i.balance} pending`).join('\n')
       : 'No pending invoices.';
 
+    const topProductsList = topProducts.map(p => `- ${p.name}: ${p.sold} units sold`).join('\n');
+    
+    const expenseBreakdown = expenseCategories.map(c => `- ${c.category}: ₹${c._sum.amount?.toLocaleString('en-IN')}`).join('\n');
+
     return {
       totalRevenue,
       orderCount,
@@ -68,7 +110,10 @@ async function getAdminContext() {
       lowStockList,
       monthlyExpenses,
       pendingInvoicesList,
-      leadCount
+      leadCount,
+      salesTrendStr,
+      topProductsList,
+      expenseBreakdown
     };
   } catch (err) {
     console.error('getAdminContext Error:', err);
@@ -100,27 +145,27 @@ You are speaking to the store administrator in the private Admin Dashboard. Your
 - **Total Leads in Funnel:** ${adminData.leadCount}
 - **Expenses (Current Month):** ₹${adminData.monthlyExpenses.toLocaleString('en-IN')}
 
-## 2. Inventory Alerts (Low Stock < 10 units):
+## 2. Monthly Sales Trend (Last 6 Months):
+${adminData.salesTrendStr || 'Insufficient historical data for trend analysis.'}
+
+## 3. Top Selling Products:
+${adminData.topProductsList}
+
+## 4. Inventory Alerts (Low Stock < 10 units):
 ${adminData.lowStockList}
 
-## 3. Pending Payments (Invoices):
+## 5. Pending Payments (Invoices):
 ${adminData.pendingInvoicesList}
 
-## 4. Persona & Voice
+## 6. Expense Breakdown (Current Month):
+${adminData.expenseBreakdown || 'No expenses recorded this month.'}
+
+## 7. Persona & Voice
 - **Tone:** Professional, efficient, and proactive. You are a business partner.
-- **Goal:** Help the admin manage the store. Identify problems (low stock, unpaid invoices) before they are asked about.
-- **Directness:** Don't use "fluff." Give the numbers first.
+- **Goal:** Help the admin manage the store. Identify trends (e.g., "Sales have grown 20% since last month") and problems (low stock).
+- **Directness:** Give the numbers and the "why" behind them.
 - **Language:** Stick to the user's language (English/Hindi/Hinglish).
-
-## 5. Security & Privacy
-- You have access to sensitive financial data. Only share this data when relevant to the user's question.
-- Do NOT share this data with regular customers (though this API is protected, always maintain your professional admin persona).
-
-## 6. Guidelines
-- If asked about "Sales," refer to the Total Revenue.
-- If asked about "Work to do," highlight Pending Orders and Pending Invoices.
-- If asked about "Inventory," refer to the Low Stock list.
-- Always offer to help with a specific task (e.g., "Would you like me to draft a reminder for the pending invoices?").`;
+- **Guidelines:** If asked about "Sales," provide a detailed month-wise breakdown using the trend data. Always offer to help with a specific task.`;
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
