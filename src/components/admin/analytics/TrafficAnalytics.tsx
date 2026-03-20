@@ -14,21 +14,40 @@ export default function TrafficAnalytics({ data }: { data: any }) {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Live Users Card - Compact */}
-                <div className="bg-white p-6 rounded-3xl border border-purple-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
-                    <div className="flex flex-col gap-4">
+                {/* Live Users & Session Target combined into 2 columns for space */}
+                <div className="bg-white p-6 rounded-3xl border border-purple-100 shadow-sm hover:shadow-lg transition-all relative overflow-hidden flex flex-col justify-between">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full opacity-50 blur-2xl translate-x-1/3 -translate-y-1/3" />
+                    
+                    <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-100">
                                 <Users className="w-5 h-5 text-purple-600 animate-pulse" />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Live View</span>
                         </div>
-                        <div className="flex items-end justify-between">
-                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{data.realtimeUsers}</div>
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                                ACTIVE NOW
-                            </div>
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                            ACTIVE NOW
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-end justify-between border-b border-gray-50 pb-4">
+                        <div className="text-4xl font-black text-gray-900 tracking-tighter">{data.realtimeUsers}</div>
+                    </div>
+
+                    <div className="mt-4 pt-2">
+                        <div className="flex items-center justify-between text-[10px] uppercase font-black tracking-widest text-purple-600 mb-1">
+                            <span>Monthly Sessions Target</span>
+                        </div>
+                        <div className="flex justify-between items-end mb-1">
+                            <span className="text-sm font-bold text-gray-900">{data.sessions.toLocaleString()}</span>
+                            <span className="text-xs font-bold text-gray-400">/ 50,000</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-purple-500 rounded-full" 
+                                style={{ width: `${Math.min(100, (data.sessions / 50000) * 100)}%` }} 
+                            />
                         </div>
                     </div>
                 </div>

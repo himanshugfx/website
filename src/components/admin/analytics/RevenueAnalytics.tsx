@@ -2,66 +2,107 @@
 
 import { 
     IndianRupee, TrendingUp, TrendingDown, RefreshCcw, 
-    Tag, CreditCard, BarChart2 
+    Tag, CreditCard, BarChart2, Target, Zap, PieChart, Focus
 } from 'lucide-react';
 
 export default function RevenueAnalytics() {
     // Simulated deep analytics data
     const metrics = {
-        totalRevenue: '₹2,45,000',
+        totalRevenue: 245000,
+        revenueTarget: 300000,
         revenueGrowth: 12.5,
-        aov: '₹1,540',
+        aov: 1540,
+        aovTarget: 1800,
         aovGrowth: 4.2,
-        refundRate: '1.2%',
+        refundRate: 1.2,
+        refundTarget: 2.0, // stay below
         refundTrend: -0.5,
-        discountImpact: '₹12,400',
+        discountImpact: 12400,
         discountROI: 3.4
     };
 
     const revenueByCategory = [
-        { name: 'Skincare', value: 125000, color: 'bg-purple-600' },
-        { name: 'Haircare', value: 85000, color: 'bg-blue-500' },
-        { name: 'Accessories', value: 35000, color: 'bg-emerald-500' }
+        { name: 'Skincare', value: 125000, target: 140000, color: 'bg-purple-600' },
+        { name: 'Haircare', value: 85000, target: 100000, color: 'bg-blue-500' },
+        { name: 'Accessories', value: 35000, target: 40000, color: 'bg-emerald-500' }
     ];
+
+    const formatCurrency = (val: number) => `₹${val.toLocaleString()}`;
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Top row - KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Master Target Widget */}
+            <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-black p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 group-hover:bg-purple-500/30 transition-all duration-700" />
                 
-                {/* Total Revenue */}
-                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-100">
-                                <IndianRupee className="w-5 h-5 text-purple-600" />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Revenue (30d)</span>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-4 flex-1">
+                        <div className="flex items-center gap-2">
+                            <Target className="w-5 h-5 text-purple-400" />
+                            <h2 className="text-sm font-black uppercase tracking-widest text-purple-200">Monthly Revenue Goal</h2>
                         </div>
-                        <div className="flex items-end justify-between">
-                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{metrics.totalRevenue}</div>
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
-                                <TrendingUp className="w-3 h-3" />
-                                +{metrics.revenueGrowth}%
+                        <div>
+                            <div className="flex items-baseline gap-2 mb-1">
+                                <span className="text-5xl font-black tracking-tighter">{formatCurrency(metrics.totalRevenue)}</span>
+                                <span className="text-xl font-bold text-gray-400">/ {formatCurrency(metrics.revenueTarget)}</span>
+                            </div>
+                            <p className="text-xs font-medium text-gray-400">On track to hit goal by the 28th. Keep it up!</p>
+                        </div>
+                    </div>
+                    
+                    <div className="w-full md:w-1/3 space-y-2">
+                        <div className="flex justify-between text-xs font-bold">
+                            <span className="text-purple-300">Progress</span>
+                            <span className="text-white">{Math.round((metrics.totalRevenue / metrics.revenueTarget) * 100)}%</span>
+                        </div>
+                        <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                            <div 
+                                className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 rounded-full relative"
+                                style={{ width: `${Math.min(100, (metrics.totalRevenue / metrics.revenueTarget) * 100)}%` }}
+                            >
+                                <div className="absolute inset-0 bg-white/20 animate-pulse" />
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Average Order Value */}
+            {/* Top row - KPI Cards with Targets */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Average Order Value Target */}
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
                     <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
-                                <CreditCard className="w-5 h-5 text-blue-600" />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
+                                    <CreditCard className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">AOV Target</span>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Average Order Value</span>
+                            <div className="px-2 py-1 bg-gray-50 rounded text-[10px] font-bold text-gray-500">
+                                Target: {formatCurrency(metrics.aovTarget)}
+                            </div>
                         </div>
-                        <div className="flex items-end justify-between">
-                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{metrics.aov}</div>
+                        <div className="flex items-end justify-between border-b border-gray-50 pb-4">
+                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{formatCurrency(metrics.aov)}</div>
                             <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
                                 <TrendingUp className="w-3 h-3" />
                                 +{metrics.aovGrowth}%
+                            </div>
+                        </div>
+                        {/* Mini progress */}
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-[9px] font-bold text-gray-400 uppercase">
+                                <span>Progress to AOV Target</span>
+                                <span>{Math.round((metrics.aov / metrics.aovTarget) * 100)}%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-blue-500 rounded-full"
+                                    style={{ width: `${Math.min(100, (metrics.aov / metrics.aovTarget) * 100)}%` }}
+                                />
                             </div>
                         </div>
                     </div>
@@ -70,69 +111,97 @@ export default function RevenueAnalytics() {
                 {/* Refund & Return Rate */}
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
                     <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100">
-                                <RefreshCcw className="w-5 h-5 text-orange-600" />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                    <RefreshCcw className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Refund Target</span>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Refund Rate</span>
+                            <div className="px-2 py-1 bg-gray-50 rounded text-[10px] font-bold text-gray-500">
+                                Max Limit: {metrics.refundTarget}%
+                            </div>
                         </div>
-                        <div className="flex items-end justify-between">
-                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{metrics.refundRate}</div>
+                        <div className="flex items-end justify-between border-b border-gray-50 pb-4">
+                            <div className="text-4xl font-black text-emerald-600 tracking-tighter">{metrics.refundRate}%</div>
                             <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
                                 <TrendingDown className="w-3 h-3" />
                                 {metrics.refundTrend}%
                             </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-bold text-gray-500">Tracking perfectly below maximum threshold.</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Discount Impact */}
+                {/* Discount Impact vs ROI */}
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center border border-rose-100">
-                                <Tag className="w-5 h-5 text-rose-600" />
+                            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100">
+                                <Zap className="w-5 h-5 text-amber-600" />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Discount Given</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Discount Performance</span>
                         </div>
-                        <div className="flex items-end justify-between">
-                            <div className="text-4xl font-black text-gray-900 tracking-tighter">{metrics.discountImpact}</div>
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black border border-emerald-100">
-                                ROI {metrics.discountROI}x
+                        <div className="flex items-end justify-between pb-2">
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-400 mb-1">Cost of Discounts</p>
+                                <div className="text-2xl font-black text-gray-900 tracking-tighter">{formatCurrency(metrics.discountImpact)}</div>
                             </div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-bold text-gray-400 mb-1">Generated Revenue</p>
+                                <div className="text-2xl font-black text-emerald-600 tracking-tighter">{formatCurrency(metrics.discountImpact * metrics.discountROI)}</div>
+                            </div>
+                        </div>
+                        <div className="bg-amber-50/50 p-2 rounded-lg border border-amber-100 text-center">
+                            <p className="text-[10px] font-black text-amber-700">CAMPAIGN ROI IS {metrics.discountROI}x (Healthy)</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Second Row Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Revenue by Category */}
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-                    <div className="flex items-center gap-2 mb-6">
-                        <BarChart2 className="w-4 h-4 text-purple-600" />
-                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Revenue by Category</h3>
+            {/* Deep Breakdown Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Category Target Breakdown (2 Columns) */}
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm lg:col-span-2">
+                    <div className="flex items-center justify-between mb-6 border-b border-gray-50 pb-4">
+                        <div className="flex items-center gap-2">
+                            <Focus className="w-4 h-4 text-purple-600" />
+                            <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Revenue Targets by Category</h3>
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium">Tracking against monthly goals</span>
                     </div>
-                    <div className="space-y-5">
-                        {revenueByCategory.map((cat, i) => {
-                            const total = revenueByCategory.reduce((sum, c) => sum + c.value, 0);
-                            const percent = (cat.value / total) * 100;
+                    
+                    <div className="space-y-6">
+                        {revenueByCategory.map((cat) => {
+                            const percent = (cat.value / cat.target) * 100;
                             return (
-                                <div key={cat.name} className="space-y-2">
+                                <div key={cat.name} className="space-y-2 group">
                                     <div className="flex items-center justify-between text-xs font-black uppercase tracking-tighter">
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-2 h-2 rounded-full ${cat.color}`} />
-                                            <span className="text-gray-600">{cat.name}</span>
+                                            <div className={`w-3 h-3 rounded-md ${cat.color} shadow-sm`} />
+                                            <span className="text-gray-800 text-sm">{cat.name}</span>
                                         </div>
-                                        <div className="flex gap-4">
-                                            <span className="text-gray-900">₹{cat.value.toLocaleString()}</span>
-                                            <span className="text-gray-400">{percent.toFixed(1)}%</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <span className="text-gray-900 text-base">{formatCurrency(cat.value)}</span>
+                                                <span className="text-gray-400 text-[10px] ml-1">/ {formatCurrency(cat.target)}</span>
+                                            </div>
+                                            <span className={`px-2 py-1 rounded text-[10px] ${percent >= 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-50 text-gray-600'}`}>
+                                                {percent.toFixed(1)}%
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="h-2.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+                                    <div className="h-3 bg-gray-50 rounded-full overflow-hidden border border-gray-100 relative">
+                                        {/* Target Line Marker */}
+                                        <div className="absolute top-0 bottom-0 left-[85%] w-0.5 bg-gray-300 z-10" title="Expected pace" />
+                                        
                                         <div 
-                                            className={`h-full ${cat.color} rounded-full transition-all duration-1000 ease-out`}
-                                            style={{ width: `${percent}%` }}
+                                            className={`h-full ${cat.color} rounded-full transition-all duration-1000 ease-out group-hover:opacity-80`}
+                                            style={{ width: `${Math.min(100, percent)}%` }}
                                         />
                                     </div>
                                 </div>
@@ -141,26 +210,38 @@ export default function RevenueAnalytics() {
                     </div>
                 </div>
 
-                {/* Simulated Revenue Trend */}
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col items-center justify-center text-center">
-                    <div className="w-full flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-emerald-600" />
-                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">30-Day Revenue Trend</h3>
+                {/* Audience Revenue Contribution */}
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col">
+                    <div className="flex items-center gap-2 mb-6 border-b border-gray-50 pb-4">
+                        <PieChart className="w-4 h-4 text-rose-500" />
+                        <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Revenue Source</h3>
                     </div>
-                    {/* Placeholder beautiful gradient chart */}
-                    <div className="relative w-full h-48 mt-4 rounded-xl overflow-hidden bg-gradient-to-t from-emerald-50/50 to-white border border-emerald-50">
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <path d="M0,100 L0,50 C20,60 40,20 60,40 C80,60 90,10 100,20 L100,100 Z" fill="url(#grad)" opacity="0.3" />
-                            <path d="M0,50 C20,60 40,20 60,40 C80,60 90,10 100,20" fill="none" stroke="#10b981" strokeWidth="2" />
-                            <defs>
-                                <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#10b981" />
-                                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
+                    
+                    <div className="flex-1 flex flex-col justify-center gap-6">
+                        <div className="flex items-center justify-between p-4 bg-purple-50 rounded-2xl border border-purple-100">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1">Returning Customers</p>
+                                <p className="text-2xl font-black text-purple-700">68%</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Value</p>
+                                <p className="text-lg font-bold text-gray-900">{formatCurrency(166600)}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1">New Customers</p>
+                                <p className="text-2xl font-black text-emerald-700">32%</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Value</p>
+                                <p className="text-lg font-bold text-gray-900">{formatCurrency(78400)}</p>
+                            </div>
+                        </div>
+                        
+                        <p className="text-[10px] text-gray-400 text-center font-medium mt-auto">Retention efforts are driving the majority of profitability this month.</p>
                     </div>
-                    <p className="text-xs text-gray-400 mt-4 italic">* Chart data rendered from daily transaction aggregates.</p>
                 </div>
             </div>
         </div>
