@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Download, Send, Check, Ban, Loader2, Printer, Trash2, Pencil } from 'lucide-react';
+import { ArrowLeft, Download, Send, Check, Ban, Loader2, Printer, Trash2, Pencil, IndianRupee } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -37,12 +37,30 @@ interface InvoiceDetail {
     createdAt: string;
 }
 
+interface Payment {
+    id: string;
+    amount: number;
+    paymentDate: string;
+    paymentMode: string;
+    reference: string | null;
+    notes: string | null;
+}
+
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const [invoice, setInvoice] = useState<InvoiceDetail | null>(null);
+    const [payments, setPayments] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState('');
     const [resolvedId, setResolvedId] = useState('');
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentForm, setPaymentForm] = useState({
+        amount: 0,
+        paymentDate: new Date().toISOString().split('T')[0],
+        paymentMode: 'UPI',
+        reference: '',
+        notes: ''
+    });
 
     useEffect(() => {
         params.then(p => {
@@ -56,10 +74,44 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             const res = await fetch(`/api/invoicing/invoices/${id}`);
             const data = await res.json();
             setInvoice(data.invoice);
+            fetchPayments(id);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchPayments = async (id: string) => {
+        try {
+            const res = await fetch(`/api/invoicing/invoices/${id}/payments`);
+            const data = await res.json();
+            if (data.success) setPayments(data.payments);
+        } catch (err) {
+            console.error('Error fetching payments:', err);
+        }
+    };
+
+    const handleRecordPayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setActionLoading('PAYMENT');
+        try {
+            const res = await fetch(`/api/invoicing/invoices/${resolvedId}/payments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentForm)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setShowPaymentModal(false);
+                fetchInvoice(resolvedId); // Refresh everything
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setActionLoading('');
         }
     };
 
@@ -154,6 +206,15 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                             <button onClick={() => updateStatus('VOID')} disabled={!!actionLoading}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors">
                                 {actionLoading === 'VOID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />} Void
+                            </button>
+                        )}
+                        {['SENT', 'OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
+                            <button onClick={() => {
+                                setPaymentForm({ ...paymentForm, amount: invoice.balance });
+                                setShowPaymentModal(true);
+                            }} 
+                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors shadow-sm">
+                                <IndianRupee className="w-4 h-4" /> Record Payment
                             </button>
                         )}
                         <Link 
@@ -290,7 +351,108 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                         </div>
                     </div>
                 </div>
+
+                {/* Payments History */}
+                {payments.length > 0 && (
+                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                            <h2 className="font-bold text-gray-900">Payment History</h2>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{payments.length} Transaction{payments.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                                        <th className="px-6 py-4 text-left">Date</th>
+                                        <th className="px-6 py-4 text-left">Mode</th>
+                                        <th className="px-6 py-4 text-left">Reference</th>
+                                        <th className="px-6 py-4 text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {payments.map((p) => (
+                                        <tr key={p.id} className="hover:bg-gray-50/30">
+                                            <td className="px-6 py-4 font-medium text-gray-900">{formatDate(p.paymentDate)}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-bold uppercase">{p.paymentMode}</span>
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-gray-500">{p.reference || '-'}</td>
+                                            <td className="px-6 py-4 text-right font-bold text-emerald-600">{formatCurrency(p.amount)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Record Payment Modal */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPaymentModal(false)} />
+                    <div className="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                            <h2 className="text-xl font-bold">Record Payment</h2>
+                            <p className="text-purple-100 text-sm mt-1">Payment for {invoice.invoiceNumber}</p>
+                        </div>
+                        <form onSubmit={handleRecordPayment} className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Amount (₹)</label>
+                                    <input type="number" required value={paymentForm.amount}
+                                        onChange={e => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-lg"
+                                        max={invoice.balance} min={0.01} step={0.01} />
+                                    <p className="text-[10px] text-gray-400 mt-1">Maximum allowed: {formatCurrency(invoice.balance)}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Payment Date</label>
+                                    <input type="date" required value={paymentForm.paymentDate}
+                                        onChange={e => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Mode</label>
+                                    <select value={paymentForm.paymentMode}
+                                        onChange={e => setPaymentForm({ ...paymentForm, paymentMode: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-semibold">
+                                        <option value="UPI">UPI</option>
+                                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                                        <option value="CASH">Cash</option>
+                                        <option value="CHEQUE">Cheque</option>
+                                        <option value="CARD">Card</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Reference / Txn ID</label>
+                                    <input type="text" value={paymentForm.reference}
+                                        onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })}
+                                        placeholder="e.g. UTR-1234567890"
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" />
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Internal Notes</label>
+                                    <textarea value={paymentForm.notes} rows={2}
+                                        onChange={e => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none" />
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setShowPaymentModal(false)}
+                                    className="flex-1 px-4 py-3 bg-gray-50 text-gray-500 font-bold rounded-2xl hover:bg-gray-100 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" disabled={actionLoading === 'PAYMENT'}
+                                    className="flex-1 px-4 py-3 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+                                    {actionLoading === 'PAYMENT' ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Payment'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }

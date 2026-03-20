@@ -170,8 +170,24 @@ model Invoice {
   terms           String?   @db.Text
   pdfUrl          String?
   reminders       PaymentReminder[]
+  payments        Payment[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount          Float
+  paymentDate     DateTime @default(now())
+  paymentMode     String   // CASH, BANK_TRANSFER, UPI, CHEQUE, OTHER
+  reference       String?  // transaction ID, check number, etc.
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([invoiceId])
 }
 
 model PaymentReminder {
