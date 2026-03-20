@@ -57,6 +57,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                     <div className="relative">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
+                            suppressHydrationWarning
                             className="flex items-center gap-3 p-1 sm:p-2 rounded-2xl hover:bg-gray-50 transition-all border border-transparent group"
                         >
                             <div className="hidden sm:block text-right mr-1">
@@ -99,7 +100,8 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                         </button>
                                         <button
                                             onClick={() => signOut({ callbackUrl: '/' })}
-                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors gap-3 group"
+                                            suppressHydrationWarning
+                                            className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors gap-3 group"
                                         >
                                             <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center transition-colors">
                                                 <LogOut className="w-4 h-4" />

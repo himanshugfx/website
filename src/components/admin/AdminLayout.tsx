@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import AdminHeader from './AdminHeader';
+import AnaAdminAssistant from './AnaAdminAssistant';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -10,19 +11,20 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-        if (typeof window !== 'undefined') {
-            try {
-                const saved = localStorage.getItem('adminSidebarCollapsed');
-                if (saved) {
-                    return JSON.parse(saved);
-                }
-            } catch (error) {
-                console.error('Error reading from localStorage:', error);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        try {
+            const saved = localStorage.getItem('adminSidebarCollapsed');
+            if (saved) {
+                setSidebarCollapsed(JSON.parse(saved));
             }
+        } catch (error) {
+            console.error('Error reading from localStorage:', error);
         }
-        return false;
-    });
+    }, []);
 
     // Save collapsed state to localStorage
     const handleToggleCollapse = () => {
@@ -38,7 +40,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#f8f9fc]">
+        <div className="flex min-h-screen bg-[#f8f9fc]" suppressHydrationWarning>
             {/* Sidebar */}
             <Sidebar
                 isOpen={sidebarOpen}
@@ -67,6 +69,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
+
+            {/* Admin AI Assistant */}
+            <AnaAdminAssistant />
         </div>
     );
 }

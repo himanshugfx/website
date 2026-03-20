@@ -115,6 +115,7 @@ const NavItemComponent = ({
                 <button
                     onClick={() => toggleMenu(item.name)}
                     title={isCollapsed ? item.name : undefined}
+                    suppressHydrationWarning
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive || isChildActive
                         ? 'bg-purple-600 text-white font-semibold shadow-lg shadow-purple-500/20'
                         : 'text-gray-400 hover:text-white'
@@ -241,6 +242,7 @@ const SidebarContent = ({
             <button
                 type="button"
                 onClick={onClose}
+                suppressHydrationWarning
                 className="lg:hidden ml-auto p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
                 aria-label="Close menu"
             >
@@ -282,6 +284,7 @@ const SidebarContent = ({
             <button
                 type="button"
                 onClick={onClose}
+                suppressHydrationWarning
                 className="lg:hidden flex items-center justify-center gap-2 w-full p-3 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors group"
             >
                 <ChevronsLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -292,6 +295,7 @@ const SidebarContent = ({
             <button
                 type="button"
                 onClick={onToggleCollapse}
+                suppressHydrationWarning
                 className={`hidden lg:flex items-center justify-center w-full p-2 text-gray-500 hover:text-white rounded-lg transition-colors`}
                 title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >

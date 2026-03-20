@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Minimize2, Maximize2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import sanitizeHtml from "sanitize-html";
 
 interface Message {
@@ -57,6 +58,9 @@ function formatMarkdown(text: string): string {
 }
 
 export default function AnoseAssistant() {
+  const pathname = usePathname();
+  const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/print');
+
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -71,6 +75,8 @@ export default function AnoseAssistant() {
     const t = setTimeout(() => setShowGreeting(true), 3000);
     return () => clearTimeout(t);
   }, []);
+
+  if (isAdminPath) return null;
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
