@@ -22,7 +22,7 @@ export default async function Home() {
   let timeoutId: NodeJS.Timeout | undefined;
   try {
     const timeout = new Promise((_, reject) => {
-      timeoutId = setTimeout(() => reject(new Error('Database timeout')), 5000);
+      timeoutId = setTimeout(() => reject(new Error('Database timeout')), 10000);
     });
 
     const [bestSellersData, onSaleData, newArrivalsData] = await Promise.race([

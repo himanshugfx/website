@@ -59,6 +59,10 @@ model Product {
   reviews         ProductReview[]
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  @@index([bestSeller, sold])
+  @@index([sale, createdAt])
+  @@index([new, createdAt])
 }
 
 model Variation {
