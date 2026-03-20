@@ -116,12 +116,12 @@ const NavItemComponent = ({
                     onClick={() => toggleMenu(item.name)}
                     title={isCollapsed ? item.name : undefined}
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive || isChildActive
-                        ? 'bg-purple-600/10 text-purple-600 font-semibold'
+                        ? 'bg-purple-600 text-white font-semibold shadow-lg shadow-purple-500/20'
                         : 'text-gray-400 hover:text-white'
                         }`}
                 >
                     <div className={`flex items-center ${!isCollapsed && 'gap-3'}`}>
-                        <Icon className={`w-5 h-5 ${isActive || isChildActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-white'}`} />
+                        <Icon className={`w-5 h-5 ${isActive || isChildActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
                         {!isCollapsed && <span className="font-medium">{item.name}</span>}
                     </div>
                     {!isCollapsed && (
@@ -200,18 +200,15 @@ const NavItemComponent = ({
             onClick={() => window.innerWidth < 1024 && onClose()}
             title={isCollapsed ? item.name : undefined}
             className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group relative ${isActive
-                ? 'bg-purple-600/10 text-purple-600 font-bold'
+                ? 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/20'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
         >
-            {isActive && !isCollapsed && (
-                <div className="absolute left-0 w-1.5 h-8 bg-purple-600 rounded-r-md shadow-[2px_0_8px_rgba(147,51,234,0.4)]" />
-            )}
             <div className={`flex items-center ${!isCollapsed && 'gap-3'}`}>
-                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-white'}`} />
+                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
                 {!isCollapsed && <span className="font-medium">{item.name}</span>}
             </div>
-            {!isCollapsed && isActive && <ChevronRight className="w-4 h-4 opacity-75" />}
+            {!isCollapsed && isActive && <ChevronRight className="w-4 h-4 opacity-75 text-white" />}
         </Link>
     );
 };

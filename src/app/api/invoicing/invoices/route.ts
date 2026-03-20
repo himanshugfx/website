@@ -10,7 +10,7 @@ export async function GET(request: Request) {
         await requireAdmin(request);
 
         const invoices = await prisma.invoice.findMany({
-            orderBy: { invoiceDate: 'desc' },
+            orderBy: { invoiceNumber: 'desc' },
         });
 
         const stats = {

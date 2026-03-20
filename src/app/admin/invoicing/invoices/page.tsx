@@ -1,7 +1,8 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { FileText, Plus, Search, ChevronRight, ExternalLink, AlertCircle, Filter } from 'lucide-react';
+import { FileText, Plus, Search, ChevronRight, ExternalLink, AlertCircle, Filter, Pencil, CheckSquare, Square } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -35,11 +36,13 @@ const statusColors: Record<string, string> = {
 };
 
 export default function InvoicesPage() {
+    const router = useRouter();
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [stats, setStats] = useState<InvoiceStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     useEffect(() => {
         fetchInvoices();
@@ -63,36 +66,28 @@ export default function InvoicesPage() {
             inv.customerName.toLowerCase().includes(search.toLowerCase());
         const matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
         return matchesSearch && matchesStatus;
-    });
+    }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber, undefined, { numeric: true }));
 
     const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 
-    const exportToCSV = () => {
-        const headers = ["Invoice #", "Customer", "Date", "Due Date", "Amount", "Balance", "Status"];
-        const rows = filteredInvoices.map(inv => [
-            inv.invoiceNumber,
-            inv.customerName,
-            new Date(inv.invoiceDate).toLocaleDateString('en-IN'),
-            inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('en-IN') : '-',
-            inv.total,
-            inv.balance,
-            inv.status
-        ]);
+    const toggleSelectAll = () => {
+        if (selectedIds.length === filteredInvoices.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredInvoices.map(inv => inv.id));
+        }
+    };
 
-        const csvContent = [
-            headers.join(","),
-            ...rows.map(row => row.map(val => `"${val}"`).join(","))
-        ].join("\n");
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `invoices_export_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleBulkExport = () => {
+        if (selectedIds.length === 0) {
+            return alert('Please select at least one invoice to export');
+        }
+        // Redirect to bulk print page with selected IDs
+        router.push(`/admin/invoicing/invoices/bulk-print?ids=${selectedIds.join(',')}`);
     };
 
     return (
@@ -105,10 +100,10 @@ export default function InvoicesPage() {
                         <p className="text-sm text-gray-500 mt-1">Manage your invoices and billing</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                        <button onClick={exportToCSV}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-purple-700 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
+                        <button onClick={handleBulkExport}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors shadow-sm">
                             <ExternalLink className="w-4 h-4" />
-                            Bulk Export
+                            {selectedIds.length > 0 ? `Export ${selectedIds.length} PDFs` : 'Export PDFs'}
                         </button>
                         <Link href="/admin/invoicing/invoices/create"
                             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
@@ -170,6 +165,15 @@ export default function InvoicesPage() {
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-6 py-4 text-left w-12">
+                                            <button onClick={toggleSelectAll} className="p-1 rounded hover:bg-gray-100 transition-colors">
+                                                {selectedIds.length === filteredInvoices.length && filteredInvoices.length > 0 ? (
+                                                    <CheckSquare className="w-4 h-4 text-purple-600" />
+                                                ) : (
+                                                    <Square className="w-4 h-4 text-gray-400" />
+                                                )}
+                                            </button>
+                                        </th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase w-16">#</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Invoice #</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Customer</th>
@@ -183,7 +187,16 @@ export default function InvoicesPage() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {filteredInvoices.map((invoice, index) => (
-                                        <tr key={invoice.id} className="group hover:bg-gray-50/50 transition-colors">
+                                        <tr key={invoice.id} className={`group hover:bg-gray-50/50 transition-colors ${selectedIds.includes(invoice.id) ? 'bg-purple-50/30' : ''}`}>
+                                            <td className="px-6 py-4">
+                                                <button onClick={() => toggleSelect(invoice.id)} className="p-1 rounded hover:bg-gray-100 transition-colors">
+                                                    {selectedIds.includes(invoice.id) ? (
+                                                        <CheckSquare className="w-4 h-4 text-purple-600" />
+                                                    ) : (
+                                                        <Square className="w-4 h-4 text-gray-400" />
+                                                    )}
+                                                </button>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-sm font-medium text-gray-400">{(index + 1).toString().padStart(2, '0')}</span>
                                             </td>
@@ -216,7 +229,7 @@ export default function InvoicesPage() {
                                                 {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
                                                     <Link href={`/admin/invoicing/invoices/${invoice.id}/edit`}
                                                         className="p-2 inline-flex text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
-                                                        <Plus className="w-4 h-4 rotate-45" />
+                                                        <Pencil className="w-4 h-4" />
                                                     </Link>
                                                 )}
                                                 <Link href={`/admin/invoicing/invoices/${invoice.id}`}

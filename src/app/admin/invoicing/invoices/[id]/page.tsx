@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Download, Send, Check, Ban, Loader2, Printer, Trash2 } from 'lucide-react';
+import { ArrowLeft, Download, Send, Check, Ban, Loader2, Printer, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -166,7 +166,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                         {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
                             <Link href={`/admin/invoicing/invoices/${resolvedId}/edit`}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-                                <Trash2 className="w-4 h-4 text-gray-400 rotate-45" /> Edit
+                                <Pencil className="w-4 h-4 text-gray-400" /> Edit
                             </Link>
                         )}
                         {invoice.status === 'DRAFT' && (
