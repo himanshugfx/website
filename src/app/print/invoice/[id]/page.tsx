@@ -21,12 +21,13 @@ export default async function PrintInvoicePage({
 
     const lineItems = (invoice.lineItems as any[]) || [];
 
-    const formatCurrency = (amount: number) => {
+    const formatCurrency = (amount: number | null | undefined) => {
+        const val = amount || 0;
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
             minimumFractionDigits: 2
-        }).format(amount);
+        }).format(val);
     };
 
     const formatDate = (date: Date | null | undefined) => {
@@ -132,7 +133,7 @@ export default async function PrintInvoicePage({
                                     <td className="py-4 px-2 text-center text-sm font-medium text-gray-600">{item.hsnCode || '-'}</td>
                                     <td className="py-4 px-2 text-center text-sm font-bold text-gray-900">{item.quantity}</td>
                                     <td className="py-4 px-2 text-right text-sm font-medium text-gray-600">{formatCurrency(item.rate)}</td>
-                                    <td className="py-4 px-2 text-right text-sm font-bold text-gray-900">{formatCurrency(item.amount)}</td>
+                                    <td className="py-4 px-2 text-right text-sm font-bold text-gray-900">{formatCurrency(item.amount || item.quantity * item.rate)}</td>
                                 </tr>
                             ))}
                         </tbody>

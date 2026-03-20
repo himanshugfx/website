@@ -1,12 +1,10 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { ArrowLeft, Plus, Trash2, Save, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Plus, Trash2, User, Calendar, ShoppingBag, IndianRupee, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { IndianRupee, Calendar, FileText, User, ShoppingBag } from 'lucide-react';
 
 interface LineItem {
     name: string;
@@ -16,46 +14,67 @@ interface LineItem {
     hsnCode: string;
 }
 
-export default function CreateInvoicePage() {
+export default function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
+    const resolvedParams = use(params);
+    const id = resolvedParams.id;
+
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [products, setProducts] = useState<any[]>([]);
+    
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [invoiceDate, setInvoiceDate] = useState('');
     const [dueDate, setDueDate] = useState('');
     const [notes, setNotes] = useState('');
-    const [terms, setTerms] = useState('Payment is due within the specified date. Thank you for your business.');
+    const [terms, setTerms] = useState('');
     const [taxRate, setTaxRate] = useState(18);
     const [discount, setDiscount] = useState(0);
     const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED'>('PERCENTAGE');
-    const [lineItems, setLineItems] = useState<LineItem[]>([
-        { name: '', description: '', quantity: 1, rate: 0, hsnCode: '' }
-    ]);
+    const [lineItems, setLineItems] = useState<LineItem[]>([]);
+    const [invoiceNumber, setInvoiceNumber] = useState('');
 
-    // Smart Defaults: Due Date = +30 days
     useEffect(() => {
-        if (invoiceDate && !dueDate) {
-            const date = new Date(invoiceDate);
-            date.setDate(date.getDate() + 30);
-            setDueDate(date.toISOString().split('T')[0]);
-        }
-    }, [invoiceDate]);
+        fetchData();
+    }, [id]);
 
-    // Fetch Products
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const res = await fetch('/api/products/lite');
-                const data = await res.json();
-                if (data.success) setProducts(data.products);
-            } catch (err) {
-                console.error('Failed to fetch products');
+    const fetchData = async () => {
+        try {
+            // Fetch Products lite
+            const prodRes = await fetch('/api/products/lite');
+            const prodData = await prodRes.json();
+            if (prodData.success) setProducts(prodData.products);
+
+            // Fetch Invoice details
+            const invRes = await fetch(`/api/invoicing/invoices/${id}`);
+            const invData = await invRes.json();
+            
+            if (invData.invoice) {
+                const inv = invData.invoice;
+                setCustomerName(inv.customerName || '');
+                setCustomerEmail(inv.customerEmail || '');
+                setCustomerPhone(inv.customerPhone || '');
+                setInvoiceDate(inv.invoiceDate ? new Date(inv.invoiceDate).toISOString().split('T')[0] : '');
+                setDueDate(inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : '');
+                setNotes(inv.notes || '');
+                setTerms(inv.terms || '');
+                setTaxRate(inv.taxRate || 0);
+                setDiscount(inv.discount || 0);
+                setDiscountType(inv.discountType || 'PERCENTAGE');
+                setLineItems(inv.lineItems || []);
+                setInvoiceNumber(inv.invoiceNumber || '');
+            } else {
+                alert('Invoice not found');
+                router.push('/admin/invoicing/invoices');
             }
-        };
-        fetchProducts();
-    }, []);
+        } catch (err) {
+            console.error('Failed to fetch data', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleProductSelect = (index: number, productId: string) => {
         const product = products.find(p => p.id === productId);
@@ -95,14 +114,14 @@ export default function CreateInvoicePage() {
 
     const formatCurrency = (val: number) => `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-    const handleSubmit = async (action: 'draft' | 'send') => {
+    const handleSubmit = async () => {
         if (!customerName.trim()) return alert('Please enter a customer name');
-        if (lineItems.some(item => !item.name.trim() || item.rate <= 0)) return alert('Please fill in all line items with valid rates');
+        if (lineItems.some(item => !item.name.trim() || item.rate < 0)) return alert('Please fill in all line items with valid rates');
 
         setSaving(true);
         try {
-            const res = await fetch('/api/invoicing/invoices', {
-                method: 'POST',
+            const res = await fetch(`/api/invoicing/invoices/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customerName, customerEmail, customerPhone,
@@ -112,35 +131,38 @@ export default function CreateInvoicePage() {
             });
             const data = await res.json();
             if (data.success) {
-                if (action === 'send' && data.invoice?.id) {
-                    await fetch(`/api/invoicing/invoices/${data.invoice.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'SENT' }),
-                    });
-                }
-                router.push('/admin/invoicing/invoices');
+                router.push(`/admin/invoicing/invoices/${id}`);
             } else {
-                alert(data.error || 'Failed to create invoice');
+                alert(data.error || 'Failed to update invoice');
             }
         } catch (err) {
-            alert('Error creating invoice');
+            alert('Error updating invoice');
         } finally {
             setSaving(false);
         }
     };
+
+    if (loading) {
+        return (
+            <AdminLayout>
+                <div className="flex items-center justify-center h-64">
+                    <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                </div>
+            </AdminLayout>
+        );
+    }
 
     return (
         <AdminLayout>
             <div className="max-w-[1200px] mx-auto pb-32">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <Link href="/admin/invoicing/invoices" className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+                    <button onClick={() => router.back()} className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
                         <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">New Invoice</h1>
-                        <p className="text-sm text-gray-500">Draft your invoice and send it to your customer</p>
+                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Edit Invoice {invoiceNumber}</h1>
+                        <p className="text-sm text-gray-500">Update invoice details and items</p>
                     </div>
                 </div>
 
@@ -215,71 +237,58 @@ export default function CreateInvoicePage() {
                                 </div>
 
                                 <div className="space-y-4 px-4 sm:px-0">
-                                    {lineItems.length === 0 ? (
-                                        <div className="py-20 flex flex-col items-center justify-center text-center px-6">
-                                            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
-                                                <ShoppingBag className="w-10 h-10 text-emerald-200" />
+                                    {lineItems.map((item, i) => (
+                                        <div key={i} className="group relative grid grid-cols-12 gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
+                                            <div className="col-span-12 sm:col-span-4 space-y-3">
+                                                <div className="relative">
+                                                    <select
+                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        onChange={(e) => handleProductSelect(i, e.target.value)}
+                                                        defaultValue=""
+                                                    >
+                                                        <option value="" disabled>Select a product...</option>
+                                                        {products.map(p => (
+                                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                                        ))}
+                                                    </select>
+                                                    <input type="text" value={item.name} onChange={e => updateLineItem(i, 'name', e.target.value)} required
+                                                        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-semibold pr-8" 
+                                                        placeholder="Product name..." />
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                        <Plus className="w-3 h-3 text-gray-400" />
+                                                    </div>
+                                                </div>
+                                                <textarea value={item.description} onChange={e => updateLineItem(i, 'description', e.target.value)}
+                                                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs text-gray-500 resize-none" 
+                                                    placeholder="Description (optional)" rows={1} />
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-900">No items added yet</h3>
-                                            <p className="text-gray-500 text-sm max-w-xs mt-1">Get started by adding your first product to this invoice.</p>
-                                            <button type="button" onClick={addLineItem} className="mt-6 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all">
-                                                Add First Item
-                                            </button>
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                                <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">HSN</label>
+                                                <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" />
+                                            </div>
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                                <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Qty</label>
+                                                <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
+                                            </div>
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                                <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Rate</label>
+                                                <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
+                                            </div>
+                                            <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-0">
+                                                <div className="text-right">
+                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Amount</label>
+                                                    <span className="font-black text-gray-900">{formatCurrency(item.quantity * item.rate)}</span>
+                                                </div>
+                                                <button type="button" onClick={() => removeLineItem(i)} disabled={lineItems.length === 1}
+                                                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
-                                    ) : (
-                                        lineItems.map((item, i) => (
-                                            <div key={i} className="group relative grid grid-cols-12 gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
-                                                <div className="col-span-12 sm:col-span-4 space-y-3">
-                                                    <div className="relative">
-                                                        <select
-                                                            className="absolute inset-0 opacity-0 cursor-pointer"
-                                                            onChange={(e) => handleProductSelect(i, e.target.value)}
-                                                            defaultValue=""
-                                                        >
-                                                            <option value="" disabled>Select a product...</option>
-                                                            {products.map(p => (
-                                                                <option key={p.id} value={p.id}>{p.name}</option>
-                                                            ))}
-                                                        </select>
-                                                        <input type="text" value={item.name} onChange={e => updateLineItem(i, 'name', e.target.value)} required
-                                                            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-semibold pr-8" 
-                                                            placeholder="Product name..." />
-                                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                            <Plus className="w-3 h-3 text-gray-400" />
-                                                        </div>
-                                                    </div>
-                                                    <textarea value={item.description} onChange={e => updateLineItem(i, 'description', e.target.value)}
-                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs text-gray-500 resize-none" 
-                                                        placeholder="Description (optional)" rows={1} />
-                                                </div>
-                                                <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">HSN</label>
-                                                    <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
-                                                        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" />
-                                                </div>
-                                                <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Qty</label>
-                                                    <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
-                                                        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
-                                                </div>
-                                                <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Rate</label>
-                                                    <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
-                                                        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
-                                                </div>
-                                                <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-0">
-                                                    <div className="text-right">
-                                                        <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Amount</label>
-                                                        <span className="font-black text-gray-900">{formatCurrency(item.quantity * item.rate)}</span>
-                                                    </div>
-                                                    <button type="button" onClick={() => removeLineItem(i)} disabled={lineItems.length === 1}
-                                                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -379,25 +388,20 @@ export default function CreateInvoicePage() {
                                 <IndianRupee className="w-5 h-5 text-purple-600" />
                             </div>
                             <div>
-                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Estimated Total</div>
+                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Updated Total</div>
                                 <div className="text-xl font-black text-gray-900 tracking-tight">{formatCurrency(total)}</div>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <Link href="/admin/invoicing/invoices" className="flex-1 sm:flex-none px-6 py-3.5 text-sm font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all text-center">
-                            Discard
-                        </Link>
-                        <button onClick={() => handleSubmit('draft')} disabled={saving}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-bold text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all disabled:opacity-50">
-                            {saving ? <Loader2 className="w-4 h-4 animate-spin text-gray-400" /> : <Save className="w-4 h-4 text-gray-400" />}
-                            Draft
+                        <button onClick={() => router.back()} className="flex-1 sm:flex-none px-6 py-3.5 text-sm font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all text-center">
+                            Cancel
                         </button>
-                        <button onClick={() => handleSubmit('send')} disabled={saving}
-                            className="flex-[2] sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-black text-white bg-black rounded-2xl hover:bg-gray-800 transition-all disabled:opacity-50 shadow-lg shadow-gray-200 active:scale-[0.98]">
-                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                            Create & Send
+                        <button onClick={handleSubmit} disabled={saving}
+                            className="flex-[2] sm:flex-none flex items-center justify-center gap-2 px-10 py-3.5 text-sm font-black text-white bg-black rounded-2xl hover:bg-gray-800 transition-all disabled:opacity-50 shadow-lg shadow-gray-200 active:scale-[0.98]">
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Update Invoice
                         </button>
                     </div>
                 </div>

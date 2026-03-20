@@ -67,6 +67,34 @@ export default function InvoicesPage() {
 
     const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 
+    const exportToCSV = () => {
+        const headers = ["Invoice #", "Customer", "Date", "Due Date", "Amount", "Balance", "Status"];
+        const rows = filteredInvoices.map(inv => [
+            inv.invoiceNumber,
+            inv.customerName,
+            new Date(inv.invoiceDate).toLocaleDateString('en-IN'),
+            inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('en-IN') : '-',
+            inv.total,
+            inv.balance,
+            inv.status
+        ]);
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.map(val => `"${val}"`).join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `invoices_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -76,11 +104,18 @@ export default function InvoicesPage() {
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Invoices</h1>
                         <p className="text-sm text-gray-500 mt-1">Manage your invoices and billing</p>
                     </div>
-                    <Link href="/admin/invoicing/invoices/create"
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
-                        <Plus className="w-4 h-4" />
-                        Create Invoice
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <button onClick={exportToCSV}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-purple-700 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
+                            <ExternalLink className="w-4 h-4" />
+                            Bulk Export
+                        </button>
+                        <Link href="/admin/invoicing/invoices/create"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
+                            <Plus className="w-4 h-4" />
+                            Create Invoice
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -135,6 +170,7 @@ export default function InvoicesPage() {
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase w-16">#</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Invoice #</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Customer</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
@@ -146,8 +182,11 @@ export default function InvoicesPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {filteredInvoices.map(invoice => (
+                                    {filteredInvoices.map((invoice, index) => (
                                         <tr key={invoice.id} className="group hover:bg-gray-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <span className="text-sm font-medium text-gray-400">{(index + 1).toString().padStart(2, '0')}</span>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <span className="font-mono text-sm font-medium text-purple-600">{invoice.invoiceNumber}</span>
                                             </td>
@@ -173,7 +212,13 @@ export default function InvoicesPage() {
                                                     {invoice.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
+                                            <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                                {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
+                                                    <Link href={`/admin/invoicing/invoices/${invoice.id}/edit`}
+                                                        className="p-2 inline-flex text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                                                        <Plus className="w-4 h-4 rotate-45" />
+                                                    </Link>
+                                                )}
                                                 <Link href={`/admin/invoicing/invoices/${invoice.id}`}
                                                     className="p-2 inline-flex text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
                                                     <ChevronRight className="w-4 h-4" />

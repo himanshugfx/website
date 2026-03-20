@@ -213,6 +213,7 @@ export default function ExpensesPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16">#</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
@@ -222,8 +223,11 @@ export default function ExpensesPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {expenses.map((expense) => (
+                                    {expenses.map((expense, index) => (
                                         <tr key={expense.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4">
+                                                <span className="text-sm font-medium text-gray-400">{(index + 1).toString().padStart(2, '0')}</span>
+                                            </td>
                                             <td className="px-6 py-4 text-sm text-gray-900">
                                                 {formatDate(expense.date)}
                                             </td>

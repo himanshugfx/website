@@ -163,6 +163,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                         >
                             <Printer className="w-4 h-4" /> Print / PDF
                         </Link>
+                        {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
+                            <Link href={`/admin/invoicing/invoices/${resolvedId}/edit`}
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                                <Trash2 className="w-4 h-4 text-gray-400 rotate-45" /> Edit
+                            </Link>
+                        )}
                         {invoice.status === 'DRAFT' && (
                             <button onClick={deleteInvoice} disabled={!!actionLoading}
                                 className="flex items-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 disabled:opacity-50 transition-colors">
