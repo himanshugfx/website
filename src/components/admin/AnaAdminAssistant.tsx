@@ -122,7 +122,7 @@ export default function AnaAdminAssistant() {
         });
 
         const data = await res.json();
-        const reply = data.response || "I encountered an error fetching data. Please check your connection.";
+        const reply = data.response || data.debug || data.error || "I encountered an error fetching data. Please check your connection.";
 
         setMessages((prev) => [
           ...prev,
@@ -133,7 +133,7 @@ export default function AnaAdminAssistant() {
             timestamp: new Date(),
           },
         ]);
-      } catch {
+      } catch (error: any) {
         setMessages((prev) => [
           ...prev,
           {

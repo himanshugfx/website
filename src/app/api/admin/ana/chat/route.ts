@@ -129,7 +129,7 @@ ${adminData.pendingInvoicesList}
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemPrompt,
     });
 
@@ -145,6 +145,9 @@ ${adminData.pendingInvoicesList}
     return NextResponse.json({ response });
   } catch (error: any) {
     console.error('Ana Admin API Error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Something went wrong while thinking...',
+      debug: error.message 
+    }, { status: 500 });
   }
 }
