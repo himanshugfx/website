@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
             priority,
         } = body;
 
-        const errors = [];
+        const errors: string[] = [];
         if (!name) errors.push('Product name is required');
         if (!category) errors.push('Category is required');
         if (!image) errors.push('Product image is required');

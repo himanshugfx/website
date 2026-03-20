@@ -8,7 +8,7 @@ import CartPopup from "@/components/CartPopup";
 
 export default function ConditionalWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAdminPath = pathname.startsWith('/admin');
+    const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/print');
 
     if (isAdminPath) {
         return <>{children}</>;

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         }
 
         let awb = awbNumber;
-        let order = null;
+        let order: any = null;
 
         if (orderId) {
             order = await prisma.order.findUnique({
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
                 },
             });
 
-            const results = [];
+            const results: any[] = [];
 
             for (const order of ordersToSync) {
                 if (!order.awbNumber) continue;

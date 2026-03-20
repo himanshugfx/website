@@ -113,7 +113,7 @@ export default function RevenueAnalytics({ data, onRefresh }: { data?: any, onRe
                                     )}
                                 </span>
                             </div>
-                            <p className="text-xs font-medium text-gray-400">Combined Store Orders + Zoho Invoices. Target is customizable.</p>
+                            <p className="text-xs font-medium text-gray-400">Combined Store Orders + Invoices. Target is customizable.</p>
                         </div>
                     </div>
                     

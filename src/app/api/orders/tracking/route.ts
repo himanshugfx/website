@@ -17,7 +17,7 @@ export async function GET(request: Request) {
         }
 
         // Find order
-        let order = null;
+        let order: any = null;
         if (orderId) {
             order = await prisma.order.findUnique({ where: { id: orderId } });
         } else if (orderNumber) {

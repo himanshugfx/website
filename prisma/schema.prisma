@@ -48,6 +48,7 @@ model Product {
   sizes           String?
   description     String
   ingredients     String?     // Product ingredients, comma-separated
+  hsnCode         String?     // HSN code for invoicing
   slug            String      @unique
   images          String
   thumbImage      String
@@ -141,23 +142,45 @@ model ContactInquiry {
   updatedAt DateTime @updatedAt
 }
 
-// Zoho Invoice cache
+// Self-hosted Invoicing System
 model Invoice {
-  id            String   @id @default(cuid())
-  zohoInvoiceId String   @unique
-  orderId       String?
-  customerId    String
-  customerName  String
-  invoiceNumber String
-  status        String   // DRAFT, SENT, PAID, OVERDUE, VOID
-  total         Float
-  balance       Float    @default(0)
-  dueDate       DateTime?
-  invoiceDate   DateTime
-  pdfUrl        String?
-  syncedAt      DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String    @id @default(cuid())
+  orderId         String?
+  customerId      String?
+  customerName    String
+  customerEmail   String?
+  customerPhone   String?
+  invoiceNumber   String    @unique
+  status          String    @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, VOID, PARTIALLY_PAID
+  subtotal        Float     @default(0)
+  discount        Float     @default(0)
+  discountType    String?   // PERCENTAGE, FIXED
+  taxRate         Float     @default(0)
+  taxAmount       Float     @default(0)
+  total           Float
+  balance         Float     @default(0)
+  dueDate         DateTime?
+  invoiceDate     DateTime
+  lineItems       Json?     // [{name, description, quantity, rate, amount, hsnCode}]
+  notes           String?   @db.Text
+  terms           String?   @db.Text
+  pdfUrl          String?
+  reminders       PaymentReminder[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model PaymentReminder {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  sendDate    DateTime
+  status      String   @default("PENDING") // PENDING, SENT, FAILED
+  message     String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([sendDate])
 }
 
 // Sales Funnel Models
@@ -218,7 +241,6 @@ model LeadActivity {
 // Expense Management (synced with Zoho Invoice)
 model Expense {
   id              String    @id @default(cuid())
-  zohoExpenseId   String?   @unique  // null for local-only expenses
   date            DateTime
   category        String              // TRAVEL, OFFICE_SUPPLIES, MARKETING, UTILITIES, RENT, SALARY, MISC
   amount          Float
@@ -228,7 +250,6 @@ model Expense {
   paymentMode     String?             // CASH, CARD, BANK_TRANSFER, UPI
   isBillable      Boolean   @default(false)
   status          String    @default("RECORDED") // RECORDED, SYNCED
-  syncedAt        DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -236,7 +257,6 @@ model Expense {
 // Quotations/Estimates (synced with Zoho Invoice)
 model Quotation {
   id               String    @id @default(cuid())
-  zohoEstimateId   String?   @unique
   quotationNumber  String
   customerId       String?
   customerName     String
@@ -251,7 +271,6 @@ model Quotation {
   notes            String?
   terms            String?
   lineItems        Json?     // Store line items as JSON array
-  syncedAt         DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
@@ -319,6 +338,7 @@ model HotelAmenity {
   id            String   @id @default(cuid())
   name          String
   category      String   // COSMETIC, DENTAL_KIT, SHAVING_KIT, SLIPPER, COASTER, LAUNDRY_BAG, GARBAGE_BAG, VANITY_KIT, SHOWER_CAP, COMB, OTHER
+  hsnCode       String?  // HSN code for invoicing
   description   String?  @db.Text
   image         String   // Media ID or path
   

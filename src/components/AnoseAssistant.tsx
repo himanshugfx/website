@@ -586,7 +586,7 @@ export default function AnoseAssistant() {
         }
       `}</style>
 
-      <div className="ana-fab">
+      <div className="ana-fab print:hidden">
         {/* FAB Button */}
         {!isOpen && (
           <div className="flex flex-col items-end gap-2 group/fab">
@@ -653,7 +653,7 @@ export default function AnoseAssistant() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="ana-window" role="dialog" aria-label="Ana Beauty Assistant">
+        <div className="ana-window print:hidden" role="dialog" aria-label="Ana Beauty Assistant">
           {/* Header */}
           <div className="ana-header">
             <div className="ana-header-avatar" style={{ padding: 0, overflow: 'hidden' }}>

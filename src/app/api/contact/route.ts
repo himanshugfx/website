@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         emailService.sendInquiryNotification({
             name,
             email,
-            phone,
+            phone: phone || undefined,
             message: message || '',
             type,
             hotelName,
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
             if (newStage) {
                 // Estimate value based on quantity string if possible
-                let estimatedValue = null;
+                let estimatedValue: number | null = null;
                 if (quantity) {
                     if (quantity.includes('Large') || quantity.includes('2000')) estimatedValue = 10000;
                     else if (quantity.includes('Medium')) estimatedValue = 5000;

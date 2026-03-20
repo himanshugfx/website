@@ -34,7 +34,7 @@ export async function GET(request: Request) {
             where: { status: { in: ['REFUNDED', 'RETURNED'] } }
         });
 
-        // 2. Revenue calculations (Orders + Zoho Invoices without Order IDs to avoid double counting)
+        // 2. Revenue calculations (Orders + Manual Invoices without Order IDs to avoid double counting)
         const websiteRevenue = validOrders.reduce((sum, order) => sum + order.total, 0);
         const manualInvoiceRevenue = invoices.filter(inv => !inv.orderId).reduce((sum, inv) => sum + inv.total, 0);
         const totalRevenue = websiteRevenue + manualInvoiceRevenue;

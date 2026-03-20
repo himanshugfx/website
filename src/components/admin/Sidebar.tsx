@@ -58,13 +58,13 @@ const navigationGroups = [
             { name: 'Hotel Catalogue', href: '/admin/hotel-catalogue', icon: Building2 },
             { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
             {
-                name: 'Finances',
-                href: '/admin/finances',
+                name: 'Invoicing',
+                href: '/admin/invoicing',
                 icon: Wallet,
                 children: [
-                    { name: 'Invoices', href: '/admin/finances/invoices', icon: FileText },
-                    { name: 'Expenses', href: '/admin/finances/expenses', icon: Receipt },
-                    { name: 'Quotations', href: '/admin/finances/quotations', icon: ClipboardList },
+                    { name: 'Invoices', href: '/admin/invoicing/invoices', icon: FileText },
+                    { name: 'Expenses', href: '/admin/invoicing/expenses', icon: Receipt },
+                    { name: 'Quotations', href: '/admin/invoicing/quotations', icon: ClipboardList },
                 ],
             },
         ]

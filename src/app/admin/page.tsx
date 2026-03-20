@@ -26,7 +26,7 @@ async function getStats() {
             select: { total: true, userId: true, customerEmail: true, customerName: true }
         });
 
-        // 2. Get Zoho Invoice Revenue (Avoid double counting if linked to order)
+        // 2. Get Manual Invoice Revenue (Avoid double counting if linked to order)
         const invoices = await prisma.invoice.findMany({
             where: {
                 status: { not: 'VOID' },
@@ -47,7 +47,7 @@ async function getStats() {
 
         const totalProducts = await prisma.product.count();
 
-        // 3. Unique Customers (Store Users + Guest Emails/Names + Zoho)
+        // 3. Unique Customers (Store Users + Guest Emails/Names + Manual Invoices)
         const customerIdentifiers = new Set<string>();
 
         orders.forEach(o => {

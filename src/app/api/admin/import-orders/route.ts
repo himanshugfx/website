@@ -113,7 +113,7 @@ export async function POST(request: Request) {
         for (const [groupKey, orderData] of orderMap.entries()) {
             try {
                 // Find or create user if email is provided (Optional for records, but Order will hold the source name)
-                let userId = null;
+                let userId: string | null = null;
                 if (orderData.customerEmail) {
                     const user = await prisma.user.upsert({
                         where: { email: orderData.customerEmail },

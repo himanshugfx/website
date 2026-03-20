@@ -261,6 +261,63 @@ class EmailService {
             return { success: false, error: String(error) };
         }
     }
+
+    /**
+     * Send payment reminder for an invoice
+     */
+    async sendPaymentReminder(invoice: any, toEmail: string): Promise<{ success: boolean; error?: string }> {
+        const transporter = this.getTransporter();
+
+        if (!transporter) {
+            console.warn('Email service not configured, skipping payment reminder');
+            return { success: false, error: 'Email service not configured' };
+        }
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; text-align: center;">Payment Reminder</h1>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+                    <p style="font-size: 16px; color: #374151;">Dear ${invoice.customerName},</p>
+                    <p style="font-size: 16px; color: #374151;">This is a friendly reminder that invoice <strong>${invoice.invoiceNumber}</strong> is currently overdue.</p>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #e11d48;">
+                        <h3 style="margin-top: 0; color: #111827;">Invoice Summary</h3>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Invoice No:</strong> ${invoice.invoiceNumber}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Due Date:</strong> ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN') : 'N/A'}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Total Amount:</strong> ₹${invoice.total.toLocaleString()}</p>
+                        <p style="margin: 5px 0; color: #e11d48; font-weight: bold;"><strong>Amount Due:</strong> ₹${invoice.balance.toLocaleString()}</p>
+                    </div>
+                    
+                    <p style="font-size: 16px; color: #374151;">Please arrange for payment at your earliest convenience to avoid any service disruptions.</p>
+                    <p style="font-size: 16px; color: #374151;">If you have already made the payment, please disregard this email.</p>
+                    <p style="font-size: 16px; color: #374151; margin-top: 30px;">Best regards,<br>Anose Beauty Team</p>
+                </div>
+                
+                <div style="background: #1f2937; color: #9ca3af; padding: 15px; border-radius: 0 0 10px 10px; text-align: center; font-size: 12px;">
+                    <p style="margin: 0;">Anose Beauty</p>
+                    <p style="margin: 5px 0 0;">Email: wecare@anosebeauty.com | Phone: +91 9110134408</p>
+                </div>
+            </div>
+        `;
+
+        try {
+            await transporter.sendMail({
+                from: `"Anose Invoicing" <anosebeauty@gmail.com>`,
+                to: toEmail,
+                subject: `Payment Overdue: Invoice ${invoice.invoiceNumber}`,
+                html: htmlContent,
+            });
+
+            console.log(`Payment reminder email sent for invoice ${invoice.invoiceNumber}`);
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to send payment reminder email:', error);
+            return { success: false, error: String(error) };
+        }
+    }
 }
 
 // Export singleton instance
