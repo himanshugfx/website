@@ -55,11 +55,22 @@ export default function ProfileSettingsPage() {
     return (
         <AdminLayout>
             <div className="max-w-2xl mx-auto space-y-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Security Settings</h1>
-                    <p className="mt-2 text-gray-500">
-                        Manage your account security and password
-                    </p>
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
+                    <div>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <Lock className="w-10 h-10 text-purple-600" />
+                                Security Settings
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                Administrative Access
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Manage your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">account security</span> and administrative credentials
+                        </p>
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">

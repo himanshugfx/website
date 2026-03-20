@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
-import { Poppins } from "next/font/google";
+
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -14,11 +14,12 @@ import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
 import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
+import { IBM_Plex_Sans } from "next/font/google";
 import AnoseAssistant from "@/components/AnoseAssistant";
 
-const poppins = Poppins({
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins",
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-ibm-plex-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -155,9 +156,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="stylesheet" href="https://use.typekit.net/htn0bil.css" />
       </head>
       <body
-        className={`${poppins.variable} font-sans antialiased`}
+        className={`${ibmPlexSans.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         <AuthProvider>

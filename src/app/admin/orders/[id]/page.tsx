@@ -250,7 +250,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             </div>
                             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
                                 <Calendar className="w-4 h-4" />
-                                {new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' })}
+                                {new Date(order.createdAt).toLocaleDateString('en-GB')}
                             </div>
                         </div>
                     </div>
@@ -438,7 +438,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-gray-500">Expected Delivery</span>
                                             <span className="text-sm font-medium text-gray-900">
-                                                {new Date(tracking?.expectedDelivery || order.estimatedDelivery!).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                {new Date(tracking?.expectedDelivery || order.estimatedDelivery!).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
                                     )}
@@ -446,7 +446,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-gray-500">Shipped On</span>
                                             <span className="text-sm font-medium text-gray-900">
-                                                {new Date(order.shippedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                {new Date(order.shippedAt).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
                                     )}
@@ -454,7 +454,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-gray-500">Delivered On</span>
                                             <span className="text-sm font-medium text-emerald-600">
-                                                {new Date(order.deliveredAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                {new Date(order.deliveredAt).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
                                     )}
@@ -476,7 +476,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                                             <p className="font-medium text-gray-900">{scan.status}</p>
                                                             <p className="text-xs text-gray-500">{scan.location}</p>
                                                             <p className="text-xs text-gray-400 mt-0.5">
-                                                                {new Date(scan.dateTime).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                                                                {new Date(scan.dateTime).toLocaleDateString('en-GB')}
                                                             </p>
                                                         </div>
                                                     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { ArrowLeft, Mail, Phone, Building2, Calendar, IndianRupee, Tag, MessageSquare, Check, Loader2, Trash2, Plus, Clock, Bell, Send, X, CheckCircle2 } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -357,7 +358,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                     {lead.stage.name}
                                 </span>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">Added on {new Date(lead.createdAt).toLocaleDateString()}</p>
+                            <p className="text-sm text-gray-500 mt-1">Added on {formatDate(lead.createdAt)}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -536,7 +537,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                                 <p className="text-sm font-medium text-gray-900">{activity.type.replace('_', ' ')}</p>
                                                 <p className="text-sm text-gray-600 mt-1">{activity.content}</p>
                                                 <p className="text-xs text-gray-400 mt-2">
-                                                    {new Date(activity.createdAt).toLocaleString()}
+                                                    {new Date(activity.createdAt).toLocaleString('en-GB')}
                                                 </p>
                                             </div>
                                         </div>
@@ -612,7 +613,7 @@ export default function LeadDetailClient({ initialLead, stages }: LeadDetailClie
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Calendar className="w-4 h-4 text-gray-400" />
                                         <span className="text-sm font-medium">
-                                            {new Date(lead.createdAt).toLocaleDateString()}
+                                            {formatDate(lead.createdAt)}
                                         </span>
                                     </div>
                                 </div>

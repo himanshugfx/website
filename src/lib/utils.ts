@@ -1,3 +1,9 @@
+export function formatDate(date: Date | string | number): string {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('en-GB'); // en-GB is DD/MM/YYYY
+}
+
 export function formatDistance(date: Date): string {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -7,7 +13,7 @@ export function formatDistance(date: Date): string {
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
 
-    return date.toLocaleDateString();
+    return formatDate(date);
 }
 
 export function numberToWords(num: number): string {

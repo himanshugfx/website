@@ -12,7 +12,12 @@ async function getFinanceStats() {
             prisma.invoice.aggregate({ where: { status: 'PAID' }, _sum: { total: true } }),
             prisma.expense.aggregate({ _sum: { amount: true } }),
             prisma.quotation.aggregate({ _sum: { total: true } }),
-            prisma.quotation.aggregate({ where: { status: 'ACCEPTED' }, _sum: { total: true } }),
+            prisma.quotation.aggregate({ 
+                where: { 
+                    status: { in: ['ACCEPTED', 'INVOICED'] } 
+                }, 
+                _sum: { total: true } 
+            }),
         ]);
 
         return {
@@ -77,10 +82,21 @@ export default async function InvoicingPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Invoicing</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage invoices, expenses, and quotations</p>
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
+                    <div>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                Financial Console
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                Enterprise Suite
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">cash flow</span>, expenses, and quotations in a unified view
+                        </p>
+                    </div>
                 </div>
 
                 {/* Overview Stats */}

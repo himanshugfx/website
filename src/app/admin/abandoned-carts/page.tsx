@@ -216,38 +216,46 @@ export default function AbandonedCartsPage() {
         <AdminLayout>
             <div className="space-y-6 max-w-[1600px] mx-auto">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Abandoned Carts</h1>
-                        <p className="text-sm text-gray-500 font-medium mt-1">
-                            Target the <span className="text-purple-600 font-bold">{checkouts.length} potential saves</span> in your sales funnel
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Abandoned Carts</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {checkouts.length} Potential Saves
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Target the <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">missed opportunities</span> and recover pending checkouts
                         </p>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <div className="relative group w-full max-w-md">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Search by name, email..."
+                                placeholder="Filter by name, email..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-500 transition-all w-64"
+                                className="w-full pl-11 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
                             />
                         </div>
                         <button 
                             onClick={() => setFilterHasEmail(!filterHasEmail)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                            className={`flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-black transition-all border ${
                                 filterHasEmail 
-                                ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-200' 
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
+                                ? 'bg-purple-600 text-white border-purple-600 shadow-xl shadow-purple-200' 
+                                : 'bg-white text-gray-900 border-gray-100 hover:border-purple-300'
                             }`}
                         >
                             <Filter className="w-4 h-4" />
-                            {filterHasEmail ? 'Identified Only' : 'All Users'}
+                            <span>{filterHasEmail ? 'Identified Only' : 'Show All'}</span>
                         </button>
-                        <button onClick={fetchCheckouts} className="p-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">
-                            <RefreshCw className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
+                        <button 
+                            onClick={fetchCheckouts} 
+                            className="p-4 bg-white border border-gray-100 hover:bg-gray-50 rounded-2xl transition-all shadow-sm group"
+                        >
+                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
                         </button>
                     </div>
                 </div>
@@ -431,10 +439,10 @@ export default function AbandonedCartsPage() {
                                                 <td className="px-4 py-6">
                                                     <div className="flex flex-col gap-0.5">
                                                         <span className="text-xs font-bold text-gray-700">
-                                                            {new Date(checkout.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                            {new Date(checkout.createdAt).toLocaleDateString('en-GB')}
                                                         </span>
                                                         <span className="text-[10px] text-gray-400 font-medium">
-                                                            {new Date(checkout.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                            {new Date(checkout.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </div>
                                                 </td>

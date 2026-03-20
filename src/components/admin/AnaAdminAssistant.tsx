@@ -53,7 +53,7 @@ function formatMarkdown(text: string): string {
     .replace(/\n/g, "<br/>");
 }
 
-export default function AnaAdminAssistant() {
+export default function AnaAdminAssistant({ inline = false }: { inline?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -215,19 +215,34 @@ export default function AnaAdminAssistant() {
 
         .ana-window-admin {
           position: fixed;
-          bottom: 104px;
-          right: 24px;
+          bottom: ${inline ? '24px' : '104px'};
+          top: ${inline ? 'auto' : 'auto'};
+          right: ${inline ? 'auto' : '24px'};
+          left: ${inline ? '112px' : 'auto'};
           width: 400px;
-          max-height: 600px;
+          max-width: calc(100vw - ${inline ? '136px' : '48px'});
+          max-height: calc(100vh - 48px);
           background: #ffffff;
           border-radius: 24px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 25px 50px -12px rgba(88, 28, 135, 0.25);
           display: flex;
           flex-direction: column;
           z-index: 9999;
           overflow: hidden;
           border: 1px solid #e5e7eb;
           animation: anaWindowIn 0.3s ease-out;
+        }
+
+        @media (max-width: 640px) {
+          .ana-window-admin {
+            left: 12px;
+            right: 12px;
+            top: 12px;
+            bottom: 12px;
+            width: auto;
+            max-width: none;
+            max-height: none;
+          }
         }
 
         .ana-header-admin {
@@ -327,21 +342,21 @@ export default function AnaAdminAssistant() {
         }
       `}</style>
 
-      <div className="ana-admin-fab print:hidden" suppressHydrationWarning>
+      <div className={`${inline ? 'mt-3' : 'ana-admin-fab'} print:hidden`} suppressHydrationWarning>
         {!isOpen && (
-          <div className="flex flex-col items-end gap-3 group">
-            {showGreeting && (
+          <div className={`flex flex-col items-end gap-3 group ${inline ? 'items-center' : ''}`}>
+            {showGreeting && !inline && (
               <div className="ana-greeting-admin">
                 📈 Ready for some business insights?
               </div>
             )}
             <button 
               onClick={() => setIsOpen(true)} 
-              className="ana-trigger-btn-admin"
+              className={inline ? "w-12 h-12 rounded-2xl bg-purple-900 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-lg shadow-purple-900/20" : "ana-trigger-btn-admin"}
               suppressHydrationWarning
+              title="Ana AI Assistant"
             >
-              <Image src="/assets/images/ana-character.webp" alt="Ana" width={48} height={48} style={{ objectFit: 'cover', borderRadius: '14px' }} />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
+              <Image src="/assets/images/ana-character.webp" alt="Ana" width={inline ? 32 : 48} height={inline ? 32 : 48} style={{ objectFit: 'cover', borderRadius: inline ? '10px' : '14px' }} />
             </button>
           </div>
         )}

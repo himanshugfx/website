@@ -256,7 +256,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-zinc-900">Order #{order.orderNumber}</p>
-                                                            <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                                            <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString('en-GB')}</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
@@ -312,11 +312,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             <span className="text-lg font-bold text-zinc-900">{order.orderNumber}</span>
                                                         </div>
                                                         <div className="text-sm text-zinc-500">
-                                                            {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                                                year: 'numeric',
-                                                                month: 'long',
-                                                                day: 'numeric'
-                                                            })}
+                                                            {new Date(order.createdAt).toLocaleDateString('en-GB')}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3">
@@ -395,7 +391,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                 <div>
                                                                     <p className="text-zinc-500 text-xs">Expected Delivery</p>
                                                                     <p className="font-bold text-zinc-900">
-                                                                        {new Date(order.estimatedDelivery).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                                        {new Date(order.estimatedDelivery).toLocaleDateString('en-GB')}
                                                                     </p>
                                                                 </div>
                                                             )}
@@ -403,7 +399,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                 <div>
                                                                     <p className="text-zinc-500 text-xs">Delivered On</p>
                                                                     <p className="font-bold text-green-600">
-                                                                        {new Date(order.deliveredAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                                                                        {new Date(order.deliveredAt).toLocaleDateString('en-GB')}
                                                                     </p>
                                                                 </div>
                                                             )}

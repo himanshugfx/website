@@ -49,11 +49,7 @@ export default function PrintInvoicePage({
 
     const formatDate = (date: string | null | undefined) => {
         if (!date) return 'N/A';
-        return new Date(date).toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        return new Date(date).toLocaleDateString('en-GB');
     };
 
     if (loading) {

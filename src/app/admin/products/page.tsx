@@ -171,16 +171,21 @@ export default function ProductsPage() {
         <AdminLayout>
             <div className="space-y-6 max-w-[1600px] mx-auto">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Product Catalog</h1>
-                        <p className="text-sm text-gray-500 font-medium mt-1">
-                            Managing <span className="text-purple-600 font-bold">{products.length} active products</span> in your store
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Product Catalog</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {products.length} Active SKUs
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">inventory portfolio</span> and live store offerings
                         </p>
                     </div>
                     
-                    <div className="flex items-center gap-3">
-                        <div className="relative group flex-1 md:w-80">
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <div className="relative group w-full max-w-md">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
                             <input
                                 type="text"
@@ -190,14 +195,14 @@ export default function ProductsPage() {
                                     setSearch(e.target.value);
                                     setPage(1);
                                 }}
-                                className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-500 transition-all shadow-sm"
+                                className="w-full pl-11 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
                             />
                         </div>
                         <Link
                             href="/admin/products/add"
-                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all h-full"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-5 h-5 stroke-[3px]" />
                             <span>Add Product</span>
                         </Link>
                     </div>
@@ -231,24 +236,24 @@ export default function ProductsPage() {
                     </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-2">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                         {SORT_OPTIONS.map(option => (
                             <button
                                 key={option.value}
                                 onClick={() => setSortBy(option.value)}
-                                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all border ${
+                                className={`px-4 py-2 text-[11px] font-black rounded-xl transition-all border ${
                                     sortBy === option.value 
-                                    ? 'bg-purple-50 text-purple-600 border-purple-200 shadow-sm' 
-                                    : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-200' 
+                                    : 'bg-white text-gray-900 border-gray-100 hover:border-purple-200'
                                 }`}
                             >
                                 {option.label}
                             </button>
                         ))}
                     </div>
-                    <button onClick={fetchProducts} className="p-2.5 bg-white border border-gray-100 hover:border-purple-200 rounded-xl transition-all shadow-sm">
-                        <RefreshCw className={`w-4 h-4 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
+                    <button onClick={fetchProducts} className="p-3 bg-white border border-gray-100 hover:border-purple-200 rounded-xl transition-all shadow-sm group">
+                        <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
 
@@ -382,30 +387,30 @@ export default function ProductsPage() {
                                                     <div className="flex items-center justify-center gap-1.5">
                                                         <button
                                                             onClick={() => updateField(product.id, 'bestSeller', !product.bestSeller)}
-                                                            className={`px-2 py-1 text-[9px] font-black rounded-md transition-all border tracking-tighter ${
+                                                            className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border uppercase tracking-widest ${
                                                                 product.bestSeller 
-                                                                ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-200' 
-                                                                : 'bg-amber-50/50 text-amber-600 border-amber-100 hover:border-amber-300'
+                                                                ? 'bg-orange-600 text-white border-orange-600 shadow-lg shadow-orange-900/20' 
+                                                                : 'bg-white text-orange-600 border-orange-200 hover:border-orange-500 hover:shadow-sm'
                                                             }`}
                                                         >
                                                             BEST
                                                         </button>
                                                         <button
                                                             onClick={() => updateField(product.id, 'sale', !product.sale)}
-                                                            className={`px-2 py-1 text-[9px] font-black rounded-md transition-all border tracking-tighter ${
+                                                            className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border uppercase tracking-widest ${
                                                                 product.sale 
-                                                                ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-200' 
-                                                                : 'bg-red-50/50 text-red-600 border-red-100 hover:border-red-300'
+                                                                ? 'bg-red-600 text-white border-red-600 shadow-lg shadow-red-900/20' 
+                                                                : 'bg-white text-red-600 border-red-200 hover:border-red-500 hover:shadow-sm'
                                                             }`}
                                                         >
                                                             SALE
                                                         </button>
                                                         <button
                                                             onClick={() => updateField(product.id, 'new', !product.new)}
-                                                            className={`px-2 py-1 text-[9px] font-black rounded-md transition-all border tracking-tighter ${
+                                                            className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all border uppercase tracking-widest ${
                                                                 product.new 
-                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200' 
-                                                                : 'bg-blue-50/50 text-blue-600 border-blue-100 hover:border-blue-300'
+                                                                ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-900/20' 
+                                                                : 'bg-white text-blue-600 border-blue-200 hover:border-blue-500 hover:shadow-sm'
                                                             }`}
                                                         >
                                                             NEW

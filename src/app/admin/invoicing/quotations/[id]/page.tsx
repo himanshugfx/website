@@ -73,11 +73,7 @@ export default function QuotationDetailPage({ params }: { params: Promise<{ id: 
     };
 
     const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        });
+        return new Date(date).toLocaleDateString('en-GB');
     };
 
     return (

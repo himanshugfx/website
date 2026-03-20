@@ -105,12 +105,11 @@ export default function ProductCard({ product }: ProductProps) {
                                     e.stopPropagation();
                                     window.location.href = '/shop?filter=best';
                                 }}
-                                className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
+                                className="product-tag text-[10px] font-black uppercase bg-orange-500 text-white px-3 py-1.5 rounded-full shadow-lg shadow-orange-500/40 cursor-pointer pointer-events-auto transition-transform hover:scale-110 tracking-widest"
                             >
                                 BEST
                             </Link>
                         )}
-                        {product.sale && (
                             <Link
                                 href="/shop?filter=sale"
                                 onClick={(e) => {
@@ -118,11 +117,10 @@ export default function ProductCard({ product }: ProductProps) {
                                     e.stopPropagation();
                                     window.location.href = '/shop?filter=sale';
                                 }}
-                                className="product-tag text-xs font-bold uppercase bg-purple-600 text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
+                                className="product-tag text-[10px] font-black uppercase bg-red-500 text-white px-3 py-1.5 rounded-full shadow-lg shadow-red-500/40 cursor-pointer pointer-events-auto transition-transform hover:scale-110 tracking-widest"
                             >
                                 SALE
                             </Link>
-                        )}
                     </div>
                     {product.new && (
                         <Link
@@ -132,7 +130,7 @@ export default function ProductCard({ product }: ProductProps) {
                                 e.stopPropagation();
                                 window.location.href = '/shop?filter=new';
                             }}
-                            className="product-tag text-xs font-bold uppercase bg-black text-white px-3 py-1.5 rounded-full shadow-lg cursor-pointer pointer-events-auto"
+                            className="product-tag text-[10px] font-black uppercase bg-blue-600 text-white px-3 py-1.5 rounded-full shadow-lg shadow-blue-600/40 cursor-pointer pointer-events-auto transition-transform hover:scale-110 tracking-widest"
                         >
                             NEW
                         </Link>

@@ -73,11 +73,7 @@ function OrderRow({ order, handleStatusUpdate, shipWithRapidShyp, shippingOrderI
                 </select>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                })}
+                {new Date(order.createdAt).toLocaleDateString('en-GB')}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                 {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
@@ -198,29 +194,38 @@ export default function OrdersPage() {
 
     return (
         <AdminLayout>
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-6">                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-                        <p className="mt-1 text-gray-500">
-                            Manage and track all customer orders
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <ShoppingCart className="w-10 h-10 text-purple-600" />
+                                Order Management
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {orders.length} Active Orders
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Monitoring <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">customer transactions</span> and fulfillment life-cycles
                         </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-medium">
-                            <Download className="w-4 h-4" />
-                            Export
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <button className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900">
+                            <Download className="w-5 h-5" />
+                            <span>Export Data</span>
                         </button>
                         <Link
                             href="/admin/orders/add"
-                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
                         >
-                            <Plus className="w-4 h-4" />
-                            Add Order
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Create Order</span>
                         </Link>
                     </div>
                 </div>
+
 
                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center gap-4">
                     <div className="relative flex-1 w-full flex gap-2">

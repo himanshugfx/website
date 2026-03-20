@@ -156,22 +156,42 @@ export default function PromoCodesPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                            <TicketPercent className="w-8 h-8 text-purple-600" />
-                            Promo Codes
-                        </h1>
-                        <p className="mt-2 text-gray-500">Manage discount codes and coupons</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <TicketPercent className="w-10 h-10 text-purple-600" />
+                                Promo Codes
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {promoCodes.length} Active Offers
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">reward algorithms</span> and customer conversion incentives
+                        </p>
                     </div>
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-medium"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Create Promo Code
-                    </button>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <div className="relative group w-full max-w-md">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search by code..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-11 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
+                            />
+                        </div>
+                        <button 
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
+                        >
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Create Code</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -215,19 +235,6 @@ export default function PromoCodesPage() {
 
                 {/* Table Section */}
                 <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-zinc-200 flex items-center gap-4">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                            <input
-                                type="text"
-                                placeholder="Search by code..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
-                            />
-                        </div>
-                    </div>
-
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-zinc-50 border-b border-zinc-200">
@@ -271,7 +278,7 @@ export default function PromoCodesPage() {
                                                 </div>
                                                 {code.expiresAt && <div className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
                                                     <Calendar className="w-3 h-3" />
-                                                    Expires: {new Date(code.expiresAt).toLocaleDateString()}
+                                                    Expires: {new Date(code.expiresAt).toLocaleDateString('en-GB')}
                                                 </div>}
                                             </td>
                                             <td className="px-6 py-4">

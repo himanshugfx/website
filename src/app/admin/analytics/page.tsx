@@ -137,21 +137,34 @@ export default function AnalyticsPage() {
 
     return (
         <AdminLayout>
-            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-                        <p className="text-gray-500 mt-1">Google Analytics data for your website</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <TrendingUp className="w-10 h-10 text-purple-600" />
+                                Growth Analytics
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                GA4 Realtime Data
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Monitoring <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">visitor behavior</span> and conversion performance metrics
+                        </p>
                     </div>
-                    <button
-                        onClick={fetchData}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50"
-                    >
-                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </button>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <button 
+                            onClick={fetchData}
+                            disabled={loading}
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900 group disabled:opacity-50"
+                        >
+                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+                            <span>{loading ? 'Fetching...' : 'Refresh Data'}</span>
+                        </button>
+                    </div>
                 </div>
 
                 {error && (

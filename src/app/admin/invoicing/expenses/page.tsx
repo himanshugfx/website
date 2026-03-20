@@ -118,31 +118,38 @@ export default function ExpensesPage() {
     };
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        });
+        return new Date(dateStr).toLocaleDateString('en-GB');
     };
 
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Expense Management</h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            {loading ? 'Loading...' : `${expenses.length} expenses found`}
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <Receipt className="w-10 h-10 text-purple-600" />
+                                Expense Management
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {expenses.length} Logged Outflows
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Tracking your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">operational costs</span> and business expenditure patterns
                         </p>
                     </div>
-                    <Link
-                        href="/admin/invoicing/expenses/add"
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Expense
-                    </Link>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <Link 
+                            href="/admin/invoicing/expenses/add"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
+                        >
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Add Expense</span>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Stats */}

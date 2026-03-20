@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Search, Users as UsersIcon, Shield, ChevronRight } from 'lucide-react';
+import { Search, Users as UsersIcon, Shield, ChevronRight, RefreshCw } from 'lucide-react';
 
 interface User {
     id: string;
@@ -66,24 +66,38 @@ export default function UsersPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Users</h1>
-                    <p className="mt-2 text-gray-500">
-                        Manage user accounts and roles
-                    </p>
-                </div>
-
-                {/* Search */}
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search users by name or email..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm transition-all"
-                    />
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
+                    <div>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">User Accounts</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {users.length} Active Records
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">access control</span> and account level permissions
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <div className="relative group w-full max-w-md">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search by name, email..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-11 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
+                            />
+                        </div>
+                        <button 
+                            onClick={fetchUsers} 
+                            className="p-4 bg-white border border-gray-100 hover:bg-gray-50 rounded-2xl transition-all shadow-sm group"
+                        >
+                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Users Table */}

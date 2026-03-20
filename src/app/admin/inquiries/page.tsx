@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Mail, Trash2, CheckCircle, Clock, Search, Filter } from 'lucide-react';
+import { Mail, Trash2, CheckCircle, Clock, Search, Filter, RefreshCw } from 'lucide-react';
 
 interface Inquiry {
     id: string;
@@ -76,58 +76,76 @@ export default function InquiriesPage() {
         return matchesSearch && matchesStatus;
     });
 
+    const totalInquiries = inquiries.length;
+
     return (
         <AdminLayout>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Unified Inquiries</h1>
-                        <p className="text-gray-500 mt-1">Manage contact messages and hospitality requests in one place</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <Mail className="w-10 h-10 text-purple-600" />
+                                Unified Inquiries
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {totalInquiries} Pending Requests
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">customer communication</span> and business support tickets
+                        </p>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
-                        <p className="text-xs sm:text-sm text-gray-500 font-medium">Total Inquiries</p>
-                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.length}</p>
-                    </div>
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
-                        <p className="text-xs sm:text-sm text-purple-600 font-medium">Unread</p>
-                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => i.status === 'UNREAD').length}</p>
-                    </div>
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
-                        <p className="text-xs sm:text-sm text-blue-600 font-medium">Hospitality</p>
-                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => i.message?.startsWith('[metadata]:')).length}</p>
-                    </div>
-                    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
-                        <p className="text-xs sm:text-sm text-zinc-600 font-medium">General</p>
-                        <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{inquiries.filter(i => !i.message?.startsWith('[metadata]:')).length}</p>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative flex-1 w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search by name, email or message..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                        />
-                    </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <Filter className="w-4 h-4 text-gray-400" />
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm font-medium outline-none cursor-pointer"
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <button 
+                            onClick={fetchInquiries}
+                            className="p-4 bg-white border border-gray-100 hover:bg-gray-50 rounded-2xl transition-all shadow-sm group"
                         >
-                            <option value="ALL">All Status</option>
-                            <option value="UNREAD">Unread</option>
-                            <option value="READ">Read</option>
-                            <option value="ARCHIVED">Archived</option>
-                        </select>
+                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+                        </button>
+                        <div className="relative group min-w-[320px]">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search leads..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 bg-white border border-gray-100 p-1 rounded-2xl shadow-sm">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="px-6 py-2.5 bg-transparent border-none text-[10px] font-black focus:ring-0 cursor-pointer outline-none"
+                            >
+                                <option value="ALL">All Status</option>
+                                <option value="UNREAD">Unread</option>
+                                <option value="READ">Read</option>
+                                <option value="ARCHIVED">Archived</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Inquiries 🏆</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-purple-600 transition-colors">{inquiries.length.toString().padStart(2, '0')}</p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+                        <p className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2">Unread Messages 📩</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-purple-600 transition-colors">{inquiries.filter(i => i.status === 'UNREAD').length.toString().padStart(2, '0')}</p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+                        <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Hospitality Deals 🏨</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-purple-600 transition-colors">{inquiries.filter(i => i.message?.startsWith('[metadata]:')).length.toString().padStart(2, '0')}</p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+                        <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">General Queries 👤</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-purple-600 transition-colors">{inquiries.filter(i => !i.message?.startsWith('[metadata]:')).length.toString().padStart(2, '0')}</p>
                     </div>
                 </div>
 

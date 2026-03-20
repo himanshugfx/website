@@ -20,6 +20,7 @@ interface QuotationStats {
     total: number;
     draft: number;
     sent: number;
+    accepted: number;
     invoiced: number;
     declined: number;
     totalValue: number;
@@ -69,11 +70,7 @@ export default function QuotationsPage() {
     };
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        });
+        return new Date(dateStr).toLocaleDateString('en-GB');
     };
 
     const filteredQuotations = quotations.filter(q =>
@@ -84,19 +81,32 @@ export default function QuotationsPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Quotations</h1>
-                        <p className="text-sm text-gray-500 mt-1">Create and manage customer quotations</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <ClipboardList className="w-10 h-10 text-purple-600" />
+                                Quotation System
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {quotations.length} Active Proposals
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">business proposals</span> and pricing estimates for clients
+                        </p>
                     </div>
-                    <Link
-                        href="/admin/invoicing/quotations/add"
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700"
-                    >
-                        <Plus className="w-4 h-4" />
-                        New Quotation
-                    </Link>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <Link 
+                            href="/admin/invoicing/quotations/add"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
+                        >
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>New Quotation</span>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Stats Cards */}
@@ -115,12 +125,16 @@ export default function QuotationsPage() {
                             <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">{stats.sent}</p>
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-gray-100">
+                            <p className="text-xs font-medium text-gray-500 uppercase">Accepted</p>
+                            <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{stats.accepted}</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-4 border border-gray-100">
                             <p className="text-xs font-medium text-gray-500 uppercase">Invoiced</p>
-                            <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{stats.invoiced}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-purple-600 mt-1">{stats.invoiced}</p>
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-gray-100 col-span-2 sm:col-span-1">
-                            <p className="text-xs font-medium text-gray-500 uppercase">Total Value</p>
-                            <p className="text-xl sm:text-2xl font-bold text-purple-600 mt-1">{formatCurrency(stats.totalValue)}</p>
+                            <p className="text-xs font-medium text-gray-500 uppercase">Value</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 text-xs">{formatCurrency(stats.totalValue)}</p>
                         </div>
                     </div>
                 )}

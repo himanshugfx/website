@@ -106,7 +106,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                                     <span>Joined</span>
                                 </div>
                                 <span className="font-medium text-gray-900">
-                                    {new Date(user.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    {new Date(user.createdAt).toLocaleDateString('en-GB')}
                                 </span>
                             </div>
                         </div>
@@ -156,7 +156,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Last Order</p>
                                 <p className="text-xl font-bold text-gray-900 mt-2">
                                     {user.orders.length > 0
-                                        ? new Date(user.orders[0].createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                                        ? new Date(user.orders[0].createdAt).toLocaleDateString('en-GB')
                                         : 'Never'}
                                 </p>
                             </div>
@@ -200,7 +200,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-sm text-gray-600">
-                                                {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                {new Date(order.createdAt).toLocaleDateString('en-GB')}
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :

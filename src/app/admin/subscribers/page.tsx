@@ -70,8 +70,8 @@ export default function SubscribersPage() {
         const dataToExport = subscribers.map(s => ({
             Email: s.email,
             Status: s.isActive ? 'Active' : 'Inactive',
-            'Subscribed Date': new Date(s.subscribedAt).toLocaleDateString('en-IN'),
-            'Subscribed Time': new Date(s.subscribedAt).toLocaleTimeString('en-IN'),
+            'Subscribed Date': new Date(s.subscribedAt).toLocaleDateString('en-GB'),
+            'Subscribed Time': new Date(s.subscribedAt).toLocaleTimeString('en-GB'),
         }));
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
@@ -87,26 +87,47 @@ export default function SubscribersPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Subscribers</h1>
-                        <p className="text-sm text-gray-500 mt-1">Manage your newsletter audience</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <Mail className="w-10 h-10 text-purple-600" />
+                                Newsletter Hub
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {subscribers.length} Audience Members
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">broadcast reach</span> and subscriber engagement
+                        </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <div className="relative group w-full max-w-md">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search by email..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-11 pr-4 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-600 transition-all shadow-sm"
+                            />
+                        </div>
+                        <button 
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900"
                         >
-                            <Download className="w-4 h-4" />
-                            <span className="hidden sm:inline">Export Excel</span>
+                            <Download className="w-5 h-5" />
+                            <span>Export CSV</span>
                         </button>
-                        <button
+                        <button 
                             onClick={() => setShowAddModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-black rounded-xl hover:bg-gray-800 transition-colors"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
                         >
-                            <Plus className="w-4 h-4" />
-                            Add Subscriber
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Add Subscriber</span>
                         </button>
                     </div>
                 </div>
@@ -189,11 +210,7 @@ export default function SubscribersPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2 text-sm text-gray-500">
                                                     <Calendar className="w-4 h-4" />
-                                                    {new Date(sub.subscribedAt).toLocaleDateString('en-IN', {
-                                                        day: 'numeric',
-                                                        month: 'short',
-                                                        year: 'numeric'
-                                                    })}
+                                                    {new Date(sub.subscribedAt).toLocaleDateString('en-GB')}
                                                 </div>
                                             </td>
                                         </tr>

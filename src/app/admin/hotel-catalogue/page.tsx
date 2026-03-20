@@ -227,7 +227,8 @@ export default function HotelCataloguePage() {
             <head>
                 <title>Anose Beauty - Hotel Amenities Catalogue ${new Date().getFullYear()}</title>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+                    @import url('https://use.typekit.net/htn0bil.css');
+                    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
                     
                     :root {
                         --primary: #7c3aed;
@@ -245,7 +246,7 @@ export default function HotelCataloguePage() {
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     
                     body {
-                        font-family: 'Inter', sans-serif;
+                        font-family: 'IBM Plex Sans', sans-serif;
                         color: var(--text);
                         background: #fff;
                         line-height: 1.5;
@@ -292,7 +293,7 @@ export default function HotelCataloguePage() {
                     }
                     
                     .cover-brand {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 16px;
                         letter-spacing: 6px;
                         text-transform: uppercase;
@@ -301,7 +302,7 @@ export default function HotelCataloguePage() {
                     }
                     
                     .cover-title {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 60px;
                         font-weight: 400;
                         color: white;
@@ -328,7 +329,7 @@ export default function HotelCataloguePage() {
                     .cover-stat { text-align: center; }
                     
                     .cover-stat-number {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 42px;
                         color: var(--primary-light);
                         display: block;
@@ -373,7 +374,7 @@ export default function HotelCataloguePage() {
                     }
                     
                     .products-header h2 {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 36px;
                         color: var(--dark);
                         margin-bottom: 8px;
@@ -430,7 +431,7 @@ export default function HotelCataloguePage() {
                     .product-details { padding: 15px; }
                     
                     .product-title {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 16px;
                         font-weight: 500;
                         color: var(--dark);
@@ -505,7 +506,7 @@ export default function HotelCataloguePage() {
                     }
                     
                     .back-brand {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 12px;
                         letter-spacing: 5px;
                         text-transform: uppercase;
@@ -514,7 +515,7 @@ export default function HotelCataloguePage() {
                     }
                     
                     .back-title {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'larken', serif;
                         font-size: 40px;
                         font-weight: 400;
                         color: white;
@@ -681,40 +682,46 @@ export default function HotelCataloguePage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                            <Building2 className="w-8 h-8 text-purple-600" />
-                            Hotel Catalogue
-                        </h1>
-                        <p className="mt-2 text-gray-500">
-                            Manage hotel amenities and supplies
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary flex items-center gap-3">
+                                <Building2 className="w-10 h-10 text-purple-600" />
+                                Hotel Catalogue
+                            </h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {amenities.length} Premium SKU's
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Managing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">luxury supplies</span> and hotel amenity collections
                         </p>
                     </div>
-                    <div className="flex gap-3">
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
                         <Link
                             href="/catalogue"
                             target="_blank"
-                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border-2 border-purple-600 text-purple-600 rounded-xl font-medium hover:bg-purple-50 transition-colors"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900"
                         >
                             <Eye className="w-5 h-5" />
-                            View Catalogue
+                            <span>Preview</span>
                         </Link>
                         <button
                             onClick={handleDownloadPdf}
                             disabled={generatingPdf || amenities.length === 0}
-                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900"
                         >
                             <Download className="w-5 h-5" />
-                            {generatingPdf ? 'Generating...' : 'Download PDF'}
+                            <span>{generatingPdf ? 'Generating...' : 'Get PDF'}</span>
                         </button>
                         <Link
                             href="/admin/hotel-catalogue/add"
-                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
                         >
-                            <Plus className="w-5 h-5" />
-                            Add Amenity
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Add Item</span>
                         </Link>
                     </div>
                 </div>

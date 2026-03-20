@@ -98,25 +98,39 @@ export default function AdminReviewsPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Product Reviews</h1>
-                        <p className="text-sm text-gray-500">Manage and approve customer reviews</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Product Reviews</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {reviews.length} Feedbacks Received
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Analyzing <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">customer satisfaction</span> and product experience ratings
+                        </p>
                     </div>
-                    <button onClick={fetchReviews} className="p-2 hover:bg-gray-100 rounded-lg">
-                        <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                        <button 
+                            onClick={fetchReviews} 
+                            className="p-4 bg-white border border-gray-100 hover:bg-gray-50 rounded-2xl transition-all shadow-sm group"
+                        >
+                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Status Tabs */}
-                <div className="flex gap-2">
+                <div className="flex justify-center gap-2 mb-8">
                     {(['pending', 'approved', 'all'] as const).map((s) => (
                         <button
                             key={s}
                             onClick={() => { setStatus(s); setPage(1); }}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm capitalize transition-colors ${status === s
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            className={`px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all border ${status === s
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-200'
+                                    : 'bg-white text-gray-900 border-gray-100 hover:border-purple-200'
                                 }`}
                         >
                             {s}
@@ -175,7 +189,7 @@ export default function AdminReviewsPage() {
                                                 </div>
                                             </div>
                                             <span className="text-xs text-gray-500 whitespace-nowrap">
-                                                {new Date(review.createdAt).toLocaleDateString()}
+                                                {new Date(review.createdAt).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
 

@@ -117,6 +117,20 @@ export default async function AdminDashboard() {
     return (
         <AdminLayout>
             <div className="space-y-6">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
+                    <div>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Dashboard Overview</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                Live Store Performance
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Real-time insights into your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">business growth</span> and customer activity
+                        </p>
+                    </div>
+                </div>
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">

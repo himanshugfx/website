@@ -2,6 +2,7 @@
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { FileText, Plus, Search, ChevronRight, ExternalLink, AlertCircle, Filter, Pencil, CheckSquare, Square, IndianRupee, Loader2 } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -20,10 +21,12 @@ interface Invoice {
 interface InvoiceStats {
     total: number;
     paid: number;
-    pending: number;
+    partiallyPaid: number;
     overdue: number;
     totalAmount: number;
     paidAmount: number;
+    partiallyPaidAmount: number;
+    overdueAmount: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -74,7 +77,12 @@ export default function InvoicesPage() {
     const filteredInvoices = invoices.filter(inv => {
         const matchesSearch = inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
             inv.customerName.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
+        
+        let matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
+        if (statusFilter === 'PARTIALLY_PAID') {
+            matchesStatus = ['SENT', 'PARTIALLY_PAID', 'DRAFT'].includes(inv.status);
+        }
+        
         return matchesSearch && matchesStatus;
     }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber, undefined, { numeric: true }));
 
@@ -139,49 +147,77 @@ export default function InvoicesPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Invoices</h1>
-                        <p className="text-sm text-gray-500 mt-1">Manage your invoices and billing</p>
+                        <div className="flex flex-col items-center gap-3">
+                            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Invoicing System</h1>
+                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                {invoices.length} Registered Records
+                            </div>
+                        </div>
+                        <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
+                            Manage your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">financial ledger</span> and settlement status
+                        </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3">
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
                         <button 
                             onClick={handleBulkExport}
-                            suppressHydrationWarning
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors shadow-sm"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900"
                         >
-                            <ExternalLink className="w-4 h-4" />
-                            {selectedIds.length > 0 ? `Export ${selectedIds.length} PDFs` : 'Export PDFs'}
+                            <ExternalLink className="w-5 h-5" />
+                            <span>{selectedIds.length > 0 ? `Export ${selectedIds.length} PDFs` : 'Export History'}</span>
                         </button>
-                        <Link href="/admin/invoicing/invoices/create"
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
-                            <Plus className="w-4 h-4" />
-                            Create Invoice
+                        <Link
+                            href="/admin/invoicing/invoices/create"
+                            className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
+                        >
+                            <Plus className="w-5 h-5 stroke-[3px]" />
+                            <span>Issue Invoice</span>
                         </Link>
                     </div>
                 </div>
 
                 {/* Stats */}
                 {stats && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <button onClick={() => setStatusFilter('ALL')} className={`bg-white rounded-xl p-4 border text-left transition-all ${statusFilter === 'ALL' ? 'border-purple-300 ring-2 ring-purple-100' : 'border-gray-100'}`}>
-                            <p className="text-xs font-medium text-gray-500 uppercase">Total</p>
-                            <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-                            <p className="text-xs text-gray-400">{formatCurrency(stats.totalAmount)}</p>
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden flex items-stretch h-28 mb-8">
+                        <button onClick={() => setStatusFilter('ALL')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'ALL' ? 'bg-purple-600' : 'hover:bg-gray-50'}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'ALL' ? 'text-white' : 'text-gray-400'}`}>Total 🏆</p>
+                            <div className="flex items-baseline gap-3">
+                                <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'ALL' ? 'text-white' : 'text-gray-900'}`}>{(stats.total || 0).toString().padStart(2, '0')}</span>
+                                <span className={`text-[13px] font-black ${statusFilter === 'ALL' ? 'text-white' : 'text-gray-500'}`}>₹{(stats.totalAmount || 0).toLocaleString()}</span>
+                            </div>
                         </button>
-                        <button onClick={() => setStatusFilter('PAID')} className={`bg-white rounded-xl p-4 border text-left transition-all ${statusFilter === 'PAID' ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-gray-100'}`}>
-                            <p className="text-xs font-medium text-gray-500 uppercase">Paid</p>
-                            <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.paid}</p>
-                            <p className="text-xs text-gray-400">{formatCurrency(stats.paidAmount)}</p>
+                        
+                        <div className="w-[1px] bg-gray-100 self-stretch" />
+
+                        <button onClick={() => setStatusFilter('PAID')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'PAID' ? 'bg-emerald-600' : 'hover:bg-gray-50'}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PAID' ? 'text-white' : 'text-emerald-600'}`}>Paid 💰</p>
+                            <div className="flex items-baseline gap-3">
+                                <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'PAID' ? 'text-white' : 'text-emerald-700'}`}>{(stats.paid || 0).toString().padStart(2, '0')}</span>
+                                <span className={`text-[13px] font-black ${statusFilter === 'PAID' ? 'text-white' : 'text-emerald-600'}`}>₹{(stats.paidAmount || 0).toLocaleString()}</span>
+                            </div>
                         </button>
-                        <button onClick={() => setStatusFilter(statusFilter === 'DRAFT' ? 'ALL' : 'DRAFT')} className={`bg-white rounded-xl p-4 border text-left transition-all ${statusFilter === 'DRAFT' ? 'border-blue-300 ring-2 ring-blue-100' : 'border-gray-100'}`}>
-                            <p className="text-xs font-medium text-gray-500 uppercase">Pending</p>
-                            <p className="text-2xl font-bold text-blue-600 mt-1">{stats.pending}</p>
+                        
+                        <div className="w-[1px] bg-gray-100 self-stretch" />
+
+                        <button onClick={() => setStatusFilter('PARTIALLY_PAID')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'PARTIALLY_PAID' ? 'bg-amber-500' : 'hover:bg-gray-50'}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>Partial 🍕</p>
+                            <div className="flex items-baseline gap-3">
+                                <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-700'}`}>{(stats.partiallyPaid || 0).toString().padStart(2, '0')}</span>
+                                <span className={`text-[13px] font-black ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>₹{(stats.partiallyPaidAmount || 0).toLocaleString()}</span>
+                            </div>
                         </button>
-                        <button onClick={() => setStatusFilter(statusFilter === 'OVERDUE' ? 'ALL' : 'OVERDUE')} className={`bg-white rounded-xl p-4 border text-left transition-all ${statusFilter === 'OVERDUE' ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-100'}`}>
-                            <p className="text-xs font-medium text-gray-500 uppercase">Overdue</p>
-                            <p className="text-2xl font-bold text-red-600 mt-1">{stats.overdue}</p>
+                        
+                        <div className="w-[1px] bg-gray-100 self-stretch" />
+
+                        <button onClick={() => setStatusFilter('OVERDUE')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'OVERDUE' ? 'bg-red-600' : 'hover:bg-gray-50'}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'OVERDUE' ? 'text-white' : 'text-red-600'}`}>Overdue 🔥</p>
+                            <div className="flex items-baseline gap-3">
+                                <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'OVERDUE' ? 'text-white' : 'text-red-800'}`}>{(stats.overdue || 0).toString().padStart(2, '0')}</span>
+                                <span className={`text-[13px] font-black ${statusFilter === 'OVERDUE' ? 'text-white' : 'text-red-700'}`}>₹{(stats.overdueAmount || 0).toLocaleString()}</span>
+                            </div>
                         </button>
                     </div>
                 )}
@@ -261,10 +297,10 @@ export default function InvoicesPage() {
                                                 <span className="text-sm font-medium text-gray-900">{invoice.customerName}</span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
-                                                {new Date(invoice.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                {formatDate(invoice.invoiceDate)}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
-                                                {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                                                {invoice.dueDate ? formatDate(invoice.dueDate) : '-'}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-sm font-bold text-gray-900">₹{invoice.total.toLocaleString()}</span>

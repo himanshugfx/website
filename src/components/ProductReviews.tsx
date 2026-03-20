@@ -229,11 +229,7 @@ export default function ProductReviews({ productId, productName }: ProductReview
                                     <StarRating rating={review.rating} />
                                 </div>
                                 <span className="text-sm text-zinc-500">
-                                    {new Date(review.createdAt).toLocaleDateString('en-IN', {
-                                        day: 'numeric',
-                                        month: 'short',
-                                        year: 'numeric'
-                                    })}
+                                    {new Date(review.createdAt).toLocaleDateString('en-GB')}
                                 </span>
                             </div>
                             {review.title && (

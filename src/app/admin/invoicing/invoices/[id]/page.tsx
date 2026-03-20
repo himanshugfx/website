@@ -145,7 +145,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
-    const formatDate = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const formatDate = (d: string) => new Date(d).toLocaleDateString('en-GB');
 
     if (loading) {
         return (

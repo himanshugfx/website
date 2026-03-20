@@ -70,15 +70,14 @@ export async function GET() {
                 leads: {
                     orderBy: { createdAt: 'desc' },
                     take: 50,
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                        company: true,
-                        source: true,
-                        value: true,
-                        stageId: true,
-                    },
+                    include: {
+                        _count: {
+                            select: { 
+                                activities: true,
+                                followUps: { where: { status: 'PENDING' } }
+                            }
+                        }
+                    }
                 },
                 _count: {
                     select: { leads: true },

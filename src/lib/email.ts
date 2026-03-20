@@ -286,7 +286,7 @@ class EmailService {
                     <div style="background: white; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #e11d48;">
                         <h3 style="margin-top: 0; color: #111827;">Invoice Summary</h3>
                         <p style="margin: 5px 0; color: #4b5563;"><strong>Invoice No:</strong> ${invoice.invoiceNumber}</p>
-                        <p style="margin: 5px 0; color: #4b5563;"><strong>Due Date:</strong> ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN') : 'N/A'}</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Due Date:</strong> ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-GB') : 'N/A'}</p>
                         <p style="margin: 5px 0; color: #4b5563;"><strong>Total Amount:</strong> ₹${invoice.total.toLocaleString()}</p>
                         <p style="margin: 5px 0; color: #e11d48; font-weight: bold;"><strong>Amount Due:</strong> ₹${invoice.balance.toLocaleString()}</p>
                     </div>
