@@ -1,9 +1,9 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Target, Plus, Users, TrendingUp, IndianRupee, GripVertical } from 'lucide-react';
+import { Target, Plus, Users, TrendingUp, IndianRupee, GripVertical, Phone, Mail, FileText, ChevronRight, ChevronLeft, Minimize2, Maximize2, Search, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect, DragEvent } from 'react';
+import { useState, useEffect, DragEvent, useRef } from 'react';
 
 interface Lead {
     id: string;
@@ -38,6 +38,12 @@ export default function SalesFunnelPage() {
     const [loading, setLoading] = useState(true);
     const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
     const [dragOverStage, setDragOverStage] = useState<string | null>(null);
+    const [collapsedStages, setCollapsedStages] = useState<Set<string>>(new Set());
+    const [searchQuery, setSearchQuery] = useState('');
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [isDraggingBoard, setIsDraggingBoard] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
 
     useEffect(() => {
         fetchFunnelData();
@@ -125,9 +131,61 @@ export default function SalesFunnelPage() {
             console.error('Error updating lead stage:', error);
             fetchFunnelData();
         }
-
         setDraggedLead(null);
     };
+
+    const handleBoardMouseDown = (e: React.MouseEvent) => {
+        if (!scrollContainerRef.current) return;
+        setIsDraggingBoard(true);
+        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+        setScrollLeft(scrollContainerRef.current.scrollLeft);
+    };
+
+    const handleBoardMouseMove = (e: React.MouseEvent) => {
+        if (!isDraggingBoard || !scrollContainerRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 2;
+        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleBoardMouseUp = () => {
+        setIsDraggingBoard(false);
+    };
+
+    const toggleCollapse = (stageId: string) => {
+        const next = new Set(collapsedStages);
+        if (next.has(stageId)) next.delete(stageId);
+        else next.add(stageId);
+        setCollapsedStages(next);
+    };
+
+    const STAGE_PROBABILITIES: Record<string, number> = {
+        'new': 0.1,
+        'contacted': 0.25,
+        'qualified': 0.5,
+        'proposal': 0.75,
+        'negotiation': 0.85,
+        'won': 1.0,
+        'lost': 0
+    };
+
+    const getWeightedValue = () => {
+        if (!stages.length) return 0;
+        return stages.reduce((acc, stage) => {
+            const prob = STAGE_PROBABILITIES[stage.name.toLowerCase()] || 0.1;
+            const stageValue = stage.leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
+            return acc + (stageValue * prob);
+        }, 0);
+    };
+
+    const filteredStages = stages.map(stage => ({
+        ...stage,
+        leads: stage.leads.filter(lead => 
+            lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            lead.company?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    }));
 
     if (loading) {
         return (
@@ -141,149 +199,233 @@ export default function SalesFunnelPage() {
 
     return (
         <AdminLayout>
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-6 max-w-[1600px] mx-auto">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Sales Funnel</h1>
-                        <p className="text-sm text-gray-500 mt-1">Drag and drop leads between stages</p>
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Sales Funnel</h1>
+                        <p className="text-sm text-gray-500 font-medium mt-1">
+                            Track and manage your <span className="text-purple-600 font-bold">leads through stages</span>
+                        </p>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="relative group flex-1 md:w-80">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search leads or companies..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-500 transition-all shadow-sm"
+                            />
+                            {searchQuery && (
+                                <button 
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full text-gray-400"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            )}
+                        </div>
                         <Link
                             href="/admin/funnel/leads/add"
-                            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
+                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all flex-shrink-0"
                         >
-                            <Plus className="w-4 h-4" />
-                            <span className="hidden sm:inline">Add Lead</span>
-                            <span className="sm:hidden">New</span>
+                            <Plus className="w-5 h-5" />
+                            <span>Add Lead</span>
                         </Link>
                     </div>
                 </div>
 
                 {/* Stats Cards */}
                 {stats && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                        <div className="bg-white rounded-xl p-4 border border-gray-100">
-                            <div className="flex items-center gap-2 text-gray-500 mb-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 text-gray-400 mb-3">
                                 <Users className="w-4 h-4" />
-                                <span className="text-xs font-medium uppercase">Total Leads</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">Total Leads</span>
                             </div>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalLeads}</p>
+                            <div className="flex items-end gap-2">
+                                <p className="text-3xl font-black text-gray-900 tracking-tighter">{stats.totalLeads}</p>
+                                <span className="text-[10px] font-bold text-emerald-500 mb-1">+12%</span>
+                            </div>
                         </div>
-                        <div className="bg-white rounded-xl p-4 border border-gray-100">
-                            <div className="flex items-center gap-2 text-gray-500 mb-2">
+                        
+                        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 text-gray-400 mb-3">
                                 <TrendingUp className="w-4 h-4" />
-                                <span className="text-xs font-medium uppercase">Conversion</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">Conversion</span>
                             </div>
-                            <p className="text-xl sm:text-2xl font-bold text-emerald-600">{stats.conversionRate}%</p>
-                        </div>
-                        <div className="bg-white rounded-xl p-4 border border-gray-100">
-                            <div className="flex items-center gap-2 text-gray-500 mb-2">
-                                <Target className="w-4 h-4" />
-                                <span className="text-xs font-medium uppercase">Pipeline Value</span>
+                            <div className="flex items-end gap-2">
+                                <p className="text-3xl font-black text-emerald-600 tracking-tighter">{stats.conversionRate}%</p>
+                                <span className="text-[10px] font-bold text-emerald-500 mb-1">+5%</span>
                             </div>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900">₹{stats.totalValue.toLocaleString()}</p>
                         </div>
-                        <div className="bg-white rounded-xl p-4 border border-gray-100">
-                            <div className="flex items-center gap-2 text-gray-500 mb-2">
+
+                        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 text-gray-400 mb-3">
                                 <IndianRupee className="w-4 h-4" />
-                                <span className="text-xs font-medium uppercase">Won Value</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">Pipeline Value</span>
                             </div>
-                            <p className="text-xl sm:text-2xl font-bold text-emerald-600">₹{stats.wonValue.toLocaleString()}</p>
+                            <p className="text-2xl font-black text-gray-900 tracking-tighter">₹{stats.totalValue.toLocaleString()}</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 border border-emerald-100 bg-emerald-50/10 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 text-emerald-600 mb-3">
+                                <IndianRupee className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Won Value</span>
+                            </div>
+                            <p className="text-2xl font-black text-emerald-700 tracking-tighter">₹{stats.wonValue.toLocaleString()}</p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-5 border border-purple-100 bg-purple-50/10 shadow-sm hover:shadow-md transition-shadow col-span-2 md:col-span-1">
+                            <div className="flex items-center gap-2 text-purple-600 mb-3">
+                                <Target className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Weighted Value</span>
+                            </div>
+                            <p className="text-2xl font-black text-purple-700 tracking-tighter">₹{Math.round(getWeightedValue()).toLocaleString()}</p>
+                            <p className="text-[9px] text-purple-400 font-bold mt-1 uppercase">Adjusted by probability</p>
                         </div>
                     </div>
                 )}
 
                 {/* Kanban Board */}
-                <div
-                    className="overflow-x-auto pt-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-                    style={{ transform: 'scaleY(-1)' }}
+                <div 
+                    ref={scrollContainerRef}
+                    onMouseDown={handleBoardMouseDown}
+                    onMouseMove={handleBoardMouseMove}
+                    onMouseUp={handleBoardMouseUp}
+                    onMouseLeave={handleBoardMouseUp}
+                    className={`overflow-x-auto pb-8 -mx-8 px-8 select-none cursor-default ${isDraggingBoard ? 'cursor-grabbing' : ''}`}
                 >
-                    <div
-                        className="flex gap-4"
-                        style={{ minWidth: `${stages.length * 300}px`, transform: 'scaleY(-1)' }}
-                    >
-                        {stages.map((stage) => (
-                            <div
-                                key={stage.id}
-                                className={`flex-1 min-w-[280px] max-w-[340px] rounded-2xl p-3 transition-all duration-200 ${dragOverStage === stage.id
-                                    ? 'bg-purple-50 ring-2 ring-purple-400 ring-inset'
-                                    : 'bg-gray-50'
+                    <div className="flex gap-6 min-w-max h-[calc(100vh-320px)] min-h-[500px]">
+                        {filteredStages.map((stage) => {
+                            const isCollapsed = collapsedStages.has(stage.id);
+                            return (
+                                <div
+                                    key={stage.id}
+                                    className={`flex flex-col transition-all duration-300 ${
+                                        isCollapsed ? 'w-16 min-w-[64px]' : 'w-80 min-w-[320px]'
                                     }`}
-                                onDragOver={(e) => handleDragOver(e, stage.id)}
-                                onDragLeave={handleDragLeave}
-                                onDrop={(e) => handleDrop(e, stage.id)}
-                            >
-                                {/* Stage Header */}
-                                <div className="flex items-center justify-between mb-3 px-1">
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="w-3 h-3 rounded-full"
-                                            style={{ backgroundColor: stage.color }}
-                                        />
-                                        <h3 className="font-semibold text-gray-900 text-sm">{stage.name}</h3>
-                                        <span className="text-xs text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">
-                                            {stage._count.leads}
-                                        </span>
+                                >
+                                    {/* Stage Column */}
+                                    <div
+                                        className={`flex flex-col h-full rounded-3xl transition-all duration-500 group/stage ${
+                                            dragOverStage === stage.id
+                                            ? 'bg-purple-100/50 ring-2 ring-purple-400 ring-inset shadow-2xl'
+                                            : 'bg-gray-50/50 border border-gray-100'
+                                        }`}
+                                        onDragOver={(e) => handleDragOver(e, stage.id)}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, stage.id)}
+                                    >
+                                        {/* Sticky Header */}
+                                        <div className={`sticky top-0 z-10 px-4 py-4 rounded-t-3xl backdrop-blur-md transition-all ${
+                                            isCollapsed ? 'flex flex-col items-center justify-between h-full py-8' : 'flex flex-col gap-3'
+                                        }`}>
+                                            <div className={`flex items-center justify-between ${isCollapsed ? 'flex-col gap-8 h-full' : ''}`}>
+                                                <div className={`flex items-center gap-2 ${isCollapsed ? 'flex-col rotate-180 [writing-mode:vertical-lr]' : ''}`}>
+                                                    <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: stage.color }} />
+                                                    <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest whitespace-nowrap">
+                                                        {stage.name}
+                                                    </h3>
+                                                    <span className="text-[10px] font-bold text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100 shadow-sm">
+                                                        {stage.leads.length}
+                                                    </span>
+                                                </div>
+                                                <button 
+                                                    onClick={() => toggleCollapse(stage.id)}
+                                                    className="p-1.5 hover:bg-white rounded-lg text-gray-400 hover:text-purple-600 transition-all border border-transparent hover:border-purple-100 shadow-sm"
+                                                >
+                                                    {isCollapsed ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
+                                                </button>
+                                            </div>
+
+                                            {!isCollapsed && (
+                                                <Link
+                                                    href={`/admin/funnel/leads/add?stage=${stage.id}`}
+                                                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/80 hover:bg-white border border-gray-100 rounded-xl text-[11px] font-black text-gray-500 uppercase tracking-widest hover:text-purple-600 hover:border-purple-200 shadow-sm transition-all group/add"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5 transition-transform group-hover/add:rotate-90" />
+                                                    <span>Add New Lead</span>
+                                                </Link>
+                                            )}
+                                        </div>
+
+                                        {/* Leads List */}
+                                        {!isCollapsed && (
+                                            <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-3 custom-scrollbar">
+                                                {stage.leads.length === 0 ? (
+                                                    <div className="h-full min-h-[120px] rounded-2xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center text-gray-300 gap-2">
+                                                        <Plus className="w-6 h-6 opacity-20" />
+                                                        <p className="text-[10px] font-black uppercase tracking-widest">No Leads</p>
+                                                    </div>
+                                                ) : (
+                                                    stage.leads.map((lead) => (
+                                                        <div
+                                                            key={lead.id}
+                                                            draggable
+                                                            onDragStart={(e) => handleDragStart(e, lead)}
+                                                            onDragEnd={handleDragEnd}
+                                                            className={`group/card relative bg-white rounded-2xl p-4 border border-gray-100 cursor-grab active:cursor-grabbing hover:shadow-xl hover:shadow-purple-100/50 hover:border-purple-100 transition-all duration-300 ${
+                                                                draggedLead?.id === lead.id ? 'opacity-40 scale-95' : ''
+                                                            }`}
+                                                        >
+                                                            {/* Card Header */}
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div className="min-w-0">
+                                                                    <h4 className="font-black text-gray-900 text-sm tracking-tight leading-tight group-hover/card:text-purple-600 transition-colors truncate">
+                                                                        {lead.name}
+                                                                    </h4>
+                                                                    {lead.company && (
+                                                                        <p className="text-[11px] font-bold text-gray-400 mt-0.5 truncate uppercase tracking-tight italic">
+                                                                            {lead.company}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <GripVertical className="w-4 h-4 text-gray-200 group-hover/card:text-gray-400 transition-colors flex-shrink-0" />
+                                                            </div>
+
+                                                            {/* Card Footer */}
+                                                            <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+                                                                <span className="px-2 py-0.5 bg-gray-50 text-gray-400 text-[9px] font-black uppercase tracking-widest rounded-md border border-gray-100">
+                                                                    {lead.source}
+                                                                </span>
+                                                                {lead.value > 0 && (
+                                                                    <span className="text-sm font-black text-gray-900 tracking-tighter">
+                                                                        ₹{lead.value.toLocaleString()}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Quick Actions Hover Overlay */}
+                                                            <div className="absolute inset-x-0 -bottom-2 translate-y-full opacity-0 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-300 z-10 px-4 pointer-events-none group-hover/card:pointer-events-auto">
+                                                                <div className="bg-gray-900 text-white p-1.5 rounded-xl flex items-center justify-center gap-1 shadow-2xl">
+                                                                    <a href={`tel:${lead.name}`} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                                                                        <Phone className="w-3.5 h-3.5" />
+                                                                    </a>
+                                                                    <a href={`mailto:${lead.email}`} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                                                                        <Mail className="w-3.5 h-3.5" />
+                                                                    </a>
+                                                                    <button className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                                                                        <FileText className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                    <div className="w-px h-4 bg-white/20 mx-1" />
+                                                                    <Link href={`/admin/funnel/leads/${lead.id}`} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                                                                        <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-
-                                {/* Lead Cards */}
-                                <div className="space-y-2 min-h-[200px]">
-                                    {stage.leads.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                                            <p className="text-sm">Drop leads here</p>
-                                        </div>
-                                    ) : (
-                                        stage.leads.map((lead) => (
-                                            <div
-                                                key={lead.id}
-                                                draggable
-                                                onDragStart={(e) => handleDragStart(e, lead)}
-                                                onDragEnd={handleDragEnd}
-                                                className={`bg-white rounded-xl p-3 border border-gray-100 cursor-grab active:cursor-grabbing hover:shadow-md transition-all ${draggedLead?.id === lead.id ? 'opacity-50 scale-95' : ''
-                                                    }`}
-                                            >
-                                                <div className="flex items-start gap-2">
-                                                    <div className="mt-1 text-gray-300 cursor-grab">
-                                                        <GripVertical className="w-4 h-4" />
-                                                    </div>
-                                                    <Link
-                                                        href={`/admin/funnel/leads/${lead.id}`}
-                                                        className="flex-1 min-w-0"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        <p className="font-medium text-gray-900 text-sm truncate hover:text-purple-600">
-                                                            {lead.name}
-                                                        </p>
-                                                        {lead.company && (
-                                                            <p className="text-xs text-gray-500 truncate">{lead.company}</p>
-                                                        )}
-                                                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
-                                                            <span className="text-xs text-gray-400">{lead.source}</span>
-                                                            {lead.value > 0 && (
-                                                                <span className="text-xs font-semibold text-gray-900">
-                                                                    ₹{lead.value.toLocaleString()}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-
-                                {/* Add Lead to Stage */}
-                                <Link
-                                    href={`/admin/funnel/leads/add?stage=${stage.id}`}
-                                    className="flex items-center justify-center gap-1 w-full mt-3 py-2 text-sm text-gray-500 hover:text-purple-600 hover:bg-white rounded-lg transition-colors border-2 border-dashed border-gray-200 hover:border-purple-300"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    Add Lead
-                                </Link>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>

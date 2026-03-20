@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Minimize2, Maximize2 } from "lucide-react";
 import sanitizeHtml from "sanitize-html";
 
 interface Message {
@@ -57,6 +58,7 @@ function formatMarkdown(text: string): string {
 
 export default function AnoseAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -585,30 +587,53 @@ export default function AnoseAssistant() {
       `}</style>
 
       <div className="ana-fab">
-        {/* Greeting bubble */}
-        {showGreeting && !isOpen && (
-          <div className="ana-greeting">
-            💜 Hi! I&apos;m Ana, your beauty guide!
-          </div>
-        )}
-
         {/* FAB Button */}
         {!isOpen && (
-          <button
-            onClick={handleOpen}
-            className="ana-trigger-btn"
-            aria-label="Open Ana Assistant"
-          >
-            <div className="ana-trigger-pulse" />
-            {!chipsUsed && <div className="ana-unread-badge" />}
-            <Image
-              src="/assets/images/ana-character.webp"
-              alt="Ana"
-              width={48}
-              height={48}
-              style={{ objectFit: 'cover', borderRadius: '50%' }}
-            />
-          </button>
+          <div className="flex flex-col items-end gap-2 group/fab">
+            {showGreeting && !isMinimized && (
+              <div className="ana-greeting">
+                💜 Hi! I&apos;m Ana, your beauty guide!
+              </div>
+            )}
+            
+            <div className={`flex items-center gap-2 transition-all duration-300 ${isMinimized ? 'opacity-40 hover:opacity-100' : ''}`}>
+              <button
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="p-1.5 bg-gray-200 hover:bg-gray-300 rounded-full text-gray-500 opacity-0 group-hover/fab:opacity-100 transition-opacity"
+                title={isMinimized ? "Expand Ana" : "Minimize Ana"}
+              >
+                {isMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+              </button>
+              
+              {!isMinimized && (
+                <button
+                  onClick={handleOpen}
+                  className="ana-trigger-btn group"
+                  aria-label="Open Ana Assistant"
+                >
+                  <div className="ana-trigger-pulse" />
+                  {!chipsUsed && <div className="ana-unread-badge" />}
+                  <Image
+                    src="/assets/images/ana-character.webp"
+                    alt="Ana"
+                    width={48}
+                    height={48}
+                    style={{ objectFit: 'cover', borderRadius: '50%' }}
+                    className="group-hover:opacity-80 transition-opacity"
+                  />
+                </button>
+              )}
+              
+              {isMinimized && (
+                <button
+                  onClick={handleOpen}
+                  className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-lg overflow-hidden"
+                >
+                  <Image src="/assets/images/ana-character.webp" alt="Ana" width={24} height={24} style={{ objectFit: 'cover' }} />
+                </button>
+              )}
+            </div>
+          </div>
         )}
 
         {/* Close FAB when open */}
