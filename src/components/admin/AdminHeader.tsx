@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, LogOut, Bell, Settings, User } from 'lucide-react';
+import { Menu, LogOut, Bell, Settings, User, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface AdminHeaderProps {
@@ -30,7 +30,20 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                         <h2 className="text-xl font-bold text-gray-900 leading-tight">
                             Welcome back, {session?.user?.name?.split(' ')[0] || 'Admin'}! 👋
                         </h2>
-                        <p className="text-xs text-gray-500 font-medium mt-0.5">Managing Anose Admin Panel</p>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5 whitespace-nowrap">Managing Anose Admin Panel</p>
+                    </div>
+
+                    {/* Global Search Bar */}
+                    <div className="hidden md:flex items-center relative ml-4 xl:ml-8">
+                        <Search className="absolute left-4 w-4 h-4 text-gray-400 pointer-events-none" />
+                        <input
+                            type="search"
+                            placeholder="Quick search Product, Order, Customer..."
+                            className="w-64 lg:w-80 xl:w-96 pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-600/10 focus:border-purple-600/30 transition-all"
+                        />
+                        <div className="absolute right-3 px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-bold text-gray-400 pointer-events-none">
+                            ⌘ K
+                        </div>
                     </div>
 
                     {/* Mobile title */}

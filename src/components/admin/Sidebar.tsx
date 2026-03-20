@@ -96,7 +96,7 @@ const NavItemComponent = ({
                     onClick={() => toggleMenu(item.name)}
                     title={isCollapsed ? item.name : undefined}
                     className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive || isChildActive
-                        ? 'bg-purple-600/20 text-purple-400'
+                        ? 'bg-purple-600/10 text-purple-600 font-semibold'
                         : 'text-gray-400 hover:text-white'
                         }`}
                 >
@@ -179,13 +179,16 @@ const NavItemComponent = ({
             href={item.href}
             onClick={() => window.innerWidth < 1024 && onClose()}
             title={isCollapsed ? item.name : undefined}
-            className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                : 'text-gray-400 hover:text-white'
+            className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-xl transition-all duration-200 group relative ${isActive
+                ? 'bg-purple-600/10 text-purple-600 font-bold'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
         >
+            {isActive && !isCollapsed && (
+                <div className="absolute left-0 w-1.5 h-6 bg-purple-600 rounded-r-full" />
+            )}
             <div className={`flex items-center ${!isCollapsed && 'gap-3'}`}>
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
+                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-white'}`} />
                 {!isCollapsed && <span className="font-medium">{item.name}</span>}
             </div>
             {!isCollapsed && isActive && <ChevronRight className="w-4 h-4 opacity-75" />}

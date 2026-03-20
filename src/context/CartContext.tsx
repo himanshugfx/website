@@ -108,6 +108,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     cartItems: updatedCart.map(item => ({
                         id: item.id,
                         name: item.name,
+                        image: item.image,
                         quantity: item.quantity,
                         price: item.price
                     })),

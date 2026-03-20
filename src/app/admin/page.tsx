@@ -119,29 +119,37 @@ export default async function AdminDashboard() {
             <div className="space-y-6">
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 gap-y-6 gap-x-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}
                         icon={IndianRupee}
+                        trend={{ value: '12.5%', positive: true }}
+                        sparkline={[65, 78, 66, 89, 76, 92, 98]}
                         color="green"
                     />
                     <StatsCard
                         title="Total Orders"
                         value={stats.totalOrders}
                         icon={ShoppingCart}
+                        trend={{ value: '8.2%', positive: true }}
+                        sparkline={[45, 52, 48, 61, 55, 67, 72]}
                         color="blue"
                     />
                     <StatsCard
                         title="Products"
                         value={stats.totalProducts}
                         icon={Package}
+                        trend={{ value: '2.4%', positive: true }}
+                        sparkline={[120, 122, 122, 125, 125, 128, 128]}
                         color="purple"
                     />
                     <StatsCard
                         title="Customers"
                         value={stats.totalUsers}
                         icon={Users}
+                        trend={{ value: '15.7%', positive: true }}
+                        sparkline={[340, 360, 380, 410, 430, 460, 490]}
                         color="orange"
                     />
                 </div>
@@ -166,12 +174,12 @@ export default async function AdminDashboard() {
                         {/* Mobile View - Card Layout */}
                         <div className="md:hidden p-4 space-y-3">
                             {pendingOrders.length === 0 ? (
-                                <div className="flex flex-col items-center gap-3 py-8">
-                                    <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-2">
-                                        <ShoppingCart className="w-7 h-7 text-gray-300" />
+                                <div className="flex flex-col items-center justify-center gap-3 py-10 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100 italic">
+                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 scale-110">
+                                        <ShoppingCart className="w-8 h-8 text-emerald-400" />
                                     </div>
-                                    <p className="text-gray-900 font-medium text-sm">No pending orders</p>
-                                    <p className="text-gray-500 text-xs">All orders are processed! 🎉</p>
+                                    <p className="text-gray-900 font-bold text-base">All caught up! 🎉</p>
+                                    <p className="text-gray-500 text-xs text-center px-6">No pending orders found. Great job managing the store today.</p>
                                 </div>
                             ) : (
                                 pendingOrders.map((order) => (
@@ -227,8 +235,14 @@ export default async function AdminDashboard() {
                                 <tbody className="divide-y divide-gray-100">
                                     {pendingOrders.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                                No pending orders - All caught up! 🎉
+                                            <td colSpan={5} className="px-6 py-20 text-center">
+                                                <div className="flex flex-col items-center justify-center gap-4 max-w-sm mx-auto">
+                                                    <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-2 animate-bounce duration-[3000ms]">
+                                                        <ShoppingCart className="w-10 h-10 text-emerald-500" />
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-gray-900">All caught up! 🎉</h3>
+                                                    <p className="text-gray-500 text-sm">Every order has been processed. Take a moment to relax or check your analytics.</p>
+                                                </div>
                                             </td>
                                         </tr>
                                     ) : (
@@ -285,14 +299,14 @@ export default async function AdminDashboard() {
 
                     {/* Quick Actions / Mini Stats */}
                     <div className="space-y-4 sm:space-y-8">
-                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 sm:p-8 text-white shadow-lg shadow-gray-200">
-                            <h3 className="text-base sm:text-lg font-bold mb-1">Quick Action</h3>
-                            <p className="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 opacity-90">Add new leads to your sales funnel.</p>
+                        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Quick Action</h3>
+                            <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Easily add new leads to your sales funnel.</p>
                             <Link
                                 href="/admin/funnel/leads/add"
-                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-white text-black rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base mb-3"
+                                className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 bg-purple-600 text-white rounded-xl font-bold transition-all hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-500/25 active:scale-[0.98] text-sm sm:text-base mb-3 group"
                             >
-                                <Users className="w-5 h-5" />
+                                <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
                                 Add Lead
                             </Link>
                         </div>

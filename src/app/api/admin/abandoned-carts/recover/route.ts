@@ -13,47 +13,83 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { orderId, type } = await req.json();
+        const { orderId, checkoutId, type } = await req.json();
 
-        if (!orderId || !type) {
-            return NextResponse.json({ error: 'Order ID and Type are required' }, { status: 400 });
+        if (!orderId && !checkoutId) {
+            return NextResponse.json({ error: 'Order ID or Checkout ID is required' }, { status: 400 });
         }
 
-        // Fetch order details
-        const order = await prisma.order.findUnique({
-            where: { id: orderId },
-            include: {
-                user: true,
-                items: {
-                    include: {
-                        product: true
+        let customerName = 'Customer';
+        let customerEmail = '';
+        let customerPhone = '';
+        let items: any[] = [];
+        let total = 0;
+
+        if (orderId) {
+            // Fetch order details
+            const order = await prisma.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    user: true,
+                    items: {
+                        include: {
+                            product: true
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        if (!order) {
-            return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+            if (order) {
+                customerName = order.user?.name || order.customerName || 'Customer';
+                customerEmail = order.user?.email || order.customerEmail || '';
+                customerPhone = order.customerPhone || '';
+                items = order.items.map(item => ({
+                    name: item.product.name,
+                    price: item.price,
+                    quantity: item.quantity
+                }));
+                total = order.total;
+
+                if (!customerPhone && order.address) {
+                    try {
+                        const addr = JSON.parse(order.address);
+                        customerPhone = addr.phone || '';
+                    } catch (e) {}
+                }
+            }
+        } else if (checkoutId) {
+            // Fetch abandoned checkout details
+            const checkout = await prisma.abandonedCheckout.findUnique({
+                where: { id: checkoutId }
+            });
+
+            if (checkout) {
+                customerName = checkout.customerName || 'Customer';
+                customerEmail = checkout.customerEmail || '';
+                customerPhone = checkout.customerPhone || '';
+                items = checkout.cartItems ? JSON.parse(checkout.cartItems) : [];
+                total = checkout.total || 0;
+
+                if (!customerEmail && checkout.shippingInfo) {
+                    try {
+                        const info = JSON.parse(checkout.shippingInfo);
+                        customerEmail = info.email || '';
+                    } catch (e) {}
+                }
+                if (!customerPhone && checkout.shippingInfo) {
+                    try {
+                        const info = JSON.parse(checkout.shippingInfo);
+                        customerPhone = info.phone || '';
+                    } catch (e) {}
+                }
+            }
         }
 
-        const customerName = order.user?.name || 'Customer';
-        const customerEmail = order.user?.email;
-
-        // Try to extract phone from address if it's a JSON string
-        let customerPhone = '';
-        if (order.address) {
-            try {
-                const addr = JSON.parse(order.address);
-                customerPhone = addr.phone || '';
-            } catch (e) {
-                // If it's not JSON, it's just a string, no phone detectable easily
-            }
+        if (items.length === 0) {
+            return NextResponse.json({ error: 'Record not found or empty' }, { status: 404 });
         }
 
-
-        // In a real implementation, we would send the message here
-        // For now, we'll log it and return success
-        console.log(`Recovering order ${orderId} via ${type} for ${customerName}`);
+        console.log(`Recovering ${orderId ? 'order' : 'checkout'} ${orderId || checkoutId} via ${type} for ${customerName}`);
 
         if (type === 'whatsapp') {
             return NextResponse.json({ error: 'WhatsApp recovery is no longer supported' }, { status: 400 });
@@ -113,20 +149,20 @@ export async function POST(req: Request) {
                                 </p>
                                 
                                 <div class="cart-items">
-                                    ${order.items.map(item => `
+                                    ${items.map(item => `
                                         <div class="item">
-                                            <span class="item-name">${item.product.name} (x${item.quantity})</span>
+                                            <span class="item-name">${item.name} (x${item.quantity})</span>
                                             <span class="item-price">₹${item.price.toFixed(2)}</span>
                                         </div>
                                     `).join('')}
                                     <div class="item" style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #cbd5e1;">
                                         <span class="item-name" style="font-size: 18px;">Total</span>
-                                        <span class="item-name" style="font-size: 18px;">₹${order.total.toFixed(2)}</span>
+                                        <span class="item-name" style="font-size: 18px;">₹${total.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 <div style="text-align: center;">
-                                    <a href="${process.env.NEXTAUTH_URL}/checkout?orderId=${order.id}" class="cta-button">Complete My Order</a>
+                                    <a href="${process.env.NEXTAUTH_URL}/checkout?${orderId ? 'orderId' : 'checkoutId'}=${orderId || checkoutId}" class="cta-button">Complete My Order</a>
                                 </div>
                             </div>
                             <div class="footer">

@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { ChevronRight, ShoppingCart, RefreshCw, MessageCircle, Mail, MapPin, Trash2 } from 'lucide-react';
+import { ChevronRight, ShoppingCart, RefreshCw, MessageCircle, Mail, MapPin, Trash2, Search, ArrowUpDown, Filter, CheckSquare, Square, Inbox, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 
 interface CartItem {
     id: string;
     name: string;
+    image?: string;
     quantity: number;
     price: number;
 }
@@ -34,6 +36,11 @@ export default function AbandonedCartsPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [recovering, setRecovering] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterHasEmail, setFilterHasEmail] = useState(false);
+    const [sortBy, setSortBy] = useState<'date' | 'value'>('date');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     const fetchCheckouts = async () => {
         try {
@@ -62,17 +69,13 @@ export default function AbandonedCartsPage() {
         try {
             setRecovering(checkoutId);
 
-            // Use the existing recovery endpoint
+            // Use the updated recovery endpoint
             const res = await fetch('/api/admin/abandoned-carts/recover', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    checkoutId,
+                    checkoutId: checkoutId,
                     type,
-                    phone: checkout.customerPhone,
-                    email: checkout.customerEmail,
-                    customerName: checkout.customerName,
-                    cartItems: checkout.cartItems,
                     total: checkout.total
                 }),
             });
@@ -129,129 +132,347 @@ export default function AbandonedCartsPage() {
 
     const getSourceBadge = (source: string | null) => {
         if (source === 'CHECKOUT') {
-            return <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">Checkout</span>;
+            return (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
+                    Checkout
+                </span>
+            );
         }
-        return <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">Cart</span>;
+        return (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5" />
+                Cart
+            </span>
+        );
     };
+
+    const handleSort = (key: 'date' | 'value') => {
+        if (sortBy === key) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(key);
+            setSortOrder('desc');
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === checkouts.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(checkouts.map(c => c.id)));
+        }
+    };
+
+    const toggleSelect = (id: string) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to archive ${selectedIds.size} carts?`)) return;
+        
+        try {
+            setLoading(true);
+            for (const id of Array.from(selectedIds)) {
+                await fetch(`/api/admin/abandoned-checkouts?id=${id}`, { method: 'DELETE' });
+            }
+            setCheckouts(prev => prev.filter(c => !selectedIds.has(c.id)));
+            setSelectedIds(new Set());
+        } catch (error) {
+            console.error('Bulk delete error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredAndSortedCheckouts = checkouts
+        .filter(c => {
+            if (filterHasEmail && !getDisplayEmail(c).includes('@')) return false;
+            if (searchQuery) {
+                const search = searchQuery.toLowerCase();
+                return (
+                    getDisplayName(c).toLowerCase().includes(search) ||
+                    getDisplayEmail(c).toLowerCase().includes(search) ||
+                    (c.city?.toLowerCase().includes(search))
+                );
+            }
+            return true;
+        })
+        .sort((a, b) => {
+            const factor = sortOrder === 'asc' ? 1 : -1;
+            if (sortBy === 'value') {
+                return ((a.total || 0) - (b.total || 0)) * factor;
+            }
+            return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * factor;
+        });
 
     return (
         <AdminLayout>
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
+            <div className="space-y-6 max-w-[1600px] mx-auto">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Abandoned Carts</h1>
-                        <p className="text-sm text-gray-500">Track users who added items to cart but didn't complete purchase</p>
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Abandoned Carts</h1>
+                        <p className="text-sm text-gray-500 font-medium mt-1">
+                            Target the <span className="text-purple-600 font-bold">{checkouts.length} potential saves</span> in your sales funnel
+                        </p>
                     </div>
-                    <button onClick={fetchCheckouts} className="p-2 hover:bg-gray-100 rounded-lg">
-                        <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
+                    
+                    <div className="flex items-center gap-2">
+                        <div className="relative group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search by name, email..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-purple-500 transition-all w-64"
+                            />
+                        </div>
+                        <button 
+                            onClick={() => setFilterHasEmail(!filterHasEmail)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                                filterHasEmail 
+                                ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-200' 
+                                : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
+                            }`}
+                        >
+                            <Filter className="w-4 h-4" />
+                            {filterHasEmail ? 'Identified Only' : 'All Users'}
+                        </button>
+                        <button onClick={fetchCheckouts} className="p-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">
+                            <RefreshCw className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-gray-200">
+                {/* Bulk Actions Bar */}
+                {selectedIds.size > 0 && (
+                    <div className="flex items-center justify-between bg-purple-900 text-white px-6 py-3 rounded-2xl shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm font-bold">{selectedIds.size} items selected</span>
+                            <div className="h-4 w-px bg-white/20" />
+                            <button className="text-sm font-semibold hover:text-purple-200 transition-colors flex items-center gap-2">
+                                <Mail className="w-4 h-4" />
+                                Bulk Recovery
+                            </button>
+                        </div>
+                        <button 
+                            onClick={handleBulkDelete}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors"
+                        >
+                            Archive Selected
+                        </button>
+                    </div>
+                )}
+
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
+                    <div className="overflow-x-auto max-h-[70vh] overflow-y-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
                                 <tr>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Customer</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Location</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Cart Value</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Items</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Stage</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                                    <th className="pl-6 py-5 w-10">
+                                        <button onClick={toggleSelectAll} className="p-1 hover:bg-gray-100 rounded-md transition-colors">
+                                            {selectedIds.size === checkouts.length && checkouts.length > 0 ? (
+                                                <CheckSquare className="w-5 h-5 text-purple-600" />
+                                            ) : (
+                                                <Square className="w-5 h-5 text-gray-300" />
+                                            )}
+                                        </button>
+                                    </th>
+                                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Customer</th>
+                                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Location</th>
+                                    <th 
+                                        className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest cursor-pointer group"
+                                        onClick={() => handleSort('value')}
+                                    >
+                                        <div className="flex items-center gap-1 group-hover:text-purple-600 transition-colors">
+                                            Cart Value
+                                            <ArrowUpDown className={`w-3 h-3 ${sortBy === 'value' ? 'text-purple-600' : 'text-gray-300'}`} />
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Abandoned Items</th>
+                                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Stage</th>
+                                    <th 
+                                        className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest cursor-pointer group"
+                                        onClick={() => handleSort('date')}
+                                    >
+                                        <div className="flex items-center gap-1 group-hover:text-purple-600 transition-colors">
+                                            Date
+                                            <ArrowUpDown className={`w-3 h-3 ${sortBy === 'date' ? 'text-purple-600' : 'text-gray-300'}`} />
+                                        </div>
+                                    </th>
+                                    <th className="pr-6 py-5 text-right text-[11px] font-black text-gray-400 uppercase tracking-widest">Quick Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {loading ? (
+                            <tbody className="divide-y divide-gray-50">
+                                {loading && checkouts.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-10 text-center text-gray-500">Loading...</td>
+                                        <td colSpan={8} className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center gap-3">
+                                                <RefreshCw className="w-10 h-10 text-purple-200 animate-spin" />
+                                                <span className="text-gray-400 font-medium">Loading your leads...</span>
+                                            </div>
+                                        </td>
                                     </tr>
-                                ) : checkouts.length === 0 ? (
+                                ) : filteredAndSortedCheckouts.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-10 text-center text-gray-500">No abandoned carts found.</td>
+                                        <td colSpan={8} className="px-6 py-32 text-center">
+                                            <div className="flex flex-col items-center gap-4 max-w-xs mx-auto">
+                                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center">
+                                                    <Inbox className="w-10 h-10 text-gray-200" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-gray-900">No carts found</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">Try adjusting your filters or search query to find identifying users.</p>
+                                                </div>
+                                                <button 
+                                                    onClick={() => {setSearchQuery(''); setFilterHasEmail(false);}}
+                                                    className="inline-flex items-center gap-2 px-6 py-2 bg-gray-900 text-white rounded-full text-sm font-bold hover:bg-gray-800 transition-all"
+                                                >
+                                                    Clear All Filters
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ) : (
-                                    checkouts.map((checkout) => (
-                                        <tr key={checkout.id} className="hover:bg-gray-50/50">
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {getDisplayName(checkout)}
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {getDisplayEmail(checkout)}
-                                                </div>
-                                                {getDisplayPhone(checkout) && (
-                                                    <div className="text-xs text-gray-400">
-                                                        {getDisplayPhone(checkout)}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-1 text-sm text-gray-600">
-                                                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                                                    {getLocation(checkout)}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                                                {checkout.total ? `₹${checkout.total.toLocaleString()}` : '-'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-600">
-                                                    {checkout.cartItems?.length || 0} items
-                                                </div>
-                                                {checkout.cartItems?.slice(0, 2).map((item, idx) => (
-                                                    <div key={idx} className="text-xs text-gray-400 truncate max-w-[150px]">
-                                                        {item.name} x{item.quantity}
-                                                    </div>
-                                                ))}
-                                                {checkout.cartItems?.length > 2 && (
-                                                    <div className="text-xs text-gray-400">
-                                                        +{checkout.cartItems.length - 2} more
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {getSourceBadge(checkout.source)}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                {new Date(checkout.createdAt).toLocaleDateString()}
-                                                <div className="text-xs text-gray-400">
-                                                    {new Date(checkout.createdAt).toLocaleTimeString()}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    {getDisplayPhone(checkout) && (
-                                                        <button
-                                                            onClick={() => handleRecover(checkout.id, 'whatsapp')}
-                                                            disabled={recovering === checkout.id}
-                                                            className="p-1.5 text-green-600 hover:bg-green-50 rounded"
-                                                            title="Send WhatsApp"
-                                                        >
-                                                            <MessageCircle className="w-4 h-4" />
-                                                        </button>
-                                                    )}
-                                                    {getDisplayEmail(checkout) !== 'No email' && (
-                                                        <button
-                                                            onClick={() => handleRecover(checkout.id, 'email')}
-                                                            disabled={recovering === checkout.id}
-                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
-                                                            title="Send Email"
-                                                        >
-                                                            <Mail className="w-4 h-4" />
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => handleMarkRecovered(checkout.id)}
-                                                        className="p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded"
-                                                        title="Mark as Recovered"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
+                                    filteredAndSortedCheckouts.map((checkout) => {
+                                        const isGuest = getDisplayName(checkout) === 'Guest';
+                                        const phone = getDisplayPhone(checkout);
+                                        const email = getDisplayEmail(checkout);
+                                        const hasEmail = email.includes('@');
+                                        
+                                        return (
+                                            <tr 
+                                                key={checkout.id} 
+                                                className={`group hover:bg-purple-50/30 transition-all duration-300 ${selectedIds.has(checkout.id) ? 'bg-purple-50/50' : ''}`}
+                                            >
+                                                <td className="pl-6 py-6">
+                                                    <button onClick={() => toggleSelect(checkout.id)} className="p-1">
+                                                        {selectedIds.has(checkout.id) ? (
+                                                            <CheckSquare className="w-5 h-5 text-purple-600" />
+                                                        ) : (
+                                                            <Square className="w-5 h-5 text-gray-200 group-hover:text-gray-300" />
+                                                        )}
                                                     </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className={`text-sm tracking-tight ${isGuest ? 'text-gray-400 font-mediumitalic' : 'text-gray-900 font-black'}`}>
+                                                            {getDisplayName(checkout)}
+                                                        </span>
+                                                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 truncate max-w-[180px]">
+                                                            {hasEmail ? <Mail className="w-2.5 h-2.5" /> : null}
+                                                            {email}
+                                                        </div>
+                                                        {phone && (
+                                                            <div className="text-[10px] text-gray-300 font-medium">
+                                                                {phone}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    <div className="flex items-center gap-1 text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-lg w-fit">
+                                                        <MapPin className="w-3 h-3 text-red-400" />
+                                                        {getLocation(checkout)}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    <span className="text-base font-black text-gray-900">
+                                                        {checkout.total ? `₹${checkout.total.toLocaleString()}` : '₹0'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    <div className="flex flex-col gap-3">
+                                                        <div className="flex -space-x-3 overflow-hidden">
+                                                            {checkout.cartItems?.slice(0, 3).map((item, idx) => (
+                                                                <div 
+                                                                    key={idx} 
+                                                                    className="relative w-10 h-10 rounded-xl bg-white border-2 border-white shadow-md overflow-hidden ring-1 ring-gray-100"
+                                                                    title={item.name}
+                                                                >
+                                                                    {item.image ? (
+                                                                        <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                                                                            <ShoppingCart className="w-4 h-4 text-gray-200" />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                            {checkout.cartItems?.length > 3 && (
+                                                                <div className="relative w-10 h-10 rounded-xl bg-purple-100 border-2 border-white shadow-md flex items-center justify-center text-[10px] font-black text-purple-600 ring-1 ring-gray-100">
+                                                                    +{checkout.cartItems.length - 3}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            {checkout.cartItems?.slice(0, 1).map((item, idx) => (
+                                                                <span key={idx} className="text-xs font-bold text-gray-600 line-clamp-1">
+                                                                    {item.name} <span className="text-gray-400 font-normal">x{item.quantity}</span>
+                                                                </span>
+                                                            ))}
+                                                            <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">
+                                                                {checkout.cartItems?.length || 0} Products Lost
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    {getSourceBadge(checkout.source)}
+                                                </td>
+                                                <td className="px-4 py-6">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className="text-xs font-bold text-gray-700">
+                                                            {new Date(checkout.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400 font-medium">
+                                                            {new Date(checkout.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="pr-6 py-6 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {phone && (
+                                                            <a
+                                                                href={`https://wa.me/${phone.replace(/\D/g, '')}?text=Hi ${getDisplayName(checkout)}, we noticed you left some items in your cart at Anose Beauty. Would you like to complete your order?`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300 font-bold text-[10px]"
+                                                            >
+                                                                <MessageCircle className="w-3.5 h-3.5" />
+                                                                WhatsApp
+                                                            </a>
+                                                        )}
+                                                        {hasEmail && (
+                                                            <button
+                                                                onClick={() => handleRecover(checkout.id, 'email')}
+                                                                disabled={recovering === checkout.id}
+                                                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300 font-bold text-[10px] disabled:opacity-50"
+                                                            >
+                                                                {recovering === checkout.id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                                                                Email
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleMarkRecovered(checkout.id)}
+                                                            className="p-2 text-gray-300 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all"
+                                                            title="Archive Cart"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
@@ -259,23 +480,27 @@ export default function AbandonedCartsPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-purple-300 hover:text-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                             >
+                                <ChevronRight className="w-4 h-4 rotate-180" />
                                 Previous
                             </button>
-                            <span className="text-sm text-gray-600">
-                                Page {page} of {totalPages}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-gray-400">Page</span>
+                                <span className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-sm font-black text-purple-600 shadow-sm">{page}</span>
+                                <span className="text-sm font-bold text-gray-400">of {totalPages}</span>
+                            </div>
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-purple-300 hover:text-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                             >
                                 Next
+                                <ChevronRight className="w-4 h-4" />
                             </button>
                         </div>
                     )}

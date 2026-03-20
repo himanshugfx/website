@@ -119,6 +119,7 @@ export default function CheckoutClient() {
                     cartItems: cart.map(item => ({
                         id: item.id,
                         name: item.name,
+                        image: item.image,
                         quantity: item.quantity,
                         price: item.price
                     })),

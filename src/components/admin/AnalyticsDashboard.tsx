@@ -135,18 +135,31 @@ export default function AnalyticsDashboard() {
                         <h3 className="font-semibold text-gray-900">Top Cities</h3>
                         <span className="text-xs text-gray-400 ml-auto">by sessions</span>
                     </div>
-                    <div className="space-y-3">
-                        {data.cities.slice(0, 10).map((city, i) => (
-                            <div key={city.city} className="flex items-center gap-3">
-                                <span className="w-5 h-5 flex items-center justify-center text-xs font-bold text-gray-400 bg-gray-100 rounded">
-                                    {i + 1}
-                                </span>
-                                <span className="flex-1 text-sm text-gray-700 truncate">{city.city || 'Unknown'}</span>
-                                <span className="text-sm font-semibold text-gray-900">{city.sessions.toLocaleString()}</span>
-                            </div>
-                        ))}
+                    <div className="space-y-4">
+                        {data.cities.slice(0, 10).map((city, i) => {
+                            const maxSessions = data.cities[0]?.sessions || 1;
+                            const barWidth = (city.sessions / maxSessions) * 100;
+                            return (
+                                <div key={city.city} className="relative group">
+                                    <div 
+                                        className="absolute inset-y-0 left-0 bg-purple-50 rounded-lg group-hover:bg-purple-100/70 transition-all duration-500" 
+                                        style={{ width: `${barWidth}%` }}
+                                    />
+                                    <div className="relative flex items-center gap-3 px-3 py-2">
+                                        <span className="w-5 h-5 flex items-center justify-center text-[10px] font-bold text-purple-400 bg-white border border-purple-100 rounded-full shadow-sm">
+                                            {i + 1}
+                                        </span>
+                                        <span className="flex-1 text-sm font-medium text-gray-700 truncate">{city.city || 'Unknown'}</span>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-sm font-bold text-gray-900">{city.sessions.toLocaleString()}</span>
+                                            <span className="text-[10px] text-gray-400 font-medium">{((city.sessions / totalSessions) * 100).toFixed(1)}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                         {data.cities.length === 0 && (
-                            <p className="text-sm text-gray-400 text-center py-4">No city data available</p>
+                            <p className="text-sm text-gray-400 text-center py-4 italic">No city data available yet</p>
                         )}
                     </div>
                 </div>
@@ -157,26 +170,67 @@ export default function AnalyticsDashboard() {
                         <Globe className="w-4 h-4 text-blue-600" />
                         <h3 className="font-semibold text-gray-900">Traffic Sources</h3>
                     </div>
-                    <div className="space-y-3">
-                        {data.trafficSources.map((source) => {
-                            const percent = totalSessions > 0 ? (source.sessions / totalSessions) * 100 : 0;
-                            return (
-                                <div key={source.source} className="space-y-1">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-700">{source.source}</span>
-                                        <span className="font-semibold text-gray-900">{source.sessions.toLocaleString()}</span>
-                                    </div>
-                                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-blue-500 rounded-full transition-all"
-                                            style={{ width: `${percent}%` }}
-                                        />
-                                    </div>
+                    <div className="flex flex-col md:flex-row items-center gap-8 py-4">
+                        {/* Simple SVG Donut Chart */}
+                        {data.trafficSources.length > 0 && (
+                            <div className="relative w-32 h-32 flex-shrink-0">
+                                <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
+                                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3" />
+                                    {data.trafficSources.reduce((acc: any, source, i) => {
+                                        const percent = (source.sessions / totalSessions) * 100;
+                                        const colors = ['#9333ea', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+                                        const offset = acc.total;
+                                        acc.total += percent;
+                                        acc.elements.push(
+                                            <circle
+                                                key={source.source}
+                                                cx="18" cy="18" r="15.915"
+                                                fill="none"
+                                                stroke={colors[i % colors.length]}
+                                                strokeWidth="3.5"
+                                                strokeDasharray={`${percent} ${100 - percent}`}
+                                                strokeDashoffset={100 - offset}
+                                                className="transition-all duration-1000"
+                                            />
+                                        );
+                                        return acc;
+                                    }, { total: 0, elements: [] }).elements}
+                                </svg>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span className="text-xs font-bold text-gray-900">Total</span>
+                                    <span className="text-[10px] text-gray-500 font-medium">Sessions</span>
                                 </div>
-                            );
-                        })}
+                            </div>
+                        )}
+                        
+                        <div className="flex-1 w-full space-y-3">
+                            {data.trafficSources.map((source, i) => {
+                                const percent = totalSessions > 0 ? (source.sessions / totalSessions) * 100 : 0;
+                                const colors = ['bg-purple-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'];
+                                return (
+                                    <div key={source.source} className="space-y-1">
+                                        <div className="flex items-center justify-between text-xs font-semibold">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]}`} />
+                                                <span className="text-gray-600">{source.source}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-900">{source.sessions.toLocaleString()}</span>
+                                                <span className="text-gray-400 font-normal">{percent.toFixed(1)}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full ${colors[i % colors.length]} rounded-full transition-all duration-1000`}
+                                                style={{ width: `${percent}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                         {data.trafficSources.length === 0 && (
-                            <p className="text-sm text-gray-400 text-center py-4">No traffic source data available</p>
+                            <p className="text-sm text-gray-400 text-center py-4 italic">No source data found</p>
                         )}
                     </div>
                 </div>
@@ -188,36 +242,43 @@ export default function AnalyticsDashboard() {
                         <h3 className="font-semibold text-gray-900">Top Pages</h3>
                         <span className="text-xs text-gray-400 ml-auto">by page views</span>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-gray-100">
-                                    <th className="text-left text-xs font-semibold text-gray-500 uppercase py-2 pr-4">Page</th>
-                                    <th className="text-right text-xs font-semibold text-gray-500 uppercase py-2 px-4">Views</th>
-                                    <th className="text-right text-xs font-semibold text-gray-500 uppercase py-2 pl-4">Avg. Duration</th>
+                    <div className="relative overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
+                        <table className="w-full border-collapse">
+                            <thead className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+                                <tr>
+                                    <th className="text-left text-[10px] font-bold text-gray-500 uppercase tracking-widest py-3 pr-4 px-2">Page Path</th>
+                                    <th className="text-right text-[10px] font-bold text-gray-500 uppercase tracking-widest py-3 px-4">Page Views</th>
+                                    <th className="text-right text-[10px] font-bold text-gray-500 uppercase tracking-widest py-3 pl-4">Avg. Duration</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {data.topPages.filter(page => !page.path.startsWith('/admin')).slice(0, 10).map((page) => (
-                                    <tr key={page.path} className="border-b border-gray-50 last:border-0">
-                                        <td className="py-2.5 pr-4">
-                                            <span className="text-sm text-gray-700 font-mono truncate block max-w-xs">
-                                                {page.path}
-                                            </span>
+                            <tbody className="divide-y divide-gray-50">
+                                {data.topPages.filter(page => !page.path.startsWith('/admin')).slice(0, 15).map((page) => (
+                                    <tr 
+                                        key={page.path} 
+                                        onClick={() => window.open(page.path, '_blank')}
+                                        className="group hover:bg-purple-50/40 transition-all cursor-pointer"
+                                    >
+                                        <td className="py-3 pr-4 px-2">
+                                            <div className="flex items-center gap-2">
+                                                <TrendingUp className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <span className="text-xs text-gray-600 font-mono font-medium truncate group-hover:text-purple-600 transition-colors">
+                                                    {page.path}
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td className="text-right py-2.5 px-4">
-                                            <span className="text-sm font-semibold text-gray-900">{page.views.toLocaleString()}</span>
+                                        <td className="text-right py-3 px-4">
+                                            <span className="text-sm font-bold text-gray-900">{page.views.toLocaleString()}</span>
                                         </td>
-                                        <td className="text-right py-2.5 pl-4">
-                                            <span className="text-sm text-gray-500">
-                                                {Math.floor(page.avgDuration / 60)}:{String(Math.floor(page.avgDuration % 60)).padStart(2, '0')}
+                                        <td className="text-right py-3 pl-4">
+                                            <span className="text-xs text-gray-500 font-medium">
+                                                {Math.floor(page.avgDuration / 60)}m {String(Math.floor(page.avgDuration % 60)).padStart(2, '0')}s
                                             </span>
                                         </td>
                                     </tr>
                                 ))}
                                 {data.topPages.length === 0 && (
                                     <tr>
-                                        <td colSpan={3} className="text-center py-4 text-sm text-gray-400">No page data available</td>
+                                        <td colSpan={3} className="text-center py-10 text-sm text-gray-400 italic">No page activity found</td>
                                     </tr>
                                 )}
                             </tbody>
