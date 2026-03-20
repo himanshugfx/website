@@ -42,6 +42,7 @@ export default function InvoicesPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [syncing, setSyncing] = useState(false);
+    const [syncMessage, setSyncMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
     useEffect(() => {
         fetchInvoices();
@@ -62,13 +63,28 @@ export default function InvoicesPage() {
 
     const handleSync = async () => {
         setSyncing(true);
+        setSyncMessage(null);
         try {
             const res = await fetch('/api/admin/invoices/sync', { method: 'POST' });
+            const data = await res.json();
+            
             if (res.ok) {
+                setSyncMessage({ 
+                    text: data.message || `Successfully synced ${data.syncedCount || ''} invoices.`, 
+                    type: 'success' 
+                });
                 fetchInvoices();
+                // Clear message after 5 seconds
+                setTimeout(() => setSyncMessage(null), 5000);
+            } else {
+                setSyncMessage({ 
+                    text: data.error || 'Failed to sync invoices. Please check your Zoho configuration.', 
+                    type: 'error' 
+                });
             }
         } catch (error) {
             console.error('Error syncing:', error);
+            setSyncMessage({ text: 'An unexpected error occurred during sync.', type: 'error' });
         } finally {
             setSyncing(false);
         }
@@ -82,6 +98,30 @@ export default function InvoicesPage() {
     return (
         <AdminLayout>
             <div className="space-y-6">
+                {/* Notifications */}
+                {syncMessage && (
+                    <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
+                        syncMessage.type === 'success' 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                            : 'bg-red-50 text-red-700 border-red-100'
+                    }`}>
+                        {syncMessage.type === 'success' ? (
+                            <div className="w-5 h-5 flex items-center justify-center bg-emerald-100 rounded-full">
+                                <Plus className="w-3 h-3 rotate-45 text-emerald-600" />
+                            </div>
+                        ) : (
+                            <AlertCircle className="w-5 h-5" />
+                        )}
+                        <p className="text-sm font-medium">{syncMessage.text}</p>
+                        <button 
+                            onClick={() => setSyncMessage(null)}
+                            className="ml-auto text-current opacity-50 hover:opacity-100"
+                        >
+                            <Plus className="w-4 h-4 rotate-45" />
+                        </button>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>

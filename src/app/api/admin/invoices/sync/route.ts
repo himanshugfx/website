@@ -74,12 +74,16 @@ export async function POST(request: Request) {
             }
         }
 
-        // Redirect back to invoices page
-        return NextResponse.redirect(new URL('/admin/invoices', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
-    } catch (error) {
+        // Return JSON response with synced count
+        return NextResponse.json({ 
+            success: true, 
+            message: `Successfully synced ${syncedCount} invoices from Zoho`,
+            syncedCount 
+        });
+    } catch (error: any) {
         console.error('Invoice sync error:', error);
         return NextResponse.json(
-            { error: 'Failed to sync invoices from Zoho' },
+            { error: error?.message || 'Failed to sync invoices from Zoho' },
             { status: 500 }
         );
     }
