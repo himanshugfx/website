@@ -1,23 +1,46 @@
-'use client';
-
+import { useState } from 'react';
 import { 
     IndianRupee, TrendingUp, TrendingDown, RefreshCcw, 
-    Tag, CreditCard, BarChart2, Target, Zap, PieChart, Focus
+    Tag, CreditCard, BarChart2, Target, Zap, PieChart, Focus,
+    Edit2, Save, X, Loader2
 } from 'lucide-react';
 
-export default function RevenueAnalytics({ data }: { data?: any }) {
+export default function RevenueAnalytics({ data, onRefresh }: { data?: any, onRefresh?: () => void }) {
+    const [isEditingTarget, setIsEditingTarget] = useState(false);
+    const [newTarget, setNewTarget] = useState(data?.revenueTarget || 300000);
+    const [saving, setSaving] = useState(false);
+
     if (!data) return null;
 
-    // Use DB data + static targets
+    const handleTargetUpdate = async () => {
+        setSaving(true);
+        try {
+            const res = await fetch('/api/admin/analytics/targets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target: Number(newTarget) })
+            });
+            if (res.ok) {
+                setIsEditingTarget(false);
+                if (onRefresh) onRefresh();
+            }
+        } catch (err) {
+            console.error('Failed to update target:', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // Use DB data + persistent targets
     const metrics = {
         totalRevenue: data.totalRevenue,
-        revenueTarget: Math.max(300000, data.thisMonthRevenue * 1.2), // Dynamic target
+        revenueTarget: data.revenueTarget || 300000,
         revenueGrowth: data.totalRevenue > 0 ? ((data.thisMonthRevenue / data.totalRevenue) * 100) : 0, 
         aov: data.aov,
         aovTarget: Math.max(1500, data.aov * 1.1),
-        aovGrowth: 0, // Need historical DB table for growth, using 0 for now
-        refundRate: data.refundRate.toFixed(1),
-        refundTarget: 2.0, // stay below
+        aovGrowth: 0, 
+        refundRate: data.refundRate,
+        refundTarget: 2.0,
         refundTrend: 0,
         discountImpact: data.discountImpact,
         discountROI: data.discountImpact > 0 ? Number((data.totalRevenue / data.discountImpact).toFixed(1)) : 0
@@ -26,11 +49,11 @@ export default function RevenueAnalytics({ data }: { data?: any }) {
     const revenueByCategory = data.categoryRevenue.map((cat: any, i: number) => ({
         name: cat.name,
         value: cat.value,
-        target: cat.value * 1.2, // Arbitrary 20% growth target
+        target: cat.value * 1.2, 
         color: ['bg-purple-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'][i % 5]
     }));
 
-    const formatCurrency = (val: number) => `₹${val.toLocaleString()}`;
+    const formatCurrency = (val: number) => `₹${Number(val).toLocaleString()}`;
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -41,28 +64,68 @@ export default function RevenueAnalytics({ data }: { data?: any }) {
                 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-4 flex-1">
-                        <div className="flex items-center gap-2">
-                            <Target className="w-5 h-5 text-purple-400" />
-                            <h2 className="text-sm font-black uppercase tracking-widest text-purple-200">Monthly Revenue Goal</h2>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Target className="w-5 h-5 text-purple-400" />
+                                <h2 className="text-sm font-black uppercase tracking-widest text-purple-200">Monthly Revenue Goal</h2>
+                            </div>
+                            {!isEditingTarget ? (
+                                <button 
+                                    onClick={() => setIsEditingTarget(true)}
+                                    className="p-1.5 hover:bg-white/10 rounded-lg transition-colors group/edit"
+                                    title="Set Target"
+                                >
+                                    <Edit2 className="w-3.5 h-3.5 text-purple-400 group-hover/edit:text-white" />
+                                </button>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={handleTargetUpdate}
+                                        disabled={saving}
+                                        className="p-1 px-2 bg-purple-600 hover:bg-purple-500 text-[10px] font-bold rounded flex items-center gap-1"
+                                    >
+                                        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                        Save
+                                    </button>
+                                    <button 
+                                        onClick={() => setIsEditingTarget(false)}
+                                        className="p-1 px-2 bg-white/10 hover:bg-white/20 text-[10px] font-bold rounded"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div>
                             <div className="flex items-baseline gap-2 mb-1">
-                                <span className="text-5xl font-black tracking-tighter">{formatCurrency(metrics.totalRevenue)}</span>
-                                <span className="text-xl font-bold text-gray-400">/ {formatCurrency(metrics.revenueTarget)}</span>
+                                <span className="text-5xl font-black tracking-tighter">{formatCurrency(data.thisMonthRevenue)}</span>
+                                <span className="text-xl font-bold text-gray-400">
+                                    / {isEditingTarget ? (
+                                        <input 
+                                            type="number"
+                                            value={newTarget}
+                                            onChange={(e) => setNewTarget(Number(e.target.value))}
+                                            className="bg-white/5 border border-white/10 rounded px-2 w-32 outline-none focus:border-purple-500 text-white"
+                                            autoFocus
+                                        />
+                                    ) : (
+                                        formatCurrency(metrics.revenueTarget)
+                                    )}
+                                </span>
                             </div>
-                            <p className="text-xs font-medium text-gray-400">On track to hit goal by the 28th. Keep it up!</p>
+                            <p className="text-xs font-medium text-gray-400">Combined Store Orders + Zoho Invoices. Target is customizable.</p>
                         </div>
                     </div>
                     
                     <div className="w-full md:w-1/3 space-y-2">
                         <div className="flex justify-between text-xs font-bold">
-                            <span className="text-purple-300">Progress</span>
-                            <span className="text-white">{Math.round((metrics.totalRevenue / metrics.revenueTarget) * 100)}%</span>
+                            <span className="text-purple-300">Month Progress</span>
+                            <span className="text-white">{Math.round((data.thisMonthRevenue / metrics.revenueTarget) * 100)}%</span>
                         </div>
                         <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden border border-gray-700">
                             <div 
-                                className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 rounded-full relative"
-                                style={{ width: `${Math.min(100, (metrics.totalRevenue / metrics.revenueTarget) * 100)}%` }}
+                                className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 rounded-full relative transition-all duration-1000"
+                                style={{ width: `${Math.min(100, (data.thisMonthRevenue / metrics.revenueTarget) * 100)}%` }}
                             >
                                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
                             </div>

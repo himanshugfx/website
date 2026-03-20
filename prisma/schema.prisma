@@ -351,3 +351,8 @@ model AdminPushToken {
   updatedAt DateTime @updatedAt
 }
 
+model AnalyticsSettings {
+  id                    String   @id @default("default")
+  monthlyRevenueTarget  Float    @default(300000)
+  updatedAt             DateTime @updatedAt
+}

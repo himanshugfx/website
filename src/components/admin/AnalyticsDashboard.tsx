@@ -144,7 +144,7 @@ export default function AnalyticsDashboard() {
 
             {/* Tab Contents */}
             <div className="mt-6">
-                {activeTab === 'revenue' && <RevenueAnalytics data={dbData?.revenue} />}
+                {activeTab === 'revenue' && <RevenueAnalytics data={dbData?.revenue} onRefresh={fetchAnalytics} />}
                 {activeTab === 'products' && <ProductAnalytics data={dbData?.products} />}
                 {activeTab === 'traffic' && <TrafficAnalytics data={data} />}
                 {activeTab === 'experience' && <CustomerExperience data={dbData?.experience} />}

@@ -11,36 +11,49 @@ export async function GET(request: Request) {
         const now = new Date();
         const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         
-        // 1. Valid Orders (Exclude Canceled/Failed)
-        const validOrders = await prisma.order.findMany({
-            where: {
-                status: { notIn: ['CANCELLED', 'REFUNDED', 'RETURNED'] },
-                paymentStatus: { not: 'FAILED' }
-            },
-            include: {
-                items: {
-                    include: { product: true }
-                }
-            }
-        });
+        // 1. Valid Orders & Invoices
+        const [validOrders, invoices, settings] = await Promise.all([
+            prisma.order.findMany({
+                where: {
+                    status: { notIn: ['CANCELLED', 'REFUNDED', 'RETURNED'] },
+                    paymentStatus: { not: 'FAILED' }
+                },
+                include: { items: { include: { product: true } } }
+            }),
+            prisma.invoice.findMany({
+                where: { status: { not: 'VOID' } }
+            }),
+            prisma.analyticsSettings.upsert({
+                where: { id: 'default' },
+                update: {},
+                create: { id: 'default', monthlyRevenueTarget: 300000 }
+            })
+        ]);
 
         const refundedOrders = await prisma.order.findMany({
             where: { status: { in: ['REFUNDED', 'RETURNED'] } }
         });
 
-        // 2. Revenue calculations
-        const totalRevenue = validOrders.reduce((sum, order) => sum + order.total, 0);
+        // 2. Revenue calculations (Orders + Zoho Invoices without Order IDs to avoid double counting)
+        const websiteRevenue = validOrders.reduce((sum, order) => sum + order.total, 0);
+        const manualInvoiceRevenue = invoices.filter(inv => !inv.orderId).reduce((sum, inv) => sum + inv.total, 0);
+        const totalRevenue = websiteRevenue + manualInvoiceRevenue;
+
+        // Monthly Breakdown
         const thisMonthOrders = validOrders.filter(o => o.createdAt >= thisMonthStart);
-        const thisMonthRevenue = thisMonthOrders.reduce((sum, order) => sum + order.total, 0);
+        const thisMonthInvoices = invoices.filter(inv => !inv.orderId && inv.invoiceDate >= thisMonthStart);
         
-        const aov = validOrders.length > 0 ? totalRevenue / validOrders.length : 0;
+        const thisMonthRevenue = thisMonthOrders.reduce((sum, order) => sum + order.total, 0) + 
+                               thisMonthInvoices.reduce((sum, inv) => sum + inv.total, 0);
+        
+        const aov = validOrders.length > 0 ? websiteRevenue / validOrders.length : 0;
         
         const totalRefundsValue = refundedOrders.reduce((sum, order) => sum + order.total, 0);
         const refundRate = totalRevenue > 0 ? (totalRefundsValue / (totalRevenue + totalRefundsValue)) * 100 : 0;
 
         const discountImpact = validOrders.reduce((sum, order) => sum + (order.discountAmount || 0), 0);
 
-        // 3. Category Revenue
+        // 3. Category Revenue (Invoices don't usually have category breakdown in this schema, so sticking to Orders)
         const categoryMap = new Map<string, number>();
         validOrders.forEach(order => {
             order.items.forEach(item => {
@@ -153,6 +166,7 @@ export async function GET(request: Request) {
                 revenue: {
                     totalRevenue,
                     thisMonthRevenue,
+                    revenueTarget: settings.monthlyRevenueTarget,
                     aov,
                     refundRate,
                     discountImpact,
