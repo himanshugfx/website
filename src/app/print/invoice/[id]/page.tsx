@@ -1,26 +1,40 @@
+'use client';
+
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
-import { Printer, ArrowLeft } from 'lucide-react';
+import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect, use } from 'react';
 
-export const dynamic = 'force-dynamic';
-
-export default async function PrintInvoicePage({
+export default function PrintInvoicePage({
     params
 }: {
     params: Promise<{ id: string }>
 }) {
-    const { id } = await params;
+    const resolvedParams = use(params);
+    const id = resolvedParams.id;
     
-    const invoice = await prisma.invoice.findUnique({
-        where: { id }
-    });
+    const [invoice, setInvoice] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    if (!invoice) {
-        notFound();
-    }
+    useEffect(() => {
+        fetchInvoice();
+    }, [id]);
 
-    const lineItems = (invoice.lineItems as any[]) || [];
+    const fetchInvoice = async () => {
+        try {
+            const res = await fetch(`/api/invoicing/invoices/${id}`);
+            const data = await res.json();
+            if (data.invoice) {
+                setInvoice(data.invoice);
+            } else {
+                setInvoice(null);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const formatCurrency = (amount: number | null | undefined) => {
         const val = amount || 0;
@@ -31,7 +45,7 @@ export default async function PrintInvoicePage({
         }).format(val);
     };
 
-    const formatDate = (date: Date | null | undefined) => {
+    const formatDate = (date: string | null | undefined) => {
         if (!date) return 'N/A';
         return new Date(date).toLocaleDateString('en-IN', {
             year: 'numeric',
@@ -40,8 +54,30 @@ export default async function PrintInvoicePage({
         });
     };
 
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+                <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+                <p className="text-gray-600 font-medium">Loading Invoice Details...</p>
+            </div>
+        );
+    }
+
+    if (!invoice) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center px-4">
+                <p className="text-gray-500 mb-4 text-xl">Invoice not found.</p>
+                <button onClick={() => window.close()} className="text-purple-600 font-bold">
+                    Close Window
+                </button>
+            </div>
+        );
+    }
+
+    const lineItems = (invoice.lineItems as any[]) || [];
+
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center overflow-x-hidden">
             {/* Screen-only Print Bar */}
             <div className="w-full bg-black/90 backdrop-blur-md text-white p-4 flex justify-between items-center print:hidden sticky top-0 z-50">
                 <div className="max-w-[21cm] mx-auto w-full flex items-center px-4">
@@ -160,13 +196,13 @@ export default async function PrintInvoicePage({
                             {invoice.notes && (
                                 <div className="mb-6">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Notes</h4>
-                                    <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line">{invoice.notes}</p>
+                                    <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line bg-gray-50 p-4 rounded-xl border border-gray-100 italic">{invoice.notes}</p>
                                 </div>
                             )}
                             {invoice.terms && (
                                 <div>
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Terms</h4>
-                                    <p className="text-[10px] text-gray-400 leading-relaxed">{invoice.terms}</p>
+                                    <p className="text-[10px] text-gray-400 leading-relaxed font-medium">{invoice.terms}</p>
                                 </div>
                             )}
                         </div>
