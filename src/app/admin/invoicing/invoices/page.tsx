@@ -1,7 +1,7 @@
 'use client';
 
 import AdminLayout from '@/components/admin/AdminLayout';
-import { FileText, Plus, Search, ChevronRight, ExternalLink, AlertCircle, Filter, Pencil, CheckSquare, Square } from 'lucide-react';
+import { FileText, Plus, Search, ChevronRight, ExternalLink, AlertCircle, Filter, Pencil, CheckSquare, Square, IndianRupee, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -43,6 +43,16 @@ export default function InvoicesPage() {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+    const [paymentForm, setPaymentForm] = useState({
+        amount: 0,
+        paymentDate: new Date().toISOString().split('T')[0],
+        paymentMode: 'UPI',
+        reference: '',
+        notes: ''
+    });
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         fetchInvoices();
@@ -88,6 +98,42 @@ export default function InvoicesPage() {
         }
         // Redirect to bulk print page with selected IDs
         router.push(`/admin/invoicing/invoices/bulk-print?ids=${selectedIds.join(',')}`);
+    };
+
+    const openPaymentModal = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
+        setPaymentForm({
+            amount: invoice.balance,
+            paymentDate: new Date().toISOString().split('T')[0],
+            paymentMode: 'UPI',
+            reference: '',
+            notes: ''
+        });
+        setShowPaymentModal(true);
+    };
+
+    const handleRecordPayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedInvoice) return;
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/invoicing/invoices/${selectedInvoice.id}/payments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentForm)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setShowPaymentModal(false);
+                fetchInvoices();
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setActionLoading(false);
+        }
     };
 
     return (
@@ -235,10 +281,22 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="px-6 py-4 text-right flex justify-end gap-2">
                                                 {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
-                                                    <Link href={`/admin/invoicing/invoices/${invoice.id}/edit`}
-                                                        className="p-2 inline-flex text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
-                                                        <Pencil className="w-4 h-4" />
-                                                    </Link>
+                                                    <>
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                openPaymentModal(invoice);
+                                                            }}
+                                                            className="p-2 inline-flex text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
+                                                            title="Record Payment"
+                                                        >
+                                                            <IndianRupee className="w-4 h-4" />
+                                                        </button>
+                                                        <Link href={`/admin/invoicing/invoices/${invoice.id}/edit`}
+                                                            className="p-2 inline-flex text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                                                            <Pencil className="w-4 h-4" />
+                                                        </Link>
+                                                    </>
                                                 )}
                                                 <Link href={`/admin/invoicing/invoices/${invoice.id}`}
                                                     className="p-2 inline-flex text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
@@ -253,6 +311,67 @@ export default function InvoicesPage() {
                     )}
                 </div>
             </div>
+
+            {/* Quick Record Payment Modal */}
+            {showPaymentModal && selectedInvoice && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPaymentModal(false)} />
+                    <div className="bg-white rounded-3xl w-full max-w-md relative z-10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                            <h2 className="text-xl font-bold">Quick Record Payment</h2>
+                            <p className="text-emerald-50 mt-1">Payment for {selectedInvoice.invoiceNumber}</p>
+                        </div>
+                        <form onSubmit={handleRecordPayment} className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Amount (₹)</label>
+                                    <input type="number" required value={paymentForm.amount}
+                                        onChange={e => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-lg"
+                                        max={selectedInvoice.balance} min={0.01} step={0.01} />
+                                    <p className="text-[10px] text-gray-400 mt-1">Remaining Balance: ₹{selectedInvoice.balance.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Payment Date</label>
+                                    <input type="date" required value={paymentForm.paymentDate}
+                                        onChange={e => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Mode</label>
+                                    <select value={paymentForm.paymentMode}
+                                        onChange={e => setPaymentForm({ ...paymentForm, paymentMode: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold">
+                                        <option value="UPI">UPI</option>
+                                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                                        <option value="CASH">Cash</option>
+                                        <option value="CHEQUE">Cheque</option>
+                                        <option value="CARD">Card</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Reference / Txn ID</label>
+                                    <input type="text" value={paymentForm.reference}
+                                        onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })}
+                                        placeholder="UTR-xxxx"
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm" />
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setShowPaymentModal(false)}
+                                    className="flex-1 px-4 py-3 bg-gray-50 text-gray-500 font-bold rounded-2xl hover:bg-gray-100 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" disabled={actionLoading}
+                                    className="flex-1 px-4 py-3 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                    {actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Payment'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }
