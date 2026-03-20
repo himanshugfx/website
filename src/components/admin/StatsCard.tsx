@@ -74,32 +74,38 @@ export default function StatsCard({ title, value, icon: Icon, trend, sparkline, 
     };
 
     return (
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100/80 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 group relative overflow-hidden">
-            <div className="flex items-center justify-between gap-4">
-                <div className={`flex-shrink-0 p-3 rounded-xl ${colors.light} ${colors.text} group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 truncate" title={title}>{title}</p>
-                    <div className="flex items-baseline gap-2">
-                        <p className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight truncate" title={String(value)}>{value}</p>
-                        {trend && (
-                            <span className={`text-[10px] font-bold ${trend.positive ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                {trend.positive ? '↑' : '↓'}{trend.value}
-                            </span>
-                        )}
+        <div className="bg-white rounded-3xl p-5 border border-gray-100/80 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] transition-all duration-500 group relative overflow-hidden">
+            <div className="flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                        <div className={`p-2 rounded-xl inline-flex items-center justify-center ${colors.light} ${colors.text} ring-4 ring-white shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                            <Icon className="w-5 h-5" />
+                        </div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] pt-1" title={title}>{title}</p>
+                    </div>
+
+                    {/* Sparkline Area */}
+                    <div className="hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity">
+                        {renderSparkline()}
                     </div>
                 </div>
-
-                {/* Sparkline Area */}
-                <div className="hidden sm:block">
-                    {renderSparkline()}
+                
+                <div className="flex items-end justify-between">
+                    <p className="text-3xl font-black text-gray-900 tracking-tighter truncate" title={String(value)}>{value}</p>
+                    {trend && (
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black border ${
+                            trend.positive 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
+                            {trend.positive ? '↑' : '↓'} {trend.value}
+                        </div>
+                    )}
                 </div>
             </div>
             
             {/* Background Accent */}
-            <div className={`absolute bottom-0 left-0 h-1 w-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${colors.bg}`} />
+            <div className={`absolute bottom-0 left-0 h-1.5 w-full opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-full group-hover:translate-y-0 ${colors.bg}`} />
         </div>
     );
 }

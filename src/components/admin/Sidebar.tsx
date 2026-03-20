@@ -44,28 +44,48 @@ interface NavItem {
     children?: NavItem[];
 }
 
-const navigation: NavItem[] = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Products', href: '/admin/products', icon: Package },
-    { name: 'Hotel Catalogue', href: '/admin/hotel-catalogue', icon: Building2 },
-    { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+const navigationGroups = [
     {
-        name: 'Finances',
-        href: '/admin/finances',
-        icon: Wallet,
-        children: [
-            { name: 'Invoices', href: '/admin/finances/invoices', icon: FileText },
-            { name: 'Expenses', href: '/admin/finances/expenses', icon: Receipt },
-            { name: 'Quotations', href: '/admin/finances/quotations', icon: ClipboardList },
-        ],
+        title: 'Main',
+        items: [
+            { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+        ]
     },
-    { name: 'Sales Funnel', href: '/admin/funnel', icon: Target },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart },
-    { name: 'Abandoned Carts', href: '/admin/abandoned-carts', icon: ShoppingCart },
-    { name: 'Users', href: '/admin/users', icon: Users },
-    { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
-    { name: 'Subscribers', href: '/admin/subscribers', icon: UserCircle },
-    { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
+    {
+        title: 'Store Management',
+        items: [
+            { name: 'Products', href: '/admin/products', icon: Package },
+            { name: 'Hotel Catalogue', href: '/admin/hotel-catalogue', icon: Building2 },
+            { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+            {
+                name: 'Finances',
+                href: '/admin/finances',
+                icon: Wallet,
+                children: [
+                    { name: 'Invoices', href: '/admin/finances/invoices', icon: FileText },
+                    { name: 'Expenses', href: '/admin/finances/expenses', icon: Receipt },
+                    { name: 'Quotations', href: '/admin/finances/quotations', icon: ClipboardList },
+                ],
+            },
+        ]
+    },
+    {
+        title: 'Marketing & Growth',
+        items: [
+            { name: 'Sales Funnel', href: '/admin/funnel', icon: Target },
+            { name: 'Analytics', href: '/admin/analytics', icon: BarChart },
+            { name: 'Abandoned Carts', href: '/admin/abandoned-carts', icon: ShoppingCart },
+            { name: 'Promo Codes', href: '/admin/promocodes', icon: TicketPercent },
+        ]
+    },
+    {
+        title: 'Customers & CRM',
+        items: [
+            { name: 'Users', href: '/admin/users', icon: Users },
+            { name: 'Subscribers', href: '/admin/subscribers', icon: UserCircle },
+            { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
+        ]
+    }
 ];
 
 const NavItemComponent = ({
@@ -185,7 +205,7 @@ const NavItemComponent = ({
                 }`}
         >
             {isActive && !isCollapsed && (
-                <div className="absolute left-0 w-1.5 h-6 bg-purple-600 rounded-r-full" />
+                <div className="absolute left-0 w-1.5 h-8 bg-purple-600 rounded-r-md shadow-[2px_0_8px_rgba(147,51,234,0.4)]" />
             )}
             <div className={`flex items-center ${!isCollapsed && 'gap-3'}`}>
                 <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-white'}`} />
@@ -233,19 +253,30 @@ const SidebarContent = ({
 
         {/* Navigation */}
         <div className="flex-1 py-6 overflow-y-auto custom-scrollbar">
-            <nav className={`space-y-1 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-                {navigation.map((item) => (
-                    <NavItemComponent
-                        key={item.name}
-                        item={item}
-                        isCollapsed={isCollapsed}
-                        pathname={pathname}
-                        onClose={onClose}
-                        expandedMenus={expandedMenus}
-                        toggleMenu={toggleMenu}
-                    />
+            <div className={`space-y-8 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+                {navigationGroups.map((group) => (
+                    <div key={group.title} className="space-y-2">
+                        {!isCollapsed && (
+                            <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2">
+                                {group.title}
+                            </h3>
+                        )}
+                        <nav className="space-y-1">
+                            {group.items.map((item) => (
+                                <NavItemComponent
+                                    key={item.name}
+                                    item={item}
+                                    isCollapsed={isCollapsed}
+                                    pathname={pathname}
+                                    onClose={onClose}
+                                    expandedMenus={expandedMenus}
+                                    toggleMenu={toggleMenu}
+                                />
+                            ))}
+                        </nav>
+                    </div>
                 ))}
-            </nav>
+            </div>
         </div>
 
         {/* Bottom Section */}
