@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { CheckCircle, X, ChevronRight, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle2, X, ChevronRight, ShoppingBag, Sparkles, ArrowRight, Truck, ShieldCheck, Star } from 'lucide-react';
 
 interface ProductType {
     id: string;
@@ -16,9 +16,14 @@ interface ProductType {
 }
 
 export default function CartPopup() {
-    const { isPopupOpen, closePopup, lastAddedItem } = useCart();
+    const { isPopupOpen, closePopup, lastAddedItem, cartTotal } = useCart();
     const [recommended, setRecommended] = useState<ProductType[]>([]);
     const [loading, setLoading] = useState(false);
+
+    // Shipping Threshold Logic
+    const SHIPPING_THRESHOLD = 500;
+    const progress = Math.min((cartTotal / SHIPPING_THRESHOLD) * 100, 100);
+    const away = SHIPPING_THRESHOLD - cartTotal;
 
     useEffect(() => {
         if (isPopupOpen && lastAddedItem) {
@@ -30,7 +35,7 @@ export default function CartPopup() {
                     if (data.products && Array.isArray(data.products)) {
                         const others = data.products.filter((p: ProductType) => p.id !== lastAddedItem.id);
                         const shuffled = others.sort(() => 0.5 - Math.random());
-                        setRecommended(shuffled.slice(0, 2));
+                        setRecommended(shuffled.slice(0, 3)); // Show 3 for more variety
                     }
                 } catch (e) {
                     console.error("Failed to load recommendations", e);
@@ -44,159 +49,195 @@ export default function CartPopup() {
 
     if (!isPopupOpen || !lastAddedItem) return null;
 
-    // Helper to format item options
-    const itemOptions = [
-        lastAddedItem.selectedSize && `Size: ${lastAddedItem.selectedSize}`,
-        lastAddedItem.selectedColor && `Color: ${lastAddedItem.selectedColor}`
-    ].filter(Boolean).join(' | ');
-
     return (
-        <div className="fixed inset-0 z-[3000] flex items-end justify-center sm:items-center p-0 sm:p-4">
-            {/* Backdrop with premium blur */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] cursor-pointer" onClick={closePopup}></div>
-            
-            {/* Modal Container */}
-            <div className="relative bg-white w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_25px_100px_-20px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom sm:zoom-in-95 fade-in duration-700 overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[85vh]">
+        <div className="fixed inset-0 z-[5000] flex items-center justify-center p-0 md:p-6 sm:p-4">
+            {/* Ultra-Premium Backdrop with heavy blur */}
+            <div 
+                className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[12px] animate-in fade-in duration-1000" 
+                onClick={closePopup}
+            />
+
+            {/* Main Modal - The "Beauty Box" Redesign */}
+            <div className="relative w-full h-full md:h-auto md:max-w-4xl bg-white md:rounded-[4rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom-20 sm:zoom-in-95 fade-in duration-700 overflow-hidden flex flex-col md:flex-row">
                 
-                {/* Visual Accent - Purple Glow */}
-                <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
-                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
-
-                {/* Header - Success Message */}
-                <div className="relative pt-10 pb-6 px-10 flex flex-col items-center">
-                    <button
-                        onClick={closePopup}
-                        className="absolute top-6 right-6 p-2.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all active:scale-90 group z-50"
-                    >
-                        <X className="w-4 h-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
-                    </button>
-
-                    <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-green-50/50 animate-bounce">
-                        <CheckCircle className="w-7 h-7 text-green-600" />
-                    </div>
+                {/* Left Side: Visual & Confirmation (Desktop only side) */}
+                <div className="hidden md:flex w-2/5 bg-zinc-950 relative overflow-hidden flex-col p-12 text-white">
+                    {/* Abstract Light Effects */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/30 blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/20 blur-[100px] translate-y-1/2 -translate-x-1/2" />
                     
-                    <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 mb-1">Added to Bag!</h2>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Your journey to beauty begins</p>
-                </div>
+                    <div className="relative z-10">
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-8 ring-1 ring-white/20">
+                            <ShoppingBag className="w-6 h-6 text-white" />
+                        </div>
+                        <h2 className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-4">
+                            Added <br />To Bag
+                        </h2>
+                        <div className="flex items-center gap-2 mb-12">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Inventory Reserved</span>
+                        </div>
 
-                {/* Seamless Scrolling Body */}
-                <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
-                    {/* Main Product Card */}
-                    <div className="px-8 mb-10">
-                        <div className="group relative bg-zinc-50/50 p-6 rounded-[2.5rem] ring-1 ring-black/[0.03] transition-all hover:bg-zinc-50 duration-500">
-                            <div className="flex gap-6 items-center">
-                                <div className="w-28 aspect-[3/4] relative rounded-[2rem] overflow-hidden shadow-2xl shadow-black/10 transition-transform duration-700 group-hover:scale-105">
-                                    <Image
-                                        src={lastAddedItem.image}
-                                        alt={lastAddedItem.name}
-                                        fill
-                                        className="object-cover"
-                                        priority
-                                    />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-purple-50 rounded-lg mb-2">
-                                        <Sparkles className="w-3 h-3 text-purple-600" />
-                                        <span className="text-[8px] font-black text-purple-600 uppercase tracking-widest">Premium Pick</span>
-                                    </div>
-                                    <h3 className="font-black text-lg text-zinc-900 leading-tight uppercase italic tracking-tight mb-3 line-clamp-2">{lastAddedItem.name}</h3>
-                                    
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {itemOptions.split(' | ').filter(Boolean).map((opt, i) => (
-                                            <span key={i} className="px-3 py-1 bg-white ring-1 ring-black/[0.05] rounded-full text-[9px] font-bold text-zinc-500 uppercase tracking-wider">{opt}</span>
-                                        ))}
-                                        <span className="px-3 py-1 bg-white ring-1 ring-black/[0.05] rounded-full text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Qty: {lastAddedItem.quantity}</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-2xl font-black text-purple-600">₹{lastAddedItem.price}</span>
-                                    </div>
-                                </div>
+                        {/* Order Progress / Free Shipping */}
+                        <div className="space-y-4 bg-white/5 backdrop-blur-sm p-6 rounded-[2rem] border border-white/10">
+                            <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-zinc-300">
+                                <span>Free Shipping</span>
+                                <span>{progress >= 100 ? 'Unlocked' : `₹${away} to Go`}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-out"
+                                    style={{ width: `${progress}%` }}
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Upsell/Recommendations */}
-                    <div className="px-8 pb-10">
-                        <div className="flex items-center justify-between mb-6 px-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse" />
-                                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">Perfect Pairings</h4>
-                            </div>
-                            <Link href="/shop" onClick={closePopup} className="text-[9px] font-black uppercase text-purple-600 hover:underline">View All</Link>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-5">
-                            {loading ? (
-                                [1, 2].map(i => (
-                                    <div key={i} className="aspect-square bg-zinc-50 animate-pulse rounded-[2rem]" />
-                                ))
-                            ) : recommended.length > 0 ? (
-                                recommended.map((product) => (
-                                    <Link
-                                        key={product.id}
-                                        href={`/shop/product/${product.slug}`}
-                                        onClick={closePopup}
-                                        className="group relative flex flex-col"
-                                    >
-                                        <div className="relative aspect-[4/5] w-full rounded-[2.2rem] overflow-hidden bg-zinc-50 mb-4 shadow-sm group-hover:shadow-2xl group-hover:shadow-purple-500/20 transition-all duration-700">
-                                            <Image
-                                                src={product.thumbImage || (product.images ? product.images.split(',')[0] : '/assets/images/placeholder.webp')}
-                                                alt={product.name}
-                                                fill
-                                                className="object-cover group-hover:scale-110 duration-[1.5s] transition-transform ease-out"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <div className="absolute bottom-4 left-0 right-0 p-2 flex justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                                                <div className="bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl text-[9px] font-bold text-zinc-900 uppercase tracking-widest shadow-lg">Buy Now</div>
-                                            </div>
-                                        </div>
-                                        <div className="px-2">
-                                            <h5 className="font-bold text-[10px] text-zinc-900 line-clamp-1 mb-1 uppercase italic tracking-tight transition-colors group-hover:text-purple-600">{product.name}</h5>
-                                            <p className="text-[11px] font-black text-purple-600/60">₹{product.price}</p>
-                                        </div>
-                                    </Link>
-                                ))
-                            ) : (
-                                <div className="col-span-2 py-12 text-center text-[10px] font-bold text-zinc-300 uppercase tracking-[0.25em] bg-zinc-50/50 rounded-[2.5rem] border-2 border-dashed border-zinc-100">
-                                    Tailored Beauty Picks
-                                </div>
-                            )}
-                        </div>
+                    <div className="mt-auto relative z-10 flex items-center gap-4 text-zinc-500">
+                        <ShieldCheck className="w-5 h-5" />
+                        <span className="text-[9px] font-bold uppercase tracking-widest">Cruelty Free • Paraben Free • Premium</span>
                     </div>
                 </div>
 
-                {/* Persistent Footer - Frosted Glass Glassmorphism */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 pb-10 bg-white/80 backdrop-blur-xl border-t border-zinc-50">
-                    <div className="flex flex-col gap-4">
-                        <Link
-                            href="/checkout"
-                            onClick={closePopup}
-                            className="group relative w-full h-16 bg-[#1a1c23] hover:bg-black text-white rounded-[1.8rem] flex items-center justify-center transition-all duration-500 active:scale-[0.97] shadow-2xl shadow-zinc-900/20"
-                        >
-                            <span className="relative z-10 flex items-center gap-3 font-black uppercase tracking-[0.25em] text-[11px]">
-                                Secure Checkout
-                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1.5" />
-                            </span>
+                {/* Right Side: Product & Actions (Mobile Full Container) */}
+                <div className="flex-1 overflow-hidden flex flex-col bg-white">
+                    {/* Mobile Only Header */}
+                    <div className="md:hidden flex items-center justify-between p-8 pb-4">
+                        <h3 className="text-xl font-black uppercase italic tracking-tighter">Success</h3>
+                        <button onClick={closePopup} className="p-2 bg-zinc-50 rounded-full">
+                            <X className="w-5 h-5 text-zinc-400" />
+                        </button>
+                    </div>
+
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar px-8 md:px-12 py-6">
+                        {/* Main Product Display */}
+                        <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
+                            <div className="relative aspect-[3/4] w-full md:w-48 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/10 group">
+                                <Image
+                                    src={lastAddedItem.image}
+                                    alt={lastAddedItem.name}
+                                    fill
+                                    className="object-cover group-hover:scale-110 duration-700 transition-transform"
+                                    priority
+                                />
+                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <Star className="w-3 h-3 text-purple-600 fill-purple-600" />
+                                    <span className="text-[9px] font-black text-zinc-900 uppercase">New Arrival</span>
+                                </div>
+                            </div>
                             
-                            {/* Decorative Flash Effect */}
-                            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[1s] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
-                        </Link>
-                        
-                        <div className="flex items-center justify-between px-2">
-                            <button
-                                onClick={closePopup}
-                                className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-900 transition-colors"
-                            >
-                                Continue Selection
-                            </button>
-                            <div className="flex items-center gap-3 opacity-40">
-                                <Image src="/assets/images/payment_methods/upi.webp" alt="UPI" width={28} height={14} className="h-2.5 w-auto object-contain grayscale" />
-                                <Image src="/assets/images/payment_methods/visa.webp" alt="Visa" width={28} height={14} className="h-2.5 w-auto object-contain grayscale" />
+                            <div className="flex-1 flex flex-col pt-2">
+                                <div className="text-purple-600 text-[11px] font-black uppercase tracking-[0.25em] mb-3">Item Summary</div>
+                                <h1 className="text-2xl md:text-3xl font-black text-zinc-950 uppercase italic tracking-tighter leading-tight mb-4">
+                                    {lastAddedItem.name}
+                                </h1>
+                                
+                                <div className="grid grid-cols-2 gap-y-4 border-y border-zinc-100 py-6 mb-6">
+                                    <div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Details</div>
+                                        <div className="text-xs font-black text-zinc-900 uppercase">{lastAddedItem.selectedSize || 'Standard Size'}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Quantity</div>
+                                        <div className="text-xs font-black text-zinc-900 uppercase">{lastAddedItem.quantity} Unit</div>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Subtotal</div>
+                                        <div className="text-2xl font-black text-purple-600 uppercase">₹{lastAddedItem.price}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <Link 
+                                        href="/cart"
+                                        onClick={closePopup}
+                                        className="flex-1 h-16 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-black uppercase tracking-[0.2em] text-[10px] text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+                                    >
+                                        Review Bag
+                                    </Link>
+                                    <Link 
+                                        href="/checkout"
+                                        onClick={closePopup}
+                                        className="flex-[2] h-16 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-purple-600/20 group transition-all active:scale-95"
+                                    >
+                                        Fast Checkout <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pair with Section - Horizontal Gallery */}
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-400">Complete the ritual</h4>
+                                <div className="flex-1 h-[1px] bg-zinc-100 mx-6" />
+                            </div>
+                            
+                            <div className="flex gap-6 overflow-x-auto no-scrollbar py-2 -mx-2 px-2 snap-x">
+                                {loading ? (
+                                    [1, 2, 3].map(i => (
+                                        <div key={i} className="flex-shrink-0 w-40 aspect-square bg-zinc-50 animate-pulse rounded-[2rem]" />
+                                    ))
+                                ) : (
+                                    recommended.map((product) => (
+                                        <Link
+                                            key={product.id}
+                                            href={`/shop/product/${product.slug}`}
+                                            onClick={closePopup}
+                                            className="flex-shrink-0 w-48 snap-start group"
+                                        >
+                                            <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-zinc-50 mb-4 shadow-sm group-hover:shadow-xl transition-all duration-500">
+                                                <Image
+                                                    src={product.thumbImage || (product.images ? product.images.split(',')[0] : '/assets/images/placeholder.webp')}
+                                                    alt={product.name}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 duration-700 transition-transform"
+                                                />
+                                                <div className="absolute bottom-4 right-4 w-10 h-10 bg-white/95 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                                                    <ArrowRight className="w-4 h-4 text-purple-600" />
+                                                </div>
+                                            </div>
+                                            <h5 className="text-[10px] font-black text-zinc-900 uppercase italic tracking-tight line-clamp-1 mb-1">{product.name}</h5>
+                                            <p className="text-[11px] font-bold text-purple-600">₹{product.price}</p>
+                                        </Link>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
+
+                    {/* Footer Trust Section */}
+                    <div className="px-12 py-8 bg-zinc-50/50 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-zinc-100">
+                        <div className="flex items-center gap-6">
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Trusted By</span>
+                                <span className="text-[11px] font-black text-zinc-900 uppercase italic">10k+ Beauty Enthusiasts</span>
+                            </div>
+                            <div className="h-8 w-[1px] bg-zinc-200" />
+                            <div className="flex gap-3">
+                                <Image src="/assets/images/payment_methods/upi.webp" alt="Payment" width={24} height={12} className="h-2.5 w-auto object-contain brightness-0 contrast-50" />
+                                <Image src="/assets/images/payment_methods/visa.webp" alt="Payment" width={24} height={12} className="h-2.5 w-auto object-contain brightness-0 contrast-50" />
+                                <Image src="/assets/images/payment_methods/rupay.webp" alt="Payment" width={24} height={12} className="h-2.5 w-auto object-contain brightness-0 contrast-50" />
+                            </div>
+                        </div>
+                        
+                        <button 
+                            onClick={closePopup}
+                            className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-950 underline decoration-purple-500 decoration-2 underline-offset-8 hover:decoration-purple-600"
+                        >
+                            Continue Selection
+                        </button>
+                    </div>
                 </div>
+
+                {/* Desktop Global Close */}
+                <button 
+                    onClick={closePopup}
+                    className="hidden md:flex absolute top-10 right-10 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full z-[6000] backdrop-blur-md transition-all active:scale-90"
+                >
+                    <X className="w-5 h-5" />
+                </button>
             </div>
         </div>
     );
