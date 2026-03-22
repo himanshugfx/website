@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { X, Minus, Plus, Trash2, Tag, ChevronRight, CheckCircle2, Ticket, Percent, ShoppingBag, Sparkles } from 'lucide-react';
+import { X, Minus, Plus, Trash2, Tag, ChevronRight, CheckCircle2, Ticket, Percent, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { cart, cartTotal, removeFromCart, updateQuantity, selectedPromo, applyPromo, removePromo } = useCart();
@@ -103,63 +103,57 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                 </div>
 
                 {/* Cart Items - The Hero Section */}
-                <div className="flex-1 overflow-y-auto no-scrollbar px-10 py-6 space-y-10">
+                <div className="flex-1 overflow-y-auto px-8 py-6 space-y-8 custom-scrollbar overscroll-contain">
                     {cart.length > 0 ? (
                         cart.map((item) => (
-                            <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="group relative flex gap-8 items-start animate-in fade-in slide-in-from-right-4 duration-500 delay-100">
-                                {/* Large Prominent Image */}
-                                <div className="relative w-32 aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-black/10 flex-shrink-0 group-hover:scale-105 duration-700 transition-transform">
+                            <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="relative flex gap-5 items-center p-4 bg-zinc-50/10 hover:bg-zinc-50 rounded-[2rem] transition-all duration-300 border border-transparent hover:border-zinc-100 group">
+                                {/* Product Image - Compact but Sharp */}
+                                <div className="relative w-24 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
                                     <Image 
                                         src={item.image} 
                                         alt={item.name} 
                                         fill 
-                                        className="object-cover" 
+                                        className="object-cover group-hover:scale-105 duration-500 transition-transform" 
                                     />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                                 </div>
 
-                                <div className="flex-1 flex flex-col h-full py-2">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="flex flex-col">
-                                            <div className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                                <Sparkles className="w-3 h-3" /> Popular
-                                            </div>
-                                            <Link href={`/shop/product/${item.slug}`} className="text-lg font-black text-zinc-950 leading-tight uppercase italic tracking-tighter hover:text-purple-600 transition-colors line-clamp-2">
-                                                {item.name}
-                                            </Link>
-                                        </div>
-                                        <button
-                                            onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
-                                            className="p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                        >
-                                            <Trash2 className="w-4.5 h-4.5" />
-                                        </button>
+                                {/* Product Info - Explicitly Visible */}
+                                <div className="flex-1 min-w-0 pr-2">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Sparkles className="w-3 h-3 text-purple-600" />
+                                        <span className="text-[10px] font-black uppercase text-purple-600 tracking-widest">Popular</span>
+                                    </div>
+                                    <Link href={`/shop/product/${item.slug}`} className="block text-base font-black text-zinc-950 uppercase italic tracking-tighter leading-tight hover:text-purple-600 transition-colors line-clamp-1">
+                                        {item.name}
+                                    </Link>
+                                    <div className="flex gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1 mb-3">
+                                        {item.selectedSize && <span>Size: {item.selectedSize}</span>}
+                                        <span>Qty: {item.quantity}</span>
                                     </div>
 
-                                    <div className="flex flex-wrap gap-2 mt-2 mb-6">
-                                        {item.selectedSize && (
-                                            <span className="px-3 py-1 bg-zinc-50 rounded-full text-[9px] font-bold text-zinc-400 uppercase tracking-widest ring-1 ring-black/[0.03]">Size: {item.selectedSize}</span>
-                                        )}
-                                        {item.selectedColor && (
-                                            <span className="px-3 py-1 bg-zinc-50 rounded-full text-[9px] font-bold text-zinc-400 uppercase tracking-widest ring-1 ring-black/[0.03]">Color: {item.selectedColor}</span>
-                                        )}
-                                    </div>
-
-                                    <div className="mt-auto flex items-center justify-between">
-                                        <div className="flex items-center gap-4 bg-zinc-950 text-white px-5 py-2 rounded-2xl shadow-lg shadow-zinc-900/10">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center bg-zinc-950 rounded-xl px-3 py-1 text-white shadow-md">
                                             <button
                                                 onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize, item.selectedColor)}
-                                                className="text-lg font-bold text-zinc-400 hover:text-white transition-colors"
+                                                className="w-6 h-6 flex items-center justify-center font-bold text-zinc-400 hover:text-white"
                                             >–</button>
-                                            <span className="text-sm font-black min-w-[20px] text-center italic tracking-tighter">{item.quantity}</span>
+                                            <span className="text-xs font-black min-w-[20px] text-center italic">{item.quantity}</span>
                                             <button
                                                 onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedColor)}
-                                                className="text-lg font-bold text-zinc-400 hover:text-white transition-colors"
+                                                className="w-6 h-6 flex items-center justify-center font-bold text-zinc-400 hover:text-white"
                                             >+</button>
                                         </div>
-                                        <div className="text-xl font-black text-zinc-950 uppercase tracking-tighter italic">₹{item.price * item.quantity}</div>
+                                        <div className="text-lg font-black text-zinc-950 italic">₹{item.price * item.quantity}</div>
                                     </div>
                                 </div>
+
+                                {/* Removal Button */}
+                                <button
+                                    onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
+                                    className="absolute -top-2 -right-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-zinc-300 hover:text-red-500 hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
                             </div>
                         ))
                     ) : (
