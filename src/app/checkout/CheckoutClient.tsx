@@ -140,7 +140,7 @@ export default function CheckoutClient() {
         const fetchPromos = async () => {
             setLoadingPromos(true);
             try {
-                const res = await fetch('/api/promocodes');
+                const res = await fetch('/api/promocodes'); // Original endpoint for promos
                 if (res.ok) {
                     const data = await res.json();
                     setAvailablePromos(data);
@@ -224,10 +224,10 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        shippingFee: (selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
                         paymentMethod: 'razorpay'
@@ -328,10 +328,10 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        shippingFee: (selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
                         paymentMethod: 'phonepe'
@@ -364,10 +364,10 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        shippingFee: (selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         paymentMethod: 'COD',
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
@@ -617,7 +617,7 @@ export default function CheckoutClient() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="font-bold whitespace-nowrap">₹{item.price * item.quantity}</div>
+                                        <div className="font-bold whitespace-nowrap">₹{(item.price * item.quantity).toFixed(2)}</div>
                                     </div>
                                 ))}
                             </div>
@@ -712,25 +712,25 @@ export default function CheckoutClient() {
                                         </div>
                                     )}
                                     {selectedPromo && (
-                                        <div className="flex items-center gap-2 px-2 text-green-600 bg-green-50/50 py-3 rounded-xl border border-green-100 animate-in fade-in slide-in-from-top-1 duration-300">
+                                        <div className="flex items-center gap-2 px-3 py-3 text-green-600 bg-green-50/50 rounded-xl border border-green-100 animate-in fade-in slide-in-from-top-1 duration-300">
                                             <CheckCircle className="w-4 h-4" />
                                             <p className="text-[11px] font-black uppercase tracking-widest">
-                                                Active: {selectedPromo.code} — Savings: ₹{selectedPromo.discountAmount.toFixed(2)}
+                                                Active: {selectedPromo.code} — Savings: ₹{Number(selectedPromo.discountAmount || 0).toFixed(2)}
                                             </p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="summary-details border-t border-purple-100 mt-2 pt-6 flex flex-col gap-3">
+                            <div className="space-y-4 pt-6 mt-6 border-t border-purple-100/50">
                                 <div className="flex justify-between">
-                                    <span className="text-secondary">Subtotal</span>
-                                    <span className="font-bold">₹{cartTotal}</span>
+                                    <span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
+                                    <span className="text-zinc-900 font-black">₹{cartTotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Shipping</span>
-                                    {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? (
-                                        <span className="font-bold">₹{SHIPPING_FEE}</span>
+                                    {(selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? (
+                                        <span className="font-bold">₹{SHIPPING_FEE.toFixed(2)}</span>
                                     ) : (
                                         <span className="font-bold text-green-600">Free</span>
                                     )}
@@ -739,7 +739,7 @@ export default function CheckoutClient() {
                                 {selectedPromo && (
                                     <div className="flex justify-between text-green-600">
                                         <span className="font-medium">Discount ({selectedPromo.code})</span>
-                                        <span className="font-bold">-₹{selectedPromo.discountAmount.toFixed(2)}</span>
+                                        <span className="font-bold">-₹{Number(selectedPromo.discountAmount || 0).toFixed(2)}</span>
                                     </div>
                                 )}
 

@@ -3,7 +3,6 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import React, { useState, useEffect } from 'react';
 import {
-    Plus,
     Trash2,
     Search,
     TicketPercent,
@@ -188,7 +187,6 @@ export default function PromoCodesPage() {
                             onClick={() => setIsCreateModalOpen(true)}
                             className="flex items-center justify-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black hover:-translate-y-0.5 transition-all text-sm tracking-tight"
                         >
-                            <Plus className="w-5 h-5 stroke-[3px]" />
                             <span>Create Code</span>
                         </button>
                     </div>
@@ -324,14 +322,6 @@ export default function PromoCodesPage() {
                     </div>
                 </div>
 
-                {/* Floating Action Button */}
-                <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="fixed bottom-8 right-8 w-14 h-14 bg-black text-white rounded-full shadow-lg z-40"
-                    title="Create New Promo Code"
-                >
-                    <Plus className="w-6 h-6" />
-                </button>
 
                 {/* Create Modal */}
                 {isCreateModalOpen && (

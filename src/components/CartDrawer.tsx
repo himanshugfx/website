@@ -248,49 +248,44 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                         )}
                     </div>
 
-                    <div className="pt-2 space-y-3">
-                        <div className="flex justify-between font-bold text-zinc-400 uppercase text-[10px] tracking-widest">
-                            <span>Subtotal</span>
-                            <span className="text-zinc-900 font-black">₹{cartTotal.toFixed(2)}</span>
+                    <div className="pt-6 mt-6 border-t border-purple-100/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
+                            <span className="text-zinc-900 font-black">₹{Number(cartTotal).toFixed(2)}</span>
                         </div>
                         {selectedPromo && (
-                            <div className="flex justify-between font-bold text-green-600 uppercase text-[10px] tracking-widest">
-                                <div className="flex items-center gap-1.5">
-                                    <Percent className="w-3 h-3" />
-                                    <span>Discount ({selectedPromo.code})</span>
-                                </div>
-                                <span className="font-black">-₹{selectedPromo.discountAmount.toFixed(2)}</span>
+                            <div className="flex items-center justify-between text-green-600">
+                                <span className="font-bold uppercase tracking-widest text-[10px]">Promo Discount</span>
+                                <span className="font-black">-₹{Number(selectedPromo.discountAmount || 0).toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between font-bold text-zinc-400 uppercase text-[10px] tracking-widest">
-                            <span>Shipping</span>
-                            <span className="text-zinc-900 font-black">
-                                {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Next Step'}
-                            </span>
-                        </div>
-                        <div className="flex justify-between pt-5 border-t border-zinc-200">
-                            <span className="text-xl font-black uppercase italic tracking-tighter text-zinc-900">Total</span>
-                            <span className="text-xl font-black italic tracking-tighter text-zinc-900">
-                                ₹{(() => {
-                                    const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
-                                    return subtotal.toFixed(2);
-                                })()}
+                        <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
+                            <div>
+                                <span className="text-zinc-900 font-black uppercase tracking-widest text-xs font-primary">Total Est.</span>
+                                <p className="text-[9px] font-bold text-zinc-400 mt-0.5 uppercase tracking-wide">Taxes & shipping at checkout</p>
+                            </div>
+                            <span className="text-purple-600 text-2xl font-black italic tracking-tighter">
+                                ₹{(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal).toFixed(2)}
                             </span>
                         </div>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="grid grid-cols-1 gap-3 pt-8 pb-4">
                         <Link
                             href="/checkout"
                             onClick={onClose}
-                            className={`group relative w-full flex items-center justify-center gap-3 py-5 rounded-[1.5rem] font-black uppercase text-[11px] tracking-widest transition-all duration-500 ${cart.length === 0 ? 'bg-zinc-100 text-zinc-300 pointer-events-none' : 'bg-[#1a1c23] text-white shadow-2xl shadow-gray-200/50 hover:bg-black hover:-translate-y-1 active:scale-[0.98]'}`}
+                            className="bg-purple-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs text-center shadow-xl shadow-purple-500/20 hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-3 group"
                         >
-                            <span>Secure checkout</span>
-                            <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                            <Ticket className="w-4 h-4" />
+                            Secure Checkout
+                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
-                        <p className="text-center text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em] mt-6">
-                            Verified Secure Payment Gateway
-                        </p>
+                        <button
+                            onClick={onClose}
+                            className="py-4 text-zinc-400 font-black uppercase tracking-widest text-[10px] hover:text-zinc-900 transition-colors"
+                        >
+                            Continue Shopping
+                        </button>
                     </div>
                 </div>
             </div>

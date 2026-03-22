@@ -24,9 +24,9 @@ export default function CartPopup() {
             setLoading(true);
             const fetchProducts = async () => {
                 try {
-                    const res = await fetch('/api/admin/products?limit=20');
+                    const res = await fetch('/api/ana/products?action=list');
                     const data = await res.json();
-                    if (data.products) {
+                    if (data.products && Array.isArray(data.products)) {
                         const others = data.products.filter((p: ProductType) => p.id !== lastAddedItem.id);
                         const shuffled = others.sort(() => 0.5 - Math.random());
                         setRecommended(shuffled.slice(0, 2));
