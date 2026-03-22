@@ -21,7 +21,7 @@ export default function CartPopup() {
     const [loading, setLoading] = useState(false);
 
     // Shipping Threshold Logic
-    const SHIPPING_THRESHOLD = 500;
+    const SHIPPING_THRESHOLD = 199;
     const progress = Math.min((cartTotal / SHIPPING_THRESHOLD) * 100, 100);
     const away = SHIPPING_THRESHOLD - cartTotal;
 

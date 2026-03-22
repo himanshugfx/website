@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { X, Minus, Plus, Trash2, Tag, ChevronRight, CheckCircle2, Ticket, Percent, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Minus, Plus, Trash2, Tag, ChevronRight, CheckCircle2, Ticket, Percent, ShoppingBag, ShieldCheck, Truck, ArrowRight, Info } from 'lucide-react';
 
 export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { cart, cartTotal, removeFromCart, updateQuantity, selectedPromo, applyPromo, removePromo } = useCart();
@@ -13,7 +13,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
     const [loadingPromos, setLoadingPromos] = useState(false);
     const [promoError, setPromoError] = useState('');
 
-    const FREE_SHIPPING_THRESHOLD = 500;
+    const FREE_SHIPPING_THRESHOLD = 199;
     const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
     const progressPercent = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100);
 
@@ -52,219 +52,170 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
 
     return (
         <div className="fixed inset-0 z-[6000] flex justify-end">
-            {/* Ultra-Blur Backdrop */}
-            <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-[12px] animate-in fade-in duration-700" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-500" onClick={onClose} />
 
-            {/* Sidebar Drawer */}
-            <div className="relative w-full max-w-md bg-white h-full shadow-[0_0_100px_rgba(0,0,0,0.2)] flex flex-col animate-in slide-in-from-right duration-500 ease-out">
+            {/* Seamless Flipkart-Style Drawer */}
+            <div className="relative w-full max-w-md bg-[#f1f3e6]/30 backdrop-blur-md h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-400 ease-out">
                 
-                {/* Header - Luxury Style */}
-                <div className="px-10 py-12 flex items-center justify-between pb-6">
-                    <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <h2 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-950">My Bag</h2>
-                            <div className="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center">
-                                <span className="text-xs font-black text-purple-600 italic">{cart.length}</span>
-                            </div>
-                        </div>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Curated just for you</p>
+                {/* Header - Sticky */}
+                <div className="bg-white px-6 py-4 flex items-center justify-between shadow-sm border-b border-zinc-100 z-10">
+                    <div className="flex items-center gap-3">
+                        <ShoppingBag className="w-5 h-5 text-purple-600" />
+                        <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Cart Bag ({cart.length})</h2>
                     </div>
-                    <button 
-                        onClick={onClose} 
-                        className="w-12 h-12 bg-zinc-50 hover:bg-zinc-100 rounded-full flex items-center justify-center transition-all active:scale-90 group"
-                    >
-                        <X className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+                    <button onClick={onClose} className="p-2 hover:bg-zinc-50 rounded-full transition-all">
+                        <X className="w-6 h-6 text-zinc-400" />
                     </button>
                 </div>
 
-                {/* Free Shipping Tracker - Modern Minimalist */}
-                <div className="px-10 pb-8 pt-2">
-                    <div className="p-6 bg-zinc-50 rounded-[2rem] ring-1 ring-black/[0.03]">
-                        <div className="flex justify-between items-end mb-4">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-1">
-                                    {remainingForFreeShipping > 0 ? 'Shipping Status' : 'Congratulations!'}
-                                </span>
-                                <span className="text-xs font-bold text-zinc-500">
-                                    {remainingForFreeShipping > 0 
-                                        ? `Only ₹${remainingForFreeShipping.toFixed(0)} to unlock free shipping` 
-                                        : "Free delivery is now active 🚀"}
-                                </span>
-                            </div>
-                            <span className="text-xl font-black text-purple-600">{progressPercent.toFixed(0)}%</span>
-                        </div>
-                        <div className="h-2 w-full bg-zinc-200 rounded-full overflow-hidden p-0.5">
-                            <div
-                                className="h-full bg-purple-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(147,51,234,0.3)]"
-                                style={{ width: `${progressPercent}%` }}
-                            />
-                        </div>
+                {/* Main Scrollable Plane */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain bg-white">
+                    {/* Free Shipping Alert */}
+                    <div className={`px-6 py-3 flex items-center gap-3 border-b ${remainingForFreeShipping > 0 ? 'bg-purple-50 border-purple-100' : 'bg-green-50 border-green-100'}`}>
+                        {remainingForFreeShipping > 0 ? <Truck className="w-4 h-4 text-purple-600" /> : <CheckCircle2 className="w-4 h-4 text-green-600" />}
+                        <p className={`text-[11px] font-bold ${remainingForFreeShipping > 0 ? 'text-purple-700' : 'text-green-700'}`}>
+                            {remainingForFreeShipping > 0 
+                                ? `Add worth ₹${remainingForFreeShipping.toFixed(0)} more for FREE Delivery` 
+                                : "Order eligible for FREE Delivery ✨"}
+                        </p>
                     </div>
-                </div>
 
-                {/* Cart Items - The Hero Section */}
-                <div className="flex-1 overflow-y-auto px-8 py-6 space-y-8 custom-scrollbar overscroll-contain">
-                    {cart.length > 0 ? (
-                        cart.map((item) => (
-                            <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="relative flex gap-5 items-center p-4 bg-zinc-50/10 hover:bg-zinc-50 rounded-[2rem] transition-all duration-300 border border-transparent hover:border-zinc-100 group">
-                                {/* Product Image - Compact but Sharp */}
-                                <div className="relative w-24 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
-                                    <Image 
-                                        src={item.image} 
-                                        alt={item.name} 
-                                        fill 
-                                        className="object-cover group-hover:scale-105 duration-500 transition-transform" 
-                                    />
-                                </div>
-
-                                {/* Product Info - Explicitly Visible */}
-                                <div className="flex-1 min-w-0 pr-2">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Sparkles className="w-3 h-3 text-purple-600" />
-                                        <span className="text-[10px] font-black uppercase text-purple-600 tracking-widest">Popular</span>
-                                    </div>
-                                    <Link href={`/shop/product/${item.slug}`} className="block text-base font-black text-zinc-950 uppercase italic tracking-tighter leading-tight hover:text-purple-600 transition-colors line-clamp-1">
-                                        {item.name}
-                                    </Link>
-                                    <div className="flex gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1 mb-3">
-                                        {item.selectedSize && <span>Size: {item.selectedSize}</span>}
-                                        <span>Qty: {item.quantity}</span>
-                                    </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center bg-zinc-950 rounded-xl px-3 py-1 text-white shadow-md">
-                                            <button
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize, item.selectedColor)}
-                                                className="w-6 h-6 flex items-center justify-center font-bold text-zinc-400 hover:text-white"
-                                            >–</button>
-                                            <span className="text-xs font-black min-w-[20px] text-center italic">{item.quantity}</span>
-                                            <button
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedColor)}
-                                                className="w-6 h-6 flex items-center justify-center font-bold text-zinc-400 hover:text-white"
-                                            >+</button>
+                    {/* Product List */}
+                    <div className="divide-y divide-zinc-100">
+                        {cart.length > 0 ? (
+                            cart.map((item) => (
+                                <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="p-6 bg-white hover:bg-zinc-50/50 transition-colors">
+                                    <div className="flex gap-5">
+                                        <div className="relative w-20 h-24 bg-zinc-50 rounded-lg overflow-hidden flex-shrink-0 border border-zinc-100">
+                                            <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                                         </div>
-                                        <div className="text-lg font-black text-zinc-950 italic">₹{item.price * item.quantity}</div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <Link href={`/shop/product/${item.slug}`} className="text-sm font-bold text-zinc-900 line-clamp-2 hover:text-purple-600">
+                                                    {item.name}
+                                                </Link>
+                                                <button onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)} className="p-1 text-zinc-300 hover:text-red-500">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3">
+                                                {item.selectedSize && `Size: ${item.selectedSize}`}
+                                                {item.selectedColor && ` • Color: ${item.selectedColor}`}
+                                            </p>
+                                            
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center border border-zinc-200 rounded-lg h-8 px-1">
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize, item.selectedColor)} className="w-6 h-full text-zinc-400 hover:text-purple-600 font-bold">–</button>
+                                                    <span className="w-8 text-center text-xs font-bold text-zinc-900">{item.quantity}</span>
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedColor)} className="w-6 h-full text-zinc-400 hover:text-purple-600 font-bold">+</button>
+                                                </div>
+                                                <span className="text-base font-black text-zinc-950">₹{item.price * item.quantity}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="py-20 text-center">
+                                <ShoppingBag className="w-12 h-12 text-zinc-200 mx-auto mb-4" />
+                                <h3 className="font-bold text-zinc-900">Bag is empty</h3>
+                                <Link href="/shop" onClick={onClose} className="mt-4 inline-block text-purple-600 text-sm font-bold underline">Go Shopping</Link>
+                            </div>
+                        )}
+                    </div>
 
-                                {/* Removal Button */}
-                                <button
-                                    onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
-                                    className="absolute -top-2 -right-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-zinc-300 hover:text-red-500 hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-center py-20">
-                            <div className="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center mb-8">
-                                <ShoppingBag className="w-10 h-10 text-zinc-200" />
-                            </div>
-                            <h3 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-950">Your Bag is empty</h3>
-                            <p className="text-zinc-400 text-xs mt-4 leading-relaxed max-w-[240px]">Explore our exclusive collection and start your beauty ritual today.</p>
-                            <Link
-                                href="/shop"
-                                onClick={onClose}
-                                className="mt-12 bg-zinc-950 text-white px-12 py-5 rounded-[1.8rem] font-black uppercase text-[10px] tracking-widest shadow-2xl shadow-zinc-950/20 hover:-translate-y-1 transition-all active:scale-95"
-                            >
-                                Shop Collections
-                            </Link>
+                    {/* Promocodes - Thinner Card Style */}
+                    <div className="p-6 bg-zinc-50 border-y border-zinc-100">
+                         <div className="flex items-center gap-2 mb-4">
+                            <Tag className="w-4 h-4 text-purple-600" />
+                            <h3 className="text-xs font-black uppercase text-zinc-950 tracking-widest">Available Offers</h3>
                         </div>
-                    )}
-                </div>
-
-                {/* Footer / Summary Area - High Impact */}
-                <div className="px-10 py-10 bg-white border-t border-zinc-100 shadow-[0_-20px_50px_rgba(0,0,0,0.02)] space-y-6">
-                    
-                    {/* Active Coupon Display */}
-                    {selectedPromo && (
-                        <div className="flex items-center gap-4 p-5 bg-green-50/50 border border-green-100 rounded-3xl animate-in zoom-in-95 duration-500">
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                                <Percent className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-[10px] text-green-600/60 font-black uppercase tracking-widest">Active Discount</div>
-                                <div className="text-xs font-black text-green-800 uppercase italic tracking-tighter">
-                                    {selectedPromo.code} — Saved ₹{Number(selectedPromo.discountAmount || 0).toFixed(0)}
-                                </div>
-                            </div>
-                            <button onClick={removePromo} className="text-green-800/40 hover:text-green-800 p-2">
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Coupons Header */}
-                    {availablePromos.length > 0 && (
-                        <div className="flex items-center justify-between px-2">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" />
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-400">Available Offers</h3>
-                            </div>
-                            <span className="text-[10px] font-bold text-zinc-400">{availablePromos.length} total</span>
-                        </div>
-                    )}
-
-                    {/* Coupons Carousel - Sleek Tear-off Edge Style */}
-                    {availablePromos.length > 0 && (
-                        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x -mx-2 px-2">
+                        
+                        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 snap-x">
                             {availablePromos.map((promo) => (
                                 <button
                                     key={promo.id}
                                     onClick={() => handleApply(promo.code)}
-                                    className={`flex-shrink-0 snap-start p-5 rounded-[2rem] border-2 transition-all text-left min-w-[260px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-600 text-white shadow-lg shadow-purple-500/20' : 'border-zinc-50 bg-zinc-50/50 hover:bg-white hover:border-purple-200'}`}
+                                    className={`flex-shrink-0 snap-start px-4 py-2.5 rounded-xl border-2 transition-all flex items-center gap-3 min-w-[200px] ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-600 text-white shadow-lg shadow-purple-200' : 'border-white bg-white hover:border-purple-200 shadow-sm'}`}
                                 >
-                                    {/* Coupon Notches */}
-                                    <div className="absolute top-1/2 -left-3 w-6 h-6 bg-white rounded-full -translate-y-1/2 border border-zinc-100" />
-                                    <div className="absolute top-1/2 -right-3 w-6 h-6 bg-white rounded-full -translate-y-1/2 border border-zinc-100" />
-                                    
-                                    <div className="flex items-center justify-between relative z-10">
-                                        <div className="flex flex-col">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest mb-1.5 ${selectedPromo?.code === promo.code ? 'text-white/60' : 'text-purple-600'}`}>COUPON CODE</span>
-                                            <div className="text-2xl font-black italic tracking-tighter uppercase mb-3">{promo.code}</div>
-                                            <p className={`text-[11px] font-bold uppercase tracking-widest opacity-80 ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-500'}`}>
-                                                {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} FLAT OFF`}
-                                            </p>
-                                        </div>
-                                        {selectedPromo?.code === promo.code ? (
-                                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                                                <CheckCircle2 className="w-6 h-6 text-white" />
-                                            </div>
-                                        ) : (
-                                            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
-                                                <ArrowRight className="w-5 h-5" />
-                                            </div>
-                                        )}
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedPromo?.code === promo.code ? 'bg-white/20' : 'bg-purple-50'}`}>
+                                        <Ticket className={`w-4 h-4 ${selectedPromo?.code === promo.code ? 'text-white' : 'text-purple-600'}`} />
                                     </div>
+                                    <div className="text-left flex-1 min-w-0">
+                                        <div className="text-[10px] font-black uppercase tracking-tighter truncate">{promo.code}</div>
+                                        <div className={`text-[9px] font-bold opacity-70 ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-500'}`}>
+                                            {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% SAVINGS` : `₹${promo.discountValue} FLAT OFF`}
+                                        </div>
+                                    </div>
+                                    {selectedPromo?.code === promo.code && <CheckCircle2 className="w-4 h-4 text-white flex-shrink-0" />}
                                 </button>
                             ))}
                         </div>
-                    )}
 
-                    {/* Final Actions */}
-                    <div className="pt-6 space-y-4">
-                        <div className="flex items-center justify-between mb-2">
-                             <div className="flex flex-col">
-                                <span className="text-zinc-950 font-black uppercase tracking-[0.2em] text-xs italic">Estimated Total</span>
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Taxes and Shipping Calculated at checkout</span>
-                             </div>
-                             <span className="text-3xl font-black text-purple-600 italic tracking-tighter">
-                                ₹{(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal).toFixed(0)}
-                             </span>
+                        {/* Manual Code Input - Slimmer */}
+                        <div className="mt-4 relative group">
+                            <input
+                                type="text"
+                                placeholder="ENTER CUSTOM CODE"
+                                className={`w-full pl-4 pr-24 py-3 rounded-xl border text-[10px] font-black tracking-widest outline-none transition-all ${selectedPromo ? 'border-green-100 bg-green-50/30 text-green-700' : 'border-zinc-200 focus:border-purple-600 shadow-sm'}`}
+                                value={promoCodeInput}
+                                onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                                disabled={!!selectedPromo}
+                            />
+                            <button
+                                onClick={() => (selectedPromo ? removePromo() : handleApply())}
+                                className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${selectedPromo ? 'bg-zinc-900 text-white' : promoCodeInput ? 'bg-purple-600 text-white' : 'bg-zinc-100 text-zinc-300'}`}
+                            >
+                                {selectedPromo ? 'Remove' : 'Apply'}
+                            </button>
                         </div>
-
-                        <Link
-                            href="/checkout"
-                            onClick={onClose}
-                            className="bg-[#1a1c23] hover:bg-black text-white py-6 rounded-[1.8rem] font-black uppercase tracking-[0.25em] text-[11px] text-center shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 group relative overflow-hidden"
-                        >
-                            <span className="relative z-10">Proceed to Checkout</span>
-                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
-                            {/* Reflection Glow */}
-                            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[1.2s] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-                        </Link>
                     </div>
+
+                    {/* bill Summary - In the same plane */}
+                    <div className="p-8 space-y-4 pb-20">
+                         <h3 className="text-[10px] font-black uppercase text-zinc-300 tracking-[0.2em] mb-4">Pricing Details</h3>
+                         <div className="space-y-3">
+                            <div className="flex justify-between text-xs">
+                                <span className="text-zinc-500 font-bold uppercase tracking-widest">Bag Total</span>
+                                <span className="text-zinc-900 font-bold">₹{Number(cartTotal).toFixed(0)}</span>
+                            </div>
+                            {selectedPromo && (
+                                <div className="flex justify-between text-xs text-green-600 font-bold">
+                                    <span className="uppercase tracking-widest">Coupon Savings</span>
+                                    <span>-₹{Number(selectedPromo.discountAmount || 0).toFixed(0)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between text-xs">
+                                <span className="text-zinc-500 font-bold uppercase tracking-widest">Delivery</span>
+                                <span className="text-green-600 font-bold uppercase">{remainingForFreeShipping > 0 ? '₹40' : 'FREE'}</span>
+                            </div>
+                         </div>
+                         <div className="pt-4 mt-4 border-t border-dashed border-zinc-200 flex justify-between items-end">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Final Amount</span>
+                                <span className="text-3xl font-black text-zinc-950 italic tracking-tighter">
+                                    ₹{(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal + (remainingForFreeShipping > 0 ? 40 : 0)).toFixed(0)}
+                                </span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span className="text-[9px] font-black text-green-600 uppercase bg-green-50 px-2 py-0.5 rounded-full mb-1">Safe Checkout</span>
+                                <span className="text-[8px] font-bold text-zinc-300 uppercase">Taxes Included</span>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+
+                {/* Place Order - Bottom Sticky */}
+                <div className="p-6 bg-white border-t border-zinc-100 shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
+                    <Link
+                        href="/checkout"
+                        onClick={onClose}
+                        className="w-full bg-purple-600 text-white py-5 rounded-[1.8rem] font-black uppercase tracking-[0.25em] text-[11px] text-center shadow-xl shadow-purple-600/20 active:scale-95 transition-all flex items-center justify-center gap-3 group overflow-hidden relative"
+                    >
+                        <span className="relative z-10">Place Order Now</span>
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[1.2s] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                    </Link>
                 </div>
             </div>
         </div>
