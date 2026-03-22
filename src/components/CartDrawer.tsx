@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { X, Minus, Plus, Trash2, Tag, ChevronRight, CheckCircle2, Ticket, Percent } from 'lucide-react';
 
 export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { cart, cartTotal, removeFromCart, updateQuantity, selectedPromo, applyPromo, removePromo } = useCart();
@@ -60,10 +61,8 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                         <h2 className="text-xl font-black uppercase italic tracking-tighter">Your Cart</h2>
                         <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest mt-1">{cart.length} items</p>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-zinc-50 flex items-center justify-center transition-colors">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-zinc-50 flex items-center justify-center transition-all active:scale-95">
+                        <X className="w-5 h-5 text-zinc-900" />
                     </button>
                 </div>
 
@@ -127,14 +126,16 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                             </div>
                         ))
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-center py-20">
-                            <div className="text-6xl mb-6">🛒</div>
+                        <div className="h-full flex flex-col items-center justify-center text-center py-20 px-8">
+                            <div className="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center mb-6">
+                                <Tag className="w-10 h-10 text-zinc-300" />
+                            </div>
                             <h3 className="text-xl font-black uppercase italic tracking-tighter">Your cart is empty</h3>
-                            <p className="text-zinc-400 text-sm mt-2">Looks like you haven't added anything yet.</p>
+                            <p className="text-zinc-400 text-sm mt-3 leading-relaxed">Looks like you haven't added anything to your cart yet.</p>
                             <Link
                                 href="/shop"
                                 onClick={onClose}
-                                className="mt-8 bg-black text-white px-8 py-3 rounded-full font-black uppercase text-xs tracking-widest shadow-lg hover:-translate-y-1 transition-all"
+                                className="mt-10 bg-black text-white px-10 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest shadow-xl hover:-translate-y-1 transition-all active:scale-95"
                             >
                                 Start Shopping
                             </Link>
@@ -143,94 +144,133 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                 </div>
 
                 {/* Footer / Summary */}
-                <div className="p-6 border-t border-zinc-100 bg-zinc-50 space-y-4">
-                    {/* Available Promos Section */}
+                <div className="p-6 border-t border-zinc-100 bg-zinc-50 space-y-5">
+                    {/* Available Promos Section - More Prominent & Interactive */}
                     {availablePromos.length > 0 && (
-                        <div className="space-y-3">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Offers</h3>
-                            <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar snap-x">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <Ticket className="w-3.5 h-3.5 text-purple-600" />
+                                    </div>
+                                    <h3 className="text-[11px] font-black uppercase tracking-widest text-zinc-900/40">Available Coupons</h3>
+                                </div>
+                                <span className="text-[10px] font-bold text-zinc-400">{availablePromos.length} total</span>
+                            </div>
+                            <div className="flex gap-3 overflow-x-auto pb-4 px-1 -mx-1 no-scrollbar snap-x">
                                 {availablePromos.map((promo) => (
                                     <button
                                         key={promo.id}
+                                        type="button"
                                         onClick={() => handleApply(promo.code)}
-                                        className={`flex-shrink-0 snap-start p-3 rounded-xl border-2 transition-all text-left min-w-[200px] ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-50' : 'border-zinc-100 bg-white hover:border-purple-200'}`}
+                                        className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[240px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-white shadow-lg shadow-purple-500/10' : 'border-white bg-white hover:border-purple-200'}`}
                                     >
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-xs font-black uppercase tracking-tighter text-purple-600">{promo.code}</span>
-                                            {selectedPromo?.code === promo.code && (
-                                                <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                </svg>
-                                            )}
+                                        {/* Coupon Notch Design */}
+                                        <div className="absolute top-1/2 -left-2 w-4 h-4 bg-zinc-50 rounded-full -translate-y-1/2" />
+                                        <div className="absolute top-1/2 -right-2 w-4 h-4 bg-zinc-50 rounded-full -translate-y-1/2" />
+                                        
+                                        <div className="flex items-start justify-between relative z-10">
+                                            <div>
+                                                <div className="flex items-center gap-1.5 mb-1">
+                                                    <span className={`text-xs font-black uppercase tracking-tight ${selectedPromo?.code === promo.code ? 'text-purple-600' : 'text-zinc-900 group-hover:text-purple-600'}`}>
+                                                        {promo.code}
+                                                    </span>
+                                                    {selectedPromo?.code === promo.code && (
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 fill-purple-50" />
+                                                    )}
+                                                </div>
+                                                <p className="text-[14px] font-black text-zinc-900">
+                                                    {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% SAVINGS` : `₹${promo.discountValue} FLAT OFF`}
+                                                </p>
+                                                {promo.minOrderValue > 0 && (
+                                                    <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-wider">
+                                                        On orders above ₹${promo.minOrderValue}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="w-8 h-8 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center transition-colors">
+                                                <ChevronRight className={`w-4 h-4 transition-transform ${selectedPromo?.code === promo.code ? 'rotate-90 text-purple-600' : 'text-zinc-400 group-hover:text-purple-600'}`} />
+                                            </div>
                                         </div>
-                                        <p className="text-[10px] font-bold text-zinc-900 line-clamp-1">
-                                            {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} OFF`}
-                                            {promo.minOrderValue > 0 && ` on orders above ₹${promo.minOrderValue}`}
-                                        </p>
                                     </button>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Promo Code Input */}
-                    <div className="space-y-2">
-                        <div className="flex gap-2">
+                    {/* Promo Code Input / Active State */}
+                    <div className="space-y-3">
+                        <div className="relative group">
                             <input
                                 type="text"
-                                placeholder="ENTER PROMO CODE"
-                                className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 outline-none focus:border-purple-600 text-xs font-bold uppercase tracking-widest"
+                                placeholder="ENTER COUPON CODE"
+                                className={`w-full pl-5 pr-24 py-4 rounded-2xl border outline-none transition-all text-xs font-black uppercase tracking-widest ${selectedPromo ? 'border-green-100 bg-green-50/30 text-green-700' : 'border-zinc-200 bg-white focus:border-purple-600 focus:shadow-lg focus:shadow-purple-500/5'}`}
                                 value={promoCodeInput}
                                 onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
                                 disabled={!!selectedPromo}
                             />
-                            {selectedPromo ? (
-                                <button
-                                    onClick={removePromo}
-                                    className="bg-black text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"
-                                >
-                                    Remove
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => handleApply()}
-                                    className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-colors"
-                                >
-                                    Apply
-                                </button>
-                            )}
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                {selectedPromo ? (
+                                    <button
+                                        type="button"
+                                        onClick={removePromo}
+                                        className="h-10 px-5 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 flex items-center gap-2 shadow-sm"
+                                    >
+                                        <X className="w-3 h-3" />
+                                        Remove
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleApply()}
+                                        disabled={!promoCodeInput}
+                                        className="h-10 px-6 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 disabled:bg-zinc-100 disabled:text-zinc-300 transition-all active:scale-95 shadow-sm"
+                                    >
+                                        Apply
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         {promoError && (
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">
-                                {promoError}
-                            </p>
+                            <div className="flex items-center gap-2 px-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">
+                                    {promoError}
+                                </p>
+                            </div>
                         ) || selectedPromo && (
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-green-600">
-                                Applied: {selectedPromo.discountType === 'PERCENTAGE' ? `${selectedPromo.discountValue}%` : `₹${selectedPromo.discountValue}`} OFF!
-                            </p>
+                            <div className="flex items-center gap-2 px-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                                <p className="text-[10px] font-black uppercase tracking-wider text-green-600">
+                                    Applied Code <strong>{selectedPromo.code}</strong> — Benefit: {selectedPromo.discountType === 'PERCENTAGE' ? `${selectedPromo.discountValue}%` : `₹${selectedPromo.discountValue}`} OFF!
+                                </p>
+                            </div>
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <div className="flex justify-between font-bold text-zinc-500 uppercase text-xs tracking-widest">
+                    <div className="pt-2 space-y-3">
+                        <div className="flex justify-between font-bold text-zinc-400 uppercase text-[10px] tracking-widest">
                             <span>Subtotal</span>
                             <span className="text-zinc-900 font-black">₹{cartTotal.toFixed(2)}</span>
                         </div>
                         {selectedPromo && (
-                            <div className="flex justify-between font-bold text-green-600 uppercase text-xs tracking-widest">
-                                <span>Discount ({selectedPromo.code})</span>
+                            <div className="flex justify-between font-bold text-green-600 uppercase text-[10px] tracking-widest">
+                                <div className="flex items-center gap-1.5">
+                                    <Percent className="w-3 h-3" />
+                                    <span>Discount ({selectedPromo.code})</span>
+                                </div>
                                 <span className="font-black">-₹{selectedPromo.discountAmount.toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between font-bold text-zinc-500 uppercase text-xs tracking-widest">
+                        <div className="flex justify-between font-bold text-zinc-400 uppercase text-[10px] tracking-widest">
                             <span>Shipping</span>
                             <span className="text-zinc-900 font-black">
-                                {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Calculated next'}
+                                {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Next Step'}
                             </span>
                         </div>
-                        <div className="flex justify-between pt-4 border-t border-zinc-200">
-                            <span className="text-lg font-black uppercase italic tracking-tighter">Total</span>
-                            <span className="text-lg font-black italic tracking-tighter">
+                        <div className="flex justify-between pt-5 border-t border-zinc-200">
+                            <span className="text-xl font-black uppercase italic tracking-tighter text-zinc-900">Total</span>
+                            <span className="text-xl font-black italic tracking-tighter text-zinc-900">
                                 ₹{(() => {
                                     const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                                     return subtotal.toFixed(2);
@@ -239,16 +279,19 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                         </div>
                     </div>
 
-                    <Link
-                        href="/checkout"
-                        onClick={onClose}
-                        className={`w-full block text-center py-4 rounded-2xl font-black uppercase tracking-widest transition-all ${cart.length === 0 ? 'bg-zinc-200 text-zinc-400 pointer-events-none' : 'bg-purple-600 text-white shadow-xl shadow-purple-500/25 hover:-translate-y-1 hover:shadow-2xl'}`}
-                    >
-                        Secure Checkout
-                    </Link>
-                    <p className="text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                        Tax included. Shipping calculated at checkout.
-                    </p>
+                    <div className="pt-2">
+                        <Link
+                            href="/checkout"
+                            onClick={onClose}
+                            className={`group relative w-full flex items-center justify-center gap-3 py-5 rounded-[1.5rem] font-black uppercase text-[11px] tracking-widest transition-all duration-500 ${cart.length === 0 ? 'bg-zinc-100 text-zinc-300 pointer-events-none' : 'bg-[#1a1c23] text-white shadow-2xl shadow-gray-200/50 hover:bg-black hover:-translate-y-1 active:scale-[0.98]'}`}
+                        >
+                            <span>Secure checkout</span>
+                            <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                        <p className="text-center text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em] mt-6">
+                            Verified Secure Payment Gateway
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

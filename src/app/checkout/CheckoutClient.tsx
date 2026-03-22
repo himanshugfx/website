@@ -622,66 +622,101 @@ export default function CheckoutClient() {
                                 ))}
                             </div>
 
-                            {/* Promo Code Section */}
-                            <div className="mb-6 space-y-4">
+                            {/* Promo Code Section - Premium Redesign */}
+                            <div className="mb-8 space-y-6">
                                 {availablePromos.length > 0 && (
-                                    <div className="space-y-3">
-                                        <div className="heading6 text-sm uppercase tracking-widest text-zinc-500">Available Offers</div>
-                                        <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                    <CreditCard className="w-3.5 h-3.5 text-purple-600" />
+                                                </div>
+                                                <h3 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Exclusive Offers</h3>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-zinc-400">{availablePromos.length} Coupons</span>
+                                        </div>
+                                        <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 no-scrollbar snap-x">
                                             {availablePromos.map((promo) => (
                                                 <button
                                                     key={promo.id}
+                                                    type="button"
                                                     onClick={() => handleApply(promo.code)}
-                                                    className={`flex-shrink-0 p-3 rounded-xl border-2 transition-all text-left min-w-[180px] bg-white ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-50' : 'border-purple-100 hover:border-purple-300'}`}
+                                                    className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[220px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-white shadow-xl shadow-purple-500/10' : 'border-white bg-white hover:border-purple-200'}`}
                                                 >
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-xs font-black uppercase tracking-tighter text-purple-600">{promo.code}</span>
-                                                        {selectedPromo?.code === promo.code && (
-                                                            <CheckCircle className="w-4 h-4 text-purple-600" />
+                                                    {/* Coupon Aesthetic */}
+                                                    <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#fbfbff] rounded-full -translate-y-1/2 border border-purple-50" />
+                                                    <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#fbfbff] rounded-full -translate-y-1/2 border border-purple-50" />
+                                                    
+                                                    <div className="relative z-10">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className={`text-[12px] font-black tracking-tight ${selectedPromo?.code === promo.code ? 'text-purple-600' : 'text-zinc-900'}`}>
+                                                                {promo.code}
+                                                            </span>
+                                                            {selectedPromo?.code === promo.code && (
+                                                                <CheckCircle className="w-4 h-4 text-purple-600" />
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[15px] font-black text-zinc-900 leading-none">
+                                                            {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} FLAT OFF`}
+                                                        </p>
+                                                        {promo.minOrderValue > 0 && (
+                                                            <p className="text-[9px] font-bold text-zinc-400 mt-2 uppercase tracking-wide">
+                                                                Min. Order ₹{promo.minOrderValue}
+                                                            </p>
                                                         )}
                                                     </div>
-                                                    <p className="text-[10px] font-bold text-zinc-900 line-clamp-1">
-                                                        {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} OFF`}
-                                                    </p>
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
                                 )}
 
-                                <div>
-                                    <div className="heading6 mb-3">Or Enter Promo Code</div>
-                                    <div className="flex gap-2">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h3 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Or enter manually</h3>
+                                    </div>
+                                    <div className="relative">
                                         <input
                                             type="text"
                                             value={promoCodeInput}
-                                            onChange={(e) => setPromoCodeInput(e.target.value)}
-                                            placeholder="Enter promo code"
-                                            className="flex-1 min-w-0 border border-line px-4 py-2 rounded-lg focus:outline-none focus:border-purple-500 uppercase"
+                                            onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                                            placeholder="GIFT20, ANV50, etc."
+                                            className={`w-full pl-5 pr-28 py-4 rounded-2xl border outline-none transition-all text-xs font-black tracking-widest uppercase ${selectedPromo ? 'border-green-100 bg-green-50/20 text-green-700' : 'border-purple-100 bg-white focus:border-purple-600 focus:shadow-lg focus:shadow-purple-500/5'}`}
                                             disabled={!!selectedPromo}
                                         />
-                                        {selectedPromo ? (
-                                            <button
-                                                onClick={removePromo}
-                                                className="bg-black text-white sm:px-4 px-3 py-2 rounded-lg font-medium"
-                                            >
-                                                Remove
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleApply()}
-                                                disabled={!promoCodeInput}
-                                                className="bg-black text-white sm:px-6 px-4 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
-                                            >
-                                                Apply
-                                            </button>
-                                        )}
+                                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                            {selectedPromo ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={removePromo}
+                                                    className="h-10 px-6 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95"
+                                                >
+                                                    Remove
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleApply()}
+                                                    disabled={!promoCodeInput}
+                                                    className="h-10 px-8 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 disabled:bg-zinc-100 disabled:text-zinc-300 transition-all active:scale-95"
+                                                >
+                                                    Apply
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    {promoError && <p className="text-red-500 text-xs mt-2">{promoError}</p>}
+                                    {promoError && (
+                                        <div className="flex items-center gap-2 px-2 text-red-500">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                            <p className="text-[10px] font-bold uppercase tracking-wider">{promoError}</p>
+                                        </div>
+                                    )}
                                     {selectedPromo && (
-                                        <div className="mt-2 text-green-600 text-sm flex items-center gap-1">
+                                        <div className="flex items-center gap-2 px-2 text-green-600 bg-green-50/50 py-3 rounded-xl border border-green-100 animate-in fade-in slide-in-from-top-1 duration-300">
                                             <CheckCircle className="w-4 h-4" />
-                                            Code <strong>{selectedPromo.code}</strong> applied successfully!
+                                            <p className="text-[11px] font-black uppercase tracking-widest">
+                                                Active: {selectedPromo.code} — Savings: ₹{selectedPromo.discountAmount.toFixed(2)}
+                                            </p>
                                         </div>
                                     )}
                                 </div>
