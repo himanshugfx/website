@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useSession } from 'next-auth/react';
-import { CreditCard, Truck, Smartphone, Loader2, CheckCircle } from 'lucide-react';
+import { CreditCard, Truck, Smartphone, Loader2, CheckCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
 
 interface RazorpayResponse {
@@ -622,8 +622,8 @@ export default function CheckoutClient() {
                                 ))}
                             </div>
 
-                            {/* Promo Code Section - Premium Redesign */}
-                            <div className="mb-8 space-y-6">
+                            {/* Promo Code Section */}
+                            <div className="mt-8 pt-8 border-line border-t space-y-6">
                                 {availablePromos.length > 0 && (
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
@@ -635,35 +635,40 @@ export default function CheckoutClient() {
                                             </div>
                                             <span className="text-[10px] font-bold text-zinc-400">{availablePromos.length} Coupons</span>
                                         </div>
-                                        <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 no-scrollbar snap-x">
+                                        <div className="flex gap-3 overflow-x-auto pb-4 px-1 -mx-1 no-scrollbar snap-x">
                                             {availablePromos.map((promo) => (
                                                 <button
                                                     key={promo.id}
                                                     type="button"
                                                     onClick={() => handleApply(promo.code)}
-                                                    className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[220px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-white shadow-xl shadow-purple-500/10' : 'border-white bg-white hover:border-purple-200'}`}
+                                                    className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[240px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-600 text-white shadow-lg shadow-purple-500/20' : 'border-white bg-white hover:border-purple-200'}`}
                                                 >
-                                                    {/* Coupon Aesthetic */}
-                                                    <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#fbfbff] rounded-full -translate-y-1/2 border border-purple-50" />
-                                                    <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#fbfbff] rounded-full -translate-y-1/2 border border-purple-50" />
+                                                    {/* Coupon Notch Design */}
+                                                    <div className="absolute top-1/2 -left-2 w-4 h-4 bg-zinc-50 rounded-full -translate-y-1/2" />
+                                                    <div className="absolute top-1/2 -right-2 w-4 h-4 bg-zinc-50 rounded-full -translate-y-1/2" />
                                                     
-                                                    <div className="relative z-10">
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <span className={`text-[12px] font-black tracking-tight ${selectedPromo?.code === promo.code ? 'text-purple-600' : 'text-zinc-900'}`}>
-                                                                {promo.code}
-                                                            </span>
-                                                            {selectedPromo?.code === promo.code && (
-                                                                <CheckCircle className="w-4 h-4 text-purple-600" />
+                                                    <div className="flex items-start justify-between relative z-10">
+                                                        <div>
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <span className={`text-xs font-black uppercase tracking-tight ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-900 group-hover:text-purple-600'}`}>
+                                                                    {promo.code}
+                                                                </span>
+                                                                {selectedPromo?.code === promo.code && (
+                                                                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                                                )}
+                                                            </div>
+                                                            <p className={`text-[14px] font-black ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-900'}`}>
+                                                                {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% SAVINGS` : `₹${promo.discountValue} FLAT OFF`}
+                                                            </p>
+                                                            {promo.minOrderValue > 0 && (
+                                                                <p className={`text-[10px] font-bold mt-1 uppercase tracking-wider ${selectedPromo?.code === promo.code ? 'text-purple-200' : 'text-zinc-400'}`}>
+                                                                    On orders above ₹{promo.minOrderValue}
+                                                                </p>
                                                             )}
                                                         </div>
-                                                        <p className="text-[15px] font-black text-zinc-900 leading-none">
-                                                            {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} FLAT OFF`}
-                                                        </p>
-                                                        {promo.minOrderValue > 0 && (
-                                                            <p className="text-[9px] font-bold text-zinc-400 mt-2 uppercase tracking-wide">
-                                                                Min. Order ₹{promo.minOrderValue}
-                                                            </p>
-                                                        )}
+                                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${selectedPromo?.code === promo.code ? 'bg-white/20 text-white' : 'bg-purple-50 text-zinc-400 group-hover:bg-purple-100 group-hover:text-purple-600'}`}>
+                                                            <ChevronRight className={`w-4 h-4 transition-transform ${selectedPromo?.code === promo.code ? 'rotate-90' : ''}`} />
+                                                        </div>
                                                     </div>
                                                 </button>
                                             ))}

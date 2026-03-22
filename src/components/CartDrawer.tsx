@@ -163,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                                         key={promo.id}
                                         type="button"
                                         onClick={() => handleApply(promo.code)}
-                                        className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[240px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-white shadow-lg shadow-purple-500/10' : 'border-white bg-white hover:border-purple-200'}`}
+                                        className={`flex-shrink-0 snap-start p-4 rounded-2xl border-2 transition-all text-left min-w-[240px] relative overflow-hidden group ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-600 text-white shadow-lg shadow-purple-500/20' : 'border-white bg-white hover:border-purple-200'}`}
                                     >
                                         {/* Coupon Notch Design */}
                                         <div className="absolute top-1/2 -left-2 w-4 h-4 bg-zinc-50 rounded-full -translate-y-1/2" />
@@ -172,24 +172,24 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                                         <div className="flex items-start justify-between relative z-10">
                                             <div>
                                                 <div className="flex items-center gap-1.5 mb-1">
-                                                    <span className={`text-xs font-black uppercase tracking-tight ${selectedPromo?.code === promo.code ? 'text-purple-600' : 'text-zinc-900 group-hover:text-purple-600'}`}>
+                                                    <span className={`text-xs font-black uppercase tracking-tight ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-900 group-hover:text-purple-600'}`}>
                                                         {promo.code}
                                                     </span>
                                                     {selectedPromo?.code === promo.code && (
-                                                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 fill-purple-50" />
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                                     )}
                                                 </div>
-                                                <p className="text-[14px] font-black text-zinc-900">
+                                                <p className={`text-[14px] font-black ${selectedPromo?.code === promo.code ? 'text-white' : 'text-zinc-900'}`}>
                                                     {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% SAVINGS` : `₹${promo.discountValue} FLAT OFF`}
                                                 </p>
                                                 {promo.minOrderValue > 0 && (
-                                                    <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-wider">
-                                                        On orders above ₹${promo.minOrderValue}
+                                                    <p className={`text-[10px] font-bold mt-1 uppercase tracking-wider ${selectedPromo?.code === promo.code ? 'text-purple-100' : 'text-zinc-400'}`}>
+                                                        On orders above ₹{promo.minOrderValue}
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className="w-8 h-8 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center transition-colors">
-                                                <ChevronRight className={`w-4 h-4 transition-transform ${selectedPromo?.code === promo.code ? 'rotate-90 text-purple-600' : 'text-zinc-400 group-hover:text-purple-600'}`} />
+                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${selectedPromo?.code === promo.code ? 'bg-white/20 text-white' : 'bg-purple-50 text-zinc-400 group-hover:bg-purple-100 group-hover:text-purple-600'}`}>
+                                                <ChevronRight className={`w-4 h-4 transition-transform ${selectedPromo?.code === promo.code ? 'rotate-90' : ''}`} />
                                             </div>
                                         </div>
                                     </button>
