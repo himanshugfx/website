@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { CheckCircle, X, ChevronRight } from 'lucide-react';
+import { CheckCircle, X, ChevronRight, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
 
 interface ProductType {
     id: string;
@@ -51,128 +51,150 @@ export default function CartPopup() {
     ].filter(Boolean).join(' | ');
 
     return (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={closePopup}></div>
-            <div className="relative bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl animate-in zoom-in-95 fade-in duration-500 overflow-hidden flex flex-col max-h-[92vh]">
-                {/* Close Button - More Premium */}
-                <button
-                    onClick={closePopup}
-                    className="absolute top-5 right-5 z-30 p-2.5 bg-white/80 backdrop-blur-md hover:bg-white shadow-sm ring-1 ring-black/5 rounded-full transition-all active:scale-90"
-                >
-                    <X className="w-4 h-4 text-zinc-900" />
-                </button>
+        <div className="fixed inset-0 z-[3000] flex items-end justify-center sm:items-center p-0 sm:p-4">
+            {/* Backdrop with premium blur */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] cursor-pointer" onClick={closePopup}></div>
+            
+            {/* Modal Container */}
+            <div className="relative bg-white w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_25px_100px_-20px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom sm:zoom-in-95 fade-in duration-700 overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[85vh]">
+                
+                {/* Visual Accent - Purple Glow */}
+                <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-                <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
-                    {/* Success Header - Seamless */}
-                    <div className="p-8 pb-4">
-                        <div className="flex items-center gap-2.5 text-green-600 mb-2">
-                            <div className="w-7 h-7 bg-green-50 rounded-full flex items-center justify-center">
-                                <CheckCircle className="w-4.5 h-4.5" />
+                {/* Header - Success Message */}
+                <div className="relative pt-10 pb-6 px-10 flex flex-col items-center">
+                    <button
+                        onClick={closePopup}
+                        className="absolute top-6 right-6 p-2.5 bg-zinc-50 hover:bg-zinc-100 rounded-full transition-all active:scale-90 group z-50"
+                    >
+                        <X className="w-4 h-4 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+                    </button>
+
+                    <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-green-50/50 animate-bounce">
+                        <CheckCircle className="w-7 h-7 text-green-600" />
+                    </div>
+                    
+                    <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 mb-1">Added to Bag!</h2>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Your journey to beauty begins</p>
+                </div>
+
+                {/* Seamless Scrolling Body */}
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
+                    {/* Main Product Card */}
+                    <div className="px-8 mb-10">
+                        <div className="group relative bg-zinc-50/50 p-6 rounded-[2.5rem] ring-1 ring-black/[0.03] transition-all hover:bg-zinc-50 duration-500">
+                            <div className="flex gap-6 items-center">
+                                <div className="w-28 aspect-[3/4] relative rounded-[2rem] overflow-hidden shadow-2xl shadow-black/10 transition-transform duration-700 group-hover:scale-105">
+                                    <Image
+                                        src={lastAddedItem.image}
+                                        alt={lastAddedItem.name}
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-purple-50 rounded-lg mb-2">
+                                        <Sparkles className="w-3 h-3 text-purple-600" />
+                                        <span className="text-[8px] font-black text-purple-600 uppercase tracking-widest">Premium Pick</span>
+                                    </div>
+                                    <h3 className="font-black text-lg text-zinc-900 leading-tight uppercase italic tracking-tight mb-3 line-clamp-2">{lastAddedItem.name}</h3>
+                                    
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {itemOptions.split(' | ').filter(Boolean).map((opt, i) => (
+                                            <span key={i} className="px-3 py-1 bg-white ring-1 ring-black/[0.05] rounded-full text-[9px] font-bold text-zinc-500 uppercase tracking-wider">{opt}</span>
+                                        ))}
+                                        <span className="px-3 py-1 bg-white ring-1 ring-black/[0.05] rounded-full text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Qty: {lastAddedItem.quantity}</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-2xl font-black text-purple-600">₹{lastAddedItem.price}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <span className="font-black uppercase italic tracking-tighter text-base">Success! Added to Bag</span>
                         </div>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em] ml-1">Your premium selection is ready</p>
                     </div>
 
-                    {/* Product Summary - Seamless & Elegant */}
-                    <div className="px-8 py-6 mb-2">
-                        <div className="flex gap-6 items-center p-4 bg-zinc-50/50 rounded-[2rem] ring-1 ring-black/[0.03]">
-                            <div className="w-24 aspect-[3/4] relative rounded-2xl overflow-hidden flex-shrink-0 shadow-xl shadow-black/5">
-                                <Image
-                                    src={lastAddedItem.image}
-                                    alt={lastAddedItem.name}
-                                    fill
-                                    className="object-cover"
-                                />
+                    {/* Upsell/Recommendations */}
+                    <div className="px-8 pb-10">
+                        <div className="flex items-center justify-between mb-6 px-2">
+                            <div className="flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse" />
+                                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">Perfect Pairings</h4>
                             </div>
-                            <div className="flex flex-col min-w-0 pr-2">
-                                <div className="font-black text-zinc-900 text-base leading-tight line-clamp-2 uppercase italic tracking-tight mb-2">{lastAddedItem.name}</div>
-                                <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3 flex flex-wrap gap-2">
-                                    {lastAddedItem.selectedSize && <span className="bg-white px-2 py-0.5 rounded-full ring-1 ring-zinc-100">Size: {lastAddedItem.selectedSize}</span>}
-                                    {lastAddedItem.selectedColor && <span className="bg-white px-2 py-0.5 rounded-full ring-1 ring-zinc-100">Color: {lastAddedItem.selectedColor}</span>}
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <span className="text-[11px] font-black text-zinc-400 opacity-60">QTY: {lastAddedItem.quantity}</span>
-                                    <span className="font-black text-xl text-purple-600">₹{lastAddedItem.price}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Recommendation Section - Seamless Flow */}
-                    <div className="px-8 pb-8">
-                        <div className="flex items-center gap-3 mb-6">
-                            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">Complete the Look</h4>
-                            <div className="flex-1 h-[1px] bg-gradient-to-r from-zinc-100 to-transparent" />
+                            <Link href="/shop" onClick={closePopup} className="text-[9px] font-black uppercase text-purple-600 hover:underline">View All</Link>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-5">
                             {loading ? (
-                                <div className="col-span-2 py-10 flex flex-col items-center justify-center gap-3">
-                                    <div className="w-6 h-6 border-2 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
-                                    <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Finding the perfect match...</span>
-                                </div>
+                                [1, 2].map(i => (
+                                    <div key={i} className="aspect-square bg-zinc-50 animate-pulse rounded-[2rem]" />
+                                ))
                             ) : recommended.length > 0 ? (
                                 recommended.map((product) => (
                                     <Link
                                         key={product.id}
                                         href={`/shop/product/${product.slug}`}
                                         onClick={closePopup}
-                                        className="flex flex-col group text-left"
+                                        className="group relative flex flex-col"
                                     >
-                                        <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden bg-zinc-50 mb-3 shadow-sm group-hover:shadow-lg group-hover:shadow-purple-500/10 transition-all duration-500">
+                                        <div className="relative aspect-[4/5] w-full rounded-[2.2rem] overflow-hidden bg-zinc-50 mb-4 shadow-sm group-hover:shadow-2xl group-hover:shadow-purple-500/20 transition-all duration-700">
                                             <Image
                                                 src={product.thumbImage || (product.images ? product.images.split(',')[0] : '/assets/images/placeholder.webp')}
                                                 alt={product.name}
                                                 fill
-                                                className="object-cover group-hover:scale-110 duration-700 transition-transform"
+                                                className="object-cover group-hover:scale-110 duration-[1.5s] transition-transform ease-out"
                                             />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                                        </div>
-                                        <div className="px-1">
-                                            <div className="font-bold text-[11px] text-zinc-900 line-clamp-1 mb-1 uppercase italic tracking-tight">{product.name}</div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-[10px] font-black text-purple-600">₹{product.price}</span>
-                                                <ChevronRight className="w-3 h-3 text-zinc-300 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute bottom-4 left-0 right-0 p-2 flex justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                                                <div className="bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl text-[9px] font-bold text-zinc-900 uppercase tracking-widest shadow-lg">Buy Now</div>
                                             </div>
+                                        </div>
+                                        <div className="px-2">
+                                            <h5 className="font-bold text-[10px] text-zinc-900 line-clamp-1 mb-1 uppercase italic tracking-tight transition-colors group-hover:text-purple-600">{product.name}</h5>
+                                            <p className="text-[11px] font-black text-purple-600/60">₹{product.price}</p>
                                         </div>
                                     </Link>
                                 ))
                             ) : (
-                                <div className="col-span-2 py-8 text-center text-[10px] font-bold text-zinc-300 uppercase tracking-widest bg-zinc-50/50 rounded-3xl border border-dashed border-zinc-100">
-                                    Tailored for you
+                                <div className="col-span-2 py-12 text-center text-[10px] font-bold text-zinc-300 uppercase tracking-[0.25em] bg-zinc-50/50 rounded-[2.5rem] border-2 border-dashed border-zinc-100">
+                                    Tailored Beauty Picks
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Fixed Footer - Seamless Blur Glassmorphism */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 pt-4 pb-10 bg-gradient-to-t from-white via-white/100 to-white/0 pointer-events-none">
-                    <div className="flex flex-col gap-3 pointer-events-auto">
+                {/* Persistent Footer - Frosted Glass Glassmorphism */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 pb-10 bg-white/80 backdrop-blur-xl border-t border-zinc-50">
+                    <div className="flex flex-col gap-4">
                         <Link
                             href="/checkout"
                             onClick={closePopup}
-                            className="w-full bg-[#1a1c23] hover:bg-black text-white flex flex-col items-center justify-center py-5 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.98] shadow-2xl shadow-zinc-900/20 group relative overflow-hidden"
+                            className="group relative w-full h-16 bg-[#1a1c23] hover:bg-black text-white rounded-[1.8rem] flex items-center justify-center transition-all duration-500 active:scale-[0.97] shadow-2xl shadow-zinc-900/20"
                         >
-                            <span className="relative z-10 flex items-center gap-2">
-                                Secure Checkout <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            <span className="relative z-10 flex items-center gap-3 font-black uppercase tracking-[0.25em] text-[11px]">
+                                Secure Checkout
+                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1.5" />
                             </span>
-                            <div className="flex items-center gap-2 mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                <div className="h-4 w-auto bg-white/10 rounded px-1 flex items-center">
-                                    <Image src="/assets/images/payment_methods/upi.webp" alt="UPI" width={24} height={12} className="w-auto h-2 object-contain brightness-0 invert" />
-                                </div>
-                                <div className="h-4 w-auto bg-white/10 rounded px-1 flex items-center">
-                                    <Image src="/assets/images/payment_methods/rupay.webp" alt="Rupay" width={24} height={12} className="w-auto h-2 object-contain brightness-0 invert" />
-                                </div>
-                            </div>
+                            
+                            {/* Decorative Flash Effect */}
+                            <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[1s] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
                         </Link>
-                        <button
-                            onClick={closePopup}
-                            className="w-full text-zinc-400 hover:text-zinc-900 font-bold uppercase tracking-[0.2em] text-[10px] transition-all"
-                        >
-                            Explore More
-                        </button>
+                        
+                        <div className="flex items-center justify-between px-2">
+                            <button
+                                onClick={closePopup}
+                                className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-900 transition-colors"
+                            >
+                                Continue Selection
+                            </button>
+                            <div className="flex items-center gap-3 opacity-40">
+                                <Image src="/assets/images/payment_methods/upi.webp" alt="UPI" width={28} height={14} className="h-2.5 w-auto object-contain grayscale" />
+                                <Image src="/assets/images/payment_methods/visa.webp" alt="Visa" width={28} height={14} className="h-2.5 w-auto object-contain grayscale" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
