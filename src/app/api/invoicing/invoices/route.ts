@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
 import prisma from '@/lib/prisma';
+import { sendAdminPushNotification } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,6 +101,13 @@ export async function POST(request: Request) {
                 status: 'DRAFT',
             },
         });
+
+        // Send push notification to admin devices
+        sendAdminPushNotification(
+            '📄 New Invoice Created',
+            `${invoice.invoiceNumber} — ${invoice.customerName} (₹${invoice.total.toLocaleString('en-IN')})`,
+            { type: 'new_invoice', invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber }
+        ).catch(err => console.error('Failed to send invoice push notification:', err));
 
         return NextResponse.json({ success: true, invoice });
     } catch (error: any) {

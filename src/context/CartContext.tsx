@@ -13,6 +13,13 @@ interface CartItem {
     slug: string;
 }
 
+interface AppliedPromo {
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    discountValue: number;
+}
+
 interface CartContextType {
     cart: CartItem[];
     addToCart: (item: CartItem) => void;
@@ -25,6 +32,9 @@ interface CartContextType {
     closePopup: () => void;
     lastAddedItem: CartItem | null;
     abandonedCheckoutId: string | null;
+    selectedPromo: AppliedPromo | null;
+    applyPromo: (code: string) => Promise<{ success: boolean; error?: string }>;
+    removePromo: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -69,9 +79,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
     const [abandonedCheckoutId, setAbandonedCheckoutId] = useState<string | null>(null);
 
+    const [selectedPromo, setSelectedPromo] = useState<AppliedPromo | null>(null);
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             setAbandonedCheckoutId(localStorage.getItem('anose_abandoned_checkout_id'));
+            const savedPromo = localStorage.getItem('anose_promo');
+            if (savedPromo) {
+                try {
+                    setSelectedPromo(JSON.parse(savedPromo));
+                } catch (e) {
+                    console.error("Failed to parse promo", e);
+                }
+            }
         }
     }, []);
 
@@ -85,12 +105,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, [cart, isLoaded]);
 
-    // Save abandoned checkout ID to local storage
+    // Save selected promo to local storage
     useEffect(() => {
-        if (abandonedCheckoutId) {
-            localStorage.setItem('anose_abandoned_checkout_id', abandonedCheckoutId);
+        if (isLoaded) {
+            if (selectedPromo) {
+                localStorage.setItem('anose_promo', JSON.stringify(selectedPromo));
+            } else {
+                localStorage.removeItem('anose_promo');
+            }
         }
-    }, [abandonedCheckoutId]);
+    }, [selectedPromo, isLoaded]);
 
     // Sync abandoned checkout when cart changes (but not cleared)
     const syncAbandonedCart = useCallback(async (updatedCart: CartItem[]) => {
@@ -140,6 +164,60 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         return () => clearTimeout(timer);
     }, [cart, syncAbandonedCart]);
+
+    const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+
+    // Auto-update discount amount if cartTotal changes
+    useEffect(() => {
+        if (selectedPromo) {
+            let newDiscountAmount = 0;
+            if (selectedPromo.discountType === 'PERCENTAGE') {
+                newDiscountAmount = (cartTotal * selectedPromo.discountValue) / 100;
+            } else {
+                newDiscountAmount = selectedPromo.discountValue;
+            }
+            newDiscountAmount = Math.min(newDiscountAmount, cartTotal);
+            
+            if (newDiscountAmount !== selectedPromo.discountAmount) {
+                setSelectedPromo(prev => prev ? { ...prev, discountAmount: newDiscountAmount } : null);
+            }
+        }
+    }, [cartTotal, selectedPromo?.code, selectedPromo?.discountValue, selectedPromo?.discountType]);
+
+    const applyPromo = async (code: string) => {
+        try {
+            const res = await fetch('/api/users/apply-promo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code,
+                    cartTotal
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                const newPromo = {
+                    code: data.code,
+                    discountAmount: data.discountAmount,
+                    discountType: data.type,
+                    discountValue: data.value
+                };
+                setSelectedPromo(newPromo);
+                return { success: true };
+            } else {
+                return { success: false, error: data.error || 'Failed to apply code' };
+            }
+        } catch (err) {
+            console.error(err);
+            return { success: false, error: 'Something went wrong' };
+        }
+    };
+
+    const removePromo = () => {
+        setSelectedPromo(null);
+    };
 
     const addToCart = (newItem: CartItem) => {
         setCart(prev => {
@@ -194,11 +272,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const closePopup = () => setIsPopupOpen(false);
 
-    const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCount, isPopupOpen, closePopup, lastAddedItem, abandonedCheckoutId }}>
+        <CartContext.Provider value={{
+            cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCount,
+            isPopupOpen, closePopup, lastAddedItem, abandonedCheckoutId,
+            selectedPromo, applyPromo, removePromo
+        }}>
             {children}
         </CartContext.Provider>
     );

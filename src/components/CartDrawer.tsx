@@ -6,31 +6,44 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
 export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-    const { cart, cartTotal, removeFromCart, updateQuantity } = useCart();
-    const [promoCode, setPromoCode] = useState('');
-    const [promoStatus, setPromoStatus] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+    const { cart, cartTotal, removeFromCart, updateQuantity, selectedPromo, applyPromo, removePromo } = useCart();
+    const [promoCodeInput, setPromoCodeInput] = useState('');
+    const [availablePromos, setAvailablePromos] = useState<any[]>([]);
+    const [loadingPromos, setLoadingPromos] = useState(false);
+    const [promoError, setPromoError] = useState('');
 
     const FREE_SHIPPING_THRESHOLD = 199;
     const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
     const progressPercent = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100);
 
-    const handleApplyPromo = async () => {
-        if (!promoCode) return;
-        setPromoStatus(null);
-        try {
-            const res = await fetch('/api/promocodes/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: promoCode, subtotal: cartTotal })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setPromoStatus({ type: 'success', message: `Applied: ${data.discountType === 'PERCENTAGE' ? data.discountValue + '%' : '₹' + data.discountValue} off!` });
-            } else {
-                setPromoStatus({ type: 'error', message: data.error || 'Invalid code' });
+    React.useEffect(() => {
+        const fetchPromos = async () => {
+            setLoadingPromos(true);
+            try {
+                const res = await fetch('/api/promocodes');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailablePromos(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch promos', error);
+            } finally {
+                setLoadingPromos(false);
             }
-        } catch (error) {
-            setPromoStatus({ type: 'error', message: 'Something went wrong' });
+        };
+        fetchPromos();
+    }, []);
+
+    const handleApply = async (code?: string) => {
+        const codeToApply = code || promoCodeInput;
+        if (!codeToApply) return;
+
+        setPromoError('');
+        const res = await applyPromo(codeToApply);
+        if (!res.success) {
+            setPromoError(res.error || 'Invalid code');
+        } else {
+            setPromoCodeInput('');
         }
     };
 
@@ -131,26 +144,69 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
 
                 {/* Footer / Summary */}
                 <div className="p-6 border-t border-zinc-100 bg-zinc-50 space-y-4">
-                    {/* Promo Code */}
+                    {/* Available Promos Section */}
+                    {availablePromos.length > 0 && (
+                        <div className="space-y-3">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Offers</h3>
+                            <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar snap-x">
+                                {availablePromos.map((promo) => (
+                                    <button
+                                        key={promo.id}
+                                        onClick={() => handleApply(promo.code)}
+                                        className={`flex-shrink-0 snap-start p-3 rounded-xl border-2 transition-all text-left min-w-[200px] ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-50' : 'border-zinc-100 bg-white hover:border-purple-200'}`}
+                                    >
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-xs font-black uppercase tracking-tighter text-purple-600">{promo.code}</span>
+                                            {selectedPromo?.code === promo.code && (
+                                                <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] font-bold text-zinc-900 line-clamp-1">
+                                            {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} OFF`}
+                                            {promo.minOrderValue > 0 && ` on orders above ₹${promo.minOrderValue}`}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Promo Code Input */}
                     <div className="space-y-2">
                         <div className="flex gap-2">
                             <input
                                 type="text"
-                                placeholder="PROMO CODE"
+                                placeholder="ENTER PROMO CODE"
                                 className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 outline-none focus:border-purple-600 text-xs font-bold uppercase tracking-widest"
-                                value={promoCode}
-                                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                value={promoCodeInput}
+                                onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                                disabled={!!selectedPromo}
                             />
-                            <button
-                                onClick={handleApplyPromo}
-                                className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-colors"
-                            >
-                                Apply
-                            </button>
+                            {selectedPromo ? (
+                                <button
+                                    onClick={removePromo}
+                                    className="bg-black text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors"
+                                >
+                                    Remove
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleApply()}
+                                    className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-colors"
+                                >
+                                    Apply
+                                </button>
+                            )}
                         </div>
-                        {promoStatus && (
-                            <p className={`text-[10px] font-bold uppercase tracking-wider ${promoStatus.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
-                                {promoStatus.message}
+                        {promoError && (
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">
+                                {promoError}
+                            </p>
+                        ) || selectedPromo && (
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-green-600">
+                                Applied: {selectedPromo.discountType === 'PERCENTAGE' ? `${selectedPromo.discountValue}%` : `₹${selectedPromo.discountValue}`} OFF!
                             </p>
                         )}
                     </div>
@@ -160,13 +216,26 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
                             <span>Subtotal</span>
                             <span className="text-zinc-900 font-black">₹{cartTotal.toFixed(2)}</span>
                         </div>
+                        {selectedPromo && (
+                            <div className="flex justify-between font-bold text-green-600 uppercase text-xs tracking-widest">
+                                <span>Discount ({selectedPromo.code})</span>
+                                <span className="font-black">-₹{selectedPromo.discountAmount.toFixed(2)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between font-bold text-zinc-500 uppercase text-xs tracking-widest">
                             <span>Shipping</span>
-                            <span className="text-zinc-900 font-black">{cartTotal >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Calculated next'}</span>
+                            <span className="text-zinc-900 font-black">
+                                {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Calculated next'}
+                            </span>
                         </div>
                         <div className="flex justify-between pt-4 border-t border-zinc-200">
                             <span className="text-lg font-black uppercase italic tracking-tighter">Total</span>
-                            <span className="text-lg font-black italic tracking-tighter">₹{cartTotal.toFixed(2)}</span>
+                            <span className="text-lg font-black italic tracking-tighter">
+                                ₹{(() => {
+                                    const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
+                                    return subtotal.toFixed(2);
+                                })()}
+                            </span>
                         </div>
                     </div>
 

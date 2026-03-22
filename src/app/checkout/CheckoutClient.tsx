@@ -37,7 +37,7 @@ declare global {
 }
 
 export default function CheckoutClient() {
-    const { cart, cartTotal, clearCart, abandonedCheckoutId } = useCart();
+    const { cart, cartTotal, clearCart, abandonedCheckoutId, selectedPromo, applyPromo, removePromo } = useCart();
     const { data: session } = useSession();
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
@@ -49,12 +49,8 @@ export default function CheckoutClient() {
 
     // Promo Code State
     const [promoCodeInput, setPromoCodeInput] = useState('');
-    const [appliedPromo, setAppliedPromo] = useState<{
-        code: string;
-        discountAmount: number;
-        type: string;
-    } | null>(null);
-    const [applyingPromo, setApplyingPromo] = useState(false);
+    const [availablePromos, setAvailablePromos] = useState<any[]>([]);
+    const [loadingPromos, setLoadingPromos] = useState(false);
     const [promoError, setPromoError] = useState('');
 
     const [shippingInfo, setShippingInfo] = useState({
@@ -124,7 +120,7 @@ export default function CheckoutClient() {
                         price: item.price
                     })),
                     total: (() => {
-                        const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                        const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                         return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                     })(),
                     source: 'CHECKOUT' // Mark as checkout stage
@@ -139,6 +135,25 @@ export default function CheckoutClient() {
         }
     };
 
+    // Fetch promos on mount
+    React.useEffect(() => {
+        const fetchPromos = async () => {
+            setLoadingPromos(true);
+            try {
+                const res = await fetch('/api/promocodes');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAvailablePromos(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch promos', err);
+            } finally {
+                setLoadingPromos(false);
+            }
+        };
+        fetchPromos();
+    }, []);
+
     // Sync immediately on checkout page load, then debounce on changes
     React.useEffect(() => {
         // Sync immediately when landing on checkout
@@ -152,7 +167,7 @@ export default function CheckoutClient() {
         }, 3000); // Sync after 3 seconds of inactivity
 
         return () => clearTimeout(timer);
-    }, [shippingInfo, appliedPromo]);
+    }, [shippingInfo, selectedPromo]);
 
 
     const validateForm = () => {
@@ -164,40 +179,16 @@ export default function CheckoutClient() {
         return true;
     };
 
-    const handleApplyPromo = async () => {
-        if (!promoCodeInput.trim()) return;
-        setApplyingPromo(true);
+    const handleApply = async (code?: string) => {
+        const codeToApply = code || promoCodeInput;
+        if (!codeToApply) return;
+
         setPromoError('');
-
-        try {
-            const res = await fetch('/api/users/apply-promo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    code: promoCodeInput,
-                    cartTotal,
-                    userId: session?.user?.email
-                }),
-            });
-
-            const data = await res.json();
-
-            if (data.success) {
-                setAppliedPromo({
-                    code: data.code,
-                    discountAmount: data.discountAmount,
-                    type: data.type
-                });
-                setPromoError('');
-            } else {
-                setPromoError(data.error || 'Failed to apply code');
-                setAppliedPromo(null);
-            }
-        } catch (err) {
-            console.error(err);
-            setPromoError('Something went wrong. Please try again.');
-        } finally {
-            setApplyingPromo(false);
+        const res = await applyPromo(codeToApply);
+        if (!res.success) {
+            setPromoError(res.error || 'Failed to apply code');
+        } else {
+            setPromoCodeInput('');
         }
     };
 
@@ -233,12 +224,12 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
-                        promoCode: appliedPromo?.code || null,
-                        discountAmount: appliedPromo?.discountAmount || 0,
+                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        promoCode: selectedPromo?.code || null,
+                        discountAmount: selectedPromo?.discountAmount || 0,
                         paymentMethod: 'razorpay'
                     }),
                 });
@@ -337,12 +328,12 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
-                        promoCode: appliedPromo?.code || null,
-                        discountAmount: appliedPromo?.discountAmount || 0,
+                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        promoCode: selectedPromo?.code || null,
+                        discountAmount: selectedPromo?.discountAmount || 0,
                         paymentMethod: 'phonepe'
                     }),
                 });
@@ -373,13 +364,13 @@ export default function CheckoutClient() {
                         shippingInfo,
                         userId: session?.user?.id || null,
                         total: (() => {
-                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                             return subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal;
                         })(),
-                        shippingFee: (appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
+                        shippingFee: (selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         paymentMethod: 'COD',
-                        promoCode: appliedPromo?.code || null,
-                        discountAmount: appliedPromo?.discountAmount || 0,
+                        promoCode: selectedPromo?.code || null,
+                        discountAmount: selectedPromo?.discountAmount || 0,
                     }),
                 });
 
@@ -632,45 +623,68 @@ export default function CheckoutClient() {
                             </div>
 
                             {/* Promo Code Section */}
-                            <div className="mb-6">
-                                <div className="heading6 mb-3">Promo Code</div>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={promoCodeInput}
-                                        onChange={(e) => setPromoCodeInput(e.target.value)}
-                                        placeholder="Enter promo code"
-                                        className="flex-1 min-w-0 border border-line px-4 py-2 rounded-lg focus:outline-none focus:border-purple-500 uppercase"
-                                        disabled={!!appliedPromo}
-                                    />
-                                    {appliedPromo ? (
-                                        <button
-                                            onClick={() => {
-                                                setAppliedPromo(null);
-                                                setPromoCodeInput('');
-                                                setError('');
-                                            }}
-                                            className="bg-black text-white sm:px-4 px-3 py-2 rounded-lg font-medium"
-                                        >
-                                            Remove
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={handleApplyPromo}
-                                            disabled={applyingPromo || !promoCodeInput}
-                                            className="bg-black text-white sm:px-6 px-4 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
-                                        >
-                                            {applyingPromo ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
-                                        </button>
-                                    )}
-                                </div>
-                                {promoError && <p className="text-red-500 text-xs mt-2">{promoError}</p>}
-                                {appliedPromo && (
-                                    <div className="mt-2 text-green-600 text-sm flex items-center gap-1">
-                                        <CheckCircle className="w-4 h-4" />
-                                        Code <strong>{appliedPromo.code}</strong> applied successfully!
+                            <div className="mb-6 space-y-4">
+                                {availablePromos.length > 0 && (
+                                    <div className="space-y-3">
+                                        <div className="heading6 text-sm uppercase tracking-widest text-zinc-500">Available Offers</div>
+                                        <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                                            {availablePromos.map((promo) => (
+                                                <button
+                                                    key={promo.id}
+                                                    onClick={() => handleApply(promo.code)}
+                                                    className={`flex-shrink-0 p-3 rounded-xl border-2 transition-all text-left min-w-[180px] bg-white ${selectedPromo?.code === promo.code ? 'border-purple-600 bg-purple-50' : 'border-purple-100 hover:border-purple-300'}`}
+                                                >
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-xs font-black uppercase tracking-tighter text-purple-600">{promo.code}</span>
+                                                        {selectedPromo?.code === promo.code && (
+                                                            <CheckCircle className="w-4 h-4 text-purple-600" />
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-zinc-900 line-clamp-1">
+                                                        {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `₹${promo.discountValue} OFF`}
+                                                    </p>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
+
+                                <div>
+                                    <div className="heading6 mb-3">Or Enter Promo Code</div>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={promoCodeInput}
+                                            onChange={(e) => setPromoCodeInput(e.target.value)}
+                                            placeholder="Enter promo code"
+                                            className="flex-1 min-w-0 border border-line px-4 py-2 rounded-lg focus:outline-none focus:border-purple-500 uppercase"
+                                            disabled={!!selectedPromo}
+                                        />
+                                        {selectedPromo ? (
+                                            <button
+                                                onClick={removePromo}
+                                                className="bg-black text-white sm:px-4 px-3 py-2 rounded-lg font-medium"
+                                            >
+                                                Remove
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleApply()}
+                                                disabled={!promoCodeInput}
+                                                className="bg-black text-white sm:px-6 px-4 py-2 rounded-lg font-medium disabled:cursor-not-allowed"
+                                            >
+                                                Apply
+                                            </button>
+                                        )}
+                                    </div>
+                                    {promoError && <p className="text-red-500 text-xs mt-2">{promoError}</p>}
+                                    {selectedPromo && (
+                                        <div className="mt-2 text-green-600 text-sm flex items-center gap-1">
+                                            <CheckCircle className="w-4 h-4" />
+                                            Code <strong>{selectedPromo.code}</strong> applied successfully!
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="summary-details border-t border-purple-100 mt-2 pt-6 flex flex-col gap-3">
@@ -680,17 +694,17 @@ export default function CheckoutClient() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-secondary">Shipping</span>
-                                    {(appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? (
+                                    {(selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal) < SHIPPING_THRESHOLD ? (
                                         <span className="font-bold">₹{SHIPPING_FEE}</span>
                                     ) : (
                                         <span className="font-bold text-green-600">Free</span>
                                     )}
                                 </div>
 
-                                {appliedPromo && (
+                                {selectedPromo && (
                                     <div className="flex justify-between text-green-600">
-                                        <span className="font-medium">Discount ({appliedPromo.code})</span>
-                                        <span className="font-bold">-₹{appliedPromo.discountAmount.toFixed(2)}</span>
+                                        <span className="font-medium">Discount ({selectedPromo.code})</span>
+                                        <span className="font-bold">-₹{selectedPromo.discountAmount.toFixed(2)}</span>
                                     </div>
                                 )}
 
@@ -698,7 +712,7 @@ export default function CheckoutClient() {
                                     <span className="heading5">Total</span>
                                     <span className="heading5 text-purple-600">
                                         ₹{(() => {
-                                            const subtotal = appliedPromo ? cartTotal - appliedPromo.discountAmount : cartTotal;
+                                            const subtotal = selectedPromo ? cartTotal - selectedPromo.discountAmount : cartTotal;
                                             return (subtotal < SHIPPING_THRESHOLD ? subtotal + SHIPPING_FEE : subtotal).toFixed(2);
                                         })()}
                                     </span>

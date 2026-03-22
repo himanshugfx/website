@@ -1,7 +1,8 @@
 import prisma from '@/lib/prisma';
+import { messaging } from '@/lib/admin/firebase';
 
 /**
- * Send push notification to all registered admin devices via Expo Push API.
+ * Send push notification to all registered admin devices via Firebase Cloud Messaging (FCM).
  * This is a fire-and-forget utility — errors are logged but don't throw.
  */
 export async function sendAdminPushNotification(
@@ -10,47 +11,59 @@ export async function sendAdminPushNotification(
     data?: Record<string, any>
 ) {
     try {
-        const tokens = await prisma.adminPushToken.findMany({
+        const adminTokens = await prisma.adminPushToken.findMany({
             select: { token: true },
         });
 
-        console.log(`[Push] Found ${tokens.length} registered admin tokens`);
+        console.log(`[Push] Found ${adminTokens.length} registered admin tokens`);
 
-        if (tokens.length === 0) {
+        if (adminTokens.length === 0) {
             console.log('[Push] No admin push tokens registered, skipping notification');
             return;
         }
 
-        const messages = tokens.map(({ token }) => ({
-            to: token,
-            sound: 'default' as const,
-            title,
-            body,
-            data: data || {},
-        }));
+        const tokens = adminTokens.map(({ token }) => token);
 
-        // Expo Push API accepts batches of up to 100
-        const chunks: typeof messages[] = [];
-        for (let i = 0; i < messages.length; i += 100) {
-            chunks.push(messages.slice(i, i + 100));
-        }
-
-        for (const chunk of chunks) {
-            const res = await fetch('https://exp.host/--/api/v2/push/send', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Accept-Encoding': 'gzip, deflate',
-                    'Content-Type': 'application/json',
+        // Send multicast message via Firebase Admin
+        const response = await messaging.sendEachForMulticast({
+            tokens,
+            notification: {
+                title,
+                body,
+            },
+            data: data ? Object.entries(data).reduce((acc, [k, v]) => {
+                acc[k] = String(v);
+                return acc;
+            }, {} as Record<string, string>) : {},
+            android: {
+                priority: 'high',
+                notification: {
+                    sound: 'default',
+                    channelId: 'anose_admin_channel',
                 },
-                body: JSON.stringify(chunk),
+            },
+        });
+
+        console.log(`[Push] Batch sent: ${response.successCount} successes, ${response.failureCount} failures`);
+        
+        // Cleanup expired tokens
+        if (response.failureCount > 0) {
+            const tokensToRemove: string[] = [];
+            response.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    const errorCode = resp.error?.code;
+                    if (errorCode === 'messaging/invalid-registration-token' ||
+                        errorCode === 'messaging/registration-token-not-registered') {
+                        tokensToRemove.push(tokens[idx]);
+                    }
+                }
             });
 
-            if (!res.ok) {
-                console.error('[Push] Expo push API error:', await res.text());
-            } else {
-                const result = await res.json();
-                console.log(`[Push] Sent ${chunk.length} notifications:`, JSON.stringify(result.data?.map((d: any) => d.status)));
+            if (tokensToRemove.length > 0) {
+                console.log(`[Push] Removing ${tokensToRemove.length} expired admin tokens`);
+                await prisma.adminPushToken.deleteMany({
+                    where: { token: { in: tokensToRemove } },
+                });
             }
         }
     } catch (error) {
