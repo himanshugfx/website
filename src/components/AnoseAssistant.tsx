@@ -72,8 +72,15 @@ export default function AnoseAssistant() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowGreeting(true), 3000);
-    return () => clearTimeout(t);
+    // Show greeting immediately on load
+    setShowGreeting(true);
+    
+    // Hide it automatically after 3 seconds
+    const hideTimeout = setTimeout(() => {
+      setShowGreeting(false);
+    }, 3000);
+    
+    return () => clearTimeout(hideTimeout);
   }, []);
 
   if (isAdminPath) return null;
