@@ -1,6 +1,12 @@
 import * as admin from 'firebase-admin';
 
-if (!admin.apps.length) {
+// Check if we have the required environment variables before initializing
+const canInitialize = 
+  process.env.FIREBASE_PROJECT_ID && 
+  process.env.FIREBASE_CLIENT_EMAIL && 
+  process.env.FIREBASE_PRIVATE_KEY;
+
+if (canInitialize && !admin.apps.length) {
   try {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -15,4 +21,5 @@ if (!admin.apps.length) {
   }
 }
 
-export const messaging = admin.messaging();
+// Export messaging only if apps are initialized, otherwise return null or a proxy
+export const messaging = (canInitialize && admin.apps.length) ? admin.messaging() : null;

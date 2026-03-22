@@ -17,6 +17,11 @@ export async function sendAdminPushNotification(
 
         console.log(`[Push] Found ${adminTokens.length} registered admin tokens`);
 
+        if (!messaging) {
+            console.log('[Push] Firebase Cloud Messaging not initialized, skipping notification');
+            return;
+        }
+
         if (adminTokens.length === 0) {
             console.log('[Push] No admin push tokens registered, skipping notification');
             return;
