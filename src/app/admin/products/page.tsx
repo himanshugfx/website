@@ -252,9 +252,7 @@ export default function ProductsPage() {
                             </button>
                         ))}
                     </div>
-                    <button onClick={fetchProducts} className="p-3 bg-white border border-gray-100 hover:border-purple-200 rounded-xl transition-all shadow-sm group">
-                        <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
+
                 </div>
 
                 {/* Products Table */}

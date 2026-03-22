@@ -6,15 +6,15 @@ import { useState } from 'react';
 
 interface AdminHeaderProps {
     onMenuClick: () => void;
-    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing';
-    onTabChange: (tab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing') => void;
+    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance';
+    onTabChange: (tab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance') => void;
 }
 
 export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: AdminHeaderProps) {
     const { data: session } = useSession();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const navPills: ('Dashboard' | 'Store' | 'Sales' | 'Marketing')[] = ['Dashboard', 'Store', 'Sales', 'Marketing'];
+    const navPills: ('Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance')[] = ['Dashboard', 'Store', 'Sales', 'Marketing', 'Finance'];
 
     return (
         <header className="sticky top-0 z-[60] py-6 bg-[#f4f7fe]/80 backdrop-blur-md">

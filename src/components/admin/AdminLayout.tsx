@@ -10,7 +10,7 @@ interface AdminLayoutProps {
     children: React.ReactNode;
 }
 
-export type TopTab = 'Dashboard' | 'Store' | 'Sales' | 'Marketing';
+export type TopTab = 'Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance';
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const pathname = usePathname();
@@ -21,7 +21,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const getInitialTab = (): TopTab => {
         if (pathname === '/admin') return 'Dashboard';
         if (pathname.includes('/admin/products') || pathname.includes('/admin/hotel-catalogue') || pathname.includes('/admin/orders')) return 'Store';
-        if (pathname.includes('/admin/invoicing') || pathname.includes('/admin/funnel') || pathname.includes('/admin/abandoned-carts') || pathname.includes('/admin/promocodes') || pathname.includes('/admin/analytics')) return 'Sales';
+        if (pathname.includes('/admin/invoicing') || pathname.includes('/admin/promocodes')) return 'Finance';
+        if (pathname.includes('/admin/funnel') || pathname.includes('/admin/abandoned-carts') || pathname.includes('/admin/analytics')) return 'Sales';
         if (pathname.includes('/admin/users') || pathname.includes('/admin/subscribers') || pathname.includes('/admin/inquiries')) return 'Marketing';
         return 'Dashboard';
     };
@@ -45,7 +46,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         setActiveTopTab(tab);
         if (tab === 'Dashboard') window.location.href = '/admin';
         else if (tab === 'Store') window.location.href = '/admin/products';
-        else if (tab === 'Sales') window.location.href = '/admin/invoicing';
+        else if (tab === 'Sales') window.location.href = '/admin/funnel';
+        else if (tab === 'Finance') window.location.href = '/admin/invoicing/invoices';
         else if (tab === 'Marketing') window.location.href = '/admin/users';
     };
 

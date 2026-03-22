@@ -38,7 +38,7 @@ interface SidebarProps {
     onClose: () => void;
     isCollapsed: boolean;
     onToggleCollapse: () => void;
-    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing';
+    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance';
 }
 
 interface NavItem {
@@ -133,7 +133,7 @@ const SidebarContent = ({
 }: {
     onClose: () => void;
     pathname: string;
-    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing';
+    activeTopTab: 'Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance';
 }) => {
     // Flatten and filter based on top tab
     const filteredItems = navigationGroups.flatMap(group => {
@@ -147,7 +147,12 @@ const SidebarContent = ({
         }
         if (activeTopTab === 'Sales') {
             return group.items.filter(item => 
-                ['Invoicing', 'Sales Funnel', 'Analytics', 'Abandoned Carts', 'Promo Codes'].includes(item.name)
+                ['Sales Funnel', 'Analytics', 'Abandoned Carts'].includes(item.name)
+            );
+        }
+        if (activeTopTab === 'Finance') {
+            return group.items.filter(item => 
+                ['Invoicing', 'Promo Codes'].includes(item.name)
             );
         }
         if (activeTopTab === 'Marketing') {
