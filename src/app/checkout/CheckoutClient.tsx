@@ -174,6 +174,7 @@ export default function CheckoutClient() {
         if (!shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.email ||
             !shippingInfo.phone || !shippingInfo.city || !shippingInfo.postalCode || !shippingInfo.address) {
             setError('Please fill in all required fields');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return false;
         }
         return true;
@@ -580,6 +581,12 @@ export default function CheckoutClient() {
                                 </div>
                             </div>
                         </div>
+
+                        {error && (
+                            <div className="bg-red-50 text-red-600 p-4 rounded-xl mt-6 border border-red-100 animate-pulse">
+                                {error}
+                            </div>
+                        )}
 
                         <button
                             onClick={handlePlaceOrder}
