@@ -17,7 +17,7 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
     const navPills: ('Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance')[] = ['Dashboard', 'Store', 'Sales', 'Marketing', 'Finance'];
 
     return (
-        <header className="sticky top-0 z-[60] py-6 bg-[#f4f7fe]/80 backdrop-blur-md">
+        <header className="sticky top-0 z-40 py-6 bg-[#f4f7fe]/80 backdrop-blur-md">
             <div className="relative flex items-center justify-between">
                 {/* Left Section: Mobile Menu Only */}
                 <div className="flex items-center">
@@ -32,13 +32,13 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
                 </div>
 
                 {/* Center Section: Navigation Pills (Absolute Centered) */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-white p-1 rounded-[1.5rem] border border-gray-100 shadow-sm overflow-x-auto no-scrollbar max-w-[90vw] md:max-w-none">
+                <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-white p-1 rounded-2xl md:rounded-[1.5rem] border border-gray-100 shadow-sm overflow-x-auto no-scrollbar max-w-[calc(100vw-120px)] md:max-w-none">
                     {navPills.map((pill) => (
                         <button
                             key={pill}
                             type="button"
                             onClick={() => onTabChange(pill)}
-                            className={`px-10 py-3.5 rounded-[1.2rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 min-w-max ${
+                            className={`px-4 md:px-10 py-2.5 md:py-3.5 rounded-xl md:rounded-[1.2rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all duration-300 min-w-max ${
                                 activeTopTab === pill
                                     ? 'bg-[#1a1c23] text-white shadow-xl shadow-gray-200/50 scale-[1.02]'
                                     : 'text-gray-400 hover:text-[#1a1c23] hover:bg-gray-50'

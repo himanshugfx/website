@@ -53,8 +53,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-[#f4f7fe]" suppressHydrationWarning>
-            {/* Sidebar */}
-            <div className="flex flex-col sticky top-0 h-screen py-4 pl-4 z-50">
+            {/* Sidebar (Desktop) */}
+            <div className="hidden lg:flex flex-col sticky top-0 h-screen py-4 pl-4 z-50">
                 <Sidebar
                     isOpen={sidebarOpen}
                     onClose={() => setSidebarOpen(false)}
@@ -64,8 +64,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 />
             </div>
 
+            {/* Sidebar (Mobile Overlay/Drawer - handled inside Sidebar component) */}
+            <div className="lg:hidden">
+                <Sidebar
+                    isOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
+                    isCollapsed={false}
+                    onToggleCollapse={handleToggleCollapse}
+                    activeTopTab={activeTopTab}
+                />
+            </div>
+
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 px-4 lg:px-6">
+            <div className="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 px-3 md:px-4 lg:px-6">
                 {/* Header */}
                 <AdminHeader 
                     onMenuClick={() => setSidebarOpen(!sidebarOpen)} 
@@ -81,13 +92,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </main>
             </div>
 
-            {/* Overlay for mobile */}
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] lg:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
         </div>
     );
 }

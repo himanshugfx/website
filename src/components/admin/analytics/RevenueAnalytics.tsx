@@ -59,7 +59,7 @@ export default function RevenueAnalytics({ data, onRefresh }: { data?: any, onRe
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Master Target Widget */}
-            <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-black p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-black p-5 md:p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 group-hover:bg-purple-500/30 transition-all duration-700" />
                 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -97,9 +97,9 @@ export default function RevenueAnalytics({ data, onRefresh }: { data?: any, onRe
                             )}
                         </div>
                         <div>
-                            <div className="flex items-baseline gap-2 mb-1">
-                                <span className="text-5xl font-black tracking-tighter">{formatCurrency(data.thisMonthRevenue)}</span>
-                                <span className="text-xl font-bold text-gray-400">
+                            <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                                <span className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter">{formatCurrency(data.thisMonthRevenue)}</span>
+                                <span className="text-base sm:text-xl font-bold text-gray-400">
                                     / {isEditingTarget ? (
                                         <input 
                                             type="number"

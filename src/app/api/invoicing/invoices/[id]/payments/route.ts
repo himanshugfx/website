@@ -5,11 +5,11 @@ import prisma from '@/lib/prisma';
 // GET: List payments for an invoice
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await requireAdmin(request);
-        const { id } = params;
+        const { id } = await params;
 
         const payments = await prisma.payment.findMany({
             where: { invoiceId: id },
@@ -25,11 +25,11 @@ export async function GET(
 // POST: Record a new payment
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await requireAdmin(request);
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
         const { amount, paymentDate, paymentMode, reference, notes } = body;
 

@@ -80,23 +80,23 @@ export default function AddProductPage() {
         <AdminLayout>
             <div className="max-w-4xl space-y-6">
                 {/* Header */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                     <Link
                         href="/admin/products"
-                        className="p-2 bg-black text-white rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 bg-black text-white rounded-lg transition-colors"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-4 h-4 sm:w-5 h-5" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 line-clamp-1">Add Product</h1>
+                        <p className="text-xs sm:text-sm text-gray-500">
                             Create a new product for your store
                         </p>
                     </div>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-8">
+                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8 space-y-8">
                     {/* Basic Information */}
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 mb-6 font-bold">Basic Information</h2>
@@ -571,17 +571,17 @@ export default function AddProductPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200">
                         <Link
                             href="/admin/products"
-                            className="px-6 py-2 bg-black text-white rounded-lg transition-colors"
+                            className="w-full sm:w-auto px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl transition-colors text-center font-medium"
                         >
                             Cancel
                         </Link>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-6 py-2 bg-black text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-900"
+                            className="w-full sm:w-auto px-8 py-2.5 bg-black text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-900 font-bold"
                         >
                             {loading ? 'Creating...' : 'Create Product'}
                         </button>

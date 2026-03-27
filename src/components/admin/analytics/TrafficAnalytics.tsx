@@ -279,7 +279,7 @@ export default function TrafficAnalytics({ data }: { data: any }) {
                                 <tr className="border-b border-gray-100">
                                     <th className="text-left text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] py-4 px-2">Page Title / URL</th>
                                     <th className="text-right text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] py-4 px-4">Views</th>
-                                    <th className="text-right text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] py-4 px-2">Engagement</th>
+                                    <th className="text-right text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] py-4 px-2 hidden sm:table-cell">Engagement</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50/50">
@@ -303,7 +303,7 @@ export default function TrafficAnalytics({ data }: { data: any }) {
                                                     <span className="text-xs font-black text-gray-900 group-hover:text-purple-600 transition-colors">
                                                         {getPageTitle(page.path)}
                                                     </span>
-                                                    <span className="text-[9px] text-gray-400 font-medium font-mono">
+                                                    <span className="text-[9px] text-gray-400 font-medium font-mono truncate max-w-[120px] sm:max-w-none">
                                                         {page.path}
                                                     </span>
                                                 </div>
@@ -319,7 +319,7 @@ export default function TrafficAnalytics({ data }: { data: any }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="text-right py-4 px-2">
+                                            <td className="text-right py-4 px-2 hidden sm:table-cell">
                                                 <span className="text-[10px] font-black text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
                                                     {Math.floor(page.avgDuration / 60)}m {String(Math.floor(page.avgDuration % 60)).padStart(2, '0')}s
                                                 </span>

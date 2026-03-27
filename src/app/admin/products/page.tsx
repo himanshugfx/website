@@ -279,13 +279,13 @@ export default function ProductsPage() {
                                     <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
                                         Price
                                     </th>
-                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center hidden sm:table-cell">
                                         Stock Status
                                     </th>
-                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center hidden md:table-cell">
                                         Labels
                                     </th>
-                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center hidden lg:table-cell">
                                         Priority
                                     </th>
                                     <th className="pr-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
@@ -375,13 +375,13 @@ export default function ProductsPage() {
                                                         ₹{product.price.toLocaleString()}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4 text-center align-middle">
+                                                <td className="px-4 py-4 text-center align-middle hidden sm:table-cell">
                                                     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black border ${stock.color}`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full ${stock.dot} ${product.quantity === 0 ? 'animate-pulse' : ''}`} />
                                                         {stock.label}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 text-center align-middle">
+                                                <td className="px-4 py-4 text-center align-middle hidden md:table-cell">
                                                     <div className="flex items-center justify-center gap-1.5">
                                                         <button
                                                             onClick={() => updateField(product.id, 'bestSeller', !product.bestSeller)}
@@ -415,7 +415,7 @@ export default function ProductsPage() {
                                                         </button>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 text-center align-middle">
+                                                <td className="px-4 py-4 text-center align-middle hidden lg:table-cell">
                                                     <div className="flex justify-center">
                                                         <input
                                                             type="number"

@@ -115,7 +115,7 @@ export default function UsersPage() {
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Orders
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                                         Joined
                                     </th>
                                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -126,7 +126,7 @@ export default function UsersPage() {
                             <tbody className="divide-y divide-gray-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center">
+                                        <td colSpan={5} className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                                                 <p className="text-gray-500">Loading users...</p>
@@ -135,7 +135,7 @@ export default function UsersPage() {
                                     </tr>
                                 ) : users.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center">
+                                        <td colSpan={5} className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
                                                     <UsersIcon className="w-8 h-8 text-purple-500" />
@@ -154,14 +154,14 @@ export default function UsersPage() {
                                                             {user.name?.charAt(0) || user.email?.charAt(0) || '?'}
                                                         </span>
                                                     </div>
-                                                    <div>
+                                                    <div className="min-w-0">
                                                         <Link
                                                             href={`/admin/users/${user.id}`}
-                                                            className="text-sm font-semibold text-gray-900 hover:text-purple-600 transition-colors"
+                                                            className="text-sm font-semibold text-gray-900 hover:text-purple-600 transition-colors line-clamp-1"
                                                         >
                                                             {user.name || 'No name'}
                                                         </Link>
-                                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                                        <div className="text-xs text-gray-500 truncate">{user.email}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -187,7 +187,7 @@ export default function UsersPage() {
                                                     {user._count.orders} orders
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                                 {new Date(user.createdAt).toLocaleDateString('en-IN', {
                                                     day: 'numeric',
                                                     month: 'short',

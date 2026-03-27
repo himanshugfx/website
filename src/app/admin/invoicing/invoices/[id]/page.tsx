@@ -189,23 +189,28 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                             <p className="text-sm text-gray-500 mt-1">Created on {formatDate(invoice.createdAt)}</p>
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
                         {invoice.status === 'DRAFT' && (
                             <button onClick={() => updateStatus('SENT')} disabled={!!actionLoading}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                                {actionLoading === 'SENT' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Mark as Sent
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm">
+                                {actionLoading === 'SENT' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} 
+                                <span className="hidden xs:inline">Mark as Sent</span>
+                                <span className="xs:hidden">Sent</span>
                             </button>
                         )}
                         {['SENT', 'OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
                             <button onClick={() => updateStatus('PAID')} disabled={!!actionLoading}
-                                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                                {actionLoading === 'PAID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Mark as Paid
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors text-sm">
+                                {actionLoading === 'PAID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} 
+                                <span className="hidden xs:inline">Mark as Paid</span>
+                                <span className="xs:hidden">Paid</span>
                             </button>
                         )}
                         {invoice.status !== 'VOID' && invoice.status !== 'PAID' && (
                             <button onClick={() => updateStatus('VOID')} disabled={!!actionLoading}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors">
-                                {actionLoading === 'VOID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />} Void
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm">
+                                {actionLoading === 'VOID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />} 
+                                <span className="hidden xs:inline">Void</span>
                             </button>
                         )}
                         {['SENT', 'OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
@@ -213,27 +218,33 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                 setPaymentForm({ ...paymentForm, amount: invoice.balance });
                                 setShowPaymentModal(true);
                             }} 
-                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors shadow-sm">
-                                <IndianRupee className="w-4 h-4" /> Record Payment
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors shadow-sm text-sm">
+                                <IndianRupee className="w-4 h-4" /> 
+                                <span className="hidden xs:inline">Record Payment</span>
+                                <span className="xs:hidden">Pay</span>
                             </button>
                         )}
                         <Link 
                             href={`/print/invoice/${invoice.id}`} 
                             target="_blank"
-                            className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-xl font-medium hover:bg-purple-200 transition-colors"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-xl font-medium hover:bg-purple-200 transition-colors text-sm"
                         >
-                            <Printer className="w-4 h-4" /> Print / PDF
+                            <Printer className="w-4 h-4" /> 
+                            <span className="hidden xs:inline">Print / PDF</span>
+                            <span className="xs:hidden">PDF</span>
                         </Link>
                         {invoice.status !== 'PAID' && invoice.status !== 'VOID' && (
                             <Link href={`/admin/invoicing/invoices/${resolvedId}/edit`}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-                                <Pencil className="w-4 h-4 text-gray-400" /> Edit
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm">
+                                <Pencil className="w-4 h-4 text-gray-400" /> 
+                                <span className="hidden xs:inline">Edit</span>
                             </Link>
                         )}
                         {invoice.status === 'DRAFT' && (
                             <button onClick={deleteInvoice} disabled={!!actionLoading}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 disabled:opacity-50 transition-colors">
-                                {actionLoading === 'DELETE' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Delete
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 disabled:opacity-50 transition-colors text-sm">
+                                {actionLoading === 'DELETE' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} 
+                                <span className="hidden xs:inline">Delete</span>
                             </button>
                         )}
                     </div>
@@ -275,9 +286,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                 <tr className="bg-gray-50 border-b border-gray-100">
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">#</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Item</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">HSN</th>
-                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Qty</th>
-                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Rate</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">HSN</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Qty</th>
+                                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Rate</th>
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Amount</th>
                                 </tr>
                             </thead>
@@ -286,12 +297,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                     <tr key={i} className="hover:bg-gray-50/50">
                                         <td className="px-6 py-3 text-sm text-gray-400">{i + 1}</td>
                                         <td className="px-6 py-3">
-                                            <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                                            {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
+                                            <p className="text-sm font-medium text-gray-900 line-clamp-1">{item.name}</p>
+                                            {item.description && <p className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-none">{item.description}</p>}
                                         </td>
-                                        <td className="px-6 py-3 text-sm text-gray-600">{item.hsnCode || '-'}</td>
-                                        <td className="px-6 py-3 text-sm text-gray-900 text-right">{item.quantity}</td>
-                                        <td className="px-6 py-3 text-sm text-gray-900 text-right">{formatCurrency(item.rate)}</td>
+                                        <td className="px-6 py-3 text-sm text-gray-600 hidden sm:table-cell">{item.hsnCode || '-'}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity}</td>
+                                        <td className="px-6 py-3 text-sm text-gray-900 text-right hidden md:table-cell">{formatCurrency(item.rate)}</td>
                                         <td className="px-6 py-3 text-sm font-semibold text-gray-900 text-right">{formatCurrency(item.amount || item.quantity * item.rate)}</td>
                                     </tr>
                                 ))}
@@ -363,21 +374,21 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                                        <th className="px-6 py-4 text-left">Date</th>
-                                        <th className="px-6 py-4 text-left">Mode</th>
-                                        <th className="px-6 py-4 text-left">Reference</th>
-                                        <th className="px-6 py-4 text-right">Amount</th>
+                                        <th className="px-4 sm:px-6 py-4 text-left">Date</th>
+                                        <th className="px-4 sm:px-6 py-4 text-left">Mode</th>
+                                        <th className="px-6 py-4 text-left hidden sm:table-cell">Reference</th>
+                                        <th className="px-4 sm:px-6 py-4 text-right">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {payments.map((p) => (
                                         <tr key={p.id} className="hover:bg-gray-50/30">
-                                            <td className="px-6 py-4 font-medium text-gray-900">{formatDate(p.paymentDate)}</td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-4 sm:px-6 py-4 font-medium text-gray-900">{formatDate(p.paymentDate)}</td>
+                                            <td className="px-4 sm:px-6 py-4">
                                                 <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-bold uppercase">{p.paymentMode}</span>
                                             </td>
-                                            <td className="px-6 py-4 font-mono text-gray-500">{p.reference || '-'}</td>
-                                            <td className="px-6 py-4 text-right font-bold text-emerald-600">{formatCurrency(p.amount)}</td>
+                                            <td className="px-6 py-4 font-mono text-gray-500 hidden sm:table-cell">{p.reference || '-'}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-right font-bold text-emerald-600">{formatCurrency(p.amount)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -397,8 +408,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                             <p className="text-purple-100 text-sm mt-1">Payment for {invoice.invoiceNumber}</p>
                         </div>
                         <form onSubmit={handleRecordPayment} className="p-6 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="sm:col-span-2">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Amount (₹)</label>
                                     <input type="number" required value={paymentForm.amount}
                                         onChange={e => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
@@ -425,14 +436,14 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                         <option value="OTHER">Other</option>
                                     </select>
                                 </div>
-                                <div className="col-span-2">
+                                <div className="sm:col-span-2">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Reference / Txn ID</label>
                                     <input type="text" value={paymentForm.reference}
                                         onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })}
                                         placeholder="e.g. UTR-1234567890"
                                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" />
                                 </div>
-                                <div className="col-span-2">
+                                <div className="sm:col-span-2">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Internal Notes</label>
                                     <textarea value={paymentForm.notes} rows={2}
                                         onChange={e => setPaymentForm({ ...paymentForm, notes: e.target.value })}

@@ -25,7 +25,8 @@ interface InvoiceStats {
     overdue: number;
     totalAmount: number;
     paidAmount: number;
-    partiallyPaidAmount: number;
+    partiallyPaidPaidAmount: number;
+    partiallyPaidDueAmount: number;
     overdueAmount: number;
 }
 
@@ -181,8 +182,8 @@ export default function InvoicesPage() {
 
                 {/* Stats */}
                 {stats && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden flex items-stretch h-28 mb-8">
-                        <button onClick={() => setStatusFilter('ALL')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'ALL' ? 'bg-purple-600' : 'hover:bg-gray-50'}`}>
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden grid grid-cols-2 lg:grid-cols-4 mb-8">
+                        <button onClick={() => setStatusFilter('ALL')} className={`px-4 py-8 text-left transition-all relative border-b border-r border-gray-100 lg:border-b-0 ${statusFilter === 'ALL' ? 'bg-purple-600' : 'hover:bg-gray-50'}`}>
                             <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'ALL' ? 'text-white' : 'text-gray-400'}`}>Total 🏆</p>
                             <div className="flex items-baseline gap-3">
                                 <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'ALL' ? 'text-white' : 'text-gray-900'}`}>{(stats.total || 0).toString().padStart(2, '0')}</span>
@@ -190,9 +191,9 @@ export default function InvoicesPage() {
                             </div>
                         </button>
                         
-                        <div className="w-[1px] bg-gray-100 self-stretch" />
+                        <div className="hidden lg:block w-[1px] bg-gray-100 self-stretch" />
 
-                        <button onClick={() => setStatusFilter('PAID')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'PAID' ? 'bg-emerald-600' : 'hover:bg-gray-50'}`}>
+                        <button onClick={() => setStatusFilter('PAID')} className={`px-4 py-8 text-left transition-all relative border-b border-gray-100 lg:border-b-0 ${statusFilter === 'PAID' ? 'bg-emerald-600' : 'hover:bg-gray-50'}`}>
                             <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PAID' ? 'text-white' : 'text-emerald-600'}`}>Paid 💰</p>
                             <div className="flex items-baseline gap-3">
                                 <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'PAID' ? 'text-white' : 'text-emerald-700'}`}>{(stats.paid || 0).toString().padStart(2, '0')}</span>
@@ -200,19 +201,22 @@ export default function InvoicesPage() {
                             </div>
                         </button>
                         
-                        <div className="w-[1px] bg-gray-100 self-stretch" />
+                        <div className="hidden lg:block w-[1px] bg-gray-100 self-stretch" />
 
-                        <button onClick={() => setStatusFilter('PARTIALLY_PAID')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'PARTIALLY_PAID' ? 'bg-amber-500' : 'hover:bg-gray-50'}`}>
+                        <button onClick={() => setStatusFilter('PARTIALLY_PAID')} className={`px-4 py-8 text-left transition-all relative border-r border-gray-100 lg:border-r-0 ${statusFilter === 'PARTIALLY_PAID' ? 'bg-amber-500' : 'hover:bg-gray-50'}`}>
                             <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>Partial 🍕</p>
-                            <div className="flex items-baseline gap-3">
+                            <div className="flex items-center gap-2">
                                 <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-700'}`}>{(stats.partiallyPaid || 0).toString().padStart(2, '0')}</span>
-                                <span className={`text-[13px] font-black ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>₹{(stats.partiallyPaidAmount || 0).toLocaleString()}</span>
+                                <div className="flex flex-col -mb-1">
+                                    <span className={`text-[11px] font-black leading-tight ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-emerald-700'}`}>₹{(stats.partiallyPaidPaidAmount || 0).toLocaleString()} paid</span>
+                                    <span className={`text-[11px] font-black leading-tight ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-red-600'}`}>₹{(stats.partiallyPaidDueAmount || 0).toLocaleString()} due</span>
+                                </div>
                             </div>
                         </button>
                         
-                        <div className="w-[1px] bg-gray-100 self-stretch" />
+                        <div className="hidden lg:block w-[1px] bg-gray-100 self-stretch" />
 
-                        <button onClick={() => setStatusFilter('OVERDUE')} className={`flex-1 px-8 text-left transition-all relative ${statusFilter === 'OVERDUE' ? 'bg-red-600' : 'hover:bg-gray-50'}`}>
+                        <button onClick={() => setStatusFilter('OVERDUE')} className={`px-4 py-8 text-left transition-all relative ${statusFilter === 'OVERDUE' ? 'bg-red-600' : 'hover:bg-gray-50'}`}>
                             <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'OVERDUE' ? 'text-white' : 'text-red-600'}`}>Overdue 🔥</p>
                             <div className="flex items-baseline gap-3">
                                 <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'OVERDUE' ? 'text-white' : 'text-red-800'}`}>{(stats.overdue || 0).toString().padStart(2, '0')}</span>
@@ -299,7 +303,7 @@ export default function InvoicesPage() {
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 {formatDate(invoice.invoiceDate)}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                            <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">
                                                 {invoice.dueDate ? formatDate(invoice.dueDate) : '-'}
                                             </td>
                                             <td className="px-6 py-4">

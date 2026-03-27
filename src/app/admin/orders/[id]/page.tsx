@@ -233,29 +233,31 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         <AdminLayout>
             <div className="max-w-6xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/admin/orders"
-                            className="p-2.5 bg-black text-white hover:bg-gray-900 rounded-xl transition-all"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </Link>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold text-gray-900">
-                                    Order #{order.orderNumber}
-                                </h1>
-                                <StatusBadge status={order.status} />
-                            </div>
-                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                                <Calendar className="w-4 h-4" />
-                                {new Date(order.createdAt).toLocaleDateString('en-GB')}
+                <div className="flex flex-col gap-6">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <Link
+                                href="/admin/orders"
+                                className="p-2 sm:p-2.5 bg-black text-white hover:bg-gray-900 rounded-xl transition-all mt-1"
+                            >
+                                <ArrowLeft className="w-4 h-4 sm:w-5 h-5" />
+                            </Link>
+                            <div>
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                                        Order #{order.orderNumber}
+                                    </h1>
+                                    <StatusBadge status={order.status} />
+                                </div>
+                                <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-gray-500">
+                                    <Calendar className="w-3.5 h-3.5 sm:w-4 h-4" />
+                                    {new Date(order.createdAt).toLocaleDateString('en-GB')}
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Ship with RapidShyp button - only show if not yet shipped */}
                         {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
                             order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
@@ -263,32 +265,33 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 <button
                                     onClick={shipWithRapidShyp}
                                     disabled={shipping}
-                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {shipping ? (
                                         <RefreshCw className="w-4 h-4 animate-spin" />
                                     ) : (
                                         <Truck className="w-4 h-4" />
                                     )}
-                                    Ship with RapidShyp
+                                    <span className="hidden xs:inline">Ship with RapidShyp</span>
+                                    <span className="xs:hidden">Ship</span>
                                 </button>
                             )}
                         {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && order.status !== 'DELIVERED' && (
                             <button
                                 onClick={() => updateStatus('CANCELLED')}
                                 disabled={updating}
-                                className="px-5 py-2.5 bg-black text-white font-medium rounded-xl disabled:opacity-50"
+                                className="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium rounded-xl disabled:opacity-50 text-center"
                             >
-                                Cancel Order
+                                Cancel
                             </button>
                         )}
                         {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
                             <button
                                 onClick={() => updateStatus('COMPLETED')}
                                 disabled={updating}
-                                className="px-5 py-2.5 bg-purple-600 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+                                className="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 text-center"
                             >
-                                Mark as Completed
+                                Complete
                             </button>
                         )}
                     </div>
