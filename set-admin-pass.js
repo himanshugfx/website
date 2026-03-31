@@ -4,8 +4,15 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function main() {
-    const emails = ['anosebeauty@gmail.com', 'himanshu@anosebeauty.com', 'himanshu.gfx@gmail.com'];
-    const hashedPassword = await bcrypt.hash('Admin@123', 10);
+    const emails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+    const password = process.env.ADMIN_PASSWORD;
+
+    if (emails.length === 0 || !password) {
+        console.error('Usage: ADMIN_EMAILS=a@b.com,c@d.com ADMIN_PASSWORD=... node set-admin-pass.js');
+        process.exit(1);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     for (const email of emails) {
         let user = await prisma.user.findUnique({ where: { email } });

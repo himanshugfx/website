@@ -6,18 +6,16 @@ import { finalizeOrder } from '@/lib/order';
 
 export async function POST(request: Request) {
     try {
-        const bodyContent = await request.text(); // PhonePe might send JSON but text can be parsed.
-        // Wait, PhonePe sends base64 string in a JSON field 'response'.
-        // Let's first check headers to differentiate.
+        const bodyContent = await request.text();
 
         const razorpaySignature = request.headers.get('x-razorpay-signature');
-        const phonePeChecksum = request.headers.get('x-verify');
 
         if (razorpaySignature) {
             // --- Razorpay Logic ---
             const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
             if (!webhookSecret) {
-                return NextResponse.json({ success: true });
+                console.error('RAZORPAY_WEBHOOK_SECRET is not configured — cannot verify webhook');
+                return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
             }
 
             const expectedSignature = crypto
@@ -25,51 +23,60 @@ export async function POST(request: Request) {
                 .update(bodyContent)
                 .digest('hex');
 
-            if (expectedSignature === razorpaySignature) {
-                const event = JSON.parse(bodyContent);
-
-                if (event.event === 'payment.captured') {
-                    const payment = event.payload.payment.entity;
-                    const internalOrderId = payment.notes?.receipt;
-
-                    if (internalOrderId) {
-                        await finalizeOrder(internalOrderId);
-                    }
-                    console.log(`Razorpay Payment captured for order ${internalOrderId}`);
-
-                }
-                return NextResponse.json({ success: true });
-            } else {
-                console.error("Invalid Razorpay signature");
+            if (expectedSignature !== razorpaySignature) {
+                console.error('Invalid Razorpay webhook signature');
                 return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
             }
-        } else {
-            // --- PhonePe Logic (assumed if no razorpay signature) ---
-            // PhonePe usually sends x-verify header for callbacks, but sometimes just posts data?
-            // Let's assume standard PhonePe webhook logic.
 
-            // Parse body as JSON for PhonePe
+            const event = JSON.parse(bodyContent);
+
+            if (event.event === 'payment.captured') {
+                const payment = event.payload.payment.entity;
+                const internalOrderId = payment.notes?.receipt;
+
+                if (internalOrderId) {
+                    await finalizeOrder(internalOrderId);
+                    console.log(`Razorpay Payment captured for order ${internalOrderId}`);
+                }
+            }
+
+            return NextResponse.json({ success: true });
+        } else {
+            // --- PhonePe Logic ---
             let body;
             try {
                 body = JSON.parse(bodyContent);
             } catch (e) {
-                // If not JSON, and not Razorpay, ignore
                 return NextResponse.json({ success: false, error: 'Invalid body' }, { status: 400 });
             }
 
             if (!body.response) {
-                return NextResponse.json({ success: true }); // Ignore unknown requests
+                return NextResponse.json({ success: true });
             }
 
             const saltKey = process.env.PHONEPE_SALT_KEY;
+            const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
             if (!saltKey) {
-                console.error('PhonePe Salt key not configured');
-                return NextResponse.json({ success: false }, { status: 500 });
+                console.error('PHONEPE_SALT_KEY is not configured — cannot verify webhook');
+                return NextResponse.json({ success: false, error: 'Webhook not configured' }, { status: 500 });
             }
 
-            // Verify (optional for now if header missing but recommended)
-            // Checksum verification logic similar to callback
-            // ...
+            // Verify PhonePe checksum
+            const xVerify = request.headers.get('x-verify');
+            if (!xVerify) {
+                console.error('PhonePe webhook missing x-verify header');
+                return NextResponse.json({ error: 'Missing verification header' }, { status: 400 });
+            }
+
+            const expectedChecksum = crypto
+                .createHash('sha256')
+                .update(body.response + saltKey)
+                .digest('hex') + '###' + saltIndex;
+
+            if (expectedChecksum !== xVerify) {
+                console.error('Invalid PhonePe webhook checksum');
+                return NextResponse.json({ error: 'Invalid checksum' }, { status: 400 });
+            }
 
             const decodedResponse = JSON.parse(
                 Buffer.from(body.response, 'base64').toString('utf-8')
@@ -78,28 +85,30 @@ export async function POST(request: Request) {
             const { merchantTransactionId, code } = decodedResponse;
             console.log('PhonePe Webhook:', { code, merchantTransactionId });
 
-            const orders = await prisma.order.findMany({
-                where: { status: 'PENDING' },
-                orderBy: { createdAt: 'desc' },
-                take: 10,
+            if (!merchantTransactionId) {
+                return NextResponse.json({ success: false, error: 'Missing transaction ID' }, { status: 400 });
+            }
+
+            // Match order by stored transactionId
+            const order = await prisma.order.findFirst({
+                where: {
+                    transactionId: merchantTransactionId,
+                    status: 'PENDING',
+                },
             });
 
-            // This is a bit loose matching, ideally we match transactionId if stored
-            // But preserving previous logic:
-            if (code === 'PAYMENT_SUCCESS') {
-                for (const order of orders) {
-                    await finalizeOrder(order.id);
-                    break;
-                }
-            } else if (code === 'PAYMENT_ERROR') {
+            if (!order) {
+                console.warn(`PhonePe webhook: no PENDING order found for transactionId ${merchantTransactionId}`);
+                return NextResponse.json({ success: true });
+            }
 
-                for (const order of orders) {
-                    await prisma.order.update({
-                        where: { id: order.id },
-                        data: { status: 'CANCELLED' },
-                    });
-                    break;
-                }
+            if (code === 'PAYMENT_SUCCESS') {
+                await finalizeOrder(order.id);
+            } else if (code === 'PAYMENT_ERROR') {
+                await prisma.order.update({
+                    where: { id: order.id },
+                    data: { status: 'CANCELLED' },
+                });
             }
 
             return NextResponse.json({ success: true });

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,8 +61,9 @@ async function ensureStagesExist() {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        await requireAdmin(request);
         await ensureStagesExist();
 
         const stages = await prisma.funnelStage.findMany({
@@ -112,7 +114,10 @@ export async function GET() {
         };
 
         return NextResponse.json({ stages, stats });
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.message?.startsWith('Unauthorized')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         console.error('Error fetching funnel data:', error);
         return NextResponse.json(
             { error: 'Failed to fetch funnel data', stages: [], stats: null },

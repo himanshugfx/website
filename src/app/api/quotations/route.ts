@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        await requireAdmin(request);
         const quotations = await prisma.quotation.findMany({
             orderBy: { quotationDate: 'desc' },
             take: 50,
@@ -31,7 +33,10 @@ export async function GET() {
         };
 
         return NextResponse.json({ quotations, stats });
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.message?.startsWith('Unauthorized')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         console.error('Error fetching quotations:', error);
         return NextResponse.json({ error: 'Failed to fetch quotations' }, { status: 500 });
     }

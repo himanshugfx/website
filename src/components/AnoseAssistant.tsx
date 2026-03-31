@@ -714,9 +714,24 @@ export default function AnoseAssistant() {
                           allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
                           allowedAttributes: {
                             a: ['href', 'name', 'target', 'class', 'rel'],
+                            img: ['src', 'alt', 'width', 'height'],
                             p: ['class'],
                             span: ['class']
-                          }
+                          },
+                          allowedSchemes: ['https', 'http', 'mailto'],
+                          allowedSchemesByTag: {
+                            img: ['https'],
+                          },
+                          transformTags: {
+                            a: (tagName, attribs) => ({
+                              tagName,
+                              attribs: {
+                                ...attribs,
+                                // Force noopener on all links that open in a new tab
+                                ...(attribs.target === '_blank' ? { rel: 'noopener noreferrer' } : {}),
+                              },
+                            }),
+                          },
                         }
                       ),
                     }}

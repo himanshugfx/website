@@ -3,10 +3,12 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 
+const SHIPPING_FEE = 49;
+const SHIPPING_THRESHOLD = 199;
+
 interface CartItem {
     id: string;
     quantity: number;
-    price: number;
 }
 
 const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
@@ -15,17 +17,17 @@ const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
 
 export async function POST(request: Request) {
     try {
-        const { cart, shippingInfo, userId, total, promoCode, discountAmount, paymentMethod, shippingFee } = await request.json();
+        const { cart, shippingInfo, userId, promoCode, paymentMethod } = await request.json();
 
         // Validate required fields
-        if (!cart || !total) {
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
             return NextResponse.json(
-                { error: 'Cart and total are required' },
+                { error: 'Cart is required' },
                 { status: 400 }
             );
         }
 
-        // Validate userId if provided (prevents Foreign Key crash if session is stale/database was reset)
+        // Validate userId if provided
         let finalUserId = userId || null;
         if (finalUserId) {
             const userExists = await prisma.user.findUnique({
@@ -33,23 +35,82 @@ export async function POST(request: Request) {
                 select: { id: true }
             });
             if (!userExists) {
-                console.warn(`Payment initiate: User ID ${finalUserId} not found in database. Falling back to guest checkout.`);
+                console.warn(`Payment initiate: User ID ${finalUserId} not found. Falling back to guest checkout.`);
                 finalUserId = null;
             }
         }
+
+        // Fetch product prices from DB — never trust client-supplied prices
+        const productIds = cart.map((item: CartItem) => item.id);
+        const products = await prisma.product.findMany({
+            where: { id: { in: productIds } },
+            select: { id: true, price: true, name: true },
+        });
+
+        if (products.length !== productIds.length) {
+            return NextResponse.json({ error: 'One or more products not found' }, { status: 400 });
+        }
+
+        const productMap = new Map(products.map(p => [p.id, p]));
+
+        // Calculate subtotal using DB prices
+        let subtotal = 0;
+        const validatedCart = cart.map((item: CartItem) => {
+            const product = productMap.get(item.id);
+            if (!product) throw new Error(`Product ${item.id} not found`);
+            const quantity = Math.max(1, Math.floor(item.quantity));
+            subtotal += product.price * quantity;
+            return { id: item.id, quantity, price: product.price };
+        });
+
+        // Server-side promo code validation
+        let discountAmount = 0;
+        let validatedPromoCode: string | null = null;
+        if (promoCode) {
+            const promo = await prisma.promoCode.findUnique({
+                where: { code: promoCode.toUpperCase() },
+            });
+
+            if (promo && promo.isActive &&
+                (!promo.expiresAt || new Date(promo.expiresAt) >= new Date()) &&
+                (!promo.minOrderValue || subtotal >= promo.minOrderValue)) {
+
+                const usedCount = await prisma.order.count({
+                    where: { promoCode: promo.code, paymentStatus: 'SUCCESSFUL' },
+                });
+
+                if (!promo.usageLimit || usedCount < promo.usageLimit) {
+                    if (promo.discountType === 'PERCENTAGE') {
+                        discountAmount = (subtotal * promo.discountValue) / 100;
+                        if (promo.maxDiscount) discountAmount = Math.min(discountAmount, promo.maxDiscount);
+                    } else {
+                        discountAmount = promo.discountValue;
+                    }
+                    discountAmount = Math.min(discountAmount, subtotal);
+                    validatedPromoCode = promo.code;
+                }
+            }
+        }
+
+        // Calculate shipping fee server-side
+        const postDiscountSubtotal = subtotal - discountAmount;
+        const shippingFee = postDiscountSubtotal < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
+
+        // Final total
+        const total = postDiscountSubtotal + shippingFee;
 
         // Create order in database first with PENDING status
         const order = await prisma.order.create({
             data: {
                 userId: finalUserId,
-                total: total,
-                shippingFee: shippingFee || 0,
-                discountAmount: discountAmount || 0,
-                promoCode: promoCode || null,
+                total,
+                shippingFee,
+                discountAmount,
+                promoCode: validatedPromoCode,
                 status: 'PENDING',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
-                    create: cart.map((item: CartItem) => ({
+                    create: validatedCart.map((item: { id: string; quantity: number; price: number }) => ({
                         productId: item.id,
                         quantity: item.quantity,
                         price: item.price * item.quantity,
@@ -65,7 +126,6 @@ export async function POST(request: Request) {
             const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
             if (!merchantId || !saltKey || merchantId === 'your_merchant_id') {
-                // PhonePe not configured
                 console.log('PhonePe not configured');
                 await prisma.order.delete({ where: { id: order.id } });
                 return NextResponse.json(
@@ -74,42 +134,38 @@ export async function POST(request: Request) {
                 );
             }
 
-            // Generate unique transaction ID
             const transactionId = `TXN${Date.now()}${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-            // PhonePe payload
+            // Store transactionId on the order for webhook matching
+            await prisma.order.update({
+                where: { id: order.id },
+                data: { transactionId },
+            });
+
             const payloadData = {
-                merchantId: merchantId,
+                merchantId,
                 merchantTransactionId: transactionId,
                 merchantUserId: userId || `GUEST${Date.now()}`,
-                amount: Math.round(total * 100), // Convert to paise
+                amount: Math.round(total * 100),
                 redirectUrl: `${baseUrl}/api/payment/callback?orderId=${order.id}&transactionId=${transactionId}`,
                 redirectMode: 'REDIRECT',
                 callbackUrl: `${baseUrl}/api/payment/webhook`,
-                paymentInstrument: {
-                    type: 'PAY_PAGE',
-                },
+                paymentInstrument: { type: 'PAY_PAGE' },
             };
 
-            // Encode payload to base64
             const base64Payload = Buffer.from(JSON.stringify(payloadData)).toString('base64');
-
-            // Generate checksum
             const checksum = crypto
                 .createHash('sha256')
                 .update(base64Payload + '/pg/v1/pay' + saltKey)
                 .digest('hex') + '###' + saltIndex;
 
-            // Make request to PhonePe
             const response = await fetch(PHONEPE_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-VERIFY': checksum,
                 },
-                body: JSON.stringify({
-                    request: base64Payload,
-                }),
+                body: JSON.stringify({ request: base64Payload }),
             });
 
             const data = await response.json();
@@ -120,16 +176,13 @@ export async function POST(request: Request) {
                     redirectUrl: data.data.instrumentResponse.redirectInfo.url,
                     orderId: order.id,
                     orderNumber: order.orderNumber,
-                    transactionId: transactionId,
+                    transactionId,
                     method: 'phonepe'
                 });
             } else {
                 await prisma.order.delete({ where: { id: order.id } });
                 return NextResponse.json(
-                    {
-                        error: data.message || 'Payment initiation failed',
-                        details: data
-                    },
+                    { error: data.message || 'Payment initiation failed', details: data },
                     { status: 400 }
                 );
             }
@@ -140,7 +193,6 @@ export async function POST(request: Request) {
 
             if (!razorpayKeyId || !razorpayKeySecret) {
                 console.log('Razorpay not configured, returning mock success for testing');
-                // For testing without Razorpay keys, return a mock success response
                 return NextResponse.json({
                     success: true,
                     orderId: order.id,
@@ -158,18 +210,14 @@ export async function POST(request: Request) {
                 key_secret: razorpayKeySecret,
             });
 
-            const options = {
-                amount: Math.round(total * 100), // amount in the smallest currency unit
-                currency: "INR",
+            const razorpayOrder = await instance.orders.create({
+                amount: Math.round(total * 100),
+                currency: 'INR',
                 receipt: order.id,
-            };
-
-            const razorpayOrder = await instance.orders.create(options);
+            });
 
             if (!razorpayOrder) {
-                await prisma.order.delete({
-                    where: { id: order.id },
-                });
+                await prisma.order.delete({ where: { id: order.id } });
                 return NextResponse.json(
                     { error: 'Failed to create Razorpay order' },
                     { status: 500 }

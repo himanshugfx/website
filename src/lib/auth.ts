@@ -68,8 +68,10 @@ export const authOptions: AuthOptions = {
             if (account?.provider === "google" && user.email) {
                 try {
                     // Admin emails that should have admin role when signing in with Google
-                    const adminEmails = ['anosebeauty@gmail.com', 'himanshu@anosebeauty.com'];
-                    const isAdmin = adminEmails.includes(user.email.toLowerCase());
+                    // Configure via ADMIN_GOOGLE_EMAILS env var (comma-separated)
+                    const adminEmails = (process.env.ADMIN_GOOGLE_EMAILS || '')
+                        .split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+                    const isAdmin = adminEmails.length > 0 && adminEmails.includes(user.email.toLowerCase());
 
                     const existingUser = await prisma.user.findUnique({
                         where: { email: user.email },

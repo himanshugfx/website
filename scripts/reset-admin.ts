@@ -2,9 +2,14 @@ import prisma from '../src/lib/prisma';
 import bcrypt from 'bcrypt';
 
 async function resetAdmin() {
-    const email = 'himanshu@anosebeauty.com';
-    const password = 'Golu,4184';
-    const name = 'Himanshu Admin';
+    const email = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
+    const name = process.env.ADMIN_NAME || 'Admin';
+
+    if (!email || !password) {
+        console.error('Usage: ADMIN_EMAIL=... ADMIN_PASSWORD=... npx ts-node scripts/reset-admin.ts');
+        process.exit(1);
+    }
 
     console.log('Resetting admin credentials...');
     console.log('Email:', email);

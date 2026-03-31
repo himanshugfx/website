@@ -5,10 +5,10 @@ import { SignJWT, jwtVerify } from 'jose';
 
 function getSecret() {
     const secret = process.env.NEXTAUTH_SECRET;
-    if (!secret && process.env.NODE_ENV === 'production') {
-        throw new Error('NEXTAUTH_SECRET MUST be set in production environment.');
+    if (!secret) {
+        throw new Error('NEXTAUTH_SECRET is not set. This is required in all environments.');
     }
-    return new TextEncoder().encode(secret || 'fallback-secret');
+    return new TextEncoder().encode(secret);
 }
 
 // Sign a JWT for mobile auth
@@ -48,9 +48,10 @@ export async function POST(request: Request) {
 
             const userEmail = googleData.email.toLowerCase().trim();
 
-            // Auto-check admin emails (consistent with src/lib/auth.ts)
-            const adminEmails = ['anosebeauty@gmail.com', 'himanshu@anosebeauty.com'];
-            const isWhiteListed = adminEmails.includes(userEmail);
+            // Admin emails from env var (consistent with src/lib/auth.ts)
+            const adminEmails = (process.env.ADMIN_GOOGLE_EMAILS || '')
+                .split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+            const isWhiteListed = adminEmails.length > 0 && adminEmails.includes(userEmail);
 
             user = await prisma.user.findUnique({
                 where: { email: userEmail },

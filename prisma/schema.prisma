@@ -91,6 +91,7 @@ model Order {
   shippingFee   Float       @default(0)
   discountAmount Float      @default(0)
   promoCode     String?
+  transactionId String?   // PhonePe / payment gateway transaction ID
   address       String?
   cancelRequest String?   // PENDING, APPROVED, REJECTED
   returnRequest String?   // PENDING, APPROVED, REJECTED

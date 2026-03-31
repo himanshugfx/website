@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export async function POST(request: Request) {
     try {
         const { email } = await request.json();
 
-        if (!email || !email.includes('@')) {
+        if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email) || email.length > 254) {
             return NextResponse.json(
                 { error: 'Valid email is required' },
                 { status: 400 }

@@ -24,10 +24,10 @@ export async function GET(request: Request) {
         const saltKey = process.env.PHONEPE_SALT_KEY;
         const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
 
-        // If PhonePe not configured, just mark order as processing and redirect to success
+        // If PhonePe not configured, reject the callback — never auto-finalize without verification
         if (!merchantId || !saltKey || merchantId === 'your_merchant_id') {
-            await finalizeOrder(orderId);
-            return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, baseUrl));
+            console.error('Payment callback: PhonePe is not configured. Cannot verify payment.');
+            return NextResponse.redirect(new URL('/checkout?error=payment_gateway_not_configured', baseUrl));
         }
 
 

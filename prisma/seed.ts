@@ -52,8 +52,13 @@ async function main() {
     }
 
     // Seed Admin User
-    const adminEmail = "admin@anose.com";
-    const adminPassword = await bcrypt.hash("admin123", 10);
+    const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@anose.com";
+    const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+    if (!seedPassword) {
+        console.warn("SEED_ADMIN_PASSWORD not set — skipping admin user seed. Set it to create an admin.");
+        return;
+    }
+    const adminPassword = await bcrypt.hash(seedPassword, 10);
 
     const admin = await prisma.user.upsert({
         where: { email: adminEmail },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +9,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        await requireAdmin(request);
         const { id } = await params;
         const { stageId } = await request.json();
 
@@ -59,7 +61,10 @@ export async function PUT(
         });
 
         return NextResponse.json({ success: true, lead: updatedLead });
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.message?.startsWith('Unauthorized')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         console.error('Error updating lead stage:', error);
         return NextResponse.json({ error: 'Failed to update lead stage' }, { status: 500 });
     }
