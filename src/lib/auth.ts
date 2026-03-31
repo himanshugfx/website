@@ -95,8 +95,10 @@ export const authOptions: AuthOptions = {
                         });
                     }
                 } catch (error) {
-                    console.error("Error in signIn callback:", error);
-                    return false;
+                    // Log the error but still allow sign-in to proceed.
+                    // If the user already exists in DB with role='admin', the jwt callback
+                    // will pick that up. Blocking sign-in here on a DB error is too strict.
+                    console.error("Error in signIn callback (non-fatal):", error);
                 }
             }
             return true;

@@ -10,6 +10,7 @@ function LoginForm() {
     const router = useRouter();
     const callbackUrl = searchParams.get('callbackUrl') || '/my-account';
     const isAdminMode = searchParams.get('callbackUrl') === '/admin';
+    const oauthError = searchParams.get('error');
 
     const [formData, setFormData] = useState({
         email: '',
@@ -64,6 +65,13 @@ function LoginForm() {
                         </p>
 
                         <form className="mt-8" onSubmit={handleSubmit}>
+                            {oauthError && (
+                                <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-center font-semibold border border-red-100">
+                                    {oauthError === 'AccessDenied'
+                                        ? 'Google sign-in was denied. Your account may not have admin permissions.'
+                                        : `Sign-in error: ${oauthError}. Please try again.`}
+                                </div>
+                            )}
                             {error && (
                                 <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-center font-semibold border border-red-100">
                                     {error}
