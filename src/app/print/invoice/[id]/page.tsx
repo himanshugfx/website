@@ -151,10 +151,26 @@ export default function PrintInvoicePage({
                                 <span className="w-1.5 h-1.5 bg-purple-600 rounded-full" /> Bill To
                             </h4>
                             <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tight leading-none">{invoice.customerName}</h3>
-                            <div className="text-sm text-gray-500 font-semibold space-y-1 leading-relaxed">
+                            <div className="text-sm text-gray-500 font-semibold space-y-1 leading-relaxed mb-4">
                                 {invoice.customerEmail && <p>{invoice.customerEmail}</p>}
                                 {invoice.customerPhone && <p className="text-gray-900">{invoice.customerPhone}</p>}
                             </div>
+                            
+                            {invoice.billingAddress && (
+                                <div className="mb-4">
+                                    <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Billing Address</h5>
+                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{invoice.billingAddress}</p>
+                                </div>
+                            )}
+
+                            {(invoice.shippingAddress || invoice.billingAddress) && (
+                                <div>
+                                    <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Shipping Address</h5>
+                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">
+                                        {invoice.shippingAddress || invoice.billingAddress}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <div className="flex flex-col justify-between items-end">
                             <div className="text-right">

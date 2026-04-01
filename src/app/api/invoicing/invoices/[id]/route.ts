@@ -32,7 +32,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         const { id } = await params;
         const body = await request.json();
 
-        const { status, customerName, customerEmail, customerPhone, lineItems, notes, terms, taxRate, discount, discountType, dueDate } = body;
+        const { status, customerName, customerEmail, customerPhone, billingAddress, shippingAddress, lineItems, notes, terms, taxRate, discount, discountType, dueDate } = body;
 
         const updateData: any = {};
 
@@ -40,6 +40,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (customerName) updateData.customerName = customerName;
         if (customerEmail !== undefined) updateData.customerEmail = customerEmail;
         if (customerPhone !== undefined) updateData.customerPhone = customerPhone;
+        if (billingAddress !== undefined) updateData.billingAddress = billingAddress;
+        if (shippingAddress !== undefined) updateData.shippingAddress = shippingAddress;
         if (notes !== undefined) updateData.notes = notes;
         if (terms !== undefined) updateData.terms = terms;
         if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;

@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         await requireAdmin(request);
         const body = await request.json();
 
-        const { customerName, customerEmail, customerPhone, invoiceDate, dueDate, lineItems, notes, terms, taxRate, discount, discountType } = body;
+        const { customerName, customerEmail, customerPhone, billingAddress, shippingAddress, invoiceDate, dueDate, lineItems, notes, terms, taxRate, discount, discountType } = body;
 
         if (!customerName || !lineItems || lineItems.length === 0) {
             return NextResponse.json({ error: 'Customer name and at least one line item are required' }, { status: 400 });
@@ -87,6 +87,8 @@ export async function POST(request: Request) {
                 customerName,
                 customerEmail: customerEmail || null,
                 customerPhone: customerPhone || null,
+                billingAddress: billingAddress || null,
+                shippingAddress: shippingAddress || null,
                 invoiceDate: new Date(invoiceDate || new Date()),
                 dueDate: dueDate ? new Date(dueDate) : null,
                 lineItems: items,

@@ -26,6 +26,8 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
+    const [billingAddress, setBillingAddress] = useState('');
+    const [shippingAddress, setShippingAddress] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
     const [dueDate, setDueDate] = useState('');
     const [notes, setNotes] = useState('');
@@ -56,6 +58,8 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                 setCustomerName(inv.customerName || '');
                 setCustomerEmail(inv.customerEmail || '');
                 setCustomerPhone(inv.customerPhone || '');
+                setBillingAddress(inv.billingAddress || '');
+                setShippingAddress(inv.shippingAddress || '');
                 setInvoiceDate(inv.invoiceDate ? new Date(inv.invoiceDate).toISOString().split('T')[0] : '');
                 setDueDate(inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : '');
                 setNotes(inv.notes || '');
@@ -124,7 +128,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customerName, customerEmail, customerPhone,
+                    customerName, customerEmail, customerPhone, billingAddress, shippingAddress,
                     invoiceDate, dueDate: dueDate || null,
                     lineItems, notes, terms, taxRate, discount, discountType,
                 }),
@@ -194,6 +198,20 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                         <input type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
                                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" 
                                             placeholder="+91 XXX-XXX-XXXX" />
+                                    </div>
+                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Billing Address</label>
+                                            <textarea value={billingAddress} onChange={e => setBillingAddress(e.target.value)} rows={3}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm resize-none" 
+                                                placeholder="123 Customer St..." />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shipping Address</label>
+                                            <textarea value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} rows={3}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm resize-none" 
+                                                placeholder="Leave empty if same as billing" />
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -265,17 +283,17 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                             <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
                                                 <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">HSN</label>
                                                 <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
-                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" />
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" placeholder="HSN" />
                                             </div>
                                             <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
                                                 <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Qty</label>
                                                 <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
-                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Qty" />
                                             </div>
                                             <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
                                                 <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Rate</label>
                                                 <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
-                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" />
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Rate (₹)" />
                                             </div>
                                             <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-0">
                                                 <div className="text-right">

@@ -155,6 +155,8 @@ model Invoice {
   customerName    String
   customerEmail   String?
   customerPhone   String?
+  billingAddress  String?   @db.Text
+  shippingAddress String?   @db.Text
   invoiceNumber   String    @unique
   status          String    @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, VOID, PARTIALLY_PAID
   subtotal        Float     @default(0)
