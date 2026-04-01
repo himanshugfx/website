@@ -54,6 +54,7 @@ model Product {
   thumbImage      String
   videoUrl        String?     // Optional video URL - if set, shows video instead of image
   priority        Int         @default(0)
+  taxRate         Float       @default(18) // Tax rate percentage
   variations      Variation[]
   items           OrderItem[]
   reviews         ProductReview[]

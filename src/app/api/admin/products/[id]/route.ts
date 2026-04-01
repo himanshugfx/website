@@ -54,11 +54,15 @@ export async function PUT(
         console.log('[API] PUT Product payload:', { id, videoUrl: data.videoUrl, thumbImage: data.thumbImage });
 
         const { variations, id: _id, updatedAt: _u, createdAt: _c, ...updateData } = data;
+        
+        // Remove taxRate from updateData if it exists so we can handle it separately
+        const { taxRate: _tr, ...restData } = updateData;
 
         const product = await prisma.product.update({
             where: { id },
             data: {
-                ...updateData,
+                ...restData,
+                taxRate: data.taxRate ? parseFloat(data.taxRate) : undefined,
                 price: data.price ? parseFloat(data.price) : undefined,
                 originPrice: data.originPrice ? parseFloat(data.originPrice) : undefined,
                 quantity: data.quantity !== undefined ? parseInt(data.quantity) : undefined,

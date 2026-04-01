@@ -85,6 +85,7 @@ export async function POST(request: Request) {
                 sale: data.sale || false,
                 bestSeller: data.bestSeller || false,
                 rate: data.rate || 0,
+                taxRate: data.taxRate ? parseFloat(data.taxRate) : 18,
 
                 price: data.price ? parseFloat(data.price) : 0,
                 originPrice: data.originPrice ? parseFloat(data.originPrice) : 0,

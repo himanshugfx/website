@@ -30,6 +30,7 @@ export default function AddProductPage() {
         sale: false,
         bestSeller: false,
         rate: 0,
+        taxRate: 18,
         variations: [] as { color: string, colorCode: string, colorImage: string, image: string }[],
     });
 
@@ -235,6 +236,24 @@ export default function AddProductPage() {
                                     min="0"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Tax Rate (%) *
+                                </label>
+                                <input
+                                    type="number"
+                                    name="taxRate"
+                                    value={formData.taxRate}
+                                    onChange={handleChange}
+                                    required
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                                />
+                                <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">Standard is 18%</p>
                             </div>
                         </div>
                     </div>
