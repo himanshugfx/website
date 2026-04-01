@@ -269,7 +269,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                 <div className="space-y-4 px-4 sm:px-0">
                                     {lineItems.map((item, i) => (
                                         <div key={i} className="group relative grid grid-cols-12 gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
-                                            <div className="col-span-12 sm:col-span-4 space-y-3">
+                                            <div className="col-span-12 sm:col-span-3 space-y-3">
                                                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Product / Service Name</label>
                                                 <div className="relative">
                                                     <select
@@ -293,12 +293,12 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs text-gray-500 resize-none" 
                                                     placeholder="Description (optional)" rows={1} />
                                             </div>
-                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                            <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
                                                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">HSN Code</label>
                                                 <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" placeholder="HSN" />
                                             </div>
-                                            <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
                                                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">Qty</label>
                                                 <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Qty" />
@@ -308,10 +308,10 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                                 <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Rate (₹)" />
                                             </div>
-                                            <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
-                                                <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">Tax %</label>
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                                <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">GST %</label>
                                                 <input type="number" value={item.taxRate} onChange={e => updateLineItem(i, 'taxRate', Number(e.target.value))} min="0" max="100" step="0.5"
-                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Tax %" />
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="GST %" />
                                                 <div className="text-[10px] text-gray-400 text-right mt-1">+ {formatCurrency(item.taxAmount)}</div>
                                             </div>
                                             <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-4">
