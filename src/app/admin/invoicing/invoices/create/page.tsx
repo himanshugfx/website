@@ -234,16 +234,6 @@ export default function CreateInvoicePage() {
                             </div>
 
                             <div className="p-0 sm:p-6">
-                                {/* Desktop Header */}
-                                <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-xl mb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    <div className="col-span-3">Item Details</div>
-                                    <div className="col-span-2">HSN</div>
-                                    <div className="col-span-1 text-center">Qty</div>
-                                    <div className="col-span-2 text-center">Rate (₹)</div>
-                                    <div className="col-span-2 text-center">Tax (%)</div>
-                                    <div className="col-span-2 text-right">Total</div>
-                                </div>
-
                                 <div className="space-y-4 px-4 sm:px-0">
                                     {lineItems.length === 0 ? (
                                         <div className="py-20 flex flex-col items-center justify-center text-center px-6">
@@ -259,7 +249,8 @@ export default function CreateInvoicePage() {
                                     ) : (
                                         lineItems.map((item, i) => (
                                             <div key={i} className="group relative grid grid-cols-12 gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
-                                                <div className="col-span-12 sm:col-span-3 space-y-3">
+                                                <div className="col-span-12 sm:col-span-4 space-y-3">
+                                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Product / Service Name</label>
                                                     <div className="relative">
                                                         <select
                                                             className="absolute inset-0 opacity-0 cursor-pointer"
@@ -283,30 +274,30 @@ export default function CreateInvoicePage() {
                                                         placeholder="Description (optional)" rows={1} />
                                                 </div>
                                                 <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">HSN</label>
+                                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">HSN Code</label>
                                                     <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
                                                         className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" placeholder="HSN" />
                                                 </div>
                                                 <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Qty</label>
+                                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">Qty</label>
                                                     <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
                                                         className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Qty" />
                                                 </div>
                                                 <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Rate</label>
+                                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">Rate (₹)</label>
                                                     <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
                                                         className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Rate (₹)" />
                                                 </div>
-                                                <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
-                                                    <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Tax (%)</label>
+                                                <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
+                                                    <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider text-center">Tax %</label>
                                                     <input type="number" value={item.taxRate} onChange={e => updateLineItem(i, 'taxRate', Number(e.target.value))} min="0" max="100" step="0.5"
                                                         className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Tax %" />
                                                     <div className="text-[10px] text-gray-400 text-right mt-1">+ {formatCurrency(item.taxAmount)}</div>
                                                 </div>
-                                                <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-0">
+                                                <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-4">
                                                     <div className="text-right">
-                                                        <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Amount</label>
-                                                        <span className="font-black text-gray-900">{formatCurrency(item.quantity * item.rate + item.taxAmount)}</span>
+                                                        <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Amount</label>
+                                                        <span className="font-black text-gray-900 bg-gray-100 px-3 py-1.5 rounded-lg">{formatCurrency(item.quantity * item.rate + item.taxAmount)}</span>
                                                     </div>
                                                     <button type="button" onClick={() => removeLineItem(i)} disabled={lineItems.length === 1}
                                                         className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">

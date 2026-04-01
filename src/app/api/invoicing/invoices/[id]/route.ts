@@ -46,6 +46,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (terms !== undefined) updateData.terms = terms;
         if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
 
+        const existingInvoice = await prisma.invoice.findUnique({ where: { id } });
+        if (!existingInvoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+
         // Recalculate totals if line items changed
         if (lineItems && lineItems.length > 0) {
             const items = lineItems.map((item: any) => {
@@ -86,7 +89,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             updateData.taxRate = Number(taxRate || 0);
             updateData.taxAmount = totalTaxAmount;
             updateData.total = total;
-            updateData.balance = total;
+
+            // Recalculate balance preserving existing payments
+            const existingPaidAmount = existingInvoice.total - existingInvoice.balance;
+            updateData.balance = Math.max(0, total - existingPaidAmount);
         }
 
         // If marking as paid, set balance to 0
