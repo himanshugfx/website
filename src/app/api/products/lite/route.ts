@@ -10,12 +10,12 @@ export async function GET(request: Request) {
         
         const [products, amenities] = await Promise.all([
             prisma.product.findMany({
-                select: { id: true, name: true, price: true, hsnCode: true },
+                select: { id: true, name: true, price: true, hsnCode: true, taxRate: true },
                 orderBy: { name: 'asc' }
             }),
             prisma.hotelAmenity.findMany({
                 where: { isActive: true },
-                select: { id: true, name: true, price: true, hsnCode: true },
+                select: { id: true, name: true, price: true, hsnCode: true, taxRate: true },
                 orderBy: { name: 'asc' }
             })
         ]);

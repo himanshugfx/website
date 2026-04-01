@@ -12,6 +12,8 @@ interface LineItem {
     quantity: number;
     rate: number;
     hsnCode: string;
+    taxRate: number;
+    taxAmount: number;
 }
 
 export default function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
@@ -67,7 +69,15 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                 setTaxRate(inv.taxRate || 0);
                 setDiscount(inv.discount || 0);
                 setDiscountType(inv.discountType || 'PERCENTAGE');
-                setLineItems(inv.lineItems || []);
+                
+                // Ensure line items have taxRate and taxAmount
+                const updatedLineItems = (inv.lineItems || []).map((item: any) => ({
+                    ...item,
+                    taxRate: item.taxRate ?? inv.taxRate ?? 18,
+                    taxAmount: item.taxAmount ?? ((item.quantity * item.rate * (item.taxRate ?? inv.taxRate ?? 18)) / 100),
+                }));
+                setLineItems(updatedLineItems);
+                setTaxRate(inv.taxRate || 18); // Keep for legacy but we'll use per-item now
                 setInvoiceNumber(inv.invoiceNumber || '');
             } else {
                 alert('Invoice not found');
@@ -84,18 +94,25 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
         const product = products.find(p => p.id === productId);
         if (product) {
             const updated = [...lineItems];
+            const rate = product.price || 0;
+            const taxRate = product.taxRate || 18;
+            const quantity = updated[index]?.quantity || 1;
+            const taxAmount = (rate * quantity * taxRate) / 100;
+
             updated[index] = {
                 ...updated[index],
                 name: product.name,
-                rate: product.price,
+                rate: rate,
                 hsnCode: product.hsnCode || '',
+                taxRate: taxRate,
+                taxAmount: taxAmount,
             };
             setLineItems(updated);
         }
     };
 
     const addLineItem = () => {
-        setLineItems([...lineItems, { name: '', description: '', quantity: 1, rate: 0, hsnCode: '' }]);
+        setLineItems([...lineItems, { name: '', description: '', quantity: 1, rate: 0, hsnCode: '', taxRate: 18, taxAmount: 0 }]);
     };
 
     const removeLineItem = (index: number) => {
@@ -106,15 +123,19 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
     const updateLineItem = (index: number, field: keyof LineItem, value: any) => {
         const updated = [...lineItems];
         (updated[index] as any)[field] = value;
+        
+        // Recalculate taxAmount
+        const item = updated[index];
+        item.taxAmount = (item.quantity * item.rate * item.taxRate) / 100;
+        
         setLineItems(updated);
     };
 
     // Calculations
     const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
+    const taxAmountTotal = lineItems.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
     const discountAmount = discountType === 'PERCENTAGE' ? (subtotal * discount / 100) : discount;
-    const taxableAmount = subtotal - discountAmount;
-    const taxAmount = (taxableAmount * taxRate) / 100;
-    const total = taxableAmount + taxAmount;
+    const total = subtotal + taxAmountTotal - discountAmount;
 
     const formatCurrency = (val: number) => `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -247,17 +268,18 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                             <div className="p-0 sm:p-6">
                                 {/* Desktop Header */}
                                 <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-xl mb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    <div className="col-span-4">Item Details</div>
+                                    <div className="col-span-3">Item Details</div>
                                     <div className="col-span-2">HSN</div>
-                                    <div className="col-span-2 text-center">Qty</div>
+                                    <div className="col-span-1 text-center">Qty</div>
                                     <div className="col-span-2 text-center">Rate (₹)</div>
+                                    <div className="col-span-2 text-center">Tax (%)</div>
                                     <div className="col-span-2 text-right">Total</div>
                                 </div>
 
                                 <div className="space-y-4 px-4 sm:px-0">
                                     {lineItems.map((item, i) => (
                                         <div key={i} className="group relative grid grid-cols-12 gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
-                                            <div className="col-span-12 sm:col-span-4 space-y-3">
+                                            <div className="col-span-12 sm:col-span-3 space-y-3">
                                                 <div className="relative">
                                                     <select
                                                         className="absolute inset-0 opacity-0 cursor-pointer"
@@ -285,7 +307,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                                 <input type="text" value={item.hsnCode} onChange={e => updateLineItem(i, 'hsnCode', e.target.value)}
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-mono" placeholder="HSN" />
                                             </div>
-                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                            <div className="col-span-4 sm:col-span-1 pt-0 sm:pt-1">
                                                 <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Qty</label>
                                                 <input type="number" value={item.quantity} onChange={e => updateLineItem(i, 'quantity', Number(e.target.value))} min="1"
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Qty" />
@@ -295,10 +317,16 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                                 <input type="number" value={item.rate || ''} onChange={e => updateLineItem(i, 'rate', Number(e.target.value))} min="0" step="0.01"
                                                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Rate (₹)" />
                                             </div>
+                                            <div className="col-span-4 sm:col-span-2 pt-0 sm:pt-1">
+                                                <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Tax (%)</label>
+                                                <input type="number" value={item.taxRate} onChange={e => updateLineItem(i, 'taxRate', Number(e.target.value))} min="0" max="100" step="0.5"
+                                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm text-center font-bold" placeholder="Tax %" />
+                                                <div className="text-[10px] text-gray-400 text-right mt-1">+ {formatCurrency(item.taxAmount)}</div>
+                                            </div>
                                             <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 border-gray-100 pt-3 sm:pt-0">
                                                 <div className="text-right">
                                                     <label className="sm:hidden block text-xs font-bold text-gray-400 mb-1 uppercase">Amount</label>
-                                                    <span className="font-black text-gray-900">{formatCurrency(item.quantity * item.rate)}</span>
+                                                    <span className="font-black text-gray-900">{formatCurrency(item.quantity * item.rate + item.taxAmount)}</span>
                                                 </div>
                                                 <button type="button" onClick={() => removeLineItem(i)} disabled={lineItems.length === 1}
                                                     className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
@@ -326,14 +354,9 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
                                 <div className="py-4 border-y border-white/10 space-y-4">
                                     <div className="flex flex-col gap-2">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-purple-200/60 font-medium">Tax Rate (%)</span>
-                                            <input type="number" value={taxRate} onChange={e => setTaxRate(Number(e.target.value))} min="0" max="100" step="0.5"
-                                                className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-right text-sm focus:outline-none focus:ring-1 focus:ring-purple-400" />
-                                        </div>
                                         <div className="flex justify-between items-center text-xs">
-                                            <span className="text-purple-400">CGST + SGST ({taxRate}%)</span>
-                                            <span className="font-medium text-emerald-400">+{formatCurrency(taxAmount)}</span>
+                                            <span className="text-purple-400 font-medium">Total GST</span>
+                                            <span className="font-bold text-emerald-400">+{formatCurrency(taxAmountTotal)}</span>
                                         </div>
                                     </div>
 

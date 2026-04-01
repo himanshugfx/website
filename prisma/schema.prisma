@@ -367,6 +367,7 @@ model HotelAmenity {
   image         String   // Media ID or path
   
   // Pricing
+  taxRate       Float    @default(18)
   price         Float
   minOrderQty   Int      @default(100)
   

@@ -288,6 +288,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Item</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">HSN</th>
                                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Qty</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Tax (%)</th>
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Rate</th>
                                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Amount</th>
                                 </tr>
@@ -302,8 +303,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                         </td>
                                         <td className="px-6 py-3 text-sm text-gray-600 hidden sm:table-cell">{item.hsnCode || '-'}</td>
                                         <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-500 text-right hidden md:table-cell">{item.taxRate}%</td>
                                         <td className="px-6 py-3 text-sm text-gray-900 text-right hidden md:table-cell">{formatCurrency(item.rate)}</td>
-                                        <td className="px-6 py-3 text-sm font-semibold text-gray-900 text-right">{formatCurrency(item.amount || item.quantity * item.rate)}</td>
+                                        <td className="px-6 py-3 text-sm font-semibold text-gray-900 text-right">{formatCurrency((item.quantity * item.rate) + (item.taxAmount || 0))}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -345,8 +347,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                             )}
                             {invoice.taxAmount > 0 && (
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-gray-400">Tax ({invoice.taxRate}%)</span>
-                                    <span>+{formatCurrency(invoice.taxAmount)}</span>
+                                    <span className="text-gray-400 font-medium">Total GST</span>
+                                    <span className="font-bold text-emerald-400">+{formatCurrency(invoice.taxAmount)}</span>
                                 </div>
                             )}
                             <div className="border-t border-white/10 pt-3 flex justify-between items-end">

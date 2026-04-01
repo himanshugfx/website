@@ -194,7 +194,8 @@ export default function PrintInvoicePage({
                                     <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 w-12">#</th>
                                     <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Description of Goods</th>
                                     <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-24">HSN/SAC</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-24">Qty/Unit</th>
+                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-20">Qty</th>
+                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-20">Tax</th>
                                     <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-right w-32">Rate</th>
                                     <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-right w-32">Amount</th>
                                 </tr>
@@ -210,10 +211,12 @@ export default function PrintInvoicePage({
                                         <td className="py-8 align-top text-center text-sm font-bold text-gray-400 font-mono tracking-tighter">{item.hsnCode || '-'}</td>
                                         <td className="py-8 align-top text-center">
                                             <span className="text-sm font-black text-gray-900">{item.quantity}</span>
-                                            <span className="text-[10px] font-bold text-gray-400 ml-1 uppercase">Nos</span>
+                                        </td>
+                                        <td className="py-8 align-top text-center text-[10px] font-black text-gray-400">
+                                            {item.taxRate}%
                                         </td>
                                         <td className="py-8 align-top text-right text-sm font-bold text-gray-600 tracking-tight">{formatCurrency(item.rate)}</td>
-                                        <td className="py-8 align-top text-right text-lg font-black text-gray-900 tracking-tighter">{formatCurrency(item.amount || item.quantity * item.rate)}</td>
+                                        <td className="py-8 align-top text-right text-lg font-black text-gray-900 tracking-tighter">{formatCurrency((item.quantity * item.rate) + (item.taxAmount || 0))}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -250,11 +253,11 @@ export default function PrintInvoicePage({
                                     {invoice.taxAmount > 0 && (
                                         <div className="space-y-2 pt-2 border-t border-gray-50">
                                             <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                <span>CGST ({(invoice.taxRate/2).toFixed(1)}%)</span>
+                                                <span>Total CGST</span>
                                                 <span className="text-gray-600">{formatCurrency(cgst)}</span>
                                             </div>
                                             <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                <span>SGST ({(invoice.taxRate/2).toFixed(1)}%)</span>
+                                                <span>Total SGST</span>
                                                 <span className="text-gray-600">{formatCurrency(sgst)}</span>
                                             </div>
                                         </div>

@@ -48,32 +48,43 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
         // Recalculate totals if line items changed
         if (lineItems && lineItems.length > 0) {
-            const items = lineItems.map((item: any) => ({
-                name: item.name,
-                description: item.description || '',
-                quantity: Number(item.quantity),
-                rate: Number(item.rate),
-                amount: Number(item.quantity) * Number(item.rate),
-                hsnCode: item.hsnCode || '',
-            }));
+            const items = lineItems.map((item: any) => {
+                const quantity = Number(item.quantity) || 0;
+                const rate = Number(item.rate) || 0;
+                const itemTaxRate = Number(item.taxRate) || 0;
+                const amount = quantity * rate;
+                const itemTaxAmount = (amount * itemTaxRate) / 100;
+                
+                return {
+                    name: item.name,
+                    description: item.description || '',
+                    quantity,
+                    rate,
+                    amount,
+                    hsnCode: item.hsnCode || '',
+                    taxRate: itemTaxRate,
+                    taxAmount: itemTaxAmount,
+                    total: amount + itemTaxAmount
+                };
+            });
 
             const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+            const totalTaxAmount = items.reduce((sum: number, item: any) => sum + (item.taxAmount || 0), 0);
+
             let discountAmount = 0;
             if (discount && discountType === 'PERCENTAGE') {
                 discountAmount = (subtotal * Number(discount)) / 100;
             } else if (discount) {
                 discountAmount = Number(discount);
             }
-            const taxableAmount = subtotal - discountAmount;
-            const taxAmount = taxRate ? (taxableAmount * Number(taxRate)) / 100 : 0;
-            const total = taxableAmount + taxAmount;
+            const total = subtotal + totalTaxAmount - discountAmount;
 
             updateData.lineItems = items;
             updateData.subtotal = subtotal;
             updateData.discount = discountAmount;
             updateData.discountType = discountType || null;
             updateData.taxRate = Number(taxRate || 0);
-            updateData.taxAmount = taxAmount;
+            updateData.taxAmount = totalTaxAmount;
             updateData.total = total;
             updateData.balance = total;
         }
