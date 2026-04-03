@@ -1,11 +1,12 @@
 import AdminLayout from '@/components/admin/AdminLayout';
 import StatsCard from '@/components/admin/StatsCard';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
-import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, ChevronRight } from 'lucide-react';
+import { IndianRupee, ShoppingBag, ShoppingCart, Users, Package, TrendingUp, ArrowRight, Eye, MoreVertical, Search, CheckCircle2, AlertCircle, Clock, MapPin, PackagePlus, PackageIcon, TrendingDown, ChevronRight } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getStats() {
     try {
@@ -86,7 +87,7 @@ async function getStats() {
             totalOrders,
             totalProducts,
             totalUsers: totalUniqueCustomers > 0 ? totalUniqueCustomers : fallbackUsers,
-            processingCount
+            processingCount: processingCount || 0
         };
     } catch (error) {
         console.error('Error fetching stats:', error);
