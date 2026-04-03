@@ -134,8 +134,8 @@ export async function createInvoiceFromOrder(orderId: string): Promise<void> {
                 taxAmount: Number(totalTaxAmount.toFixed(2)),
                 discount: discount,
                 total: total,
-                balance: order.paymentStatus === 'SUCCESSFUL' ? 0 : total,
-                status: order.paymentStatus === 'SUCCESSFUL' ? 'PAID' : 'SENT',
+                balance: 0, // Always paid for completed website orders
+                status: 'PAID', // Always paid for completed website orders
                 lineItems: items,
                 notes: `Auto-generated from Order #${order.orderNumber}`,
                 terms: "Inclusive of all taxes."
