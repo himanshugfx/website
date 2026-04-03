@@ -1,12 +1,11 @@
 import prisma from './prisma';
 
 /**
- * Calculates current Indian Financial Year string (e.g., "2026-27")
+ * Calculates Indian Financial Year string (e.g., "2026-27") for a given date
  */
-export function getCurrentFinancialYear(): string {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-indexed, 3 is April
+export function getFinancialYear(date: Date = new Date()): string {
+    const currentYear = date.getFullYear();
+    const currentMonth = date.getMonth(); // 0-indexed, 3 is April
 
     let startYear: number;
     let endYear: number;
@@ -25,10 +24,10 @@ export function getCurrentFinancialYear(): string {
 }
 
 /**
- * Generates an auto-incrementing invoice number for the current financial year
+ * Generates an auto-incrementing invoice number for the specified date's financial year
  */
-export async function generateInvoiceNumber(): Promise<string> {
-    const fy = getCurrentFinancialYear();
+export async function generateInvoiceNumber(date: Date = new Date()): Promise<string> {
+    const fy = getFinancialYear(date);
     const prefix = `INV${fy}/`;
 
     // Find the latest invoice for this financial year
@@ -86,7 +85,8 @@ export async function createInvoiceFromOrder(orderId: string): Promise<void> {
             return;
         }
 
-        const invoiceNumber = await generateInvoiceNumber();
+        // Determine FY based on Order creation date
+        const invoiceNumber = await generateInvoiceNumber(order.createdAt);
         const addressData = order.address ? JSON.parse(order.address) : null;
         
         // Use a generic tax rate of 18% (inclusive) as requested

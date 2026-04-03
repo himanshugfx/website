@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
 import prisma from '@/lib/prisma';
 import { sendAdminPushNotification } from '@/lib/notifications';
-import { getCurrentFinancialYear } from '@/lib/invoicing';
+import { getFinancialYear } from '@/lib/invoicing';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         }
 
         // Auto-generate invoice number: INV[FY]/0000
-        const fy = getCurrentFinancialYear();
+        const fy = getFinancialYear();
         const prefix = `INV${fy}/`;
 
         const lastInvoice = await prisma.invoice.findFirst({
