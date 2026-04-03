@@ -9,6 +9,9 @@ export const dynamic = 'force-dynamic';
 
 async function getStats() {
     try {
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
         const validOrdersWhere = {
             status: { not: 'CANCELLED' },
             NOT: {
@@ -16,7 +19,8 @@ async function getStats() {
                     { status: 'PENDING' },
                     { paymentStatus: 'PENDING' },
                     { paymentMethod: { not: 'COD' } },
-                    { transactionId: null } // Only exclude if it's abandoned without even reaching payment
+                    { transactionId: null },
+                    { createdAt: { lt: oneDayAgo } }
                 ]
             }
         };
@@ -104,6 +108,7 @@ async function getPendingOrders() {
                 }
             }
         });
+        console.log(`[Dashboard] Fetched ${orders.length} pending orders. Latest ID: ${orders[0]?.id}`);
         return orders;
     } catch (error) {
         console.error('Error fetching pending orders:', error);

@@ -30,14 +30,18 @@ export async function GET(request: Request) {
             };
         } else {
             // Main orders list: show everything EXCEPT abandoned carts
-            // Abandoned carts are strictly PENDING/PENDING with no transaction ID
+            // Abandoned carts are strictly PENDING/PENDING (not COD) and older than 24h
+            const oneDayAgo = new Date();
+            oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+            
             const abandonedFilter = {
                 NOT: {
                     AND: [
                         { status: 'PENDING' },
                         { paymentStatus: 'PENDING' },
                         { paymentMethod: { not: 'COD' } },
-                        { transactionId: null } // If it has a transaction ID, it's not "abandoned" yet, it might be in progress
+                        { transactionId: null },
+                        { createdAt: { lt: oneDayAgo } }
                     ]
                 }
             };

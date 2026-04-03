@@ -17,7 +17,7 @@ interface CartItem {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { cart, shippingInfo, userId, paymentMethod, promoCode } = body;
+        const { cart, shippingInfo, userId, paymentMethod, promoCode, abandonedCheckoutId } = body;
 
         // Validate required fields
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -127,6 +127,14 @@ export async function POST(request: Request) {
                 },
             },
         });
+
+        // Link abandoned checkout if it exists
+        if (abandonedCheckoutId) {
+            await prisma.abandonedCheckout.updateMany({
+                where: { id: abandonedCheckoutId },
+                data: { status: 'RECOVERED' },
+            });
+        }
 
         // Update product quantities
         for (const item of validatedCart) {

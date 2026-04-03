@@ -231,7 +231,8 @@ export default function CheckoutClient() {
                         shippingFee: (selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
-                        paymentMethod: 'razorpay'
+                        paymentMethod: 'razorpay',
+                        abandonedCheckoutId: abandonedCheckoutId
                     }),
                 });
 
@@ -335,7 +336,8 @@ export default function CheckoutClient() {
                         shippingFee: (selectedPromo ? cartTotal - (selectedPromo.discountAmount || 0) : cartTotal) < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0,
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
-                        paymentMethod: 'phonepe'
+                        paymentMethod: 'phonepe',
+                        abandonedCheckoutId: abandonedCheckoutId
                     }),
                 });
 
@@ -372,6 +374,7 @@ export default function CheckoutClient() {
                         paymentMethod: 'COD',
                         promoCode: selectedPromo?.code || null,
                         discountAmount: selectedPromo?.discountAmount || 0,
+                        abandonedCheckoutId: abandonedCheckoutId
                     }),
                 });
 

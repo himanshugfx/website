@@ -17,7 +17,7 @@ const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
 
 export async function POST(request: Request) {
     try {
-        const { cart, shippingInfo, userId, promoCode, paymentMethod } = await request.json();
+        const { cart, shippingInfo, userId, promoCode, paymentMethod, abandonedCheckoutId } = await request.json();
 
         // Validate required fields
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -118,6 +118,16 @@ export async function POST(request: Request) {
                 },
             },
         });
+
+        // 3. Link abandoned checkout if it exists
+        if (abandonedCheckoutId) {
+            await prisma.abandonedCheckout.updateMany({
+                where: { id: abandonedCheckoutId },
+                data: {
+                    status: 'RECOVERED',
+                },
+            });
+        }
 
         if (paymentMethod === 'phonepe') {
             const merchantId = process.env.PHONEPE_MERCHANT_ID;
@@ -223,6 +233,12 @@ export async function POST(request: Request) {
                     { status: 500 }
                 );
             }
+
+            // Save Razorpay order ID to transactionId so it's not filtered out as "abandoned"
+            await prisma.order.update({
+                where: { id: order.id },
+                data: { transactionId: razorpayOrder.id }
+            });
 
             return NextResponse.json({
                 success: true,
