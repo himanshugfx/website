@@ -76,6 +76,27 @@ export default function PrintInvoicePage({
     const cgst = (invoice.taxAmount / 2);
     const sgst = (invoice.taxAmount / 2);
 
+    const formatAddress = (address: string | null | undefined) => {
+        if (!address) return null;
+        try {
+            const parsed = JSON.parse(address);
+            if (typeof parsed === 'object') {
+                const parts = [
+                    parsed.addressLine1 || parsed.address,
+                    parsed.addressLine2,
+                    parsed.city,
+                    parsed.state,
+                    parsed.postalCode,
+                    parsed.country
+                ].filter(Boolean);
+                return parts.join(', ');
+            }
+        } catch (e) {
+            // Not JSON
+        }
+        return address;
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center overflow-x-hidden">
             {/* Screen-only Print Bar */}
@@ -159,7 +180,7 @@ export default function PrintInvoicePage({
                             {invoice.billingAddress && (
                                 <div className="mb-4">
                                     <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Billing Address</h5>
-                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{invoice.billingAddress}</p>
+                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{formatAddress(invoice.billingAddress)}</p>
                                 </div>
                             )}
 
@@ -167,7 +188,7 @@ export default function PrintInvoicePage({
                                 <div>
                                     <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Shipping Address</h5>
                                     <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">
-                                        {invoice.shippingAddress || invoice.billingAddress}
+                                        {formatAddress(invoice.shippingAddress || invoice.billingAddress)}
                                     </p>
                                 </div>
                             )}
