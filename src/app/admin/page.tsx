@@ -15,7 +15,8 @@ async function getStats() {
                 AND: [
                     { status: 'PENDING' },
                     { paymentStatus: 'PENDING' },
-                    { paymentMethod: { not: 'COD' } }
+                    { paymentMethod: { not: 'COD' } },
+                    { transactionId: null } // Only exclude if it's abandoned without even reaching payment
                 ]
             }
         };

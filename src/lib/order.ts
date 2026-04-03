@@ -33,10 +33,13 @@ export async function finalizeOrder(orderId: string): Promise<void> {
 
         // 2. Perform updates in a transaction
         await prisma.$transaction(async (tx) => {
-            // Update order status
+            // Update order status and payment status
             await tx.order.update({
                 where: { id: orderId },
-                data: { status: 'PROCESSING' }
+                data: { 
+                    status: 'PROCESSING',
+                    paymentStatus: 'SUCCESSFUL'
+                }
             });
 
             // Update each product's stock and sold count

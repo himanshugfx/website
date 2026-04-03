@@ -30,13 +30,14 @@ export async function GET(request: Request) {
             };
         } else {
             // Main orders list: show everything EXCEPT abandoned carts
-            // UNLESS searching, then show everything that matches
+            // Abandoned carts are strictly PENDING/PENDING with no transaction ID
             const abandonedFilter = {
                 NOT: {
                     AND: [
                         { status: 'PENDING' },
                         { paymentStatus: 'PENDING' },
-                        { paymentMethod: { not: 'COD' } }
+                        { paymentMethod: { not: 'COD' } },
+                        { transactionId: null } // If it has a transaction ID, it's not "abandoned" yet, it might be in progress
                     ]
                 }
             };
