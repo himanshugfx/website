@@ -13,17 +13,29 @@ async function getStats() {
         oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
         const validOrdersWhere = {
-            status: { not: 'CANCELLED' },
-            NOT: {
-                AND: [
-                    { status: 'PENDING' },
-                    { paymentStatus: 'PENDING' },
-                    { paymentMethod: { not: 'COD' } },
-                    { transactionId: null },
-                    { createdAt: { lt: oneDayAgo } }
-                ]
-            }
+            OR: [
+                {
+                    AND: [
+                        { status: 'PENDING' },
+                        {
+                            NOT: {
+                                AND: [
+                                    { paymentStatus: 'PENDING' },
+                                    { paymentMethod: { not: 'COD' } },
+                                    { transactionId: null },
+                                    { createdAt: { lt: oneDayAgo } }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                { status: { in: ['PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'] } }
+            ]
         };
+
+        const processingCount = await prisma.order.count({
+            where: { status: 'PROCESSING' }
+        });
 
         // 1. Get Store Revenue
         const orders = await prisma.order.findMany({
@@ -74,6 +86,7 @@ async function getStats() {
             totalOrders,
             totalProducts,
             totalUsers: totalUniqueCustomers > 0 ? totalUniqueCustomers : fallbackUsers,
+            processingCount
         };
     } catch (error) {
         console.error('Error fetching stats:', error);
@@ -140,6 +153,14 @@ export default async function AdminDashboard() {
                 {/* Stats Grid - responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+                    <StatsCard
+                        title="Processing Orders"
+                        value={stats.processingCount || 0}
+                        icon={Package}
+                        trend={{ value: 'New', positive: true }}
+                        sparkline={[45, 52, 38, 65, 48, 72, 85]}
+                        color="blue"
+                    />
                     <StatsCard
                         title="Total Revenue"
                         value={`₹${stats.totalRevenue.toLocaleString()}`}

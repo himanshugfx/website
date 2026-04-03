@@ -108,6 +108,9 @@ export async function POST(request: Request) {
                 discountAmount,
                 promoCode: validatedPromoCode,
                 status: 'PENDING',
+                customerName: shippingInfo ? `${shippingInfo.firstName} ${shippingInfo.lastName}` : null,
+                customerEmail: shippingInfo?.email || null,
+                customerPhone: shippingInfo?.phone || null,
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
                     create: validatedCart.map((item: { id: string; quantity: number; price: number }) => ({
