@@ -63,7 +63,7 @@ async function getStats() {
             where: validOrdersWhere
         });
 
-        const totalProducts = await prisma.product.count();
+
 
         // 3. Unique Customers (Store Users + Guest Emails/Names + Manual Invoices)
         const customerIdentifiers = new Set<string>();
@@ -85,9 +85,9 @@ async function getStats() {
         return {
             totalRevenue,
             totalOrders,
-            totalProducts,
             totalUsers: totalUniqueCustomers > 0 ? totalUniqueCustomers : fallbackUsers,
-            processingCount: processingCount || 0
+            processingCount: processingCount || 0,
+            timestamp: new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })
         };
     } catch (error) {
         console.error('Error fetching stats:', error);
@@ -138,13 +138,21 @@ export default async function AdminDashboard() {
         <AdminLayout>
             <div className="space-y-6">
                 {/* Header Section */}
+                <div className="bg-red-600 text-white px-4 py-1 text-center text-[10px] font-bold tracking-widest uppercase rounded mb-4">
+                    Live Mode - Data Refreshed: {stats.timestamp}
+                </div>
                 <div className="flex flex-col items-center justify-center text-center gap-6 mb-12">
                     <div>
                         <div className="flex flex-col items-center gap-3">
                             <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter font-primary">Dashboard Overview</h1>
-                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
-                                Live Store Performance
-                            </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                        Live Store Performance
+                                    </div>
+                                    <div className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-gray-200 shadow-sm inline-block">
+                                        Last Updated: {stats.timestamp}
+                                    </div>
+                                </div>
                         </div>
                         <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
                             Real-time insights into your <span className="text-purple-600 font-black italic underline decoration-purple-200 underline-offset-4">business growth</span> and customer activity
@@ -178,14 +186,7 @@ export default async function AdminDashboard() {
                         sparkline={[45, 52, 48, 61, 55, 67, 72]}
                         color="blue"
                     />
-                    <StatsCard
-                        title="Products"
-                        value={stats.totalProducts}
-                        icon={Package}
-                        trend={{ value: '2.4%', positive: true }}
-                        sparkline={[120, 122, 122, 125, 125, 128, 128]}
-                        color="purple"
-                    />
+
                     <StatsCard
                         title="Customers"
                         value={stats.totalUsers}
@@ -201,7 +202,7 @@ export default async function AdminDashboard() {
                     <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-amber-50/50">
                             <div>
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Pending & Processing Orders</h2>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Pending & Processing Orders ({pendingOrders.length})</h2>
                                 <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Orders that need attention</p>
                             </div>
                             <Link
@@ -213,57 +214,8 @@ export default async function AdminDashboard() {
                             </Link>
                         </div>
 
-                        {/* Mobile View - Card Layout */}
-                        <div className="md:hidden p-4 space-y-3">
-                            {pendingOrders.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center gap-3 py-10 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100 italic">
-                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 scale-110">
-                                        <ShoppingCart className="w-8 h-8 text-emerald-400" />
-                                    </div>
-                                    <p className="text-gray-900 font-bold text-base">All caught up! 🎉</p>
-                                    <p className="text-gray-500 text-xs text-center px-6">No pending orders found. Great job managing the store today.</p>
-                                </div>
-                            ) : (
-                                pendingOrders.map((order) => (
-                                    <Link
-                                        key={order.id}
-                                        href={`/admin/orders/${order.id}`}
-                                        className="block bg-gray-50 rounded-xl p-4 active:bg-gray-100 transition-colors"
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
-                                                    {(order.customerName || order.user?.name || 'G').charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-gray-900">{order.customerName || order.user?.name || 'Guest'}</p>
-                                                    <p className="text-xs text-gray-500">#{order.orderNumber}</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-900">₹{order.total.toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                                order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                                    order.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                                        'bg-red-50 text-red-700 border-red-100'
-                                                }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' :
-                                                    order.status === 'PENDING' ? 'bg-amber-500' :
-                                                        order.status === 'PROCESSING' ? 'bg-blue-500' :
-                                                            'bg-red-500'
-                                                    }`}></span>
-                                                {order.status}
-                                            </span>
-                                            <ChevronRight className="w-5 h-5 text-gray-400" />
-                                        </div>
-                                    </Link>
-                                ))
-                            )}
-                        </div>
-
-                        {/* Desktop View - Table Layout */}
-                        <div className="hidden md:block overflow-x-auto">
+                        {/* Unified View - Table Layout */}
+                        <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
