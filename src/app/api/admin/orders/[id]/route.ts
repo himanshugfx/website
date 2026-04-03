@@ -83,6 +83,8 @@ export async function GET(
     }
 }
 
+import { createInvoiceFromOrder } from '@/lib/invoicing';
+
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -96,6 +98,13 @@ export async function PUT(
             where: { id },
             data: { status },
         });
+
+        // Auto-create invoice if order is completed
+        if (status === 'COMPLETED') {
+            await createInvoiceFromOrder(id).catch(err => 
+                console.error('Invoice auto-generation background error:', err)
+            );
+        }
 
         revalidatePath('/admin');
         revalidatePath('/admin/orders');

@@ -46,6 +46,7 @@ export default function InvoicesPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [fyFilter, setFyFilter] = useState('ALL');
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -75,6 +76,11 @@ export default function InvoicesPage() {
         }
     };
 
+    const availableFYs = Array.from(new Set(invoices.map(inv => {
+        const match = inv.invoiceNumber.match(/INV(\d{4}-\d{2})\//);
+        return match ? match[1] : null;
+    }).filter(Boolean))).sort().reverse() as string[];
+
     const filteredInvoices = invoices.filter(inv => {
         const matchesSearch = inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
             inv.customerName.toLowerCase().includes(search.toLowerCase());
@@ -83,8 +89,10 @@ export default function InvoicesPage() {
         if (statusFilter === 'PARTIALLY_PAID') {
             matchesStatus = ['SENT', 'PARTIALLY_PAID', 'DRAFT'].includes(inv.status);
         }
+
+        const matchesFY = fyFilter === 'ALL' || inv.invoiceNumber.includes(`INV${fyFilter}/`);
         
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesFY;
     }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber, undefined, { numeric: true }));
 
     const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
@@ -226,17 +234,34 @@ export default function InvoicesPage() {
                     </div>
                 )}
 
-                {/* Search */}
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by invoice number or customer..." 
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        suppressHydrationWarning
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
-                    />
+                {/* Search & Filters */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Search by invoice number or customer..." 
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            suppressHydrationWarning
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                        />
+                    </div>
+                    
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl">
+                        <Filter className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter mr-2 line-clamp-1">Financial Year</span>
+                        <select 
+                            value={fyFilter}
+                            onChange={e => setFyFilter(e.target.value)}
+                            className="bg-transparent text-sm font-bold text-gray-900 focus:outline-none min-w-[100px]"
+                        >
+                            <option value="ALL">All Years</option>
+                            {availableFYs.map(fy => (
+                                <option key={fy} value={fy}>{fy}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Table */}

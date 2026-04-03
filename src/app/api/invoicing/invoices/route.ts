@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
 import prisma from '@/lib/prisma';
 import { sendAdminPushNotification } from '@/lib/notifications';
+import { getCurrentFinancialYear } from '@/lib/invoicing';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,19 +45,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Customer name and at least one line item are required' }, { status: 400 });
         }
 
-        // Auto-generate invoice number: INV-YYYY-NNNN
-        const year = new Date().getFullYear();
+        // Auto-generate invoice number: INV[FY]/0000
+        const fy = getCurrentFinancialYear();
+        const prefix = `INV${fy}/`;
+
         const lastInvoice = await prisma.invoice.findFirst({
-            where: { invoiceNumber: { startsWith: `INV-${year}` } },
+            where: { invoiceNumber: { startsWith: prefix } },
             orderBy: { invoiceNumber: 'desc' },
         });
 
         let nextNum = 1;
         if (lastInvoice) {
-            const match = lastInvoice.invoiceNumber.match(/INV-\d{4}-(\d+)/);
-            if (match) nextNum = parseInt(match[1]) + 1;
+            const parts = lastInvoice.invoiceNumber.split('/');
+            if (parts.length > 1) {
+                const lastNum = parseInt(parts[1], 10);
+                if (!isNaN(lastNum)) nextNum = lastNum + 1;
+            }
         }
-        const invoiceNumber = `INV-${year}-${String(nextNum).padStart(4, '0')}`;
+        const invoiceNumber = `${prefix}${String(nextNum).padStart(4, '0')}`;
 
         // Calculate totals
         const items = lineItems.map((item: any) => {
