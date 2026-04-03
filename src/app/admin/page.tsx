@@ -105,9 +105,7 @@ async function getPendingOrders() {
     try {
         const orders = await prisma.order.findMany({
             where: {
-                status: {
-                    in: ['PENDING', 'PROCESSING']
-                }
+                status: 'PROCESSING'
             },
             take: 15,
             orderBy: {
@@ -202,7 +200,7 @@ export default async function AdminDashboard() {
                     <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-amber-50/50">
                             <div>
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Pending & Processing Orders ({pendingOrders.length})</h2>
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900">Processing Orders ({pendingOrders.length})</h2>
                                 <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1 hidden sm:block">Orders that need attention</p>
                             </div>
                             <Link
