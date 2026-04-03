@@ -304,10 +304,10 @@ export default function PrintInvoicePage({
                                 <div>
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Bank Details</h4>
                                     <div className="text-[10px] font-bold text-gray-400 space-y-1 uppercase tracking-wider leading-relaxed">
-                                        <p>Bank: HDFC BANK LTD</p>
+                                        <p>Bank: J&K BANK</p>
                                         <p>Account Name: ANOSE BEAUTY PRIVATE LIMITED</p>
-                                        <p>Account No.: 502000XXXXXXXX (Sample)</p>
-                                        <p>IFSC: HDFC000XXXX</p>
+                                        <p>Account No.: 0658011110000004</p>
+                                        <p>IFSC: JAKA0RANRSI</p>
                                     </div>
                                 </div>
                                 <div className="pt-6 border-t border-gray-100">
