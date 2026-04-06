@@ -14,7 +14,7 @@ export default function PrintInvoicePage({
 }) {
     const resolvedParams = use(params);
     const id = resolvedParams.id;
-    
+
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -107,13 +107,13 @@ export default function PrintInvoicePage({
                         <span className="font-bold tracking-tight">Print Invoice: {invoice.invoiceNumber}</span>
                     </div>
                     <div className="ml-auto flex items-center gap-3">
-                        <button 
+                        <button
                             onClick={() => window.print()}
                             className="bg-purple-600 text-white px-8 py-2.5 rounded-xl font-black text-sm shadow-xl shadow-purple-500/20 hover:bg-purple-700 transition-all active:scale-95"
                         >
                             Print or Save PDF
                         </button>
-                        <button 
+                        <button
                             onClick={() => window.close()}
                             className="bg-gray-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-700 transition-colors"
                         >
@@ -125,19 +125,19 @@ export default function PrintInvoicePage({
 
             {/* A4 Printable Page Container */}
             <div className="w-full max-w-[21cm] bg-white min-h-[29.7cm] shadow-2xl print:shadow-none mx-auto relative overflow-hidden my-10 print:my-0">
-                
+
                 {/* Premium Border Accent */}
                 <div className="h-2 w-full bg-purple-600" />
-                
+
                 <div className="p-16 flex-1 flex flex-col pt-12">
                     {/* Header Section */}
                     <div className="flex justify-between items-start mb-16">
                         <div className="space-y-4">
                             <div className="relative w-48 h-12 mb-4">
-                                <Image 
-                                    src="/assets/images/anose-logo.webp" 
-                                    alt="Anose Beauty Logo" 
-                                    fill 
+                                <Image
+                                    src="/assets/images/anose-logo.webp"
+                                    alt="Anose Beauty Logo"
+                                    fill
                                     className="object-contain object-left"
                                     priority
                                 />
@@ -176,7 +176,7 @@ export default function PrintInvoicePage({
                                 {invoice.customerEmail && <p>{invoice.customerEmail}</p>}
                                 {invoice.customerPhone && <p className="text-gray-900">{invoice.customerPhone}</p>}
                             </div>
-                            
+
                             {invoice.billingAddress && (
                                 <div className="mb-4">
                                     <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Billing Address</h5>
@@ -250,7 +250,7 @@ export default function PrintInvoicePage({
                             <div className="max-w-md">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Amount in Words</h4>
                                 <p className="text-sm font-black text-purple-600 italic tracking-tight">{numberToWords(invoice.total)}</p>
-                                
+
                                 {invoice.notes && (
                                     <div className="mt-10 bg-gray-50 p-6 rounded-3xl border border-gray-100">
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-3">Customer Notes</h4>
@@ -258,7 +258,7 @@ export default function PrintInvoicePage({
                                     </div>
                                 )}
                             </div>
-                            
+
                             <div className="w-96 space-y-4">
                                 <div className="space-y-4 px-6 mb-6">
                                     <div className="flex justify-between text-xs font-black text-gray-400 uppercase tracking-widest">
@@ -284,7 +284,7 @@ export default function PrintInvoicePage({
                                         </div>
                                     )}
                                 </div>
-                                
+
                                 <div className="bg-gray-900 text-white p-8 rounded-[2.5rem] flex flex-col items-end shadow-2xl shadow-gray-900/20">
                                     <span className="text-[11px] font-black uppercase tracking-[0.5em] text-purple-400 mb-3">Grand Total</span>
                                     <span className="text-5xl font-black tracking-tighter">{formatCurrency(invoice.total)}</span>
@@ -312,7 +312,7 @@ export default function PrintInvoicePage({
                                 </div>
                                 <div className="pt-6 border-t border-gray-100">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3 text-purple-600">Terms & Conditions</h4>
-                                    <p className="text-[9px] text-gray-400 leading-relaxed font-semibold italic">1. All disputes are subject to Noida jurisdiction only.<br/>2. This is a computer generated document and does not require a physical signature.</p>
+                                    <p className="text-[9px] text-gray-400 leading-relaxed font-semibold italic">1. All disputes are subject to Noida jurisdiction only.<br />2. This is a computer generated document and does not require a physical signature.</p>
                                 </div>
                             </div>
                             <div className="text-center group flex flex-col items-center">
@@ -328,6 +328,21 @@ export default function PrintInvoicePage({
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-50 rounded-full blur-[120px] -ml-48 -mb-48 opacity-30 pointer-events-none" />
             </div>
+
+            {/* Custom Styles for Print */}
+            <style jsx global>{`
+                @media print {
+                    body {
+                        background: white !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                }
+                @page {
+                    size: A4;
+                    margin: 0;
+                }
+            `}</style>
 
             {/* Auto Print Script */}
             <script
