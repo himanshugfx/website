@@ -98,9 +98,9 @@ export default function PrintInvoicePage({
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center overflow-x-hidden">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center overflow-x-hidden print:min-h-0 print:bg-white">
             {/* Screen-only Print Bar */}
-            <div className="w-full bg-black/90 backdrop-blur-md text-white p-4 flex justify-between items-center print:hidden sticky top-0 z-50">
+            <div className="w-full bg-black/90 backdrop-blur-md text-white p-4 flex justify-between items-center print:hidden print-hidden sticky top-0 z-50">
                 <div className="max-w-[21cm] mx-auto w-full flex items-center px-4">
                     <div className="flex items-center gap-4">
                         <Printer className="w-5 h-5 text-purple-400" />
@@ -124,12 +124,12 @@ export default function PrintInvoicePage({
             </div>
 
             {/* A4 Printable Page Container */}
-            <div className="w-full max-w-[21cm] bg-white min-h-[29.7cm] shadow-2xl print:shadow-none mx-auto relative overflow-hidden my-10 print:my-0">
+            <div className="print-container w-full max-w-[21cm] bg-white min-h-[29.7cm] print:h-[29.7cm] print:min-h-0 shadow-2xl print:shadow-none mx-auto relative overflow-hidden my-10 print:m-0">
 
                 {/* Premium Border Accent */}
                 <div className="h-2 w-full bg-purple-600" />
 
-                <div className="p-16 flex-1 flex flex-col pt-12">
+                <div className="p-16 print:p-12 flex-1 flex flex-col pt-12 print:pt-10">
                     {/* Header Section */}
                     <div className="flex justify-between items-start mb-16">
                         <div className="space-y-4">
@@ -332,10 +332,32 @@ export default function PrintInvoicePage({
             {/* Custom Styles for Print */}
             <style jsx global>{`
                 @media print {
-                    body {
-                        background: white !important;
+                    html, body {
                         margin: 0 !important;
                         padding: 0 !important;
+                        height: 29.7cm !important;
+                        width: 21cm !important;
+                        overflow: hidden !important;
+                        background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    div {
+                        box-shadow: none !important;
+                    }
+                    .print-container {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        height: 29.7cm !important;
+                        width: 21cm !important;
+                        overflow: hidden !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                    }
+                    /* Hide components that might be rendered but not visible on screen */
+                    .print-hidden, header, footer, nav, aside {
+                        display: none !important;
                     }
                 }
                 @page {
