@@ -129,11 +129,11 @@ export default function PrintInvoicePage({
                 {/* Premium Border Accent */}
                 <div className="h-2 w-full bg-purple-600" />
 
-                <div className="p-16 print:p-12 flex-1 flex flex-col pt-12 print:pt-10">
+                <div className="p-10 print:p-8 flex-1 flex flex-col pt-8 print:pt-6">
                     {/* Header Section */}
-                    <div className="flex justify-between items-start mb-16">
-                        <div className="space-y-4">
-                            <div className="relative w-48 h-12 mb-4">
+                    <div className="flex justify-between items-start mb-8 print:mb-6">
+                        <div className="space-y-3">
+                            <div className="relative w-40 h-10 mb-2">
                                 <Image
                                     src="/assets/images/anose-logo.webp"
                                     alt="Anose Beauty Logo"
@@ -142,23 +142,21 @@ export default function PrintInvoicePage({
                                     priority
                                 />
                             </div>
-                            <div className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em] space-y-1.5 leading-relaxed">
+                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] space-y-1 leading-relaxed">
                                 <p className="text-gray-900 font-black text-xs">Anose Beauty Private Limited</p>
-                                <p>B-103, Sector 6, Noida,</p>
-                                <p>Uttar Pradesh, India (201301)</p>
+                                <p>B-103, Sector 6, Noida, Uttar Pradesh (201301)</p>
                                 <p className="text-purple-600 font-semibold lowercase tracking-normal">wecare@anosebeauty.com | +91 9110134408</p>
-                                <p className="mt-2 text-[9px] text-gray-300">GSTIN: 09AAXCA1234A1Z5 (Sample)</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-7xl font-black text-gray-50 uppercase tracking-tighter leading-none mb-6">Invoice</h2>
-                            <div className="space-y-2 text-sm">
-                                <p className="flex justify-end items-center gap-4">
-                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Invoice No.</span>
-                                    <span className="font-black text-gray-900 border-b-2 border-purple-100 pb-0.5">{invoice.invoiceNumber}</span>
+                            <h2 className="text-5xl font-black text-gray-50 uppercase tracking-tighter leading-none mb-2">Invoice</h2>
+                            <div className="space-y-1 text-xs">
+                                <p className="flex justify-end items-center gap-2">
+                                    <span className="text-gray-400 text-[9px] font-black uppercase tracking-[0.1em]">Invoice No.</span>
+                                    <span className="font-black text-gray-900">{invoice.invoiceNumber}</span>
                                 </p>
-                                <p className="flex justify-end items-center gap-4">
-                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Dated</span>
+                                <p className="flex justify-end items-center gap-2">
+                                    <span className="text-gray-400 text-[9px] font-black uppercase tracking-[0.1em]">Dated</span>
                                     <span className="font-bold text-gray-800">{formatDate(invoice.invoiceDate)}</span>
                                 </p>
                             </div>
@@ -166,28 +164,28 @@ export default function PrintInvoicePage({
                     </div>
 
                     {/* Client Info Grid */}
-                    <div className="grid grid-cols-2 gap-12 mb-16 border-y-2 border-gray-900 py-12">
-                        <div className="border-r border-gray-100 pr-12">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-600 mb-6 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 bg-purple-600 rounded-full" /> Bill To
+                    <div className="grid grid-cols-2 gap-8 mb-8 border-y border-gray-200 py-6">
+                        <div className="border-r border-gray-100 pr-8">
+                            <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-purple-600 rounded-full" /> Bill To
                             </h4>
-                            <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tight leading-none">{invoice.customerName}</h3>
-                            <div className="text-sm text-gray-500 font-semibold space-y-1 leading-relaxed mb-4">
+                            <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">{invoice.customerName}</h3>
+                            <div className="text-xs text-gray-500 font-semibold space-y-0.5 leading-relaxed mb-2">
                                 {invoice.customerEmail && <p>{invoice.customerEmail}</p>}
                                 {invoice.customerPhone && <p className="text-gray-900">{invoice.customerPhone}</p>}
                             </div>
 
                             {invoice.billingAddress && (
-                                <div className="mb-4">
-                                    <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Billing Address</h5>
-                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">{formatAddress(invoice.billingAddress)}</p>
+                                <div className="mb-2">
+                                    <h5 className="text-[7px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Billing Address</h5>
+                                    <p className="text-[10px] text-gray-600 leading-relaxed line-clamp-2">{formatAddress(invoice.billingAddress)}</p>
                                 </div>
                             )}
 
                             {(invoice.shippingAddress || invoice.billingAddress) && (
                                 <div>
-                                    <h5 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Shipping Address</h5>
-                                    <p className="text-xs text-gray-600 whitespace-pre-line leading-relaxed">
+                                    <h5 className="text-[7px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Shipping Address</h5>
+                                    <p className="text-[10px] text-gray-600 leading-relaxed line-clamp-2">
                                         {formatAddress(invoice.shippingAddress || invoice.billingAddress)}
                                     </p>
                                 </div>
@@ -195,12 +193,12 @@ export default function PrintInvoicePage({
                         </div>
                         <div className="flex flex-col justify-between items-end">
                             <div className="text-right">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-2">Due Date</h4>
-                                <p className="text-xl font-black text-gray-900">{formatDate(invoice.dueDate)}</p>
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Due Date</h4>
+                                <p className="text-base font-black text-gray-900">{formatDate(invoice.dueDate)}</p>
                             </div>
-                            <div className="bg-purple-600 text-white px-6 py-3 rounded-2xl text-right shadow-xl shadow-purple-500/20">
-                                <h4 className="text-[9px] font-black uppercase tracking-widest text-purple-200 mb-0.5">Payment Status</h4>
-                                <p className="text-sm font-black uppercase tracking-tight">
+                            <div className="bg-purple-600 text-white px-4 py-2 rounded-xl text-right shadow-lg shadow-purple-500/10">
+                                <h4 className="text-[8px] font-black uppercase tracking-widest text-purple-200 mb-0.5">Payment Status</h4>
+                                <p className="text-xs font-black uppercase tracking-tight">
                                     {invoice.status}
                                 </p>
                             </div>
@@ -208,36 +206,36 @@ export default function PrintInvoicePage({
                     </div>
 
                     {/* Line Items Table */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-h-0 overflow-hidden">
                         <table className="w-full">
                             <thead>
-                                <tr className="text-left border-b-2 border-gray-100">
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 w-12">#</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Description of Goods</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-24">HSN/SAC</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-20">Qty</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-center w-20">Tax</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-right w-32">Rate</th>
-                                    <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-right w-32">Amount</th>
+                                <tr className="text-left border-b border-gray-100">
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 w-10">#</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400">Description</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 text-center w-20">HSN</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 text-center w-16">Qty</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 text-center w-16">Tax</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 text-right w-24">Rate</th>
+                                    <th className="pb-3 text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 text-right w-24">Total</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {lineItems.map((item, i) => (
                                     <tr key={i} className="group">
-                                        <td className="py-8 text-sm font-black text-gray-300 align-top">{(i + 1).toString().padStart(2, '0')}</td>
-                                        <td className="py-8 align-top pr-10">
-                                            <p className="font-black text-gray-900 text-lg leading-tight mb-2 uppercase tracking-tight">{item.name}</p>
-                                            {item.description && <p className="text-xs text-gray-500 leading-relaxed font-semibold italic">{item.description}</p>}
+                                        <td className="py-3 text-[11px] font-black text-gray-300 align-top">{(i + 1).toString().padStart(2, '0')}</td>
+                                        <td className="py-3 align-top pr-6">
+                                            <p className="font-black text-gray-900 text-sm leading-tight uppercase tracking-tight">{item.name}</p>
+                                            {item.description && <p className="text-[9px] text-gray-400 leading-tight font-medium mt-0.5 line-clamp-1">{item.description}</p>}
                                         </td>
-                                        <td className="py-8 align-top text-center text-sm font-bold text-gray-400 font-mono tracking-tighter">{item.hsnCode || '-'}</td>
-                                        <td className="py-8 align-top text-center">
-                                            <span className="text-sm font-black text-gray-900">{item.quantity}</span>
+                                        <td className="py-3 align-top text-center text-[10px] font-bold text-gray-400 font-mono tracking-tighter">{item.hsnCode || '-'}</td>
+                                        <td className="py-3 align-top text-center">
+                                            <span className="text-[11px] font-black text-gray-900">{item.quantity}</span>
                                         </td>
-                                        <td className="py-8 align-top text-center text-[10px] font-black text-gray-400">
+                                        <td className="py-3 align-top text-center text-[9px] font-black text-gray-400">
                                             {item.taxRate}%
                                         </td>
-                                        <td className="py-8 align-top text-right text-sm font-bold text-gray-600 tracking-tight">{formatCurrency(item.rate)}</td>
-                                        <td className="py-8 align-top text-right text-lg font-black text-gray-900 tracking-tighter">{formatCurrency((item.quantity * item.rate) + (item.taxAmount || 0))}</td>
+                                        <td className="py-3 align-top text-right text-[11px] font-bold text-gray-600 tracking-tight">{formatCurrency(item.rate)}</td>
+                                        <td className="py-3 align-top text-right text-[12px] font-black text-gray-900 tracking-tighter">{formatCurrency((item.quantity * item.rate) + (item.taxAmount || 0))}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -245,39 +243,39 @@ export default function PrintInvoicePage({
                     </div>
 
                     {/* Summary Section */}
-                    <div className="mt-12 flex flex-col border-t-2 border-gray-900 pt-10">
-                        <div className="flex justify-between items-start mb-12">
-                            <div className="max-w-md">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Amount in Words</h4>
-                                <p className="text-sm font-black text-purple-600 italic tracking-tight">{numberToWords(invoice.total)}</p>
+                    <div className="mt-4 flex flex-col border-t border-gray-200 pt-4">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="max-w-xs">
+                                <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-gray-900 mb-1">Amount in Words</h4>
+                                <p className="text-[10px] font-black text-purple-600 italic tracking-tight">{numberToWords(invoice.total)}</p>
 
                                 {invoice.notes && (
-                                    <div className="mt-10 bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-3">Customer Notes</h4>
-                                        <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line font-medium">{invoice.notes}</p>
+                                    <div className="mt-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                                        <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Notes</h4>
+                                        <p className="text-[9px] text-gray-600 leading-tight whitespace-pre-line font-medium line-clamp-2">{invoice.notes}</p>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="w-96 space-y-4">
-                                <div className="space-y-4 px-6 mb-6">
-                                    <div className="flex justify-between text-xs font-black text-gray-400 uppercase tracking-widest">
+                            <div className="w-72 space-y-2">
+                                <div className="space-y-2 px-4 mb-2">
+                                    <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                         <span>Subtotal</span>
                                         <span className="text-gray-900">{formatCurrency(invoice.subtotal)}</span>
                                     </div>
                                     {invoice.discount > 0 && (
-                                        <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                                            <span className="text-rose-500">Discount Applied</span>
+                                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                                            <span className="text-rose-500">Discount</span>
                                             <span className="text-rose-500">-{formatCurrency(invoice.discount)}</span>
                                         </div>
                                     )}
                                     {invoice.taxAmount > 0 && (
-                                        <div className="space-y-2 pt-2 border-t border-gray-50">
-                                            <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                        <div className="space-y-1 pt-1 border-t border-gray-50">
+                                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest">
                                                 <span>Total CGST</span>
                                                 <span className="text-gray-600">{formatCurrency(cgst)}</span>
                                             </div>
-                                            <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest">
                                                 <span>Total SGST</span>
                                                 <span className="text-gray-600">{formatCurrency(sgst)}</span>
                                             </div>
@@ -285,13 +283,13 @@ export default function PrintInvoicePage({
                                     )}
                                 </div>
 
-                                <div className="bg-gray-900 text-white p-8 rounded-[2.5rem] flex flex-col items-end shadow-2xl shadow-gray-900/20">
-                                    <span className="text-[11px] font-black uppercase tracking-[0.5em] text-purple-400 mb-3">Grand Total</span>
-                                    <span className="text-5xl font-black tracking-tighter">{formatCurrency(invoice.total)}</span>
+                                <div className="bg-gray-900 text-white p-5 rounded-[1.5rem] flex flex-col items-end shadow-xl shadow-gray-900/10">
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-purple-400 mb-1">Grand Total</span>
+                                    <span className="text-3xl font-black tracking-tighter">{formatCurrency(invoice.total)}</span>
                                     {invoice.balance > 0 && (
-                                        <div className="mt-6 pt-6 border-t border-white/10 w-full flex justify-between items-center">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Amount Due</span>
-                                            <span className="text-xl font-black text-rose-400">{formatCurrency(invoice.balance)}</span>
+                                        <div className="mt-2 pt-2 border-t border-white/10 w-full flex justify-between items-center">
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-gray-500">Due</span>
+                                            <span className="text-base font-black text-rose-400">{formatCurrency(invoice.balance)}</span>
                                         </div>
                                     )}
                                 </div>
@@ -299,26 +297,24 @@ export default function PrintInvoicePage({
                         </div>
 
                         {/* Footer Details */}
-                        <div className="grid grid-cols-2 gap-20 items-end mt-12 pb-10">
-                            <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-10 items-end pb-4">
+                            <div className="space-y-4">
                                 <div>
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3">Bank Details</h4>
-                                    <div className="text-[10px] font-bold text-gray-400 space-y-1 uppercase tracking-wider leading-relaxed">
-                                        <p>Bank: J&K BANK</p>
-                                        <p>Account Name: ANOSE BEAUTY PRIVATE LIMITED</p>
-                                        <p>Account No.: 0658011110000004</p>
-                                        <p>IFSC: JAKA0RANRSI</p>
+                                    <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-gray-900 mb-1">Bank Details</h4>
+                                    <div className="text-[8px] font-bold text-gray-400 space-y-0.5 uppercase tracking-wider leading-relaxed">
+                                        <p>Bank: J&K BANK | A/C NAME: ANOSE BEAUTY PRIVATE LIMITED</p>
+                                        <p>A/C No.: 0658011110000004 | IFSC: JAKA0RANRSI</p>
                                     </div>
                                 </div>
-                                <div className="pt-6 border-t border-gray-100">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-900 mb-3 text-purple-600">Terms & Conditions</h4>
-                                    <p className="text-[9px] text-gray-400 leading-relaxed font-semibold italic">1. All disputes are subject to Noida jurisdiction only.<br />2. This is a computer generated document and does not require a physical signature.</p>
+                                <div className="pt-2 border-t border-gray-100">
+                                    <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-purple-600 mb-1">Terms & Conditions</h4>
+                                    <p className="text-[7px] text-gray-400 leading-relaxed font-semibold italic">1. All disputes are subject to Noida jurisdiction only.<br />2. This is a computer generated document and does not require a physical signature.</p>
                                 </div>
                             </div>
                             <div className="text-center group flex flex-col items-center">
-                                <div className="w-full h-0.5 bg-gray-900 mb-6" />
-                                <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em] mb-1">For Anose Beauty Private Limited</h4>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Authorized Signatory</p>
+                                <div className="w-full h-px bg-gray-900 mb-3" />
+                                <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.1em] mb-0.5 leading-none">For Anose Beauty Private Limited</h4>
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Authorized Signatory</p>
                             </div>
                         </div>
                     </div>
