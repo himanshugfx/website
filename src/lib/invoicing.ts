@@ -87,7 +87,6 @@ export async function createInvoiceFromOrder(orderId: string): Promise<void> {
 
         // Determine FY based on Order creation date
         const invoiceNumber = await generateInvoiceNumber(order.createdAt);
-        const addressData = order.address ? JSON.parse(order.address) : null;
         
         // Use a generic tax rate of 18% (inclusive) as requested
         const taxRate = 18;

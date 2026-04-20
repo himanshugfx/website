@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
+import { createInvoiceFromOrder } from '@/lib/invoicing';
 
 export const dynamic = 'force-dynamic';
 
@@ -155,6 +156,13 @@ export async function PUT(request: Request) {
             where: { id },
             data: { status },
         });
+
+        // Auto-create invoice if order is completed
+        if (status === 'COMPLETED') {
+            await createInvoiceFromOrder(id).catch(err => 
+                console.error('Invoice auto-generation background error:', err)
+            );
+        }
 
         revalidatePath('/admin');
         revalidatePath('/admin/orders');
