@@ -61,7 +61,7 @@ export async function POST(request: Request) {
         // Calculate subtotal using DB prices
         let subtotal = 0;
         const validatedCart = cart.map((item: CartItem) => {
-            const product = productMap.get(item.id);
+            const product = productMap.get(item.id) as { id: string; price: number; name: string } | undefined;
             if (!product) throw new Error(`Product ${item.id} not found`);
             const quantity = Math.max(1, Math.floor(item.quantity));
             subtotal += product.price * quantity;
