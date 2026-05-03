@@ -17,7 +17,7 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
     const navPills: ('Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance')[] = ['Dashboard', 'Store', 'Sales', 'Marketing', 'Finance'];
 
     return (
-        <header className="sticky top-0 z-40 py-4 md:py-6 bg-[#f4f7fe]/80 backdrop-blur-md">
+        <header className="sticky top-0 z-40 py-4 md:py-8 bg-[#f4f7fe]/80 backdrop-blur-md">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0 relative">
                 
                 {/* Top Row for Mobile (Hamburger + Profile) */}
