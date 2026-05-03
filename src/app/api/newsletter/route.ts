@@ -55,9 +55,9 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        await requireAdmin();
+        await requireAdmin(request);
         const subscribers = await prisma.newsletterSubscriber.findMany({
             where: { isActive: true },
             orderBy: { subscribedAt: 'desc' }

@@ -146,6 +146,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await res.json();
             if (data.success && data.id && !abandonedCheckoutId) {
                 setAbandonedCheckoutId(data.id);
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('anose_abandoned_checkout_id', data.id);
+                }
             }
         } catch (err) {
             console.error('Failed to sync abandoned cart:', err);

@@ -25,6 +25,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://anosebeauty.com"),
   title: {
     default: "Anose - Premium Cosmetics & Hotel Amenities Manufacturer",
     template: "%s | Anose"
@@ -67,9 +68,6 @@ export const metadata: Metadata = {
     apple: "/assets/images/fav.png",
   },
   manifest: "/manifest.json",
-  alternates: {
-    canonical: "https://anosebeauty.com",
-  }
 };
 
 const jsonLd = [

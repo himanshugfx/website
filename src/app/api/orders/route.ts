@@ -40,6 +40,11 @@ export async function POST(request: Request) {
             }
         }
 
+        // Require abandonedCheckoutId for guest checkouts to prevent trivial abuse
+        if (!finalUserId && !abandonedCheckoutId) {
+            return NextResponse.json({ error: 'Valid checkout session required' }, { status: 400 });
+        }
+
         // Fetch product prices from DB — never trust client-supplied prices
         const productIds = cart.map((item: CartItem) => item.id);
         const products = await prisma.product.findMany({
@@ -143,7 +148,10 @@ export async function POST(request: Request) {
         for (const item of validatedCart) {
             await prisma.product.update({
                 where: { id: item.id },
-                data: { quantity: { decrement: item.quantity } },
+                data: { 
+                    quantity: { decrement: item.quantity },
+                    sold: { increment: item.quantity }
+                },
             });
         }
 

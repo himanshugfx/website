@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  trailingSlash: false,
   // Standalone output is only for Docker - Vercel doesn't need it
   // output: 'standalone',
   images: {

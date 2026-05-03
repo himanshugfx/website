@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { requireAdmin } from '@/lib/admin/auth';
 
 // Route segment config for App Router
@@ -65,24 +63,16 @@ export async function POST(request: Request) {
         const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filename = Date.now() + '-' + sanitizedName;
 
-        // Get upload directory
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-        console.log('[Upload API] Upload directory:', uploadDir);
+        // Upload to Vercel Blob
+        console.log('[Upload API] Uploading to Vercel Blob...');
+        const blob = await put(filename, buffer, {
+            access: 'public',
+            contentType: file.type,
+        });
 
-        // Ensure uploads directory exists
-        if (!existsSync(uploadDir)) {
-            console.log('[Upload API] Creating uploads directory...');
-            await mkdir(uploadDir, { recursive: true });
-        }
-
-        // Write file
-        const filePath = path.join(uploadDir, filename);
-        console.log('[Upload API] Writing file to:', filePath);
-        await writeFile(filePath, buffer);
-
-        console.log('[Upload API] Upload successful! URL:', `/uploads/${filename}`);
+        console.log('[Upload API] Upload successful! URL:', blob.url);
         return NextResponse.json({
-            url: `/uploads/${filename}`,
+            url: blob.url,
             filename: filename,
             size: buffer.length
         });

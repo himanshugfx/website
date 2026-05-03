@@ -197,10 +197,10 @@ export default function AmenitiesPage() {
                             Reliable, customizable beauty & supply solutions for hotels that care about quality, consistency, and brand image.
                         </p>
                         <div className="flex flex-wrap gap-4">
-                            <a href="#quote-form" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40">
+                            <button onClick={() => document.getElementById('quote-form')?.scrollIntoView({ behavior: 'smooth' })} className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40">
                                 Request a Free Quote
                                 <ArrowRightIcon className="w-5 h-5" />
-                            </a>
+                            </button>
                             <Link href="/catalogue" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-xl font-bold text-lg transition-all">
                                 View Catalogue
                             </Link>
@@ -339,7 +339,7 @@ export default function AmenitiesPage() {
                                 <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">Repeat Clients</p>
                             </div>
                             <div>
-                                <div className="text-3xl font-bold text-purple-400 mb-1">10+</div>
+                                <div className="text-3xl font-bold text-purple-400 mb-1">2+</div>
                                 <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">Years Experience</p>
                             </div>
                         </div>

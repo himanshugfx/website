@@ -59,6 +59,7 @@ export default function CheckoutClient() {
         email: '',
         phone: '',
         country: 'India',
+        state: '',
         city: '',
         postalCode: '',
         address: '',
@@ -67,6 +68,10 @@ export default function CheckoutClient() {
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
+            if ((window as any).Razorpay) {
+                resolve(true);
+                return;
+            }
             const script = document.createElement('script');
             script.src = 'https://checkout.razorpay.com/v1/checkout.js';
             script.onload = () => {
@@ -171,9 +176,9 @@ export default function CheckoutClient() {
 
 
     const validateForm = () => {
-        if (!shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.email ||
-            !shippingInfo.phone || !shippingInfo.city || !shippingInfo.postalCode || !shippingInfo.address) {
-            setError('Please fill in all required fields');
+        if (!shippingInfo.firstName || !shippingInfo.email || 
+            !shippingInfo.phone || !shippingInfo.city || !shippingInfo.state || !shippingInfo.postalCode || !shippingInfo.address) {
+            setError("Please fill in all required shipping fields");
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return false;
         }
@@ -482,6 +487,17 @@ export default function CheckoutClient() {
                                         value={shippingInfo.city}
                                         onChange={handleInputChange}
                                         placeholder="Town/City *"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-span-1">
+                                    <input
+                                        className="border border-line px-5 py-3 w-full rounded-xl focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                                        type="text"
+                                        name="state"
+                                        value={shippingInfo.state}
+                                        onChange={handleInputChange}
+                                        placeholder="State *"
                                         required
                                     />
                                 </div>
