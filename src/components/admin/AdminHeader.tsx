@@ -17,22 +17,61 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
     const navPills: ('Dashboard' | 'Store' | 'Sales' | 'Marketing' | 'Finance')[] = ['Dashboard', 'Store', 'Sales', 'Marketing', 'Finance'];
 
     return (
-        <header className="sticky top-0 z-40 py-6 bg-[#f4f7fe]/80 backdrop-blur-md">
-            <div className="relative flex items-center justify-between">
-                {/* Left Section: Mobile Menu Only */}
-                <div className="flex items-center">
-                    <button
-                        onClick={onMenuClick}
-                        className="lg:hidden text-gray-700 p-2.5 rounded-xl transition-colors active:bg-gray-100 bg-white shadow-sm border border-gray-100"
-                    >
-                        <Menu className="w-6 h-6" />
-                    </button>
-                    {/* Placeholder for left space balance */}
-                    <div className="hidden lg:block w-10"></div>
+        <header className="sticky top-0 z-40 py-4 md:py-6 bg-[#f4f7fe]/80 backdrop-blur-md">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0 relative">
+                
+                {/* Top Row for Mobile (Hamburger + Profile) */}
+                <div className="flex items-center justify-between w-full md:w-auto">
+                    {/* Left Section: Mobile Menu Only */}
+                    <div className="flex items-center">
+                        <button
+                            onClick={onMenuClick}
+                            className="lg:hidden text-gray-700 p-2.5 rounded-xl transition-colors active:bg-gray-100 bg-white shadow-sm border border-gray-100"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
+                        {/* Placeholder for left space balance */}
+                        <div className="hidden lg:block w-10"></div>
+                    </div>
+
+                    {/* Mobile Profile (Hidden on Desktop) */}
+                    <div className="md:hidden relative">
+                        <button
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                        >
+                            <div className="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 text-white font-black text-sm">
+                                {(session?.user?.name || 'A').charAt(0).toUpperCase()}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {dropdownOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+                                <div className="absolute right-0 z-20 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 transform origin-top-right transition-all">
+                                    <button 
+                                        onClick={() => {
+                                            window.location.href = '/admin/profile';
+                                            setDropdownOpen(false);
+                                        }}
+                                        className="flex items-center w-full px-3 py-2 text-sm font-bold text-gray-700 rounded-xl hover:bg-gray-50 transition-colors gap-3"
+                                    >
+                                        <User className="w-4 h-4" /> Settings
+                                    </button>
+                                    <button 
+                                        onClick={() => signOut({ callbackUrl: '/' })}
+                                        className="flex items-center w-full px-3 py-2 text-sm font-bold text-rose-600 rounded-xl hover:bg-rose-50 transition-colors gap-3"
+                                    >
+                                        <LogOut className="w-4 h-4" /> Sign out
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
 
-                {/* Center Section: Navigation Pills (Absolute Centered) */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-white p-1 rounded-2xl md:rounded-[1.5rem] border border-gray-100 shadow-sm overflow-x-auto no-scrollbar max-w-[calc(100vw-120px)] md:max-w-none">
+                {/* Center Section: Navigation Pills */}
+                <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-white p-1 rounded-2xl md:rounded-[1.5rem] border border-gray-100 shadow-sm overflow-x-auto no-scrollbar w-full md:w-auto">
                     {navPills.map((pill) => (
                         <button
                             key={pill}
@@ -50,8 +89,8 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
                     ))}
                 </div>
 
-                {/* Right Section: Utility & Profile */}
-                <div className="flex items-center gap-4">
+                {/* Right Section: Utility & Profile (Desktop) */}
+                <div className="hidden md:flex items-center gap-4">
                     {/* Icon Group */}
                     <div className="hidden md:flex items-center gap-1.5 bg-white/50 p-1.5 rounded-2xl border border-white/50 backdrop-blur-sm">
                         <button className="p-2.5 text-gray-500 hover:text-gray-900 hover:bg-white rounded-xl transition-all">
@@ -66,8 +105,8 @@ export default function AdminHeader({ onMenuClick, activeTopTab, onTabChange }: 
                         </button>
                     </div>
 
-                    {/* Profile Section */}
-                    <div className="relative">
+                    {/* Profile Section (Desktop only, mobile profile is rendered above) */}
+                    <div className="relative hidden md:block">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
                             className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-all group"
