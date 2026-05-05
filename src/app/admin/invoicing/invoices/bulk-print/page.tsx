@@ -143,7 +143,7 @@ function BulkPrintContent() {
                                             <p>B-103, Sector 6, Noida,</p>
                                             <p>Uttar Pradesh, India (201301)</p>
                                             <p className="text-purple-600 font-semibold lowercase tracking-normal">wecare@anosebeauty.com | +91 9110134408</p>
-                                            <p className="mt-2 text-[9px] text-gray-300">GSTIN: 09AAXCA1234A1Z5 (Sample)</p>
+                                            <p className="mt-2 text-[9px] text-black">GSTIN: 20ABBCA1046K1Z8 </p>
                                         </div>
                                     </div>
                                     <div className="text-right">

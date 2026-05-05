@@ -93,20 +93,20 @@ export async function createInvoiceFromOrder(orderId: string): Promise<void> {
         
         // Calculate item breakdowns (Inclusive to Exclusive)
         const items = order.items.map(item => {
-            const priceIncl = item.price;
-            const priceExcl = priceIncl / (1 + (taxRate / 100));
-            const totalTax = priceIncl - priceExcl;
+            const priceInclTotal = item.price; // Line total inclusive
+            const priceExclTotal = priceInclTotal / (1 + (taxRate / 100)); // Line total exclusive
+            const lineTaxTotal = priceInclTotal - priceExclTotal; // Line total tax
             
             return {
                 name: item.product.name,
                 description: `${item.product.brand} - ${item.product.category}`,
                 quantity: item.quantity,
-                rate: Number(priceExcl.toFixed(2)),
-                amount: Number((priceExcl * item.quantity).toFixed(2)),
+                rate: Number((priceExclTotal / item.quantity).toFixed(2)), // Unit rate exclusive
+                amount: Number(priceExclTotal.toFixed(2)), // Line total exclusive
                 hsnCode: item.product.hsnCode || '3304', // default HSN for cosmetics
                 taxRate: taxRate,
-                taxAmount: Number((totalTax * item.quantity).toFixed(2)),
-                total: Number((priceIncl * item.quantity).toFixed(2))
+                taxAmount: Number(lineTaxTotal.toFixed(2)), // Line total tax
+                total: Number(priceInclTotal.toFixed(2)) // Line total inclusive
             };
         });
 
