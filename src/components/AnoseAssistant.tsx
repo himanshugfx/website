@@ -83,7 +83,7 @@ export default function AnoseAssistant() {
     return () => clearTimeout(hideTimeout);
   }, []);
 
-  if (isAdminPath) return null;
+
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -181,6 +181,8 @@ export default function AnoseAssistant() {
     setIsOpen(true);
     setShowGreeting(false);
   };
+
+  if (isAdminPath) return null;
 
   return (
     <>

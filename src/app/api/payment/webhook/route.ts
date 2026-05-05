@@ -32,7 +32,14 @@ export async function POST(request: Request) {
 
             if (event.event === 'payment.captured') {
                 const payment = event.payload.payment.entity;
-                const internalOrderId = payment.notes?.receipt;
+                const razorpayOrderId = payment.order_id;
+                
+                // Find order by razorpay order id (which was saved as transactionId during init)
+                const order = await prisma.order.findFirst({
+                    where: { transactionId: razorpayOrderId }
+                });
+                
+                const internalOrderId = order?.id || payment.notes?.receipt;
 
                 if (internalOrderId) {
                     await finalizeOrder(internalOrderId);

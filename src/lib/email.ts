@@ -21,7 +21,7 @@ interface ShippingInfo {
     address: string;
     city: string;
     state: string;
-    pincode: string;
+    postalCode: string;
 }
 
 interface OrderDetails {
@@ -125,7 +125,7 @@ class EmailService {
                         ${shippingInfo ? `
                             <p><strong>Email:</strong> ${shippingInfo.email}</p>
                             <p><strong>Phone:</strong> ${shippingInfo.phone}</p>
-                            <p><strong>Address:</strong> ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} - ${shippingInfo.pincode}</p>
+                            <p><strong>Address:</strong> ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} - ${shippingInfo.postalCode}</p>
                         ` : ''}
                         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
                     </div>

@@ -335,9 +335,11 @@ export default function SalesFunnelPage() {
                                                                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
                                                                                 {lead.source}
                                                                             </p>
-                                                                            <div className="flex items-center gap-1 mt-1 text-[8px] text-emerald-600 font-bold bg-emerald-50 px-1 rounded uppercase">
-                                                                                New Lead
-                                                                            </div>
+                                                                            {stage.name.toUpperCase() === 'NEW' && (
+                                                                                <div className="flex items-center gap-1 mt-1 text-[8px] text-emerald-600 font-bold bg-emerald-50 px-1 rounded uppercase">
+                                                                                    New Lead
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                     <GripVertical className="w-4 h-4 text-gray-200 group-hover/card:text-gray-400 transition-colors" />

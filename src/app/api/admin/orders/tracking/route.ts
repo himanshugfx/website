@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { trackRapidShypShipment, mapRapidShypStatus, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
+import { requireAdmin } from '@/lib/admin/auth';
 
 // GET - Fetch tracking info for an order
 export async function GET(request: Request) {
     try {
+        await requireAdmin(request);
         const { searchParams } = new URL(request.url);
         const orderId = searchParams.get('orderId');
         const awbNumber = searchParams.get('awb');
@@ -107,6 +109,7 @@ export async function GET(request: Request) {
 // POST - Sync tracking for multiple orders (batch update)
 export async function POST(request: Request) {
     try {
+        await requireAdmin(request);
         const { orderIds } = await request.json();
 
         if (!orderIds || !Array.isArray(orderIds)) {
