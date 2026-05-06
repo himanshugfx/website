@@ -442,5 +442,43 @@
     "description": "Convenient 3ml plastic dropper for precise application of liquids.",
     "action": "add to cart",
     "slug": "plastic-dropper-3ml"
+  },
+  {
+    "id": "13",
+    "category": "cosmetic",
+    "type": "bundle",
+    "name": "Facewash 100ml + Sunscreen Bundle",
+    "gender": "unisex",
+    "new": true,
+    "sale": true,
+    "rate": 5,
+    "price": 299,
+    "originPrice": 348,
+    "brand": "Anose",
+    "sold": 0,
+    "quantity": 100,
+    "quantityPurchase": 1,
+    "sizes": [
+      "Bundle"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503"
+      }
+    ],
+    "thumbImage": [
+      "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503",
+      "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac"
+    ],
+    "images": [
+      "https://www.anosebeauty.com/web/image/product.product/6/image_1024/Beaded%20Facewash%20100ml?unique=51fa503",
+      "https://www.anosebeauty.com/web/image/product.product/7/image_1024/SPF50%20Sunscreen%2050ml?unique=1afd8ac"
+    ],
+    "description": "Get the perfect skincare duo! This bundle includes our deep-cleansing Beaded Facewash 100ml and high-protection SPF50 Sunscreen 50ml.",
+    "action": "add to cart",
+    "slug": "facewash-100ml-sunscreen-bundle"
   }
 ]
