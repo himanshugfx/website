@@ -146,7 +146,7 @@ export default function PrintInvoicePage({
                                 <p className="text-gray-950 font-black text-xs">Anose Beauty Private Limited</p>
                                 <p>B-103, Sector 6, Noida, Uttar Pradesh (201301)</p>
                                 <p className="text-purple-800 font-semibold lowercase tracking-normal">wecare@anosebeauty.com | +91 9110134408</p>
-                                <p className="mt-1 text-[9px] text-gray-500 font-black">GSTIN: 09AAXCA1234A1Z5</p>
+                                <p className="mt-1 text-[9px] text-black font-black">GSTIN: 20ABBCA1046K1Z8</p>
                             </div>
                         </div>
                         <div className="text-right">
