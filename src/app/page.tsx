@@ -64,18 +64,18 @@ export default async function Home() {
         <div className="slider-main h-full w-full relative z-10">
           <div className="container mx-auto h-full px-6 flex items-center">
             <div className="text-content sm:w-1/2 w-full animate-fade-in">
-              <div className="inline-block px-4 py-1.5 rounded-full bg-purple-600/90 text-white text-xs font-bold tracking-[0.2em] mb-6 uppercase shadow-lg shadow-purple-500/20">
+              <div className="inline-block px-4 py-1.5 rounded-full bg-purple-900 text-white text-xs font-bold tracking-[0.2em] mb-6 uppercase shadow-lg shadow-purple-500/20">
                 New Arrivals • 2026
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
                 <span className="sr-only">Anose Beauty - Premium Skincare & Hotel Amenities</span>
-                <span aria-hidden="true" className="text-purple-600">Get all <span className="text-purple-900">@ ₹ 99</span></span>
+                <span aria-hidden="true" className="text-purple-900">Get all <span className="text-purple-900">@ ₹ 99</span></span>
               </h1>
               <p className="text-lg md:text-xl text-purple-900 mb-8 max-w-lg leading-relaxed font-medium">
                 Use code <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL</span> to unlock exclusive discounts on our skin care bundles.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/shop" className="group bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
+                <Link href="/shop" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
                   Shop Now
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
