@@ -69,10 +69,10 @@ export default async function Home() {
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
                 <span className="sr-only">Anose Beauty - Premium Skincare & Hotel Amenities</span>
-                <span aria-hidden="true">Get Flat <span className="text-purple-700">30% Off</span></span>
+                <span aria-hidden="true" className="text-purple-600">Get all <span className="text-purple-900">@ ₹ 99</span></span>
               </h1>
-              <p className="text-lg md:text-xl text-zinc-300 mb-8 max-w-lg leading-relaxed font-medium">
-                Use code <span className="text-white font-bold bg-white/10 px-2 py-1 rounded">DR-OAS</span> to unlock exclusive discounts on our premium skincare collection.
+              <p className="text-lg md:text-xl text-purple-900 mb-8 max-w-lg leading-relaxed font-medium">
+                Use code <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL</span> to unlock exclusive discounts on our skin care bundles.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/shop" className="group bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
@@ -81,7 +81,7 @@ export default async function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </Link>
-                <Link href="/amenities" className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold uppercase text-sm tracking-widest transition-all flex items-center">
+                <Link href="/amenities" className="bg-white hover:bg-white/20 backdrop-blur-md text-purple-900 border border-white/20 px-8 py-4 rounded-xl font-bold uppercase text-sm tracking-widest transition-all flex items-center">
                   Explore Amenities
                 </Link>
               </div>
@@ -92,7 +92,7 @@ export default async function Home() {
         {/* Hero Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/assets/images/banner/oas-banner.webp"
+            src="/assets/anose-all-product.png"
             alt="Hero Banner"
             fill
             className="object-cover scale-105"
