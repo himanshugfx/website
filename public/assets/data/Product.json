@@ -483,6 +483,7 @@
   },
   {
     "id": "14",
+    "priority": 100,
     "category": "cosmetic",
     "type": "bundle",
     "name": "Facewash 100ml + Sunscreen + Facecream Bundle",

@@ -16,7 +16,13 @@ async function main() {
         for (const product of productsData) {
             await prisma.product.upsert({
                 where: { slug: product.slug },
-                update: {},
+                update: {
+                    priority: product.priority || 0,
+                    price: product.price,
+                    originPrice: product.originPrice,
+                    images: JSON.stringify(product.images),
+                    thumbImage: JSON.stringify(product.thumbImage)
+                },
                 create: {
                     category: product.category,
                     type: product.type,
@@ -36,6 +42,7 @@ async function main() {
                     slug: product.slug,
                     images: JSON.stringify(product.images),
                     thumbImage: JSON.stringify(product.thumbImage),
+                    priority: product.priority || 0,
                     variations: {
                         create: product.variation.map((v: { color: string; colorCode: string; colorImage: string; image: string }) => ({
                             color: v.color,

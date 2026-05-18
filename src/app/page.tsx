@@ -75,7 +75,7 @@ export default async function Home() {
                 <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL-Products</span> at just ₹99 in our summar sale.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/shop" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
+                <Link href="/product/facewash-100ml-sunscreen-facecream-bundle" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
                   Shop Now
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
