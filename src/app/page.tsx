@@ -72,7 +72,7 @@ export default async function Home() {
                 <span aria-hidden="true" className="text-purple-900">Get all <span className="text-purple-900">@ ₹ 99</span></span>
               </h1>
               <p className="text-lg md:text-xl text-purple-900 mb-8 max-w-lg leading-relaxed font-medium">
-                Use code <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL</span> to unlock exclusive discounts on our skin care bundles.
+                <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL-Products</span> at just ₹99 in our summar sale.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/shop" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
