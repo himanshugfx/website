@@ -3,7 +3,12 @@ import { RefreshCcw, ChevronRight, ShieldCheck } from 'lucide-react';
 
 const RazorpayTrustBadge = () => {
     return (
-        <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50/30 rounded-xl border border-blue-200 relative p-4 my-4 max-w-md w-full shadow-[0_2px_8px_rgba(37,99,235,0.1)] group cursor-pointer hover:border-blue-300 transition-colors">
+        <a 
+            href="https://razorpay.com/docs/payments/widgets/buyer-protection/money-back-promise/?utm_source=google&utm_medium=PMax&utm_campaign=RPHQL-RPPerf-Google-Pmax-Prospect-AllDevices-Competitor_keyeword-261225&utm_adgroup=&utm_content=&utm_term=&utm_gclid=&utm_campaignID=&utm_adgroupID=&utm_adID=&utm_network=&utm_device=&gad_source=1&gad_campaignid=23400237524&gbraid=0AAAAADdXWPpLjpbtb2oxCIq4CfK889Bvx&gclid=CjwKCAjw8arQBhB9EiwAfIKdQs7HG1jzna6DBOw_8x1yWgrJGW1nMTVClsidzdIqq_vyHAay4I81wRoCBa0QAvD_BwE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-br from-blue-50 via-white to-blue-50/30 rounded-xl border border-blue-200 relative p-4 my-4 max-w-md w-full shadow-[0_2px_8px_rgba(37,99,235,0.1)] group cursor-pointer hover:border-blue-300 transition-colors block text-zinc-950 no-underline"
+        >
             {/* Top Right Badge */}
             <div className="absolute top-0 right-0 bg-[#2563eb] text-white text-[10px] uppercase font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-sm z-10">
                 On prepaid orders
@@ -34,7 +39,7 @@ const RazorpayTrustBadge = () => {
                     <span className="text-[#2563eb] font-bold">Get 100% refund</span> on non-delivery or defects
                 </p>
             </div>
-        </div>
+        </a>
     );
 };
 
