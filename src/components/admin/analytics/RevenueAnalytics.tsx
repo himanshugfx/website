@@ -53,7 +53,12 @@ export default function RevenueAnalytics({ data, onRefresh }: { data?: any, onRe
         color: ['bg-purple-600', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'][i % 5]
     }));
 
-    const formatCurrency = (val: number) => `₹${Number(val).toLocaleString()}`;
+    const formatCurrency = (val: number) => {
+        return `₹${Number(val).toLocaleString(undefined, {
+            minimumFractionDigits: val % 1 === 0 ? 0 : 2,
+            maximumFractionDigits: 2
+        })}`;
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
