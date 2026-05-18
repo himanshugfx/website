@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// GET reviews for a product
+// GET reviews for a product (or its constituent products if it is a bundle)
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -15,13 +15,58 @@ export async function GET(request: Request) {
             );
         }
 
-        const reviews = await prisma.productReview.findMany({
+        const product = await prisma.product.findUnique({
+            where: { id: productId }
+        });
+
+        if (!product) {
+            return NextResponse.json(
+                { error: 'Product not found' },
+                { status: 404 }
+            );
+        }
+
+        const BUNDLE_PRODUCTS_MAPPING: Record<string, string[]> = {
+            'facewash-100ml-sunscreen-bundle': [
+                'beaded-facewash-100ml',
+                'spf50-sunscreen-50ml'
+            ],
+            'facewash-100ml-sunscreen-facecream-bundle': [
+                'beaded-facewash-100ml',
+                'spf50-sunscreen-50ml',
+                'anose-face-cream-15g'
+            ]
+        };
+
+        let productIdsToFetch = [productId];
+        let productLabelMap: Record<string, string> = {};
+
+        // If it's a bundle, fetch reviews for constituent products as well
+        if (product.type === 'bundle' && BUNDLE_PRODUCTS_MAPPING[product.slug]) {
+            const constituentSlugs = BUNDLE_PRODUCTS_MAPPING[product.slug];
+            const constituentProducts = await prisma.product.findMany({
+                where: { slug: { in: constituentSlugs } },
+                select: { id: true, name: true }
+            });
+            constituentProducts.forEach(cp => {
+                productIdsToFetch.push(cp.id);
+                productLabelMap[cp.id] = cp.name;
+            });
+        }
+
+        const rawReviews = await prisma.productReview.findMany({
             where: {
-                productId,
+                productId: { in: productIdsToFetch },
                 isApproved: approved === 'all' ? undefined : true,
             },
             orderBy: { createdAt: 'desc' },
         });
+
+        // Add productLabel to each review
+        const reviews = rawReviews.map(r => ({
+            ...r,
+            productLabel: productLabelMap[r.productId] || null
+        }));
 
         // Calculate average rating
         const avgRating = reviews.length > 0

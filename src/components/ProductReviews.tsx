@@ -11,6 +11,7 @@ interface Review {
     comment: string;
     isVerified: boolean;
     createdAt: string;
+    productLabel?: string | null;
 }
 
 interface ProductReviewsProps {
@@ -217,12 +218,17 @@ export default function ProductReviews({ productId, productName }: ProductReview
                         <div key={review.id} className="bg-white border border-zinc-200 rounded-xl p-6">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         <span className="font-medium text-zinc-900">{review.customerName}</span>
                                         {review.isVerified && (
                                             <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                                                 <CheckCircle className="w-3 h-3" />
                                                 Verified Purchase
+                                            </span>
+                                        )}
+                                        {review.productLabel && (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                                {review.productLabel}
                                             </span>
                                         )}
                                     </div>
