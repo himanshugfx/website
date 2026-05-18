@@ -20,8 +20,6 @@ async function main() {
                     priority: product.priority || 0,
                     price: product.price,
                     originPrice: product.originPrice,
-                    images: JSON.stringify(product.images),
-                    thumbImage: JSON.stringify(product.thumbImage)
                 },
                 create: {
                     category: product.category,
