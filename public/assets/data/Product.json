@@ -480,5 +480,42 @@
     "description": "Get the perfect skincare duo! This bundle includes our deep-cleansing Beaded Facewash 100ml and high-protection SPF50 Sunscreen 50ml.",
     "action": "add to cart",
     "slug": "facewash-100ml-sunscreen-bundle"
+  },
+  {
+    "id": "14",
+    "category": "cosmetic",
+    "type": "bundle",
+    "name": "Facewash 100ml + Sunscreen + Facecream Bundle",
+    "gender": "unisex",
+    "new": true,
+    "sale": true,
+    "rate": 5,
+    "price": 349,
+    "originPrice": 547,
+    "brand": "Anose",
+    "sold": 10,
+    "quantity": 100,
+    "quantityPurchase": 1,
+    "sizes": [
+      "Bundle"
+    ],
+    "variation": [
+      {
+        "color": "default",
+        "colorCode": "#ffffff",
+        "colorImage": "./assets/images/product/color/48x48.png",
+        "image": "/assets/images/product/glow-skincare-bundle.png"
+      }
+    ],
+    "thumbImage": [
+      "/assets/images/product/glow-skincare-bundle.png",
+      "/assets/images/product/glow-skincare-bundle.png"
+    ],
+    "images": [
+      "/assets/images/product/glow-skincare-bundle.png"
+    ],
+    "description": "The ultimate skincare glow bundle for your daily routine! Includes our deep-cleansing Beaded Facewash 100ml, high-protection SPF50 Sunscreen 50ml, and nourishing Anose FaceCream 15g to keep your skin hydrated, protected, and glowing.",
+    "action": "add to cart",
+    "slug": "facewash-100ml-sunscreen-facecream-bundle"
   }
 ]
