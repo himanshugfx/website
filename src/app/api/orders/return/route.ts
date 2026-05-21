@@ -22,10 +22,14 @@ export async function POST(request: Request) {
             );
         }
 
+        const userEmail = session.user.email;
         const order = await prisma.order.findFirst({
             where: {
                 id: orderId,
-                userId: session.user.id,
+                OR: [
+                    { userId: session.user.id },
+                    ...(userEmail ? [{ customerEmail: userEmail }] : [])
+                ]
             },
         });
 

@@ -23,16 +23,27 @@ async function getCustomerDetails(id: string) {
     try {
         const user = await prisma.user.findUnique({
             where: { id },
-            include: {
-                orders: {
-                    orderBy: { createdAt: 'desc' },
-                },
-                _count: {
-                    select: { orders: true }
-                }
-            },
         });
-        return user;
+
+        if (!user) return null;
+
+        const orders = await prisma.order.findMany({
+            where: {
+                OR: [
+                    { userId: id },
+                    ...(user.email ? [{ customerEmail: user.email }] : [])
+                ]
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return {
+            ...user,
+            orders,
+            _count: {
+                orders: orders.length
+            }
+        };
     } catch (error) {
         console.error('Error fetching customer details:', error);
         return null;

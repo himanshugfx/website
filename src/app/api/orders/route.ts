@@ -203,10 +203,40 @@ export async function GET(request: Request) {
         // Enforce that the authenticated user can only fetch their own orders
         // Admins may pass any userId
         const isAdmin = (session.user as any).role === 'admin';
-        const userId = isAdmin && requestedUserId ? requestedUserId : session.user.id;
+        
+        let whereClause: any = {};
+        
+        if (isAdmin && requestedUserId) {
+            const targetUser = await prisma.user.findUnique({
+                where: { id: requestedUserId },
+                select: { email: true }
+            });
+            if (targetUser?.email) {
+                whereClause = {
+                    OR: [
+                        { userId: requestedUserId },
+                        { customerEmail: targetUser.email }
+                    ]
+                };
+            } else {
+                whereClause = { userId: requestedUserId };
+            }
+        } else {
+            const userEmail = session.user.email;
+            if (userEmail) {
+                whereClause = {
+                    OR: [
+                        { userId: session.user.id },
+                        { customerEmail: userEmail }
+                    ]
+                };
+            } else {
+                whereClause = { userId: session.user.id };
+            }
+        }
 
         const orders = await prisma.order.findMany({
-            where: { userId },
+            where: whereClause,
             include: {
                 items: {
                     include: {
