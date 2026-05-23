@@ -18,12 +18,12 @@ export async function GET(request: Request) {
         const stats = {
             total: invoices.length,
             paid: invoices.filter(i => i.status === 'PAID').length,
-            partiallyPaid: invoices.filter(i => ['DRAFT', 'SENT', 'PARTIALLY_PAID'].includes(i.status)).length,
+            partiallyPaid: invoices.filter(i => i.status === 'PARTIALLY_PAID').length,
             overdue: invoices.filter(i => i.status === 'OVERDUE').length,
             totalAmount: invoices.filter(i => i.status !== 'VOID').reduce((sum, i) => sum + i.total, 0),
             paidAmount: invoices.filter(i => i.status !== 'VOID').reduce((sum, i) => sum + (i.total - i.balance), 0),
-            partiallyPaidPaidAmount: invoices.filter(i => ['DRAFT', 'SENT', 'PARTIALLY_PAID'].includes(i.status)).reduce((sum, i) => sum + (i.total - i.balance), 0),
-            partiallyPaidDueAmount: invoices.filter(i => ['DRAFT', 'SENT', 'PARTIALLY_PAID'].includes(i.status)).reduce((sum, i) => sum + i.balance, 0),
+            partiallyPaidPaidAmount: invoices.filter(i => i.status === 'PARTIALLY_PAID').reduce((sum, i) => sum + (i.total - i.balance), 0),
+            partiallyPaidDueAmount: invoices.filter(i => i.status === 'PARTIALLY_PAID').reduce((sum, i) => sum + i.balance, 0),
             overdueAmount: invoices.filter(i => i.status === 'OVERDUE').reduce((sum, i) => sum + i.balance, 0),
         };
 
