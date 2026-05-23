@@ -212,7 +212,7 @@ export default function InvoicesPage() {
                         <div className="hidden lg:block w-[1px] bg-gray-100 self-stretch" />
 
                         <button onClick={() => setStatusFilter('PARTIALLY_PAID')} className={`px-4 py-8 text-left transition-all relative border-r border-gray-100 lg:border-r-0 ${statusFilter === 'PARTIALLY_PAID' ? 'bg-amber-500' : 'hover:bg-gray-50'}`}>
-                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>Partial 🍕</p>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-600'}`}>Unpaid 🍕</p>
                             <div className="flex items-center gap-2">
                                 <span className={`text-4xl font-black tracking-tighter ${statusFilter === 'PARTIALLY_PAID' ? 'text-white' : 'text-amber-700'}`}>{(stats.partiallyPaid || 0).toString().padStart(2, '0')}</span>
                                 <div className="flex flex-col -mb-1">
