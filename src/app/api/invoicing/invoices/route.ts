@@ -117,7 +117,7 @@ export async function POST(request: Request) {
                 taxAmount: totalTaxAmount,
                 total,
                 balance: total,
-                status: 'DRAFT',
+                status: dueDate && new Date(dueDate) < new Date() ? 'OVERDUE' : 'PARTIALLY_PAID',
             },
         });
 
