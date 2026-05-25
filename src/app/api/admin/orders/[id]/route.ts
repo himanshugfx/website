@@ -92,11 +92,15 @@ export async function PUT(
     try {
         await requireAdmin(request);
         const { id } = await params;
-        const { status } = await request.json();
+        const { status, paymentStatus } = await request.json();
+
+        const updateData: Record<string, string> = {};
+        if (status) updateData.status = status;
+        if (paymentStatus) updateData.paymentStatus = paymentStatus;
 
         const order = await prisma.order.update({
             where: { id },
-            data: { status },
+            data: updateData,
         });
 
         // Auto-create invoice if order is completed

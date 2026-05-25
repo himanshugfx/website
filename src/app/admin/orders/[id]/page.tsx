@@ -69,6 +69,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     const [order, setOrder] = useState<OrderDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
+    const [updatingPayment, setUpdatingPayment] = useState(false);
     const [shipping, setShipping] = useState(false);
     const [tracking, setTracking] = useState<TrackingData | null>(null);
     const [trackingLoading, setTrackingLoading] = useState(false);
@@ -117,6 +118,33 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             alert('Failed to update status');
         } finally {
             setUpdating(false);
+        }
+    };
+
+    const updatePaymentStatus = async (newPaymentStatus: string) => {
+        if (!order) return;
+        if (!confirm(`Are you sure you want to change payment status to ${newPaymentStatus}?`)) return;
+
+        try {
+            setUpdatingPayment(true);
+            const res = await fetch(`/api/admin/orders/${order.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ paymentStatus: newPaymentStatus }),
+            });
+
+            if (res.ok) {
+                fetchOrder();
+            } else {
+                alert('Failed to update payment status');
+            }
+        } catch (error) {
+            console.error('Error updating payment status:', error);
+            alert('Failed to update payment status');
+        } finally {
+            setUpdatingPayment(false);
         }
     };
 
@@ -505,11 +533,46 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 <div>
                                     <p className="text-sm text-gray-500 mb-1">Payment Status</p>
                                     <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${order.paymentStatus === 'SUCCESSFUL' ? 'bg-emerald-100 text-emerald-700' :
+                                        order.paymentStatus === 'FAILED' ? 'bg-red-100 text-red-700' :
                                         'bg-amber-100 text-amber-700'
                                         }`}>
                                         {order.paymentStatus}
                                     </span>
                                 </div>
+                                {order.paymentMethod === 'COD' && order.status !== 'CANCELLED' && (
+                                    <div className="pt-3 border-t border-gray-100">
+                                        <p className="text-sm text-gray-500 mb-2">Update Payment Status</p>
+                                        <div className="flex gap-2">
+                                            {order.paymentStatus !== 'SUCCESSFUL' && (
+                                                <button
+                                                    onClick={() => updatePaymentStatus('SUCCESSFUL')}
+                                                    disabled={updatingPayment}
+                                                    className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
+                                                >
+                                                    {updatingPayment ? 'Updating...' : 'Mark Paid'}
+                                                </button>
+                                            )}
+                                            {order.paymentStatus !== 'PENDING' && (
+                                                <button
+                                                    onClick={() => updatePaymentStatus('PENDING')}
+                                                    disabled={updatingPayment}
+                                                    className="flex-1 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
+                                                >
+                                                    {updatingPayment ? 'Updating...' : 'Mark Pending'}
+                                                </button>
+                                            )}
+                                            {order.paymentStatus !== 'FAILED' && (
+                                                <button
+                                                    onClick={() => updatePaymentStatus('FAILED')}
+                                                    disabled={updatingPayment}
+                                                    className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
+                                                >
+                                                    {updatingPayment ? 'Updating...' : 'Mark Failed'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
