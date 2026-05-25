@@ -8,18 +8,53 @@ export async function GET(request: Request) {
     try {
         await requireAdmin(request);
 
-        // Get total revenue
-        const orders = await prisma.order.findMany({
-            where: {
-                status: {
-                    not: 'CANCELLED'
-                }
-            }
-        });
-        const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        // Get total revenue and total orders count
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
-        // Get total orders count
-        const totalOrders = await prisma.order.count();
+        const validOrdersWhere = {
+            OR: [
+                {
+                    AND: [
+                        { status: 'PENDING' },
+                        {
+                            NOT: {
+                                AND: [
+                                    { paymentStatus: 'PENDING' },
+                                    { paymentMethod: { not: 'COD' } },
+                                    { transactionId: null },
+                                    { createdAt: { lt: oneDayAgo } }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                { status: { in: ['PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'] } }
+            ]
+        };
+
+        const [orders, invoices] = await Promise.all([
+            prisma.order.findMany({
+                where: validOrdersWhere,
+                select: { total: true }
+            }),
+            prisma.invoice.findMany({
+                where: {
+                    status: { not: 'VOID' },
+                    orderId: null
+                },
+                select: { total: true }
+            })
+        ]);
+
+        const storeRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        const invoiceRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+        const totalRevenue = storeRevenue + invoiceRevenue;
+
+        // Get total orders count (excluding cancelled/abandoned)
+        const totalOrders = await prisma.order.count({
+            where: validOrdersWhere
+        });
 
         // Get total products count
         const totalProducts = await prisma.product.count();
@@ -27,20 +62,11 @@ export async function GET(request: Request) {
         // Get total users count
         const totalUsers = await prisma.user.count();
 
-        // Get recent orders (last 7 days)
+        // Get recent orders (last 7 days, excluding cancelled)
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const recentOrdersCount = await prisma.order.count({
-            where: {
-                createdAt: {
-                    gte: sevenDaysAgo
-                }
-            }
-        });
-
-        // Get revenue from last 7 days
-        const recentOrders = await prisma.order.findMany({
             where: {
                 createdAt: {
                     gte: sevenDaysAgo
@@ -50,7 +76,35 @@ export async function GET(request: Request) {
                 }
             }
         });
-        const recentRevenue = recentOrders.reduce((sum, order) => sum + order.total, 0);
+
+        // Get revenue from last 7 days (including store orders and manual invoices, excluding cancelled)
+        const [recentOrders, recentInvoices] = await Promise.all([
+            prisma.order.findMany({
+                where: {
+                    createdAt: {
+                        gte: sevenDaysAgo
+                    },
+                    status: {
+                        not: 'CANCELLED'
+                    }
+                },
+                select: { total: true }
+            }),
+            prisma.invoice.findMany({
+                where: {
+                    invoiceDate: {
+                        gte: sevenDaysAgo
+                    },
+                    status: { not: 'VOID' },
+                    orderId: null
+                },
+                select: { total: true }
+            })
+        ]);
+
+        const recentStoreRevenue = recentOrders.reduce((sum, order) => sum + order.total, 0);
+        const recentInvoiceRevenue = recentInvoices.reduce((sum, inv) => sum + inv.total, 0);
+        const recentRevenue = recentStoreRevenue + recentInvoiceRevenue;
 
         return NextResponse.json({
             totalRevenue: totalRevenue || 0,

@@ -40,6 +40,38 @@ interface Order {
     shippingProvider?: string | null;
 }
 
+const translations: Record<string, string> = {
+    'Home': 'Home',
+    'My Account': 'My Account',
+    'Dashboard': 'Dashboard',
+    'Recent Orders': 'Recent Orders',
+    'View All': 'View All',
+    'Order #': 'Order #',
+    'No Recent Orders': 'No Recent Orders',
+    'Looks like you haven': "Looks like you haven't placed any orders yet.",
+    'Order History': 'Order History',
+    'Loading orders...': 'Loading orders...',
+    'No Orders Found': 'No Orders Found',
+    'You haven': "You haven't placed any orders yet.",
+    'Quantity: ': 'Quantity: ',
+    'AWB Number': 'AWB Number',
+    'Status': 'Status',
+    'Expected Delivery': 'Expected Delivery',
+    'Delivered On': 'Delivered On',
+    'My Addresses': 'My Addresses',
+    'No Addresses Saved': 'No Addresses Saved',
+    'Add an address for a faster checkout.': 'Add an address for a faster checkout.',
+    'Account Settings': 'Account Settings',
+    'Full Name': 'Full Name',
+    'Email Address': 'Email Address',
+    'Danger Zone': 'Danger Zone',
+    'Data Deletion Guide': 'Data Deletion Guide',
+};
+
+const t = (key: string): string => {
+    return translations[key] || key;
+};
+
 export default function MyAccountClient({ user }: MyAccountClientProps) {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [orders, setOrders] = useState<Order[]>([]);
@@ -165,11 +197,11 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
             <div className="breadcrumb-block py-6 bg-zinc-50 border-b border-zinc-100">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center gap-2 text-sm text-zinc-500">
-                        <Link href="/" className="hover:text-purple-600 transition-colors">Home</Link>
+                        <Link href="/" className="hover:text-purple-600 transition-colors">{t('Home')}</Link>
                         <span>/</span>
-                        <span className="text-zinc-900 font-medium">My Account</span>
+                        <span className="text-zinc-900 font-medium">{t('My Account')}</span>
                     </div>
-                    <div className="heading3 mt-2 font-bold text-2xl">My Account</div>
+                    <div className="heading3 mt-2 font-bold text-2xl">{t('My Account')}</div>
                 </div>
             </div>
 
@@ -220,12 +252,12 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                         {activeTab === 'dashboard' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div className="heading flex items-center justify-between">
-                                    <h4 className="text-2xl font-bold text-zinc-900">Dashboard</h4>
+                                    <h4 className="text-2xl font-bold text-zinc-900">{t('Dashboard')}</h4>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                     {[
-                                        { label: 'Total Orders', value: orders.length.toString(), icon: 'ph-shopping-bag', color: 'text-purple-600', bg: 'bg-purple-50' },
+                                        { label: 'Total Orders', value: orders.filter(o => o.status !== 'CANCELLED').length.toString(), icon: 'ph-shopping-bag', color: 'text-purple-600', bg: 'bg-purple-50' },
                                         { label: 'Pending', value: orders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING').length.toString(), icon: 'ph-clock', color: 'text-orange-600', bg: 'bg-orange-50' },
                                         { label: 'Completed', value: orders.filter(o => o.status === 'COMPLETED').length.toString(), icon: 'ph-check-circle', color: 'text-green-600', bg: 'bg-green-50' }
                                     ].map((stat, idx) => (
@@ -244,8 +276,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                 {orders.length > 0 ? (
                                     <div className="recent-orders bg-white rounded-2xl border border-zinc-100 shadow-sm p-6 mt-8">
                                         <div className="flex items-center justify-between mb-6">
-                                            <h5 className="text-lg font-bold text-zinc-900">Recent Orders</h5>
-                                            <button onClick={() => setActiveTab('orders')} className="text-purple-600 font-bold text-sm hover:underline">View All</button>
+                                            <h5 className="text-lg font-bold text-zinc-900">{t('Recent Orders')}</h5>
+                                            <button onClick={() => setActiveTab('orders')} className="text-purple-600 font-bold text-sm hover:underline">{t('View All')}</button>
                                         </div>
                                         <div className="space-y-4">
                                             {orders.slice(0, 3).map((order) => (
@@ -255,7 +287,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             <i className="ph ph-receipt text-xl text-zinc-400"></i>
                                                         </div>
                                                         <div>
-                                                            <p className="font-bold text-zinc-900">Order #{order.orderNumber}</p>
+                                                            <p className="font-bold text-zinc-900">{t('Order #')}{order.orderNumber}</p>
                                                             <p className="text-xs text-zinc-500">{new Date(order.createdAt).toLocaleDateString('en-GB')}</p>
                                                         </div>
                                                     </div>
@@ -274,8 +306,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                         <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-300">
                                             <i className="ph ph-shopping-cart text-3xl"></i>
                                         </div>
-                                        <h5 className="text-lg font-bold text-zinc-900">No Recent Orders</h5>
-                                        <p className="text-zinc-500 mt-2 mb-6">Looks like you haven&apos;t placed any orders yet.</p>
+                                        <h5 className="text-lg font-bold text-zinc-900">{t('No Recent Orders')}</h5>
+                                        <p className="text-zinc-500 mt-2 mb-6">{t('Looks like you haven')}</p>
                                         <Link href="/shop" className="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-3 rounded-full font-bold transition-all">
                                             Start Shopping
                                         </Link>
@@ -287,19 +319,19 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                         {/* Orders Tab */}
                         {activeTab === 'orders' && (
                             <div className="space-y-6 animate-fade-in">
-                                <h4 className="text-2xl font-bold text-zinc-900">Order History</h4>
+                                <h4 className="text-2xl font-bold text-zinc-900">{t('Order History')}</h4>
                                 {loading ? (
                                     <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-12 text-center">
                                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-                                        <p className="text-zinc-500 mt-4">Loading orders...</p>
+                                        <p className="text-zinc-500 mt-4">{t('Loading orders...')}</p>
                                     </div>
                                 ) : orders.length === 0 ? (
                                     <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-12 text-center">
                                         <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <i className="ph ph-receipt text-4xl text-zinc-300"></i>
                                         </div>
-                                        <h5 className="text-lg font-bold text-zinc-900">No Orders Found</h5>
-                                        <p className="text-zinc-500 mt-2">You haven&apos;t placed any orders yet.</p>
+                                        <h5 className="text-lg font-bold text-zinc-900">{t('No Orders Found')}</h5>
+                                        <p className="text-zinc-500 mt-2">{t('You haven')}</p>
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
@@ -308,7 +340,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 pb-4 border-b border-zinc-100">
                                                     <div>
                                                         <div className="flex items-center gap-3 mb-2">
-                                                            <span className="text-sm font-semibold text-zinc-500">Order #</span>
+                                                            <span className="text-sm font-semibold text-zinc-500">{t('Order #')}</span>
                                                             <span className="text-lg font-bold text-zinc-900">{order.orderNumber}</span>
                                                         </div>
                                                         <div className="text-sm text-zinc-500">
@@ -348,7 +380,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             />
                                                             <div className="flex-1">
                                                                 <h5 className="font-semibold text-zinc-900">{item.product.name}</h5>
-                                                                <p className="text-sm text-zinc-500">Quantity: {item.quantity} × ₹{item.price.toLocaleString()}</p>
+                                                                <p className="text-sm text-zinc-500">{t('Quantity: ')}{item.quantity} × ₹{item.price.toLocaleString()}</p>
                                                             </div>
                                                             <span className="font-bold text-zinc-900">₹{(item.quantity * item.price).toLocaleString()}</span>
                                                         </div>
@@ -375,11 +407,11 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                         </div>
                                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                                                             <div>
-                                                                <p className="text-zinc-500 text-xs">AWB Number</p>
+                                                                <p className="text-zinc-500 text-xs">{t('AWB Number')}</p>
                                                                 <p className="font-mono font-bold text-zinc-900">{order.awbNumber}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-zinc-500 text-xs">Status</p>
+                                                                <p className="text-zinc-500 text-xs">{t('Status')}</p>
                                                                 <p className={`font-bold ${order.shippingStatus === 'Delivered' ? 'text-green-600' :
                                                                     order.shippingStatus === 'Out For Delivery' ? 'text-indigo-600' :
                                                                         'text-blue-600'
@@ -389,7 +421,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             </div>
                                                             {order.estimatedDelivery && (
                                                                 <div>
-                                                                    <p className="text-zinc-500 text-xs">Expected Delivery</p>
+                                                                    <p className="text-zinc-500 text-xs">{t('Expected Delivery')}</p>
                                                                     <p className="font-bold text-zinc-900">
                                                                         {new Date(order.estimatedDelivery).toLocaleDateString('en-GB')}
                                                                     </p>
@@ -397,7 +429,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                             )}
                                                             {order.deliveredAt && (
                                                                 <div>
-                                                                    <p className="text-zinc-500 text-xs">Delivered On</p>
+                                                                    <p className="text-zinc-500 text-xs">{t('Delivered On')}</p>
                                                                     <p className="font-bold text-green-600">
                                                                         {new Date(order.deliveredAt).toLocaleDateString('en-GB')}
                                                                     </p>
@@ -514,7 +546,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                         {activeTab === 'address' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-2xl font-bold text-zinc-900">My Addresses</h4>
+                                    <h4 className="text-2xl font-bold text-zinc-900">{t('My Addresses')}</h4>
                                     <button className="text-purple-600 font-bold hover:underline flex items-center gap-1">
                                         <i className="ph-bold ph-plus"></i> Add New
                                     </button>
@@ -523,8 +555,8 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                     <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <i className="ph ph-map-pin text-4xl text-zinc-300"></i>
                                     </div>
-                                    <h5 className="text-lg font-bold text-zinc-900">No Addresses Saved</h5>
-                                    <p className="text-zinc-500 mt-2">Add an address for a faster checkout.</p>
+                                    <h5 className="text-lg font-bold text-zinc-900">{t('No Addresses Saved')}</h5>
+                                    <p className="text-zinc-500 mt-2">{t('Add an address for a faster checkout.')}</p>
                                 </div>
                             </div>
                         )}
@@ -532,12 +564,12 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                         {/* Settings Tab */}
                         {activeTab === 'setting' && (
                             <div className="space-y-6 animate-fade-in">
-                                <h4 className="text-2xl font-bold text-zinc-900">Account Settings</h4>
+                                <h4 className="text-2xl font-bold text-zinc-900">{t('Account Settings')}</h4>
                                 <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-8">
                                     <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                                         <div className="grid gap-6 md:grid-cols-2">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-zinc-900">Full Name</label>
+                                                <label className="text-sm font-bold text-zinc-900">{t('Full Name')}</label>
                                                 <div className="relative">
                                                     <i className="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg"></i>
                                                     <input
@@ -549,7 +581,7 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-zinc-900">Email Address</label>
+                                                <label className="text-sm font-bold text-zinc-900">{t('Email Address')}</label>
                                                 <div className="relative">
                                                     <i className="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg"></i>
                                                     <input
@@ -570,10 +602,10 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                     </form>
 
                                     <div className="mt-12 pt-8 border-t border-zinc-100">
-                                        <h5 className="text-lg font-bold text-red-600 mb-2">Danger Zone</h5>
+                                        <h5 className="text-lg font-bold text-red-600 mb-2">{t('Danger Zone')}</h5>
                                         <p className="text-zinc-500 text-sm mb-6">
                                             Once you request to delete your account data, there is no going back. Please be certain.
-                                            You can learn more about this in our <Link href="/data-deletion-guide" className="text-purple-600 hover:underline">Data Deletion Guide</Link>.
+                                            You can learn more about this in our <Link href="/data-deletion-guide" className="text-purple-600 hover:underline">{t('Data Deletion Guide')}</Link>.
                                         </p>
                                         <button
                                             onClick={() => setActionType('delete')}

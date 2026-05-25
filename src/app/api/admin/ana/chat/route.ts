@@ -31,7 +31,7 @@ async function getAdminContext() {
         where: { status: 'PAID' }
       }),
       // Total Orders
-      prisma.order.count(),
+      prisma.order.count({ where: { status: { not: 'CANCELLED' } } }),
       // Pending Orders
       prisma.order.count({ where: { status: 'PENDING' } }),
       // Low Stock
