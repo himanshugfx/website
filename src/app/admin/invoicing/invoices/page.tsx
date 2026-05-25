@@ -85,10 +85,7 @@ export default function InvoicesPage() {
         const matchesSearch = inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
             inv.customerName.toLowerCase().includes(search.toLowerCase());
         
-        let matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
-        if (statusFilter === 'PARTIALLY_PAID') {
-            matchesStatus = ['SENT', 'PARTIALLY_PAID', 'DRAFT'].includes(inv.status);
-        }
+        const matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
 
         const matchesFY = fyFilter === 'ALL' || inv.invoiceNumber.includes(`INV${fyFilter}/`);
         

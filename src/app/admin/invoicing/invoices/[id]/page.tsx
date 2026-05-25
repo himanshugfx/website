@@ -190,15 +190,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2 items-center">
-                        {invoice.status === 'DRAFT' && (
-                            <button onClick={() => updateStatus('SENT')} disabled={!!actionLoading}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm">
-                                {actionLoading === 'SENT' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} 
-                                <span className="hidden xs:inline">Mark as Sent</span>
-                                <span className="xs:hidden">Sent</span>
-                            </button>
-                        )}
-                        {['SENT', 'OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
+                        {['OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
                             <button onClick={() => updateStatus('PAID')} disabled={!!actionLoading}
                                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors text-sm">
                                 {actionLoading === 'PAID' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} 
@@ -213,7 +205,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                 <span className="hidden xs:inline">Void</span>
                             </button>
                         )}
-                        {['SENT', 'OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
+                        {['OVERDUE', 'PARTIALLY_PAID'].includes(invoice.status) && (
                             <button onClick={() => {
                                 setPaymentForm({ ...paymentForm, amount: invoice.balance });
                                 setShowPaymentModal(true);
@@ -240,13 +232,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                 <span className="hidden xs:inline">Edit</span>
                             </Link>
                         )}
-                        {invoice.status === 'DRAFT' && (
-                            <button onClick={deleteInvoice} disabled={!!actionLoading}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 disabled:opacity-50 transition-colors text-sm">
-                                {actionLoading === 'DELETE' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} 
-                                <span className="hidden xs:inline">Delete</span>
-                            </button>
-                        )}
+
                     </div>
                 </div>
 
