@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Anose Beauty Admin — Purple Theme
 export const Colors = {
     primary: '#7C3AED',
@@ -64,4 +66,13 @@ export const FontSize = {
     hero: 40,
 };
 
-export const API_BASE_URL = 'https://www.anosebeauty.com';
+const getDevApiUrl = () => {
+    if (Platform.OS === 'android') {
+        return 'http://10.0.2.2:3000';
+    }
+    return 'http://localhost:3000';
+};
+
+export const API_BASE_URL = __DEV__ 
+    ? getDevApiUrl() 
+    : 'https://www.anosebeauty.com';

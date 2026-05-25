@@ -90,19 +90,12 @@ export default function PromoCodesScreen() {
                     </View>
                     <TouchableOpacity onPress={async () => {
                         try {
-                            const res = await fetch(`${api.API_BASE_URL}/api/admin/promocodes/${item.id}`, {
-                                method: 'PATCH',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${await SecureStore.getItemAsync('anose_admin_token')}`
-                                },
-                                body: JSON.stringify({ isActive: !item.isActive })
-                            });
-                            if (res.ok) {
-                                setCodes(codes.map(c => c.id === item.id ? { ...c, isActive: !item.isActive } : c));
-                            }
-                        } catch (e) {
-                            Alert.alert('Error', 'Failed to toggle status');
+                            await api.updatePromoCodeStatus(item.id, !item.isActive);
+                            setCodes(codes.map(c => c.id === item.id ? { ...c, isActive: !item.isActive } : c));
+                        } catch (e: any) {
+                            Platform.OS === 'web' 
+                                ? alert(e.message || 'Failed to toggle status') 
+                                : Alert.alert('Error', e.message || 'Failed to toggle status');
                         }
                     }} style={[styles.statusBadge, {
                         backgroundColor: item.isActive && !isExpired ? Colors.successBg : Colors.errorBg

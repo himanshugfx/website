@@ -274,6 +274,15 @@ export async function createPromoCode(data: any) {
     return res.json();
 }
 
+export async function updatePromoCodeStatus(id: string, isActive: boolean) {
+    const res = await apiFetch(`/api/admin/promocodes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+    });
+    if (!res.ok) throw new Error('Failed to update promo code status');
+    return res.json();
+}
+
 export async function deletePromoCode(id: string) {
     const res = await apiFetch(`/api/admin/promocodes/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete promo code');
