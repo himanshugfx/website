@@ -23,6 +23,15 @@ export default function PageViewTracker() {
         }).catch(() => {
             // Silently fail - analytics shouldn't break the page
         });
+
+        // Track Meta Pixel PageView on SPA navigation
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+            try {
+                (window as any).fbq('track', 'PageView');
+            } catch (e) {
+                // Silently ignore tracking errors
+            }
+        }
     }, [pathname]);
 
     return null; // This component doesn't render anything
