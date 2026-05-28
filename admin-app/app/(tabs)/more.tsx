@@ -59,6 +59,19 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
         ],
     },
     {
+        title: 'Finance',
+        items: [
+            {
+                title: 'Invoicing',
+                subtitle: 'Invoices, expenses & quotations',
+                icon: 'wallet',
+                route: '/invoicing',
+                color: '#7C3AED',
+                bgColor: 'rgba(124, 58, 237, 0.15)',
+            },
+        ],
+    },
+    {
         title: 'Sales & Marketing',
         items: [
             {

@@ -117,6 +117,16 @@ export default function RootLayout() {
                     }}
                 />
                 <Stack.Screen
+                    name="invoicing"
+                    options={{
+                        headerShown: true,
+                        headerTitle: 'Invoicing',
+                        headerStyle: { backgroundColor: Colors.surface },
+                        headerTintColor: Colors.text,
+                        headerTitleStyle: { fontWeight: '700' },
+                    }}
+                />
+                <Stack.Screen
                     name="abandoned"
                     options={{
                         headerShown: true,

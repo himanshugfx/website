@@ -425,3 +425,24 @@ export async function getAbandonedCheckouts() {
     if (!res.ok) throw new Error('Failed to fetch abandoned checkouts');
     return res.json();
 }
+
+// ========================
+// Invoicing
+// ========================
+export async function getInvoices() {
+    const res = await apiFetch('/api/invoicing/invoices');
+    if (!res.ok) throw new Error('Failed to fetch invoices');
+    return res.json();
+}
+
+export async function getExpenses() {
+    const res = await apiFetch('/api/invoicing/expenses?range=all');
+    if (!res.ok) throw new Error('Failed to fetch expenses');
+    return res.json();
+}
+
+export async function getQuotations() {
+    const res = await apiFetch('/api/quotations');
+    if (!res.ok) throw new Error('Failed to fetch quotations');
+    return res.json();
+}
