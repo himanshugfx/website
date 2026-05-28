@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         const productIds = cart.map((item: CartItem) => item.id);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, price: true, name: true },
+            select: { id: true, price: true, name: true, slug: true },
         });
 
         if (products.length !== productIds.length) {
@@ -57,6 +57,13 @@ export async function POST(request: Request) {
         }
 
         const productMap = new Map(products.map(p => [p.id, p]));
+
+        if (paymentMethod === 'COD') {
+            const hasCODDisabledProduct = products.some((p: any) => p.slug === 'facewash-100ml-sunscreen-facecream-bundle');
+            if (hasCODDisabledProduct) {
+                return NextResponse.json({ error: 'Cash on Delivery is not available for this order' }, { status: 400 });
+            }
+        }
 
         // Calculate subtotal using DB prices
         let subtotal = 0;

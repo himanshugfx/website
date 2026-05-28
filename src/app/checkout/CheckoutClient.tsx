@@ -43,6 +43,12 @@ export default function CheckoutClient() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    React.useEffect(() => {
+        if (paymentMethod === 'cod' && cart.some(item => item.slug === 'facewash-100ml-sunscreen-facecream-bundle')) {
+            setPaymentMethod('razorpay');
+        }
+    }, [cart, paymentMethod]);
+
     // Shipping Constants
     const SHIPPING_THRESHOLD = 199;
     const SHIPPING_FEE = 49;
@@ -582,8 +588,12 @@ export default function CheckoutClient() {
 
                                 {/* COD Option */}
                                 <div
-                                    className={`item border rounded-2xl p-5 cursor-pointer duration-300 ${paymentMethod === 'cod' ? 'border-purple-500 bg-purple-50' : 'border-line hover:border-purple-300'}`}
-                                    onClick={() => setPaymentMethod('cod')}
+                                    className={`item border rounded-2xl p-5 duration-300 ${cart.some(item => item.slug === 'facewash-100ml-sunscreen-facecream-bundle') ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' : (paymentMethod === 'cod' ? 'border-purple-500 bg-purple-50 cursor-pointer' : 'border-line hover:border-purple-300 cursor-pointer')}`}
+                                    onClick={() => {
+                                        if (!cart.some(item => item.slug === 'facewash-100ml-sunscreen-facecream-bundle')) {
+                                            setPaymentMethod('cod');
+                                        }
+                                    }}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-purple-500' : 'border-line'}`}>
@@ -594,8 +604,12 @@ export default function CheckoutClient() {
                                             <span className="font-bold">Cash on Delivery</span>
                                         </div>
                                     </div>
-                                    {paymentMethod === 'cod' && (
-                                        <p className="mt-3 text-secondary text-sm pl-8">Pay with cash when your order is delivered to your doorstep.</p>
+                                    {cart.some(item => item.slug === 'facewash-100ml-sunscreen-facecream-bundle') ? (
+                                        <p className="mt-3 text-red-500 text-sm pl-8 font-medium">This payment option is not available for this order.</p>
+                                    ) : (
+                                        paymentMethod === 'cod' && (
+                                            <p className="mt-3 text-secondary text-sm pl-8">Pay with cash when your order is delivered to your doorstep.</p>
+                                        )
                                     )}
                                 </div>
                             </div>
