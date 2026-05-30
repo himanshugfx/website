@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const platforms = [
@@ -48,9 +48,35 @@ export default function CollabClient() {
         profileId: '',
         wantsProducts: false,
     });
+    const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('success') === 'true') {
+            setSuccess(true);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (params.get('error')) {
+            setError('Payment or application failed. Please try again.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
+
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            if ((window as any).Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,24 +85,100 @@ export default function CollabClient() {
         setSuccess(false);
 
         try {
-            const res = await fetch('/api/collab', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+            if (formData.wantsProducts) {
+                if (paymentMethod === 'razorpay') {
+                    const loaded = await loadRazorpay();
+                    if (!loaded) {
+                        setError('Razorpay SDK failed to load. Are you online?');
+                        setLoading(false);
+                        return;
+                    }
+                }
 
-            const data = await res.json();
+                const initRes = await fetch('/api/collab/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...formData, paymentMethod }),
+                });
 
-            if (res.ok) {
-                setSuccess(true);
-                setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false });
+                const data = await initRes.json();
+                if (!initRes.ok) {
+                    setError(data.error || 'Payment initiation failed');
+                    setLoading(false);
+                    return;
+                }
+
+                if (paymentMethod === 'phonepe') {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                        return;
+                    }
+                } else {
+                    const options = {
+                        key: data.key,
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: "Anose",
+                        description: "Collab Product Shipping Fee",
+                        order_id: data.razorpayOrderId,
+                        handler: async function (response: any) {
+                            try {
+                                const verifyRes = await fetch('/api/collab/verify', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        collabData: formData,
+                                        transactionId: data.transactionId
+                                    }),
+                                });
+                                const verifyData = await verifyRes.json();
+                                if (verifyData.success) {
+                                    setSuccess(true);
+                                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false });
+                                    setLoading(false);
+                                } else {
+                                    setError('Payment verification failed');
+                                    setLoading(false);
+                                }
+                            } catch (err) {
+                                setError('Payment verification error');
+                                setLoading(false);
+                            }
+                        },
+                        prefill: { name: formData.name, email: formData.email, contact: formData.phone },
+                        theme: { color: "#9333ea" },
+                    };
+                    const paymentObject = new (window as any).Razorpay(options);
+                    paymentObject.open();
+                    paymentObject.on('payment.failed', function (response: any) {
+                        setError(response.error.description || "Payment failed");
+                        setLoading(false);
+                    });
+                    return;
+                }
             } else {
-                setError(data.error || 'Failed to submit application');
+                const res = await fetch('/api/collab', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setSuccess(true);
+                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false });
+                } else {
+                    setError(data.error || 'Failed to submit application');
+                }
             }
         } catch (err) {
             setError('Something went wrong. Please try again.');
         } finally {
-            setLoading(false);
+            if (!formData.wantsProducts) {
+                setLoading(false);
+            }
         }
     };
 
@@ -106,7 +208,6 @@ export default function CollabClient() {
 
             {/* Hero Section */}
             <div className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-purple-900 via-purple-700 to-purple-500">
-                {/* Animated background patterns */}
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
                     <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-300 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -206,7 +307,7 @@ export default function CollabClient() {
                                 <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
                                     <div className="text-4xl font-black text-yellow-300 mb-2">∞</div>
                                     <div className="text-white font-bold">No Earnings Cap</div>
-                                    <p className="text-white/70 text-sm mt-2">There&apos;s no limit to how much you can earn. The more you promote, the more you make.</p>
+                                    <p className="text-white/70 text-sm mt-2">There's no limit to how much you can earn. The more you promote, the more you make.</p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
                                     <div className="text-4xl font-black text-yellow-300 mb-2">🎯</div>
@@ -226,7 +327,7 @@ export default function CollabClient() {
                         <div className="text-center mb-12">
                             <span className="text-purple-600 font-black text-sm uppercase tracking-[0.3em]">Join Us</span>
                             <h2 className="text-3xl md:text-5xl font-black text-gray-900 mt-4 tracking-tight">Apply to <span className="text-purple-600">Collaborate</span></h2>
-                            <p className="text-gray-500 mt-4 text-lg">Fill in your details below and we&apos;ll get back to you within 48 hours.</p>
+                            <p className="text-gray-500 mt-4 text-lg">Fill in your details below and we'll get back to you within 48 hours.</p>
                         </div>
 
                         {success ? (
@@ -379,6 +480,41 @@ export default function CollabClient() {
                                         </div>
                                     </div>
 
+                                    {/* Payment Method Selection (Only visible if wantsProducts is true) */}
+                                    {formData.wantsProducts && (
+                                        <div className="space-y-4 pt-2">
+                                            <label className="block text-sm font-bold text-gray-700">Payment Method <span className="text-red-500">*</span></label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div
+                                                    className={`flex items-center gap-3 p-4 border-2 rounded-2xl cursor-pointer transition-all ${
+                                                        paymentMethod === 'razorpay'
+                                                            ? 'border-purple-600 bg-purple-50 shadow-md shadow-purple-500/10'
+                                                            : 'border-gray-200 hover:border-purple-300'
+                                                    }`}
+                                                    onClick={() => setPaymentMethod('razorpay')}
+                                                >
+                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'razorpay' ? 'border-purple-600' : 'border-gray-300'}`}>
+                                                        {paymentMethod === 'razorpay' && <div className="w-2.5 h-2.5 bg-purple-600 rounded-full" />}
+                                                    </div>
+                                                    <span className="font-bold text-sm text-gray-800">Razorpay / UPI / Card</span>
+                                                </div>
+                                                <div
+                                                    className={`flex items-center gap-3 p-4 border-2 rounded-2xl cursor-pointer transition-all ${
+                                                        paymentMethod === 'phonepe'
+                                                            ? 'border-purple-600 bg-purple-50 shadow-md shadow-purple-500/10'
+                                                            : 'border-gray-200 hover:border-purple-300'
+                                                    }`}
+                                                    onClick={() => setPaymentMethod('phonepe')}
+                                                >
+                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'phonepe' ? 'border-purple-600' : 'border-gray-300'}`}>
+                                                        {paymentMethod === 'phonepe' && <div className="w-2.5 h-2.5 bg-purple-600 rounded-full" />}
+                                                    </div>
+                                                    <span className="font-bold text-sm text-gray-800">PhonePe</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Submit */}
                                     <button
                                         type="submit"
@@ -391,8 +527,10 @@ export default function CollabClient() {
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                                 </svg>
-                                                Submitting...
+                                                Processing...
                                             </span>
+                                        ) : formData.wantsProducts ? (
+                                            `Pay ₹49 & Submit 🚀`
                                         ) : (
                                             'Submit Application 🚀'
                                         )}
@@ -409,7 +547,7 @@ export default function CollabClient() {
                 <div className="container mx-auto px-4 text-center">
                     <h2 className="text-2xl md:text-3xl font-black text-gray-900">Still Have Questions?</h2>
                     <p className="text-gray-500 mt-3 max-w-lg mx-auto">
-                        Reach out to us and we&apos;ll be happy to help you understand the program better.
+                        Reach out to us and we'll be happy to help you understand the program better.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
                         <a href="mailto:wecare@anosebeauty.com" className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all hover:-translate-y-0.5">

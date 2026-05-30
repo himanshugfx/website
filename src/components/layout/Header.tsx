@@ -81,6 +81,11 @@ export default function Header() {
                                     </Link>
                                 </li>
                                 <li className="h-full">
+                                    <Link href="/collab" className="text-button-uppercase duration-300 h-full flex items-center justify-center hover:text-purple-600">
+                                        Collab
+                                    </Link>
+                                </li>
+                                <li className="h-full">
                                     <Link href="/contact" className="text-button-uppercase duration-300 h-full flex items-center justify-center hover:text-purple-600">
                                         Contact
                                     </Link>
@@ -190,6 +195,11 @@ export default function Header() {
                             <li>
                                 <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 hover:bg-zinc-50 rounded-lg font-semibold">
                                     Blog
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/collab" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 hover:bg-zinc-50 rounded-lg font-semibold">
+                                    Collab
                                 </Link>
                             </li>
                             <li>
