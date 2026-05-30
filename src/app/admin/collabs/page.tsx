@@ -13,6 +13,7 @@ interface CollabApplication {
     platform: string;
     profileId: string;
     wantsProducts: boolean;
+    address: string | null;
     status: string;
     promoCode: string | null;
     notes: string | null;
@@ -120,6 +121,7 @@ export default function AdminCollabsPage() {
             Platform: c.platform,
             'Profile ID': c.profileId,
             'Wants Products': c.wantsProducts ? 'Yes' : 'No',
+            'Shipping Address': c.address || '',
             Status: c.status,
             'Promo Code': c.promoCode || '',
             Notes: c.notes || '',
@@ -243,152 +245,161 @@ export default function AdminCollabsPage() {
                         </div>
                     ) : (
                         filteredCollabs.map((collab) => (
-                            <div key={collab.id} className={`bg-white rounded-2xl border ${collab.status === 'PENDING' ? 'border-amber-200 ring-1 ring-amber-100' : 'border-gray-100'} p-6 transition-all hover:shadow-md relative group`}>
-                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                                    <div className="flex-1 space-y-3">
-                                        <div className="flex items-center gap-3 flex-wrap">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${collab.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : collab.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                            <div key={collab.id} className={`bg-white rounded-3xl border ${collab.status === 'PENDING' ? 'border-amber-200 shadow-amber-500/5' : 'border-gray-100'} p-6 transition-all hover:shadow-xl relative group`}>
+                                <div className="flex flex-col md:flex-row justify-between gap-6">
+                                    {/* Left Content */}
+                                    <div className="flex-1 space-y-5">
+                                        {/* Header Info */}
+                                        <div className="flex items-start gap-4">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg ${collab.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : collab.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
                                                 {collab.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-gray-900">{collab.name}</h3>
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                                                    <p className="text-sm text-gray-500">{collab.email}</p>
-                                                    <span className="text-gray-300 hidden sm:inline">•</span>
-                                                    <p className="text-sm text-gray-500">{collab.phone}</p>
+                                                <div className="flex items-center gap-3">
+                                                    <h3 className="font-black text-gray-900 text-lg">{collab.name}</h3>
+                                                    <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest ${statusColors[collab.status] || 'bg-gray-100 text-gray-600'}`}>
+                                                        {collab.status}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-3 mt-1">
+                                                    <a href={`mailto:${collab.email}`} className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors">{collab.email}</a>
+                                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                    <a href={`tel:${collab.phone}`} className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors">{collab.phone}</a>
                                                 </div>
                                             </div>
-                                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${statusColors[collab.status] || 'bg-gray-100 text-gray-600'}`}>
-                                                {collab.status}
-                                            </span>
-                                            {collab.wantsProducts && (
-                                                <span className="bg-purple-100 text-purple-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
-                                                    <Package className="w-3 h-3" />
-                                                    Products
-                                                </span>
-                                            )}
                                         </div>
 
-                                        {/* Platform & Profile */}
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border ${platformColors[collab.platform] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                                                {platformIcons[collab.platform]}
-                                                {collab.platform}
-                                            </div>
-                                            <div className="text-sm text-gray-700 bg-gray-50 px-3 py-1.5 rounded-xl font-mono font-bold">
-                                                @{collab.profileId}
-                                            </div>
-                                            {collab.promoCode && (
-                                                <div className="text-sm text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl font-mono font-bold border border-emerald-200">
-                                                    🎟️ {collab.promoCode}
+                                        {/* Badges row */}
+                                        <div className="flex flex-wrap items-center gap-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Platform</span>
+                                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border ${platformColors[collab.platform] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                                                    {platformIcons[collab.platform]}
+                                                    {collab.platform}
                                                 </div>
-                                            )}
+                                            </div>
+
+                                            <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
+
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Profile</span>
+                                                <a href={`https://${collab.platform.toLowerCase()}.com/${collab.profileId}`} target="_blank" className="text-sm text-gray-900 bg-white px-3 py-1.5 rounded-xl font-mono font-bold border border-gray-200 hover:border-purple-300 hover:text-purple-600 transition-colors">
+                                                    @{collab.profileId}
+                                                </a>
+                                            </div>
+
+                                            <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
+
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Product Request</span>
+                                                {collab.wantsProducts ? (
+                                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-black">
+                                                        <Package className="w-3.5 h-3.5" />
+                                                        Wants Product (Paid ₹49)
+                                                    </div>
+                                                ) : (
+                                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-600 border border-gray-200 rounded-xl text-xs font-bold">
+                                                        Don't want product
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        {collab.notes && (
-                                            <div className="bg-gray-50 p-3 rounded-xl text-gray-600 text-sm border border-gray-100">
-                                                <span className="text-[10px] font-bold text-gray-400 uppercase">Notes: </span>{collab.notes}
+                                        {/* Notes and Promo Code */}
+                                        {(collab.notes || collab.promoCode) && (
+                                            <div className="flex flex-wrap gap-3">
+                                                {collab.promoCode && (
+                                                    <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl font-mono font-bold border border-emerald-200">
+                                                        🎟️ {collab.promoCode}
+                                                    </div>
+                                                )}
+                                                {collab.notes && (
+                                                    <div className="flex-1 bg-amber-50/50 p-3 rounded-xl text-amber-900 text-sm border border-amber-100/50">
+                                                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-wider block mb-0.5">Internal Notes:</span>
+                                                        {collab.notes}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
-                                        {/* Editing Panel */}
-                                        {editingId === collab.id && (
-                                            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4 space-y-3 mt-2">
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-purple-600 uppercase">Promo Code</label>
-                                                    <input
-                                                        type="text"
-                                                        value={editPromoCode}
-                                                        onChange={(e) => setEditPromoCode(e.target.value)}
-                                                        placeholder="e.g. INFLUENCER10"
-                                                        className="w-full mt-1 px-3 py-2 border border-purple-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-purple-600 uppercase">Notes</label>
-                                                    <textarea
-                                                        value={editNotes}
-                                                        onChange={(e) => setEditNotes(e.target.value)}
-                                                        placeholder="Internal notes about this influencer..."
-                                                        rows={2}
-                                                        className="w-full mt-1 px-3 py-2 border border-purple-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                                    />
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleSaveDetails(collab.id)}
-                                                        className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-colors"
-                                                    >
-                                                        Save
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setEditingId(null)}
-                                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-300 transition-colors"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
+                                        {/* Address Block */}
+                                        {collab.address && (
+                                            <div className="flex-1 bg-gray-50/50 p-3 rounded-xl text-gray-700 text-sm border border-gray-100/50">
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block mb-0.5">Shipping Address:</span>
+                                                <div className="whitespace-pre-line leading-relaxed">{collab.address}</div>
                                             </div>
                                         )}
-
-                                        <div className="flex items-center gap-4 text-xs text-gray-400 font-medium pt-2">
-                                            <div className="flex items-center gap-1">
-                                                <Clock className="w-3 h-3" />
-                                                {new Date(collab.createdAt).toLocaleString('en-IN', {
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
-                                            </div>
+                                        
+                                        <div className="flex items-center gap-1 text-[11px] text-gray-400 font-bold">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            Applied on {new Date(collab.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
 
-                                    {/* Actions */}
-                                    <div className="flex md:flex-col items-center gap-2">
+                                    {/* Actions Right Side */}
+                                    <div className="flex md:flex-col items-center justify-start gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-gray-100 md:pl-6 w-full md:w-auto">
                                         {collab.status === 'PENDING' && (
                                             <>
-                                                <button
-                                                    onClick={() => handleUpdateStatus(collab.id, 'APPROVED')}
-                                                    className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors"
-                                                    title="Approve"
-                                                >
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    <span className="md:hidden">Approve</span>
+                                                <button onClick={() => handleUpdateStatus(collab.id, 'APPROVED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm font-bold hover:bg-emerald-600 hover:text-white transition-all group/btn" title="Approve">
+                                                    <CheckCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                                                    <span>Approve</span>
                                                 </button>
-                                                <button
-                                                    onClick={() => handleUpdateStatus(collab.id, 'REJECTED')}
-                                                    className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-colors"
-                                                    title="Reject"
-                                                >
-                                                    <XCircle className="w-4 h-4" />
-                                                    <span className="md:hidden">Reject</span>
+                                                <button onClick={() => handleUpdateStatus(collab.id, 'REJECTED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-600 hover:text-white transition-all group/btn" title="Reject">
+                                                    <XCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                                                    <span>Reject</span>
                                                 </button>
                                             </>
                                         )}
-                                        <button
-                                            onClick={() => {
-                                                setEditingId(editingId === collab.id ? null : collab.id);
-                                                setEditPromoCode(collab.promoCode || '');
-                                                setEditNotes(collab.notes || '');
-                                            }}
-                                            className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-colors"
-                                            title="Edit Details"
-                                        >
-                                            ✏️
-                                            <span className="md:hidden">Edit</span>
+                                        <button onClick={() => {
+                                            setEditingId(editingId === collab.id ? null : collab.id);
+                                            setEditPromoCode(collab.promoCode || '');
+                                            setEditNotes(collab.notes || '');
+                                        }} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-sm font-bold hover:bg-purple-600 hover:text-white transition-all group/btn" title="Edit Details">
+                                            <span>✏️</span>
+                                            <span>Edit Details</span>
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(collab.id)}
-                                            className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded-xl text-sm font-bold"
-                                            title="Delete Application"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                            <span className="md:hidden">Delete</span>
+                                        <button onClick={() => handleDelete(collab.id)} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all group/btn" title="Delete">
+                                            <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                                            <span className="md:inline hidden lg:inline">Delete</span>
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* Editing Panel */}
+                                {editingId === collab.id && (
+                                    <div className="mt-6 bg-purple-50/50 border border-purple-100 rounded-2xl p-5 space-y-4 animate-in slide-in-from-top-4 fade-in duration-200">
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1.5 block">Assign Promo Code</label>
+                                                <input
+                                                    type="text"
+                                                    value={editPromoCode}
+                                                    onChange={(e) => setEditPromoCode(e.target.value)}
+                                                    placeholder="e.g. INFLUENCER10"
+                                                    className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl text-sm font-mono font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1.5 block">Internal Notes</label>
+                                                <textarea
+                                                    value={editNotes}
+                                                    onChange={(e) => setEditNotes(e.target.value)}
+                                                    placeholder="Private notes about this collaboration..."
+                                                    rows={1}
+                                                    className="w-full px-4 py-2.5 bg-white border border-purple-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 justify-end">
+                                            <button onClick={() => setEditingId(null)} className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">
+                                                Cancel
+                                            </button>
+                                            <button onClick={() => handleSaveDetails(collab.id)} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 shadow-md shadow-purple-500/20 transition-all">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}

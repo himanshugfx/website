@@ -47,6 +47,7 @@ export default function CollabClient() {
         platform: '',
         profileId: '',
         wantsProducts: false,
+        address: '',
     });
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
@@ -137,7 +138,7 @@ export default function CollabClient() {
                                 const verifyData = await verifyRes.json();
                                 if (verifyData.success) {
                                     setSuccess(true);
-                                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false });
+                                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false, address: '' });
                                     setLoading(false);
                                 } else {
                                     setError('Payment verification failed');
@@ -168,7 +169,7 @@ export default function CollabClient() {
                 const data = await res.json();
                 if (res.ok) {
                     setSuccess(true);
-                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false });
+                    setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false, address: '' });
                 } else {
                     setError(data.error || 'Failed to submit application');
                 }
@@ -474,6 +475,22 @@ export default function CollabClient() {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Shipping Address (Only visible if wantsProducts is true) */}
+                                    {formData.wantsProducts && (
+                                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                            <label className="block text-sm font-bold text-gray-700">Shipping Address <span className="text-red-500">*</span></label>
+                                            <textarea
+                                                placeholder="Enter your complete shipping address..."
+                                                value={formData.address}
+                                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                                required={formData.wantsProducts}
+                                                disabled={loading}
+                                                rows={3}
+                                                className="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all text-gray-900 font-medium disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Payment Method Selection (Only visible if wantsProducts is true) */}
                                     {formData.wantsProducts && (

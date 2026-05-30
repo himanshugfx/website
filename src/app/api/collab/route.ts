@@ -4,11 +4,18 @@ import prisma from '@/lib/prisma';
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { name, email, phone, platform, profileId, wantsProducts } = body;
+        const { name, email, phone, platform, profileId, wantsProducts, address } = body;
 
         if (!name || !email || !phone || !platform || !profileId) {
             return NextResponse.json(
                 { error: 'All fields are required' },
+                { status: 400 }
+            );
+        }
+
+        if (wantsProducts && !address) {
+            return NextResponse.json(
+                { error: 'Shipping address is required to receive products' },
                 { status: 400 }
             );
         }
@@ -42,6 +49,7 @@ export async function POST(request: Request) {
                 platform,
                 profileId,
                 wantsProducts: wantsProducts || false,
+                address: wantsProducts ? address : null,
             },
         });
 

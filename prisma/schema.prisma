@@ -412,6 +412,7 @@ model CollabApplication {
   platform      String   // INSTAGRAM, FACEBOOK, X, LINKEDIN
   profileId     String   // Username/profile ID on the chosen platform
   wantsProducts Boolean  @default(false)
+  address       String?  @db.Text
   status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
   promoCode     String?  // Assigned promo code after approval
   notes         String?  @db.Text

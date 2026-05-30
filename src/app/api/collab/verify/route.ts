@@ -41,6 +41,7 @@ export async function POST(request: Request) {
                     platform: collabData.platform,
                     profileId: collabData.profileId,
                     wantsProducts: true,
+                    address: collabData.address || null,
                     notes: `Shipping fee ₹49 paid via Razorpay. Payment: ${razorpay_payment_id}, Transaction: ${transactionId}`,
                 },
             });

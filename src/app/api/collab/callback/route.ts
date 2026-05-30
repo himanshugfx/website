@@ -65,6 +65,7 @@ export async function GET(request: Request) {
                             platform: collabData.platform,
                             profileId: collabData.profileId,
                             wantsProducts: true,
+                            address: collabData.address || null,
                             notes: `Shipping fee paid via PhonePe. Transaction: ${transactionId}`,
                         },
                     });
