@@ -32,6 +32,7 @@ interface CartContextType {
     closePopup: () => void;
     lastAddedItem: CartItem | null;
     abandonedCheckoutId: string | null;
+    setAbandonedCheckoutId: (id: string | null) => void;
     selectedPromo: AppliedPromo | null;
     applyPromo: (code: string) => Promise<{ success: boolean; error?: string }>;
     removePromo: () => void;
@@ -280,7 +281,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
         <CartContext.Provider value={{
             cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCount,
-            isPopupOpen, closePopup, lastAddedItem, abandonedCheckoutId,
+            isPopupOpen, closePopup, lastAddedItem, abandonedCheckoutId, setAbandonedCheckoutId: (id: string | null) => {
+                setAbandonedCheckoutId(id);
+                if (id) {
+                    localStorage.setItem('anose_abandoned_checkout_id', id);
+                } else {
+                    localStorage.removeItem('anose_abandoned_checkout_id');
+                }
+            },
             selectedPromo, applyPromo, removePromo
         }}>
             {children}

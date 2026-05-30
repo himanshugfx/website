@@ -37,7 +37,7 @@ declare global {
 }
 
 export default function CheckoutClient() {
-    const { cart, cartTotal, clearCart, abandonedCheckoutId, selectedPromo, applyPromo, removePromo } = useCart();
+    const { cart, cartTotal, clearCart, abandonedCheckoutId, setAbandonedCheckoutId, selectedPromo, applyPromo, removePromo } = useCart();
     const { data: session } = useSession();
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
@@ -140,6 +140,8 @@ export default function CheckoutClient() {
             const data = await res.json();
             if (!data.success) {
                 console.error('Abandoned checkout sync failed:', data.error);
+            } else if (data.id && !abandonedCheckoutId) {
+                setAbandonedCheckoutId(data.id);
             }
         } catch (err) {
             console.error('Failed to sync abandoned checkout:', err);
@@ -436,6 +438,7 @@ export default function CheckoutClient() {
                                         name="firstName"
                                         value={shippingInfo.firstName}
                                         onChange={handleInputChange}
+                                        onBlur={syncAbandonedCheckout}
                                         placeholder="First Name *"
                                         required
                                     />
@@ -447,6 +450,7 @@ export default function CheckoutClient() {
                                         name="lastName"
                                         value={shippingInfo.lastName}
                                         onChange={handleInputChange}
+                                        onBlur={syncAbandonedCheckout}
                                         placeholder="Last Name *"
                                         required
                                     />
@@ -458,6 +462,7 @@ export default function CheckoutClient() {
                                         name="email"
                                         value={shippingInfo.email}
                                         onChange={handleInputChange}
+                                        onBlur={syncAbandonedCheckout}
                                         placeholder="Email Address *"
                                         required
                                     />
@@ -469,6 +474,7 @@ export default function CheckoutClient() {
                                         name="phone"
                                         value={shippingInfo.phone}
                                         onChange={handleInputChange}
+                                        onBlur={syncAbandonedCheckout}
                                         placeholder="Phone Number *"
                                         required
                                     />
