@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         if (pathname.includes('/admin/products') || pathname.includes('/admin/hotel-catalogue') || pathname.includes('/admin/orders')) return 'Store';
         if (pathname.includes('/admin/invoicing') || pathname.includes('/admin/promocodes')) return 'Finance';
         if (pathname.includes('/admin/funnel') || pathname.includes('/admin/abandoned-carts') || pathname.includes('/admin/analytics')) return 'Sales';
-        if (pathname.includes('/admin/users') || pathname.includes('/admin/subscribers') || pathname.includes('/admin/inquiries')) return 'Marketing';
+        if (pathname.includes('/admin/users') || pathname.includes('/admin/subscribers') || pathname.includes('/admin/inquiries') || pathname.includes('/admin/collabs')) return 'Marketing';
         return 'Dashboard';
     };
 

@@ -402,3 +402,22 @@ model AnalyticsSettings {
   monthlyRevenueTarget  Float    @default(300000)
   updatedAt             DateTime @updatedAt
 }
+
+// Influencer Collaboration Applications
+model CollabApplication {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  platform      String   // INSTAGRAM, FACEBOOK, X, LINKEDIN
+  profileId     String   // Username/profile ID on the chosen platform
+  wantsProducts Boolean  @default(false)
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  promoCode     String?  // Assigned promo code after approval
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([platform])
+}

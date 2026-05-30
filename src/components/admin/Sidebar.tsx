@@ -30,7 +30,8 @@ import {
     UserCircle,
     Menu,
     X,
-    Building2
+    Building2,
+    Handshake
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -88,6 +89,7 @@ const navigationGroups = [
             { name: 'Users', href: '/admin/users', icon: Users },
             { name: 'Subscribers', href: '/admin/subscribers', icon: UserCircle },
             { name: 'Inquiries', href: '/admin/inquiries', icon: Mail },
+            { name: 'Collabs', href: '/admin/collabs', icon: Handshake },
         ]
     }
 ];
@@ -157,7 +159,7 @@ const SidebarContent = ({
         }
         if (activeTopTab === 'Marketing') {
             return group.items.filter(item => 
-                ['Users', 'Subscribers', 'Inquiries'].includes(item.name)
+                ['Users', 'Subscribers', 'Inquiries', 'Collabs'].includes(item.name)
             );
         }
         return [];
