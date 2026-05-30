@@ -340,11 +340,11 @@ export default function AdminCollabsPage() {
                                     <div className="flex md:flex-col items-center justify-start gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-gray-100 md:pl-6 w-full md:w-auto">
                                         {collab.status === 'PENDING' && (
                                             <>
-                                                <button onClick={() => handleUpdateStatus(collab.id, 'APPROVED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm font-bold hover:bg-emerald-600 hover:text-white transition-all group/btn" title="Approve">
+                                                <button onClick={() => handleUpdateStatus(collab.id, 'APPROVED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all group/btn shadow-sm" title="Approve">
                                                     <CheckCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                                                     <span>Approve</span>
                                                 </button>
-                                                <button onClick={() => handleUpdateStatus(collab.id, 'REJECTED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-600 hover:text-white transition-all group/btn" title="Reject">
+                                                <button onClick={() => handleUpdateStatus(collab.id, 'REJECTED')} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition-all group/btn shadow-sm" title="Reject">
                                                     <XCircle className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                                                     <span>Reject</span>
                                                 </button>
@@ -354,11 +354,11 @@ export default function AdminCollabsPage() {
                                             setEditingId(editingId === collab.id ? null : collab.id);
                                             setEditPromoCode(collab.promoCode || '');
                                             setEditNotes(collab.notes || '');
-                                        }} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-sm font-bold hover:bg-purple-600 hover:text-white transition-all group/btn" title="Edit Details">
+                                        }} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-all group/btn shadow-sm" title="Edit Details">
                                             <span>✏️</span>
                                             <span>Edit Details</span>
                                         </button>
-                                        <button onClick={() => handleDelete(collab.id)} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all group/btn" title="Delete">
+                                        <button onClick={() => handleDelete(collab.id)} className="flex-1 md:w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 text-white rounded-xl text-sm font-bold hover:bg-black transition-all group/btn shadow-sm" title="Delete">
                                             <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                                             <span className="md:inline hidden lg:inline">Delete</span>
                                         </button>
