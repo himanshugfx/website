@@ -293,16 +293,11 @@ export default function CollabClient() {
                         <div className="absolute bottom-0 left-0 w-60 h-60 bg-purple-400/10 rounded-full blur-3xl"></div>
                         <div className="relative z-10">
                             <h2 className="text-3xl md:text-4xl font-black text-white mb-8 tracking-tight">Commission Details</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
                                     <div className="text-4xl font-black text-yellow-300 mb-2">10%</div>
                                     <div className="text-white font-bold">Per Sale Commission</div>
                                     <p className="text-white/70 text-sm mt-2">Earn 10% on the total order value of every sale made through your unique promo code.</p>
-                                </div>
-                                <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
-                                    <div className="text-4xl font-black text-yellow-300 mb-2">₹49</div>
-                                    <div className="text-white font-bold">Product Shipping Fee</div>
-                                    <p className="text-white/70 text-sm mt-2">Pay only ₹49 for product delivery (optional). This fee is <span className="text-yellow-300 font-bold">fully refundable</span> after your first sale.</p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
                                     <div className="text-4xl font-black text-yellow-300 mb-2">∞</div>
