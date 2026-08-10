@@ -208,37 +208,51 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             )}
                         </div>
 
-                        {/* Variations */}
+                        {/* Size / Volume Variations */}
                         {product.variations.length > 0 && (
                             <div className="variation-block mt-8">
-                                <div className="caption1 font-semibold underline uppercase">Color: {selectedVariation?.color}</div>
-                                <div className="list-variation flex items-center gap-3 mt-3">
+                                <div className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                    Select Size / Volume: <span className="text-purple-600 font-extrabold">{selectedVariation?.color}</span>
+                                </div>
+                                <div className="list-variation flex flex-wrap items-center gap-2.5 mt-3">
                                     {product.variations.map((v) => (
-                                        <div
+                                        <button
                                             key={v.id}
-                                            className={`item w-10 h-10 rounded-full border-2 cursor-pointer ${selectedVariation?.id === v.id ? 'border-black' : 'border-line'}`}
-                                            style={{ backgroundColor: v.colorCode }}
+                                            type="button"
+                                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 border ${
+                                                selectedVariation?.id === v.id
+                                                    ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/30 scale-105'
+                                                    : 'bg-white text-gray-800 border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                                            }`}
                                             onClick={() => handleVariationChange(v)}
-                                            title={v.color}
-                                        />
+                                        >
+                                            {v.color}
+                                        </button>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        {/* Sizes */}
-                        {sizes.length > 0 && (
+                        {/* Additional Sizes */}
+                        {sizes.length > 0 && product.variations.length === 0 && (
                             <div className="size-block mt-8">
-                                <div className="caption1 font-semibold underline uppercase">Size: {selectedSize}</div>
-                                <div className="list-size flex items-center gap-3 mt-3">
+                                <div className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                    Select Size: <span className="text-purple-600 font-extrabold">{selectedSize}</span>
+                                </div>
+                                <div className="list-size flex flex-wrap items-center gap-2.5 mt-3">
                                     {sizes.map((s) => (
-                                        <div
+                                        <button
                                             key={s}
-                                            className={`item px-5 py-2 border rounded-lg cursor-pointer font-semibold ${selectedSize === s ? 'bg-black text-white border-black' : 'border-line'}`}
+                                            type="button"
+                                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 border ${
+                                                selectedSize === s
+                                                    ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/30 scale-105'
+                                                    : 'bg-white text-gray-800 border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                                            }`}
                                             onClick={() => setSelectedSize(s)}
                                         >
                                             {s}
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
                             </div>

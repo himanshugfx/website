@@ -378,19 +378,19 @@ export default function AddProductPage() {
                     {/* Variations */}
                     <div>
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-gray-900">Product Variations (Colors)</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">Product Variations (Sizes & Volume)</h2>
                             <button
                                 type="button"
                                 onClick={() => {
                                     setFormData(prev => ({
                                         ...prev,
-                                        variations: [...prev.variations, { color: '', colorCode: '#000000', colorImage: '', image: '' }]
+                                        variations: [...prev.variations, { color: '', colorCode: '#9333ea', colorImage: '', image: '' }]
                                     }));
                                 }}
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl transition-colors text-sm font-semibold"
                             >
                                 <Plus className="w-4 h-4" />
-                                Add Variant
+                                Add Size Variant
                             </button>
                         </div>
 
@@ -412,10 +412,10 @@ export default function AddProductPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-4">
                                             <div>
-                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Name</label>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Size / Volume Variant Name</label>
                                                 <input
                                                     type="text"
-                                                    placeholder="e.g. Midnight Black"
+                                                    placeholder="e.g. 50ml, 100ml, 200ml, 50g, 100g"
                                                     value={variant.color}
                                                     onChange={(e) => {
                                                         const updated = [...formData.variations];
@@ -426,11 +426,11 @@ export default function AddProductPage() {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Color Hex/Code</label>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Variant Badge Color (Optional)</label>
                                                 <div className="flex gap-2">
                                                     <input
                                                         type="color"
-                                                        value={variant.colorCode}
+                                                        value={variant.colorCode || '#9333ea'}
                                                         onChange={(e) => {
                                                             const updated = [...formData.variations];
                                                             updated[index].colorCode = e.target.value;
@@ -440,7 +440,7 @@ export default function AddProductPage() {
                                                     />
                                                     <input
                                                         type="text"
-                                                        value={variant.colorCode}
+                                                        value={variant.colorCode || '#9333ea'}
                                                         onChange={(e) => {
                                                             const updated = [...formData.variations];
                                                             updated[index].colorCode = e.target.value;
@@ -543,7 +543,7 @@ export default function AddProductPage() {
                             ))}
                             {formData.variations.length === 0 && (
                                 <div className="text-center py-6 border-2 border-dashed border-gray-100 rounded-2xl">
-                                    <p className="text-sm text-gray-400">No variations added. Use variations for color options.</p>
+                                    <p className="text-sm text-gray-400">No size variations added. Use variations for size/volume options (e.g. 50ml, 100ml, 200ml).</p>
                                 </div>
                             )}
                         </div>
