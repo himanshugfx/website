@@ -174,11 +174,28 @@ export default function ProductCard({ product }: ProductProps) {
 
             <div className="product-infor mt-4 text-center">
                 <div className="product-brand caption2 text-secondary font-semibold uppercase">{product.brand}</div>
-                <Link href={`/product/${product.slug}`} className="product-name heading6 mt-1 line-clamp-1 hover:underline">
+                <Link href={`/product/${product.slug}`} className="product-name heading6 mt-1 line-clamp-1 hover:underline font-bold text-gray-900">
                     {product.name}
                 </Link>
+
+                {/* AEO Bulleted Spec Summaries */}
+                <ul className="text-[11px] text-gray-500 mt-2 space-y-0.5 flex flex-wrap items-center justify-center gap-x-2.5">
+                    <li className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-purple-600 rounded-full inline-block" />
+                        <span>100% Herbal</span>
+                    </li>
+                    <li className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block" />
+                        <span>Dermat-Tested</span>
+                    </li>
+                    <li className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full inline-block" />
+                        <span>Paraben Free</span>
+                    </li>
+                </ul>
+
                 <div className="product-price flex items-center justify-center gap-2 mt-2">
-                    <div className="price heading6 text-black">₹{product.price}</div>
+                    <div className="price heading6 text-black font-extrabold">₹{product.price}</div>
                     {product.originPrice > product.price && (
                         <del className="origin-price caption1 text-secondary">₹{product.originPrice}</del>
                     )}

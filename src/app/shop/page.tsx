@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
+import prisma from "@/lib/prisma";
+import ShopClient from "./ShopClient";
+
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-    title: "Shop Premium Skincare & Cosmetics",
-    description: "Browse our collection of luxury skincare, hair care, and organic beauty products. High-quality ingredients for your daily routine.",
-    keywords: ["buy skincare", "organic beauty products", "luxury cosmetics", "hair care products", "Anose shop"],
+    title: "Luxury Skincare & Herbal Beauty Collection | Anose Beauty",
+    description: "Discover Anose Beauty's premium range of dermatologically tested herbal face washes, sunscreen lotions, and revitalizing face creams. Free shipping over ₹199.",
+    keywords: ["herbal skincare", "sunscreen lotion", "face wash", "dermatologically tested skincare", "organic beauty products India", "Anose Beauty shop"],
+    alternates: {
+        canonical: "https://anosebeauty.com/shop",
+    },
 };
-import prisma from "@/lib/prisma";
-import ShopClient from "./ShopClient";
 
 export default async function ShopPage() {
     let products: unknown[] = [];
@@ -75,11 +79,76 @@ export default async function ShopPage() {
         ]
     };
 
+    // ItemList Schema for Google Merchant Center & Traditional SEO
+    const itemListLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Luxury Skincare & Herbal Beauty Collection",
+        "numberOfItems": (products as any[]).length,
+        "itemListElement": (products as any[]).map((p, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `https://anosebeauty.com/product/${p.slug}`,
+            "name": p.name,
+            "image": p.thumbImage ? (p.thumbImage.startsWith('http') ? p.thumbImage : `https://anosebeauty.com/api/media/${p.thumbImage}`) : 'https://anosebeauty.com/assets/images/product/1000x1000.webp',
+            "offers": {
+                "@type": "Offer",
+                "price": p.price,
+                "priceCurrency": "INR",
+                "availability": p.quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                "seller": {
+                    "@type": "Organization",
+                    "name": "Anose Beauty"
+                }
+            }
+        }))
+    };
+
+    // FAQPage Schema for GEO (AI Search Engines) & AEO
+    const faqPageLd = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What makes Anose Beauty skincare products suitable for Indian skin?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Anose Beauty products are formulated with authentic Indian botanicals specifically designed to tackle Indian climatic conditions—providing oil control, UV protection, and deep hydration without clogging pores."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Are Anose Beauty products dermatologically tested and chemical-free?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, all Anose Beauty skincare products are 100% dermatologically tested, paraben-free, sulfate-free, and cruelty-free."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I qualify for free shipping on Anose Beauty?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Anose Beauty offers free shipping across India on all orders over ₹199. Orders below ₹199 carry a flat delivery fee of ₹49."
+                }
+            }
+        ]
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }}
             />
             <ShopClient
                 initialProducts={products as any}
