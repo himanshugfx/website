@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { trackAddToCart } from '@/lib/pixel';
 
 interface CartItem {
     id: string;
@@ -247,6 +248,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         setLastAddedItem(newItem);
         setIsPopupOpen(true);
+        trackAddToCart(newItem);
     };
 
     const removeFromCart = (id: string, size?: string, color?: string) => {

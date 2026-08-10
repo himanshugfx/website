@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useSession } from 'next-auth/react';
 import { CreditCard, Truck, Smartphone, Loader2, CheckCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
+import { trackInitiateCheckout } from '@/lib/pixel';
 
 interface RazorpayResponse {
     razorpay_order_id: string;
@@ -48,6 +49,13 @@ export default function CheckoutClient() {
             setPaymentMethod('razorpay');
         }
     }, [cart, paymentMethod]);
+
+    // Track InitiateCheckout on checkout page entry
+    React.useEffect(() => {
+        if (cart && cart.length > 0) {
+            trackInitiateCheckout(cart, cartTotal);
+        }
+    }, []);
 
     // Shipping Constants
     const SHIPPING_THRESHOLD = 199;

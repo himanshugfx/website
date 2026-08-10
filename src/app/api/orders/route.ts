@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { emailService } from '@/lib/email';
 import { sendAdminPushNotification } from '@/lib/notifications';
+import { sendMetaCapiEvent } from '@/lib/metaCapi';
 
 const SHIPPING_FEE = 49;
 const SHIPPING_THRESHOLD = 199;
@@ -180,6 +181,36 @@ export async function POST(request: Request) {
             `Order #${order.orderNumber} — ₹${order.total.toLocaleString('en-IN')} (${order.paymentMethod})`,
             { type: 'new_order', orderId: order.id, orderNumber: order.orderNumber }
         ).catch(err => console.error('Failed to send push notification:', err));
+
+        // Fire Meta CAPI Purchase event server-side for High EMQ
+        if (paymentMethod === 'COD') {
+            sendMetaCapiEvent({
+                eventName: 'Purchase',
+                eventId: `purchase_${order.orderNumber}`,
+                userData: {
+                    email: shippingInfo?.email || order.customerEmail,
+                    phone: shippingInfo?.phone || order.customerPhone,
+                    firstName: shippingInfo?.firstName,
+                    lastName: shippingInfo?.lastName,
+                    city: shippingInfo?.city,
+                    state: shippingInfo?.state,
+                    zip: shippingInfo?.postalCode || shippingInfo?.zip,
+                    country: shippingInfo?.country || 'in',
+                },
+                customData: {
+                    currency: 'INR',
+                    value: order.total,
+                    order_id: String(order.orderNumber),
+                    content_type: 'product',
+                    contents: order.items.map(i => ({
+                        id: i.productId,
+                        quantity: i.quantity,
+                        item_price: i.quantity > 0 ? i.price / i.quantity : i.price,
+                    })),
+                },
+                req: request,
+            }).catch(err => console.error('Failed to send CAPI Purchase event on COD order creation:', err));
+        }
 
         return NextResponse.json({
             success: true,

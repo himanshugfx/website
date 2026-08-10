@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
+import { sendMetaCapiEvent } from '@/lib/metaCapi';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -42,6 +43,14 @@ export async function POST(request: Request) {
         await prisma.newsletterSubscriber.create({
             data: { email: email.toLowerCase() }
         });
+
+        // Trigger Meta CAPI Lead event server-side for High EMQ
+        sendMetaCapiEvent({
+            eventName: 'Lead',
+            userData: { email: email.toLowerCase() },
+            customData: { content_name: 'Newsletter Subscription' },
+            req: request,
+        }).catch(err => console.error('Failed to send newsletter CAPI event:', err));
 
         return NextResponse.json({
             message: 'Thank you for subscribing! Get 10% off with code WELCOME10'

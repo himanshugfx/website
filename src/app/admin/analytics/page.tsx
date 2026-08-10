@@ -104,16 +104,19 @@ function getDeviceIcon(device: string) {
     }
 }
 
+type TimeRange = '1d' | '7d' | '30d' | 'total';
+
 export default function AnalyticsPage() {
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedRange, setSelectedRange] = useState<TimeRange>('30d');
 
-    const fetchData = async () => {
+    const fetchData = async (rangeToFetch: TimeRange = selectedRange) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/admin/analytics');
+            const res = await fetch(`/api/admin/analytics?range=${rangeToFetch}`);
             const json = await res.json();
 
             if (json.error) {
@@ -128,12 +131,17 @@ export default function AnalyticsPage() {
         }
     };
 
+    const handleRangeChange = (newRange: TimeRange) => {
+        setSelectedRange(newRange);
+        fetchData(newRange);
+    };
+
     useEffect(() => {
-        fetchData();
+        fetchData(selectedRange);
         // Refresh every 5 minutes
-        const interval = setInterval(fetchData, 5 * 60 * 1000);
+        const interval = setInterval(() => fetchData(selectedRange), 5 * 60 * 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedRange]);
 
     return (
         <AdminLayout>
@@ -146,8 +154,15 @@ export default function AnalyticsPage() {
                                 <TrendingUp className="w-10 h-10 text-purple-600" />
                                 Growth Analytics
                             </h1>
-                            <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
-                                GA4 Realtime Data
+                            <div className="flex items-center gap-2 flex-wrap justify-center mt-1">
+                                <div className="px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-200 shadow-sm inline-block">
+                                    GA4 Realtime Data
+                                </div>
+                                {data?.period && (
+                                    <div className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-gray-200 shadow-sm inline-block">
+                                        Period: {data.period}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <p className="text-sm md:text-base text-gray-500 font-medium mt-3 uppercase tracking-wider max-w-2xl">
@@ -155,14 +170,37 @@ export default function AnalyticsPage() {
                         </p>
                     </div>
                     
-                    <div className="flex flex-wrap items-center justify-center gap-4 w-full">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+                        {/* Time Range Filter Bar */}
+                        <div className="flex items-center justify-center gap-1.5 p-1.5 bg-gray-100/80 backdrop-blur-sm rounded-2xl border border-gray-200/80 shadow-inner">
+                            {[
+                                { id: '1d', label: '1 Day' },
+                                { id: '7d', label: '7 Days' },
+                                { id: '30d', label: '30 Days' },
+                                { id: 'total', label: 'Total' }
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleRangeChange(item.id as TimeRange)}
+                                    disabled={loading}
+                                    className={`px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 ${
+                                        selectedRange === item.id
+                                            ? 'bg-purple-600 text-white shadow-md scale-105'
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                                    }`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+
                         <button 
-                            onClick={fetchData}
+                            onClick={() => fetchData(selectedRange)}
                             disabled={loading}
-                            className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-gray-100 rounded-2xl font-black shadow-sm hover:border-gray-200 transition-all text-sm tracking-tight text-gray-900 group disabled:opacity-50"
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-2xl font-black shadow-sm hover:border-purple-300 hover:text-purple-600 transition-all text-sm tracking-tight text-gray-900 group disabled:opacity-50"
                         >
-                            <RefreshCw className={`w-5 h-5 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
-                            <span>{loading ? 'Fetching...' : 'Refresh Data'}</span>
+                            <RefreshCw className={`w-4 h-4 text-gray-900 group-hover:text-purple-600 ${loading ? 'animate-spin' : ''}`} />
+                            <span>{loading ? 'Fetching...' : 'Refresh'}</span>
                         </button>
                     </div>
                 </div>

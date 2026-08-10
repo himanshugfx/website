@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { getMediaUrl, getMediaUrls } from '@/lib/media';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
+import { trackViewContent } from '@/lib/pixel';
 
 interface Variation {
     id: string;
@@ -64,6 +65,18 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const [selectedSize, setSelectedSize] = useState(sizes[0] || '');
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
+
+    useEffect(() => {
+        if (product) {
+            trackViewContent({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                category: product.category,
+                slug: product.slug,
+            });
+        }
+    }, [product]);
 
     const handleVariationChange = (v: Variation) => {
         setSelectedVariation(v);

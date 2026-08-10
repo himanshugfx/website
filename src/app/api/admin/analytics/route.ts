@@ -186,6 +186,27 @@ export async function GET(request: Request) {
     try {
         await requireAdmin(request);
 
+        const { searchParams } = new URL(request.url);
+        const rangeParam = (searchParams.get('range') || '30d').toLowerCase();
+
+        let currentRange = [{ startDate: '30daysAgo', endDate: 'today' }];
+        let prevRange = [{ startDate: '60daysAgo', endDate: '31daysAgo' }];
+        let periodLabel = 'Last 30 Days';
+
+        if (rangeParam === '1d' || rangeParam === '1day' || rangeParam === 'today') {
+            currentRange = [{ startDate: '1daysAgo', endDate: 'today' }];
+            prevRange = [{ startDate: '2daysAgo', endDate: '1daysAgo' }];
+            periodLabel = 'Last 24 Hours';
+        } else if (rangeParam === '7d' || rangeParam === '7day') {
+            currentRange = [{ startDate: '7daysAgo', endDate: 'today' }];
+            prevRange = [{ startDate: '14daysAgo', endDate: '8daysAgo' }];
+            periodLabel = 'Last 7 Days';
+        } else if (rangeParam === 'total' || rangeParam === 'all') {
+            currentRange = [{ startDate: '365daysAgo', endDate: 'today' }];
+            prevRange = [{ startDate: '365daysAgo', endDate: 'today' }];
+            periodLabel = 'Total All Time';
+        }
+
         const propertyId = process.env.GA4_PROPERTY_ID;
 
         if (!propertyId) {
@@ -221,9 +242,9 @@ export async function GET(request: Request) {
             // 1. Realtime users
             getRealtimeData(accessToken, propertyId),
 
-            // 2. Current period overview (last 30 days) - Basic Traffic
+            // 2. Current period overview - Basic Traffic
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [
                     { name: 'sessions' },
                     { name: 'totalUsers' },
@@ -235,9 +256,9 @@ export async function GET(request: Request) {
                 ]
             ),
 
-            // 3. Current period overview (last 30 days) - eCommerce
+            // 3. Current period overview - eCommerce
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [
                     { name: 'ecommercePurchases' },
                     { name: 'purchaseRevenue' },
@@ -248,7 +269,7 @@ export async function GET(request: Request) {
 
             // 4. Previous period (for comparison)
             runReport(accessToken, propertyId,
-                [{ startDate: '60daysAgo', endDate: '31daysAgo' }],
+                prevRange,
                 [
                     { name: 'sessions' },
                     { name: 'totalUsers' },
@@ -258,7 +279,7 @@ export async function GET(request: Request) {
 
             // 5. Top pages
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [
                     { name: 'screenPageViews' },
                     { name: 'averageSessionDuration' }
@@ -270,7 +291,7 @@ export async function GET(request: Request) {
 
             // 6. Traffic sources
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [{ name: 'sessions' }, { name: 'totalUsers' }],
                 [{ name: 'sessionDefaultChannelGroup' }],
                 [{ metric: { metricName: 'sessions' }, desc: true }]
@@ -278,14 +299,14 @@ export async function GET(request: Request) {
 
             // 7. Device breakdown
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [{ name: 'sessions' }],
                 [{ name: 'deviceCategory' }]
             ),
 
             // 8. City-wise traffic
             runReport(accessToken, propertyId,
-                [{ startDate: '30daysAgo', endDate: 'today' }],
+                currentRange,
                 [{ name: 'sessions' }],
                 [{ name: 'city' }],
                 [{ metric: { metricName: 'sessions' }, desc: true }],
@@ -390,7 +411,8 @@ export async function GET(request: Request) {
                     transactions,
                     conversionRate
                 },
-                period: 'Last 30 days',
+                period: periodLabel,
+                selectedRange: rangeParam,
                 lastUpdated: new Date().toISOString()
             }
         });

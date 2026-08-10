@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { CheckCircle, Package, ArrowRight } from 'lucide-react';
+import prisma from '@/lib/prisma';
+import PurchaseTracker from '@/components/PurchaseTracker';
+import { FunnelOrder } from '@/lib/pixel';
 
-export default function CheckoutSuccessPage({
+export default async function CheckoutSuccessPage({
     searchParams,
 }: {
     searchParams: { orderId?: string; orderNumber?: string };
@@ -9,8 +12,63 @@ export default function CheckoutSuccessPage({
     const orderId = searchParams.orderId;
     const orderNumber = searchParams.orderNumber;
 
+    let orderData: FunnelOrder | null = null;
+
+    if (orderId || orderNumber) {
+        try {
+            const order = await prisma.order.findFirst({
+                where: orderId
+                    ? { id: orderId }
+                    : { orderNumber: parseInt(orderNumber || '0') },
+                include: {
+                    items: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                },
+            });
+
+            if (order) {
+                let parsedAddress: any = {};
+                try {
+                    if (order.address) parsedAddress = JSON.parse(order.address);
+                } catch (e) {
+                    // Ignore JSON parse error
+                }
+
+                const nameParts = (order.customerName || '').split(' ');
+                const firstName = parsedAddress.firstName || nameParts[0] || '';
+                const lastName = parsedAddress.lastName || nameParts.slice(1).join(' ') || '';
+
+                orderData = {
+                    orderId: order.id,
+                    orderNumber: order.orderNumber,
+                    total: order.total,
+                    email: order.customerEmail || parsedAddress.email,
+                    phone: order.customerPhone || parsedAddress.phone,
+                    firstName,
+                    lastName,
+                    city: parsedAddress.city,
+                    state: parsedAddress.state,
+                    zip: parsedAddress.postalCode || parsedAddress.zip,
+                    country: parsedAddress.country || 'in',
+                    items: order.items.map((item) => ({
+                        id: item.productId,
+                        name: item.product?.name || 'Product',
+                        price: item.price,
+                        quantity: item.quantity,
+                    })),
+                };
+            }
+        } catch (e) {
+            console.error('Failed to load order for purchase event:', e);
+        }
+    }
+
     return (
         <div className="checkout-success min-h-screen bg-gradient-to-br from-purple-50 to-white">
+            <PurchaseTracker order={orderData} fallbackId={orderId || orderNumber} />
             <div className="container mx-auto py-20 px-4">
                 <div className="max-w-lg mx-auto text-center">
                     {/* Success Icon */}
