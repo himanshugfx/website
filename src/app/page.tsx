@@ -69,13 +69,13 @@ export default async function Home() {
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
                 <span className="sr-only">Anose Beauty - Premium Skincare & Hotel Amenities</span>
-                <span aria-hidden="true" className="text-purple-900">Get all <span className="text-purple-900">@ ₹ 99</span></span>
+                <span aria-hidden="true" className="text-purple-900">Special <span className="text-purple-900">Limited-Time Offer</span></span>
               </h1>
               <p className="text-lg md:text-xl text-purple-900 mb-8 max-w-lg leading-relaxed font-medium">
-                <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">GET-ALL-PRODUCTS</span> at just ₹99 in our summar sale.
+                <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">Use code <span className="text-purple-900">DR-OAS</span> at checkout to unlock an extra 10% off your entire order today.</span>
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/product/facewash-100ml-sunscreen-facecream-bundle" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
+                <Link href="/shop" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">
                   Shop Now
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -92,7 +92,7 @@ export default async function Home() {
         {/* Hero Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/assets/anose-all-product.png"
+            src="/assets/anose-cream.jpg"
             alt="Hero Banner"
             fill
             className="object-cover scale-105"
