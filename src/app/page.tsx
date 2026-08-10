@@ -31,16 +31,25 @@ export default async function Home() {
           take: 8,
           where: { bestSeller: true },
           orderBy: { sold: 'desc' },
+        }).catch((err) => {
+          console.error("BestSellers query error:", err);
+          return [];
         }),
         prisma.product.findMany({
           take: 8,
           where: { sale: true },
           orderBy: { createdAt: 'desc' },
+        }).catch((err) => {
+          console.error("OnSale query error:", err);
+          return [];
         }),
         prisma.product.findMany({
           take: 8,
           where: { new: true },
           orderBy: { createdAt: 'desc' },
+        }).catch((err) => {
+          console.error("NewArrivals query error:", err);
+          return [];
         })
       ]),
       timeout
@@ -48,13 +57,12 @@ export default async function Home() {
 
     if (timeoutId) clearTimeout(timeoutId);
 
-    bestSellers = bestSellersData as unknown as ProductCardProduct[];
-    onSale = onSaleData as unknown as ProductCardProduct[];
-    newArrivals = newArrivalsData as unknown as ProductCardProduct[];
+    bestSellers = (bestSellersData || []) as unknown as ProductCardProduct[];
+    onSale = (onSaleData || []) as unknown as ProductCardProduct[];
+    newArrivals = (newArrivalsData || []) as unknown as ProductCardProduct[];
   } catch (error) {
     if (timeoutId) clearTimeout(timeoutId);
     console.error("Home page data fetch error or timeout:", error);
-    // Fallback to empty arrays if database is unavailable or slow
   }
 
   return (
@@ -69,10 +77,10 @@ export default async function Home() {
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter italic uppercase">
                 <span className="sr-only">Anose Beauty - Premium Skincare & Hotel Amenities</span>
-                <span aria-hidden="true" className="text-purple-900">Special <span className="text-purple-900">Limited-Time Offer</span></span>
+                <span aria-hidden="true" className="text-white">Special <span className="text-white">Limited-Time Offer</span></span>
               </h1>
               <p className="text-lg md:text-xl text-purple-900 mb-8 max-w-lg leading-relaxed font-medium">
-                <span className="text-white font-bold bg-purple-900 px-2 py-1 rounded">Use code <span className="text-purple-900">DR-OAS</span> at checkout to unlock an extra 10% off your entire order today.</span>
+                <span className="text-white font-bold px-2 py-1 rounded">Use code <span className="text-purple-900 bg-white">DR-OAS</span> at checkout to unlock an extra 10% off your entire order today.</span>
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/shop" className="group bg-purple-900 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-black uppercase text-sm tracking-widest transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/40 flex items-center gap-3">

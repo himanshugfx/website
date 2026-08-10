@@ -32,27 +32,27 @@ export default async function ShopPage() {
                         { priority: 'desc' },
                         { createdAt: 'desc' },
                     ],
-                }),
+                }).catch(err => { console.error("Shop products error:", err); return []; }),
                 prisma.product.findMany({
                     select: { category: true },
                     distinct: ['category'],
-                }),
+                }).catch(err => { console.error("Shop categories error:", err); return []; }),
                 prisma.product.findMany({
                     select: { type: true },
                     distinct: ['type'],
-                }),
+                }).catch(err => { console.error("Shop types error:", err); return []; }),
                 prisma.product.findMany({
                     select: { brand: true },
                     distinct: ['brand'],
-                })
+                }).catch(err => { console.error("Shop brands error:", err); return []; })
             ]),
             timeout
         ]) as any;
 
         if (timeoutId) clearTimeout(timeoutId);
 
-        products = productsData;
-        categories = categoriesData;
+        products = productsData || [];
+        categories = categoriesData || [];
         types = typesData;
         brands = brandsData;
     } catch (error) {
