@@ -7,6 +7,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import { getMediaUrl, getMediaUrls } from '@/lib/media';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
 import { trackViewContent } from '@/lib/pixel';
+import { ChevronDown } from 'lucide-react';
 
 interface Variation {
     id: string;
@@ -65,6 +66,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const [selectedSize, setSelectedSize] = useState(sizes[0] || '');
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         if (product) {
@@ -191,8 +193,19 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             )}
                         </div>
 
-                        <div className="description body1 text-secondary mt-6 line-clamp-3">
-                            {product.description}
+                        <div className="description-block mt-6">
+                            <div className={`description body1 text-secondary leading-relaxed transition-all duration-300 ${!isExpanded ? 'line-clamp-3' : ''}`}>
+                                {product.description}
+                            </div>
+                            {product.description && product.description.length > 80 && (
+                                <button
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    className="mt-2 text-xs font-black text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors uppercase tracking-wider focus:outline-none"
+                                >
+                                    <span>{isExpanded ? 'Read Less' : 'Read More'}</span>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                </button>
+                            )}
                         </div>
 
                         {/* Variations */}

@@ -29,6 +29,11 @@ const getImageUrl = (image: string): string => {
 export default function CataloguePage() {
     const [products, setProducts] = useState<HotelAmenity[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+    const toggleDescription = (id: string) => {
+        setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -262,7 +267,19 @@ export default function CataloguePage() {
                                     </div>
 
                                     {item.description && (
-                                        <p className="hidden sm:block text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 line-clamp-2">{item.description}</p>
+                                        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
+                                            <p className={`text-xs sm:text-sm text-gray-500 transition-all ${!expandedItems[item.id] ? 'line-clamp-2' : ''}`}>
+                                                {item.description}
+                                            </p>
+                                            {item.description.length > 60 && (
+                                                <button
+                                                    onClick={() => toggleDescription(item.id)}
+                                                    className="mt-1 text-[11px] font-black text-purple-600 hover:text-purple-800 uppercase tracking-wider focus:outline-none"
+                                                >
+                                                    {expandedItems[item.id] ? 'Read Less' : 'Read More'}
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             </div>
