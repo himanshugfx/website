@@ -10,6 +10,10 @@ const CartPopup = dynamic(() => import('@/components/CartPopup'), {
     ssr: false,
 });
 
+const AnoseAssistant = dynamic(() => import('@/components/AnoseAssistant'), {
+    ssr: false,
+});
+
 export default function ConditionalWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/print');
@@ -24,6 +28,7 @@ export default function ConditionalWrapper({ children }: { children: React.React
             <Marquee />
             {children}
             <CartPopup />
+            <AnoseAssistant />
             <Footer />
         </>
     );

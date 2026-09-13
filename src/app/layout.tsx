@@ -3,23 +3,14 @@ import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import Marquee from "@/components/layout/Marquee";
 import AuthProvider from "@/components/layout/Provider";
 import Script from "next/script";
-import CartPopup from "@/components/CartPopup";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalWrapper from "@/components/layout/ConditionalWrapper";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
 import { IBM_Plex_Sans } from "next/font/google";
-import dynamic from "next/dynamic";
-
-const AnoseAssistant = dynamic(() => import("@/components/AnoseAssistant"), {
-  ssr: false,
-});
 
 const ibmPlexSans = IBM_Plex_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -235,7 +226,6 @@ export default function RootLayout({
               </Script>
               <SpeedInsights />
               <Analytics />
-              <AnoseAssistant />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>
