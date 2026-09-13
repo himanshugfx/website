@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { trackSubscribe } from '@/lib/pixel';
 
 export default function Footer() {
     const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ export default function Footer() {
             const data = await res.json();
 
             if (res.ok) {
+                trackSubscribe('Newsletter', { email });
                 setStatus('success');
                 setMessage(data.message);
                 setEmail('');

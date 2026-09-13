@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { trackAddToWishlist } from '@/lib/pixel';
 
 interface WishlistItem {
     id: string;
@@ -49,6 +50,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             if (prev.find(i => i.id === item.id)) return prev;
             return [...prev, item];
         });
+        trackAddToWishlist(item);
     };
 
     const removeFromWishlist = (id: string) => {

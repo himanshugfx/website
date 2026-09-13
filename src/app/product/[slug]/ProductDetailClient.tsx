@@ -6,7 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { getMediaUrl, getMediaUrls } from '@/lib/media';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
-import { trackViewContent } from '@/lib/pixel';
+import { trackViewContent, trackCustomizeProduct } from '@/lib/pixel';
 import { ChevronDown } from 'lucide-react';
 
 interface Variation {
@@ -84,6 +84,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         setSelectedVariation(v);
         setActiveImage(v.image);
         setShowVideo(false); // Switch to image when selecting a variation
+        trackCustomizeProduct(product.name, v.color);
     };
 
     const handleAddToCart = () => {
@@ -282,7 +283,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                                         ? 'bg-purple-600 text-white border-purple-600 shadow-sm shadow-purple-600/30 scale-[1.02]'
                                                         : 'bg-white text-gray-800 border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'
                                                 }`}
-                                                onClick={() => setSelectedSize(s)}
+                                                onClick={() => {
+                                                    setSelectedSize(s);
+                                                    trackCustomizeProduct(product.name, s);
+                                                }}
                                             >
                                                 {s}
                                             </button>

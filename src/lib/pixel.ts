@@ -331,3 +331,230 @@ export function trackLead(leadType: string, userContext: UserContext = {}) {
     // Meta CAPI (Server-Side Relay)
     sendCapiRelay('Lead', eventId, userContext, payload);
 }
+
+/**
+ * 6. AddToWishlist event - Fired when a user saves a product to their wishlist
+ */
+export function trackAddToWishlist(item: FunnelItem, userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('add_to_wishlist');
+    const payload = {
+        content_name: item.name,
+        content_category: item.category || 'Skincare',
+        content_ids: [item.id || item.slug || 'product'],
+        content_type: 'product',
+        value: item.price,
+        currency: 'INR',
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'AddToWishlist', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB AddToWishlist error:', e);
+        }
+    }
+
+    sendGtag('add_to_wishlist', {
+        currency: 'INR',
+        value: item.price,
+        items: [{
+            item_id: item.id || item.slug,
+            item_name: item.name,
+            price: item.price,
+            item_category: item.category || 'Skincare',
+            quantity: 1,
+        }],
+    });
+
+    sendCapiRelay('AddToWishlist', eventId, userContext, payload);
+}
+
+/**
+ * 7. AddPaymentInfo event - Fired when customer enters/confirms payment info in checkout
+ */
+export function trackAddPaymentInfo(items: FunnelItem[], total: number, paymentType: string = 'ONLINE', userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('add_payment_info');
+    const contentIds = items.map(item => item.id || item.slug || 'product');
+    const payload = {
+        content_ids: contentIds,
+        content_type: 'product',
+        value: total,
+        currency: 'INR',
+        payment_type: paymentType,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'AddPaymentInfo', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB AddPaymentInfo error:', e);
+        }
+    }
+
+    sendGtag('add_payment_info', {
+        currency: 'INR',
+        value: total,
+        payment_type: paymentType,
+        items: items.map(item => ({
+            item_id: item.id || item.slug,
+            item_name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+        })),
+    });
+
+    sendCapiRelay('AddPaymentInfo', eventId, userContext, payload);
+}
+
+/**
+ * 8. CompleteRegistration event - Fired when a customer completes signup/account creation
+ */
+export function trackCompleteRegistration(method: string = 'Email', userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('complete_registration');
+    const payload = {
+        content_name: 'Customer Account',
+        status: true,
+        method,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'CompleteRegistration', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB CompleteRegistration error:', e);
+        }
+    }
+
+    sendGtag('sign_up', { method });
+    sendCapiRelay('CompleteRegistration', eventId, userContext, payload);
+}
+
+/**
+ * 9. Contact event - Fired when customer reaches out via contact form or direct channels
+ */
+export function trackContact(channel: string = 'Contact Form', userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('contact');
+    const payload = {
+        content_name: channel,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'Contact', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB Contact error:', e);
+        }
+    }
+
+    sendGtag('contact', { channel });
+    sendCapiRelay('Contact', eventId, userContext, payload);
+}
+
+/**
+ * 10. Search event - Fired when user queries the product search bar
+ */
+export function trackSearch(searchQuery: string) {
+    if (typeof window === 'undefined' || !searchQuery.trim()) return;
+
+    const eventId = generateEventId('search');
+    const payload = {
+        search_string: searchQuery.trim(),
+        content_category: 'Product Search',
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'Search', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB Search error:', e);
+        }
+    }
+
+    sendGtag('search', {
+        search_term: searchQuery.trim(),
+    });
+
+    sendCapiRelay('Search', eventId, {}, payload);
+}
+
+/**
+ * 11. SubmitApplication event - Fired when user submits collaboration or partner application
+ */
+export function trackSubmitApplication(programName: string = 'Influencer Collaboration', userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('submit_application');
+    const payload = {
+        content_name: programName,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'SubmitApplication', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB SubmitApplication error:', e);
+        }
+    }
+
+    sendGtag('submit_application', { program: programName });
+    sendCapiRelay('SubmitApplication', eventId, userContext, payload);
+}
+
+/**
+ * 12. Subscribe event - Fired when user joins newsletter or loyalty subscription
+ */
+export function trackSubscribe(subscriptionType: string = 'Newsletter', userContext: UserContext = {}) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('subscribe');
+    const payload = {
+        value: 0.00,
+        currency: 'INR',
+        predicted_ltv: '0.00',
+        content_name: subscriptionType,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'Subscribe', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB Subscribe error:', e);
+        }
+    }
+
+    sendGtag('subscribe', { type: subscriptionType });
+    sendCapiRelay('Subscribe', eventId, userContext, payload);
+}
+
+/**
+ * 13. CustomizeProduct event - Fired when user switches size, shade, or bundle options
+ */
+export function trackCustomizeProduct(productName: string, customization: string) {
+    if (typeof window === 'undefined') return;
+
+    const eventId = generateEventId('customize_product');
+    const payload = {
+        content_name: productName,
+        customization,
+    };
+
+    if (typeof (window as any).fbq === 'function') {
+        try {
+            (window as any).fbq('track', 'CustomizeProduct', payload, { eventID: eventId });
+        } catch (e) {
+            console.error('FB CustomizeProduct error:', e);
+        }
+    }
+
+    sendGtag('customize_product', { product_name: productName, customization });
+    sendCapiRelay('CustomizeProduct', eventId, {}, payload);
+}
+

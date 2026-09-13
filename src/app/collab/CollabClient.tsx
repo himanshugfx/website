@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { trackSubmitApplication } from '@/lib/pixel';
 
 const platforms = [
     { value: 'INSTAGRAM', label: 'Instagram', icon: '📸', color: 'from-pink-500 to-purple-600' },
@@ -137,6 +138,12 @@ export default function CollabClient() {
                                 });
                                 const verifyData = await verifyRes.json();
                                 if (verifyData.success) {
+                                    trackSubmitApplication('Influencer Collaboration with Samples', {
+                                        email: formData.email,
+                                        phone: formData.phone,
+                                        firstName: formData.name.split(' ')[0] || '',
+                                        lastName: formData.name.split(' ').slice(1).join(' ') || '',
+                                    });
                                     setSuccess(true);
                                     setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false, address: '' });
                                     setLoading(false);
@@ -168,6 +175,12 @@ export default function CollabClient() {
                 });
                 const data = await res.json();
                 if (res.ok) {
+                    trackSubmitApplication('Influencer Collaboration', {
+                        email: formData.email,
+                        phone: formData.phone,
+                        firstName: formData.name.split(' ')[0] || '',
+                        lastName: formData.name.split(' ').slice(1).join(' ') || '',
+                    });
                     setSuccess(true);
                     setFormData({ name: '', email: '', phone: '', platform: '', profileId: '', wantsProducts: false, address: '' });
                 } else {

@@ -6,6 +6,7 @@ import ProductCard from '@/components/ProductCard';
 import type { ProductCardProduct } from '@/components/ProductCard';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Sparkles, ShieldCheck, Truck, HelpCircle, BookOpen } from 'lucide-react';
+import { trackSearch } from '@/lib/pixel';
 
 interface Product extends ProductCardProduct {
     category: string;
@@ -182,7 +183,13 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             {conversationalFilters.map((chip) => (
                                 <button
                                     key={chip.id}
-                                    onClick={() => setSelectedIntent(selectedIntent === chip.intent ? null : chip.intent)}
+                                    onClick={() => {
+                                        const next = selectedIntent === chip.intent ? null : chip.intent;
+                                        setSelectedIntent(next);
+                                        if (next && chip.label) {
+                                            trackSearch(chip.label);
+                                        }
+                                    }}
                                     className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 border ${
                                         (selectedIntent === chip.intent || (chip.intent === null && selectedIntent === null))
                                             ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20'
@@ -212,7 +219,13 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                                                         ? 'bg-purple-50 text-purple-700 font-bold border border-purple-200'
                                                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                                 }`}
-                                                onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                                                onClick={() => {
+                                                    const next = selectedCategory === cat ? null : cat;
+                                                    setSelectedCategory(next);
+                                                    if (next) {
+                                                        trackSearch(next);
+                                                    }
+                                                }}
                                             >
                                                 {cat}
                                             </button>

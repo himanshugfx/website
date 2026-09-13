@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { trackContact } from '@/lib/pixel';
 
 export default function ContactClient() {
     const [formData, setFormData] = React.useState({
@@ -30,6 +31,12 @@ export default function ContactClient() {
             const data = await res.json();
 
             if (res.ok) {
+                trackContact('Contact Page Form', {
+                    email: formData.email,
+                    phone: formData.phone,
+                    firstName: formData.name.split(' ')[0] || '',
+                    lastName: formData.name.split(' ').slice(1).join(' ') || '',
+                });
                 setSuccess(true);
                 setFormData({ name: '', email: '', phone: '', message: '' });
             } else {

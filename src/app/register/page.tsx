@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { trackCompleteRegistration } from '@/lib/pixel';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -34,6 +35,11 @@ export default function RegisterPage() {
             });
 
             if (res.ok) {
+                trackCompleteRegistration('Email', {
+                    email: formData.email,
+                    firstName: formData.name.split(' ')[0] || '',
+                    lastName: formData.name.split(' ').slice(1).join(' ') || '',
+                });
                 router.push('/login');
             } else {
                 const data = await res.text();

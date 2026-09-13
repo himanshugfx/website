@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useSession } from 'next-auth/react';
 import { CreditCard, Truck, Smartphone, Loader2, CheckCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import RazorpayTrustBadge from '@/components/RazorpayTrustBadge';
-import { trackInitiateCheckout } from '@/lib/pixel';
+import { trackInitiateCheckout, trackAddPaymentInfo } from '@/lib/pixel';
 
 interface RazorpayResponse {
     razorpay_order_id: string;
@@ -220,6 +220,23 @@ export default function CheckoutClient() {
         if (!validateForm()) return;
 
         setLoading(true);
+
+        // Track AddPaymentInfo Meta standard event
+        trackAddPaymentInfo(
+            cart,
+            cartTotal,
+            paymentMethod,
+            {
+                email: shippingInfo.email,
+                phone: shippingInfo.phone,
+                firstName: shippingInfo.firstName,
+                lastName: shippingInfo.lastName,
+                city: shippingInfo.city,
+                state: shippingInfo.state,
+                zip: shippingInfo.postalCode,
+                country: shippingInfo.country,
+            }
+        );
 
         try {
             if (paymentMethod === 'razorpay') {

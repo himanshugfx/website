@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getMediaUrl } from '@/lib/media';
+import { trackSearch } from '@/lib/pixel';
 
 interface Product {
     id: string;
@@ -41,6 +42,9 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                 const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 setResults(data);
+                if (query.trim()) {
+                    trackSearch(query.trim());
+                }
             } catch (error) {
                 console.error('Search error:', error);
             } finally {
@@ -72,7 +76,12 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                         className="flex-1 bg-transparent border-none outline-none text-lg text-zinc-900 placeholder:text-zinc-400"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape') onClose();
+                            if (e.key === 'Enter' && query.trim()) {
+                                trackSearch(query.trim());
+                            }
+                        }}
                     />
                     <div className="flex items-center gap-2">
                         {isLoading && (
