@@ -5,6 +5,8 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Plus, X, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import SizeVariantManager from '@/components/admin/SizeVariantManager';
+import { parseSizes, serializeSizes, SizeOption } from '@/lib/productSizes';
 // import { upload } from '@vercel/blob/client';
 
 interface PageProps {
@@ -18,6 +20,7 @@ export default function EditProductPage({ params }: PageProps) {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [sizeVariants, setSizeVariants] = useState<SizeOption[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         category: 'cosmetic',
@@ -85,6 +88,14 @@ export default function EditProductPage({ params }: PageProps) {
                 taxRate: product.taxRate || 18,
                 variations: product.variations || [],
             });
+
+            // Parse size variants with prices
+            const parsedSizes = parseSizes(
+                product.sizes,
+                product.price || 0,
+                product.originPrice || product.price || 0
+            );
+            setSizeVariants(parsedSizes);
         } catch (err) {
             console.error('Error fetching product:', err);
             setError('Failed to load product. Please try again.');
@@ -99,12 +110,18 @@ export default function EditProductPage({ params }: PageProps) {
         setError('');
 
         try {
+            const finalSizes = sizeVariants.length > 0 ? serializeSizes(sizeVariants) : formData.sizes;
+            const payload = {
+                ...formData,
+                sizes: finalSizes,
+            };
+
             const res = await fetch(`/api/admin/products/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
@@ -381,17 +398,12 @@ export default function EditProductPage({ params }: PageProps) {
                                 <p className="text-xs text-gray-500 mt-1">List the key ingredients of this product (comma-separated)</p>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Sizes (comma-separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    name="sizes"
-                                    value={formData.sizes}
-                                    onChange={handleChange}
-                                    placeholder="e.g., 50ml, 100ml, 200ml"
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            <div className="md:col-span-2">
+                                <SizeVariantManager
+                                    variants={sizeVariants}
+                                    onChange={setSizeVariants}
+                                    defaultPrice={parseFloat(formData.price) || 0}
+                                    defaultOriginPrice={parseFloat(formData.originPrice) || 0}
                                 />
                             </div>
 

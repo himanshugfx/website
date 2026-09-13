@@ -6,6 +6,7 @@ import { emailService } from '@/lib/email';
 import { sendAdminPushNotification } from '@/lib/notifications';
 import { sendMetaCapiEvent } from '@/lib/metaCapi';
 import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
+import { getProductSizePrice } from '@/lib/productSizes';
 
 const SHIPPING_FEE = 49;
 const SHIPPING_THRESHOLD = 199;
@@ -14,6 +15,7 @@ interface CartItem {
     id: string;
     quantity: number;
     name?: string;
+    selectedSize?: string;
 }
 
 const orderLimiter = createRateLimiter('orders', {
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
         const productIds = cart.map((item: CartItem) => item.id);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, price: true, name: true, slug: true },
+            select: { id: true, price: true, originPrice: true, name: true, slug: true, sizes: true },
         });
 
         if (products.length !== productIds.length) {
@@ -86,14 +88,15 @@ export async function POST(request: Request) {
             }
         }
 
-        // Calculate subtotal using DB prices
+        // Calculate subtotal using DB prices (resolving size-specific variant pricing when applicable)
         let subtotal = 0;
         const validatedCart = cart.map((item: CartItem) => {
             const product = productMap.get(item.id);
             if (!product) throw new Error(`Product ${item.id} not found`);
             const quantity = Math.max(1, Math.floor(item.quantity));
-            subtotal += product.price * quantity;
-            return { id: item.id, quantity, price: product.price };
+            const { price: unitPrice } = getProductSizePrice(product, item.selectedSize);
+            subtotal += unitPrice * quantity;
+            return { id: item.id, quantity, price: unitPrice };
         });
 
         // Server-side promo code validation

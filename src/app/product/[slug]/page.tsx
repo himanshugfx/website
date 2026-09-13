@@ -98,14 +98,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
             />
-            <div className="breadcrumb-block py-3.5 bg-zinc-50">
-                <div className="container mx-auto">
-                    <div className="flex items-center gap-1 caption1">
-                        <Link href="/">Home</Link>
-                        <i className="ph ph-caret-right text-xs"></i>
-                        <Link href="/shop">Shop</Link>
-                        <i className="ph ph-caret-right text-xs"></i>
-                        <div className="text-secondary2 capitalize">{product.name}</div>
+            <div className="breadcrumb-block py-3 bg-zinc-50 border-b border-zinc-100">
+                <div className="container mx-auto px-4 max-w-7xl">
+                    <div className="flex items-center gap-1.5 caption1 overflow-x-auto no-scrollbar whitespace-nowrap text-xs text-zinc-600">
+                        <Link href="/" className="hover:text-purple-600 transition-colors">Home</Link>
+                        <i className="ph ph-caret-right text-[10px] text-zinc-400"></i>
+                        <Link href="/shop" className="hover:text-purple-600 transition-colors">Shop</Link>
+                        <i className="ph ph-caret-right text-[10px] text-zinc-400"></i>
+                        <div className="text-zinc-900 font-semibold capitalize truncate max-w-[160px] sm:max-w-none">{product.name}</div>
                     </div>
                 </div>
             </div>
@@ -113,15 +113,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <ProductDetailClient product={product as Parameters<typeof ProductDetailClient>[0]['product']} />
 
             {/* Customer Reviews */}
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 max-w-7xl">
                 <ProductReviews productId={product.id} productName={product.name} />
             </div>
 
             {/* Related Products */}
-            <div className="related-product-block md:py-12 py-8 border-t border-line mt-8">
-                <div className="container mx-auto">
-                    <div className="heading3 text-center">Related Products</div>
-                    <div className="list-product grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 md:gap-6 gap-4 md:mt-8 mt-5">
+            <div className="related-product-block py-8 sm:py-10 md:py-12 border-t border-line mt-8 sm:mt-10 md:mt-12">
+                <div className="container mx-auto px-4 max-w-7xl">
+                    <div className="heading3 text-center text-xl sm:text-2xl md:text-3xl font-bold font-primary">Related Products</div>
+                    <div className="list-product grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3 sm:gap-4 md:gap-6 mt-6 sm:mt-8">
                         {relatedProducts.map((p) => (
                             <ProductCard key={p.id} product={p as ProductCardProduct} />
                         ))}

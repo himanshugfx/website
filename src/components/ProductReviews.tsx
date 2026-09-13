@@ -99,21 +99,21 @@ export default function ProductReviews({ productId, productName }: ProductReview
     );
 
     return (
-        <div className="mt-12 border-t border-zinc-200 pt-12">
-            <div className="flex items-center justify-between mb-8">
+        <div className="mt-8 sm:mt-12 border-t border-zinc-200 pt-8 sm:pt-12">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-zinc-900">Customer Reviews</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 font-primary">Customer Reviews</h2>
                     {totalReviews > 0 && (
-                        <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2">
                             <StarRating rating={Math.round(averageRating)} />
-                            <span className="text-lg font-semibold text-zinc-900">{averageRating.toFixed(1)}</span>
-                            <span className="text-zinc-500">({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})</span>
+                            <span className="text-base sm:text-lg font-semibold text-zinc-900">{averageRating.toFixed(1)}</span>
+                            <span className="text-xs sm:text-sm text-zinc-500">({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})</span>
                         </div>
                     )}
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
+                    className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-colors text-xs sm:text-sm text-center shadow-sm cursor-pointer"
                 >
                     Write a Review
                 </button>
@@ -127,8 +127,8 @@ export default function ProductReviews({ productId, productName }: ProductReview
 
             {/* Review Form */}
             {showForm && (
-                <form onSubmit={handleSubmit} className="bg-zinc-50 rounded-xl p-6 mb-8 border border-zinc-200">
-                    <h3 className="font-semibold text-lg mb-4">Write a review for {productName}</h3>
+                <form onSubmit={handleSubmit} className="bg-zinc-50 rounded-xl p-4 sm:p-6 mb-8 border border-zinc-200">
+                    <h3 className="font-semibold text-base sm:text-lg mb-4">Write a review for {productName}</h3>
 
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-zinc-700 mb-2">Your Rating</label>
@@ -213,28 +213,28 @@ export default function ProductReviews({ productId, productName }: ProductReview
                     <p className="text-zinc-500 text-sm">Be the first to share your experience!</p>
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     {reviews.map((review) => (
-                        <div key={review.id} className="bg-white border border-zinc-200 rounded-xl p-6">
-                            <div className="flex items-start justify-between mb-3">
+                        <div key={review.id} className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 shadow-xs">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 sm:gap-2 mb-3">
                                 <div>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-medium text-zinc-900">{review.customerName}</span>
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                        <span className="font-semibold text-xs sm:text-sm text-zinc-900">{review.customerName}</span>
                                         {review.isVerified && (
-                                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                            <span className="inline-flex items-center gap-1 text-[11px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                                                 <CheckCircle className="w-3 h-3" />
                                                 Verified Purchase
                                             </span>
                                         )}
                                         {review.productLabel && (
-                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
                                                 {review.productLabel}
                                             </span>
                                         )}
                                     </div>
                                     <StarRating rating={review.rating} />
                                 </div>
-                                <span className="text-sm text-zinc-500">
+                                <span className="text-xs text-zinc-400 sm:text-zinc-500">
                                     {new Date(review.createdAt).toLocaleDateString('en-GB')}
                                 </span>
                             </div>

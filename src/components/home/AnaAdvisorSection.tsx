@@ -69,7 +69,7 @@ export default function AnaAdvisorSection() {
     <section className="ana-advisor-section py-12 md:py-16 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-7xl">
         {/* Luxury Glowing Container */}
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/25 shadow-2xl p-6 sm:p-10 lg:p-14 text-white">
+        <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-purple-950 via-zinc-950 to-purple-950 border border-purple-500/25 shadow-2xl p-4 sm:p-8 lg:p-14 text-white">
           {/* Ambient Glows */}
           <div className="absolute -top-32 -left-32 w-80 h-80 bg-purple-600/30 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-500/20 rounded-full blur-[140px] pointer-events-none" />
@@ -79,13 +79,13 @@ export default function AnaAdvisorSection() {
             {/* Left Column: Heading, Value Prop, Question Chips */}
             <div className="lg:col-span-7 flex flex-col items-start">
               {/* Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-200 text-xs font-bold tracking-wider uppercase mb-5 shadow-sm backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-200 text-xs font-bold tracking-wider uppercase mb-5 shadow-sm backdrop-blur-sm">
                 <Sparkles className="w-3.5 h-3.5 text-purple-300 animate-pulse" />
                 <span>Meet Ana • 24/7 AI Skincare Advisor</span>
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black italic tracking-tighter uppercase leading-[1.1] mb-4">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black italic tracking-tighter uppercase leading-[1.15] mb-4">
                 Not Sure What Your Skin Needs?{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-200 to-white">
                   Ask Ana.
@@ -93,7 +93,7 @@ export default function AnaAdvisorSection() {
               </h2>
 
               {/* Subtitle */}
-              <p className="text-sm sm:text-base text-zinc-300 max-w-xl leading-relaxed mb-6 font-normal">
+              <p className="text-xs sm:text-base text-zinc-300 max-w-xl leading-relaxed mb-6 font-normal">
                 Skip the confusion. Ana is your personal AI beauty consultant —
                 trained on Ayurvedic botanicals, modern dermatological science, and
                 every Anose formula. Get personalized routines, ingredient breakdowns,
@@ -105,37 +105,37 @@ export default function AnaAdvisorSection() {
                 <div className="text-xs uppercase tracking-widest text-purple-300 font-bold mb-3 flex items-center gap-1.5">
                   <span>Popular Questions People Ask Ana:</span>
                 </div>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2 sm:gap-2.5">
                   {SUGGESTED_QUESTIONS.map((q, idx) => (
                     <button
                       key={idx}
                       onClick={() => triggerAna(q.query)}
-                      className="group flex items-center gap-2 text-xs sm:text-sm font-medium bg-white/10 hover:bg-purple-600/40 active:scale-95 border border-white/15 hover:border-purple-400/50 rounded-full px-3.5 py-2 transition-all duration-300 text-zinc-200 hover:text-white backdrop-blur-sm"
+                      className="group flex items-center gap-2 text-xs sm:text-sm font-medium bg-white/10 hover:bg-purple-600/40 active:scale-95 border border-white/15 hover:border-purple-400/50 rounded-full px-3 py-1.5 sm:px-3.5 sm:py-2 transition-all duration-300 text-zinc-200 hover:text-white backdrop-blur-sm text-left"
                     >
                       <span>{q.icon}</span>
                       <span>{q.text}</span>
-                      <ArrowRight className="w-3 h-3 text-purple-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                      <ArrowRight className="w-3 h-3 text-purple-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Action Area: Custom Question Input & CTA */}
-              <div className="w-full max-w-lg mt-2">
+              <div className="w-full max-w-lg mt-1">
                 <form
                   onSubmit={handleCustomSubmit}
-                  className="relative flex items-center bg-white/10 border border-purple-400/30 rounded-2xl p-1.5 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-500/30 transition-all backdrop-blur-md"
+                  className="relative flex items-center bg-white/10 border border-purple-400/30 rounded-2xl p-1 sm:p-1.5 focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-500/30 transition-all backdrop-blur-md"
                 >
                   <input
                     type="text"
                     value={customQuestion}
                     onChange={(e) => setCustomQuestion(e.target.value)}
-                    placeholder="Type your skin question here (e.g. routine for glow)..."
-                    className="w-full bg-transparent px-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none"
+                    placeholder="Ask Ana a question about your skin..."
+                    className="w-full bg-transparent px-3 sm:px-4 py-2 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none"
                   />
                   <button
                     type="submit"
-                    className="flex-shrink-0 bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-purple-600/30"
+                    className="flex-shrink-0 bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-purple-600/30"
                   >
                     <span>Ask Ana</span>
                     <Send className="w-3.5 h-3.5" />
@@ -144,17 +144,17 @@ export default function AnaAdvisorSection() {
               </div>
 
               {/* Trust Micro-Pills */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6 pt-5 border-t border-white/10 text-[11px] sm:text-xs text-zinc-400">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-6 pt-5 border-t border-white/10 text-[11px] sm:text-xs text-zinc-400">
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                   <span>Instant Answers</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Custom Routine Generator</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
                   <span>100% Free Consultation</span>
                 </div>
               </div>
@@ -162,12 +162,12 @@ export default function AnaAdvisorSection() {
 
             {/* Right Column: Simulated Live Chat Preview Card */}
             <div className="lg:col-span-5 w-full flex justify-center">
-              <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 sm:p-6 shadow-2xl relative">
+              <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-4 sm:p-6 shadow-2xl relative">
                 {/* Chat Header */}
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="w-11 h-11 rounded-full bg-purple-700/60 p-0.5 ring-2 ring-purple-400/40 overflow-hidden flex items-center justify-center">
+                <div className="flex items-center justify-between gap-2 pb-3 mb-3 sm:pb-4 sm:mb-4 border-b border-white/10">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-purple-700/60 p-0.5 ring-2 ring-purple-400/40 overflow-hidden flex items-center justify-center">
                         <Image
                           src="/assets/images/ana-character.webp"
                           alt="Ana AI"
@@ -176,40 +176,41 @@ export default function AnaAdvisorSection() {
                           className="object-cover rounded-full"
                         />
                       </div>
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-zinc-900 rounded-full" />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-400 border-2 border-zinc-900 rounded-full" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="font-bold text-sm text-white flex items-center gap-1.5">
                         <span>Ana</span>
-                        <span className="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full font-medium">
-                          AI Skincare Expert
+                        <span className="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                          AI Expert
                         </span>
                       </div>
-                      <div className="text-[11px] text-green-400 font-medium">
-                        ● Online • Ready to help
+                      <div className="text-[10.5px] sm:text-[11px] text-green-400 font-medium whitespace-nowrap flex items-center gap-1.5 mt-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block animate-pulse" />
+                        <span>Online • Ready to help</span>
                       </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => triggerAna()}
-                    className="text-[11px] font-bold text-purple-300 hover:text-white transition-colors uppercase tracking-wider bg-white/10 px-3 py-1 rounded-full border border-white/10 hover:border-purple-400/40"
+                    className="flex-shrink-0 text-[10px] sm:text-[11px] font-bold text-purple-300 hover:text-white transition-colors uppercase tracking-wider bg-white/10 hover:bg-white/20 px-2.5 sm:px-3 py-1.5 rounded-full border border-white/10 hover:border-purple-400/40 whitespace-nowrap shadow-sm"
                   >
-                    Open Full Chat
+                    Open Chat
                   </button>
                 </div>
 
                 {/* Simulated Conversation */}
-                <div className="space-y-3.5 text-xs sm:text-sm">
+                <div className="space-y-3 text-xs sm:text-sm">
                   {/* Visitor Message */}
                   <div className="flex justify-end">
-                    <div className="bg-purple-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[85%] shadow-md">
+                    <div className="bg-purple-600 text-white rounded-2xl rounded-tr-none px-3.5 py-2 sm:px-4 sm:py-2.5 max-w-[88%] sm:max-w-[85%] shadow-md leading-relaxed">
                       My skin feels dry & dull after travel. Which product will help restore my glow?
                     </div>
                   </div>
 
                   {/* Ana Reply */}
-                  <div className="flex items-start gap-2.5">
+                  <div className="flex items-start gap-2 sm:gap-2.5">
                     <div className="w-6 h-6 rounded-full overflow-hidden bg-purple-600/40 flex-shrink-0 mt-1">
                       <Image
                         src="/assets/images/ana-character.webp"
@@ -219,12 +220,12 @@ export default function AnaAdvisorSection() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="bg-white/15 border border-white/10 text-zinc-100 rounded-2xl rounded-tl-none p-3.5 max-w-[90%] space-y-2 leading-relaxed backdrop-blur-md">
+                    <div className="bg-white/15 border border-white/10 text-zinc-100 rounded-2xl rounded-tl-none p-3 sm:p-3.5 max-w-[90%] space-y-2 leading-relaxed backdrop-blur-md">
                       <p>
                         I recommend starting with our gentle <strong>Herbal Facewash</strong>, followed immediately by <strong>Anose FaceCream (15g)</strong> ✨
                       </p>
                       <p className="text-[11px] text-purple-200">
-                        🌿 It contains Sandalwood and Jojoba to deeply lock in moisture without clogging pores. Use coupon code <span className="bg-white/20 px-1 py-0.5 rounded font-bold text-white">DR-OAS</span> for an extra 10% off!
+                        🌿 It contains Sandalwood and Jojoba to deeply lock in moisture without clogging pores. Use coupon code <span className="bg-white/20 px-1.5 py-0.5 rounded font-bold text-white whitespace-nowrap inline-block">DR-OAS</span> for an extra 10% off!
                       </p>
                     </div>
                   </div>
@@ -233,11 +234,11 @@ export default function AnaAdvisorSection() {
                 {/* Direct Launch Button */}
                 <button
                   onClick={() => triggerAna('Hi Ana, I would like personalized skincare recommendations for my skin')}
-                  className="w-full mt-5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 group"
+                  className="w-full mt-4 sm:mt-5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white py-2.5 sm:py-3 px-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 group"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-4 h-4 flex-shrink-0" />
                   <span>Start Live Conversation</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </button>
               </div>
             </div>

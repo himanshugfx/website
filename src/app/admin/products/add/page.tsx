@@ -6,10 +6,13 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, X, Package, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import MediaUploader from '@/components/admin/MediaUploader';
+import SizeVariantManager from '@/components/admin/SizeVariantManager';
+import { SizeOption, serializeSizes } from '@/lib/productSizes';
 
 export default function AddProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [sizeVariants, setSizeVariants] = useState<SizeOption[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         category: 'cosmetic',
@@ -39,12 +42,18 @@ export default function AddProductPage() {
         setLoading(true);
 
         try {
+            const finalSizes = sizeVariants.length > 0 ? serializeSizes(sizeVariants) : formData.sizes;
+            const payload = {
+                ...formData,
+                sizes: finalSizes,
+            };
+
             const res = await fetch('/api/admin/products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
@@ -291,17 +300,12 @@ export default function AddProductPage() {
                                 <p className="text-xs text-gray-500 mt-1">List the key ingredients of this product (comma-separated)</p>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Sizes (comma-separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    name="sizes"
-                                    value={formData.sizes}
-                                    onChange={handleChange}
-                                    placeholder="e.g., 50ml, 100ml, 200ml"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                            <div className="md:col-span-2">
+                                <SizeVariantManager
+                                    variants={sizeVariants}
+                                    onChange={setSizeVariants}
+                                    defaultPrice={parseFloat(formData.price) || 0}
+                                    defaultOriginPrice={parseFloat(formData.originPrice) || 0}
                                 />
                             </div>
 

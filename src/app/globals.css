@@ -10543,28 +10543,28 @@ textarea:focus {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Fix for buttons with colored backgrounds that get overridden by CSS resets */
-button[class*="bg-purple"] {
+/* Fix for buttons with solid colored backgrounds that get overridden by CSS resets */
+button:is([class~="bg-purple-600"], [class~="bg-purple-700"], [class~="bg-purple-800"]) {
   background-color: #9333ea !important;
 }
 
-button[class*="bg-purple"]:hover {
+button:is([class~="bg-purple-600"], [class~="bg-purple-700"], [class~="bg-purple-800"]):hover {
   background-color: #7c3aed !important;
 }
 
-button[class*="bg-blue"] {
+button:is([class~="bg-blue-600"], [class~="bg-blue-700"]) {
   background-color: #2563eb !important;
 }
 
-button[class*="bg-green"] {
+button:is([class~="bg-green-600"], [class~="bg-green-700"]) {
   background-color: #16a34a !important;
 }
 
-button[class*="bg-red"] {
+button:is([class~="bg-red-600"], [class~="bg-red-700"]) {
   background-color: #dc2626 !important;
 }
 
-button[class*="bg-black"] {
+button:is([class~="bg-black"]) {
   background-color: #000000 !important;
 }
 
