@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import prisma from "@/lib/prisma";
 import ShopClient from "./ShopClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
     title: "Luxury Skincare & Herbal Beauty Collection | Anose Beauty",

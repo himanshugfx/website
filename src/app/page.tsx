@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 import prisma from "@/lib/prisma";
 import type { Metadata } from 'next';
 
@@ -103,6 +103,7 @@ export default async function Home() {
             src="/assets/anose-cream.jpg"
             alt="Hero Banner"
             fill
+            sizes="100vw"
             className="object-cover scale-105"
             priority
           />

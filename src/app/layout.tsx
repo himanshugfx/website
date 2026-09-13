@@ -15,7 +15,11 @@ import { Analytics } from "@vercel/analytics/next"
 import PageViewTracker from "@/components/PageViewTracker";
 import AdminAutoLogout from "@/components/layout/AdminAutoLogout";
 import { IBM_Plex_Sans } from "next/font/google";
-import AnoseAssistant from "@/components/AnoseAssistant";
+import dynamic from "next/dynamic";
+
+const AnoseAssistant = dynamic(() => import("@/components/AnoseAssistant"), {
+  ssr: false,
+});
 
 const ibmPlexSans = IBM_Plex_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -160,8 +164,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://p.typekit.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://use.typekit.net" />
+        <link rel="dns-prefetch" href="https://p.typekit.net" />
         <link rel="stylesheet" href="https://use.typekit.net/htn0bil.css" />
-        <Script id="microsoft-clarity" strategy="afterInteractive">
+        <Script id="microsoft-clarity" strategy="lazyOnload">
           {`
             (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -211,13 +219,13 @@ export default function RootLayout({
               />
               <AdminAutoLogout />
               <PageViewTracker />
-              <Script src="/assets/js/phosphor-icons.js" strategy="afterInteractive" />
+              <Script src="/assets/js/phosphor-icons.js" strategy="lazyOnload" />
               {/* Google Analytics */}
               <Script
                 src="https://www.googletagmanager.com/gtag/js?id=G-E2J25CTNXK"
-                strategy="afterInteractive"
+                strategy="lazyOnload"
               />
-              <Script id="google-analytics" strategy="afterInteractive">
+              <Script id="google-analytics" strategy="lazyOnload">
                 {`
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}

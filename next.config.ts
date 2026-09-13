@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   trailingSlash: false,
-  // Standalone output is only for Docker - Vercel doesn't need it
-  // output: 'standalone',
+  compress: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: 'https',
@@ -28,17 +29,26 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Limit to 10MB (was 100MB — that global limit enables DoS via any server action)
       bodySizeLimit: '10mb',
     },
   },
   typescript: {
-    // There are pre-existing TS errors across many files.
-    // This prevents build failures while still showing errors in dev.
     ignoreBuildErrors: true,
   },
   async headers() {
     return [
+      {
+        source: '/assets/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
       {
         source: '/api/:path*',
         headers: [

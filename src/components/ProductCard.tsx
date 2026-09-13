@@ -88,6 +88,7 @@ export default function ProductCard({ product }: ProductProps) {
                             src={imageUrl}
                             alt={product.name}
                             fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             className="object-cover transition-transform duration-500 group-hover:scale-110"
                             unoptimized={imageUrl.startsWith('/uploads/') || imageUrl.startsWith('/api/media/')}
                         />

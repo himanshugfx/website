@@ -7,6 +7,19 @@ import ProductCard from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 import type { ProductCardProduct } from "@/components/ProductCard";
 import { getAbsoluteMediaUrl } from '@/lib/media';
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+    try {
+        const products = await prisma.product.findMany({
+            select: { slug: true },
+        });
+        return products.map((p) => ({ slug: p.slug }));
+    } catch (error) {
+        console.error("Error generating static params for products:", error);
+        return [];
+    }
+}
 
 export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> },
