@@ -100,7 +100,8 @@ export function normalizeCountry(country?: string | null): string | null {
  * Send server-side event to Meta Conversions API (CAPI)
  */
 export async function sendMetaCapiEvent(params: MetaCapiEventParams) {
-    const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.META_PIXEL_ID || '1750405452420472';
+    const envPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.META_PIXEL_ID;
+    const pixelId = (envPixelId && envPixelId !== '1750405452420472') ? envPixelId : '2236434150537597';
     const accessToken = process.env.META_CAPI_ACCESS_TOKEN || process.env.META_CONVERSIONS_API_TOKEN;
 
     if (!pixelId) {
