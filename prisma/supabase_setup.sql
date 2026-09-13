@@ -61,6 +61,9 @@ CREATE TABLE IF NOT EXISTS "Product" (
 CREATE INDEX IF NOT EXISTS "Product_bestSeller_sold_idx" ON "Product"("bestSeller", "sold");
 CREATE INDEX IF NOT EXISTS "Product_sale_createdAt_idx" ON "Product"("sale", "createdAt");
 CREATE INDEX IF NOT EXISTS "Product_new_createdAt_idx" ON "Product"("new", "createdAt");
+CREATE INDEX IF NOT EXISTS "Product_priority_createdAt_idx" ON "Product"("priority" DESC, "createdAt" DESC);
+CREATE INDEX IF NOT EXISTS "Product_category_idx" ON "Product"("category");
+CREATE INDEX IF NOT EXISTS "Product_type_idx" ON "Product"("type");
 
 -- 4. Variation
 CREATE TABLE IF NOT EXISTS "Variation" (
@@ -71,6 +74,7 @@ CREATE TABLE IF NOT EXISTS "Variation" (
     "colorImage" TEXT NOT NULL,
     "image" TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS "Variation_productId_idx" ON "Variation"("productId");
 
 -- 5. Order
 CREATE TABLE IF NOT EXISTS "Order" (
@@ -105,6 +109,11 @@ CREATE TABLE IF NOT EXISTS "Order" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS "Order_userId_idx" ON "Order"("userId");
+CREATE INDEX IF NOT EXISTS "Order_customerEmail_idx" ON "Order"("customerEmail");
+CREATE INDEX IF NOT EXISTS "Order_status_idx" ON "Order"("status");
+CREATE INDEX IF NOT EXISTS "Order_paymentStatus_idx" ON "Order"("paymentStatus");
+CREATE INDEX IF NOT EXISTS "Order_createdAt_idx" ON "Order"("createdAt");
 
 -- 6. OrderItem
 CREATE TABLE IF NOT EXISTS "OrderItem" (
@@ -114,6 +123,8 @@ CREATE TABLE IF NOT EXISTS "OrderItem" (
     "quantity" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL
 );
+CREATE INDEX IF NOT EXISTS "OrderItem_orderId_idx" ON "OrderItem"("orderId");
+CREATE INDEX IF NOT EXISTS "OrderItem_productId_idx" ON "OrderItem"("productId");
 
 -- 7. PromoCode
 CREATE TABLE IF NOT EXISTS "PromoCode" (
@@ -341,6 +352,8 @@ CREATE TABLE IF NOT EXISTS "AbandonedCheckout" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS "AbandonedCheckout_status_idx" ON "AbandonedCheckout"("status");
+CREATE INDEX IF NOT EXISTS "AbandonedCheckout_createdAt_idx" ON "AbandonedCheckout"("createdAt");
 
 -- 22. HotelAmenity
 CREATE TABLE IF NOT EXISTS "HotelAmenity" (

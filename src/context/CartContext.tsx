@@ -100,11 +100,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Track if we've synced this session
     const hasSyncedRef = useRef(false);
 
-    // Save cart to local storage
+    // Debounced save cart to local storage to prevent main thread blocking during rapid interactions
     useEffect(() => {
-        if (isLoaded) {
-            localStorage.setItem('anose_cart', JSON.stringify(cart));
-        }
+        if (!isLoaded) return;
+        const handler = setTimeout(() => {
+            try {
+                localStorage.setItem('anose_cart', JSON.stringify(cart));
+            } catch (e) {
+                console.error("Failed to save cart to localStorage", e);
+            }
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [cart, isLoaded]);
+
+    // Ensure flush before page unload
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const handleBeforeUnload = () => {
+            if (isLoaded) {
+                try {
+                    localStorage.setItem('anose_cart', JSON.stringify(cart));
+                } catch (e) {
+                    console.error("Failed to flush cart to localStorage", e);
+                }
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [cart, isLoaded]);
 
     // Save selected promo to local storage

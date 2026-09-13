@@ -46,7 +46,11 @@ In Vercel dashboard → Project Settings → Environment Variables, add:
 
 #### Required Variables:
 ```
-DATABASE_URL=postgresql://neondb_owner:npg_9XxdVGgnqf1C@ep-tiny-moon-a1ni1wwr-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://postgres.awpkcpbjmtlmytblqnbp:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres.awpkcpbjmtlmytblqnbp:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
+NEXT_PUBLIC_SUPABASE_URL=https://awpkcpbjmtlmytblqnbp.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_NxIRIt5w9ze5o6BA_UV0Vw_Ai_wN_CI
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_NxIRIt5w9ze5o6BA_UV0Vw_Ai_wN_CI
 NEXTAUTH_SECRET=4e140455e7f1a9eb15a57c6b1312324a
 NEXTAUTH_URL=https://your-project.vercel.app
 ```
@@ -170,7 +174,7 @@ export async function POST(request: Request) {
 
 ## 📝 Notes
 
-- **Database:** Your Neon PostgreSQL database is already set up and working
+- **Database:** Your Supabase PostgreSQL database is set up and working
 - **Build:** Build completes successfully ✅
 - **File Uploads:** Need to be migrated to cloud storage for production
 - **Domain:** You can add a custom domain in Vercel settings
@@ -180,13 +184,12 @@ export async function POST(request: Request) {
 
 ### Build Fails
 - Check environment variables are set correctly
-- Verify `DATABASE_URL` is accessible from Vercel
+- Verify `DATABASE_URL` and `DIRECT_URL` are accessible from Vercel
 - Check build logs in Vercel dashboard
 
 ### Database Connection Issues
-- Verify `DATABASE_URL` includes `?sslmode=require`
-- Check if Neon database allows connections from Vercel IPs
-- Ensure database is not paused (Neon free tier pauses after inactivity)
+- Verify `DATABASE_URL` includes `?pgbouncer=true` and `DIRECT_URL` uses port 5432
+- Check if Supabase project is active and credentials are correct
 
 ### NextAuth Not Working
 - Verify `NEXTAUTH_URL` matches your deployment URL exactly

@@ -15,11 +15,8 @@ This guide covers multiple deployment options for the Anose Beauty e-commerce we
 ## Prerequisites
 
 1. **PostgreSQL Database**: The application uses PostgreSQL in production. Choose one:
+   - [Supabase](https://supabase.com) (Recommended)
    - [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
-   - [Supabase](https://supabase.com) (Free tier available)
-   - [Railway](https://railway.app)
-   - [Neon](https://neon.tech)
-   - [PlanetScale](https://planetscale.com)
 
 2. **Node.js 20+** installed locally (for development)
 
