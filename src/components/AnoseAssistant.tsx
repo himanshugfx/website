@@ -44,17 +44,45 @@ function TypingIndicator() {
   );
 }
 
+function cleanAnaLink(url: string): string {
+  if (!url) return '/';
+  let cleaned = url.trim();
+  // Strip apex or www domain so links always navigate on current origin (e.g. www.anosebeauty.com or localhost)
+  cleaned = cleaned.replace(/^(https?:)?\/\/(www\.)?anosebeauty\.com/i, '');
+  // If the path was like "product/slug", prepend "/"
+  if (cleaned.startsWith('product/')) {
+    cleaned = '/' + cleaned;
+  }
+  return cleaned || '/';
+}
+
 function formatMarkdown(text: string): string {
-  return text
+  let formatted = text
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/^## (.+)$/gm, "<p class='ana-heading2'>$1</p>")
     .replace(/^# (.+)$/gm, "<p class='ana-heading1'>$1</p>")
     .replace(/^- (.+)$/gm, "<span class='ana-li'>$1</span>")
     .replace(/^• (.+)$/gm, "<span class='ana-li'>$1</span>")
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="ana-buy-btn">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, (_match, label, url) => {
+      const href = cleanAnaLink(url);
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="ana-buy-btn">${label}</a>`;
+    });
+
+  // Convert any bare https://anosebeauty.com/product/... or https://www.anosebeauty.com/product/... into buttons if not already converted
+  formatted = formatted.replace(
+    /(^|[^"'>])(https?:\/\/(?:www\.)?anosebeauty\.com\/product\/[a-zA-Z0-9_-]+)/gi,
+    (_match, prefix, rawUrl) => {
+      const clean = cleanAnaLink(rawUrl);
+      return `${prefix}<a href="${clean}" target="_blank" rel="noopener noreferrer" class="ana-buy-btn">View Product 🛍️</a>`;
+    }
+  );
+
+  formatted = formatted
     .replace(/\n{2,}/g, "</p><p>")
     .replace(/\n/g, "<br/>");
+
+  return formatted;
 }
 
 export default function AnoseAssistant() {
@@ -747,6 +775,7 @@ export default function AnoseAssistant() {
                               tagName,
                               attribs: {
                                 ...attribs,
+                                href: cleanAnaLink(attribs.href || ''),
                                 // Force noopener on all links that open in a new tab
                                 ...(attribs.target === '_blank' ? { rel: 'noopener noreferrer' } : {}),
                               },

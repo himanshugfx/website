@@ -30,7 +30,7 @@ async function getStoreContext() {
     const productList = products
       .map(
         (p) =>
-          `- ${p.name} (${p.category}): ₹${p.price}\n  URL: /product/${p.slug}${p.description ? `\n  Description: ${p.description.replace(/\n/g, ' ')}` : ''}${p.ingredients ? `\n  Ingredients: ${p.ingredients}` : ''}`
+          `- ${p.name} (${p.category}): ₹${p.price}\n  Relative Link: /product/${p.slug}${p.description ? `\n  Description: ${p.description.replace(/\n/g, ' ')}` : ''}${p.ingredients ? `\n  Ingredients: ${p.ingredients}` : ''}`
       )
       .join('\n\n');
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
 
 ## 4. Store Information
 **Brand:** Anose Beauty
-**Website:** anosebeauty.com
+**Website:** www.anosebeauty.com
 **Email:** wecare@anosebeauty.com
 **Phone:** +91 9110134408
 **Location:** Noida, Uttar Pradesh, India
@@ -101,7 +101,7 @@ ${promoList}
 
 ## 8. Important Rules
 - NEVER make up product details; ONLY recommend the specific products provided in the list above.
-- ALWAYS include a "Buy Now" link for every product you recommend. Use ONLY this format: [Buy Now 🛍️](URL). This will be rendered as a button.
+- ALWAYS include a "Buy Now" link for every product you recommend. Use ONLY relative paths in this exact format: [Buy Now 🛍️](/product/slug). NEVER use absolute URLs or domain names (e.g. do NOT write https://anosebeauty.com) — use strictly the relative path starting with /product/. This will be rendered as an interactive button.
 - Always include the price of the product you are recommending.
 - If relevant, mention active promo codes to encourage immediate purchase.
 - Always end by asking if they'd like to try the recommended product today.`;

@@ -134,7 +134,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                     }}
                 >
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                    <div className="container mx-auto lg:pt-[120px] pt-20 pb-12 relative z-[1]">
+                    <div className="container mx-auto lg:pt-[90px] pt-16 pb-10 relative z-[1]">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center text-center">
                             {/* Structured SEO H1 Tag */}
                             <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight font-primary max-w-4xl">
@@ -142,12 +142,12 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             </h1>
 
                             {/* Rich Contextual Introductory Copy (SEO & GEO) */}
-                            <p className="text-sm md:text-base text-purple-100/90 font-medium mt-4 max-w-3xl leading-relaxed">
+                            <p className="text-sm md:text-base text-purple-100/90 font-medium mt-3.5 max-w-3xl leading-relaxed">
                                 Discover Anose Beauty&apos;s premium range of dermatologically tested herbal face washes, sunscreen lotions, and revitalizing creams. Formulated with authentic Indian botanicals for long-lasting hydration, sun protection, and radiant skin.
                             </p>
 
                             {/* Shipping Callout Badge (AEO) */}
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-sm">
                                     <Truck className="w-3.5 h-3.5 text-purple-300" />
                                     Free Shipping Across India Over ₹199
@@ -159,7 +159,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
                             </div>
 
                             {/* Breadcrumbs */}
-                            <div className="link flex items-center justify-center gap-1.5 caption1 mt-6 text-white/80">
+                            <div className="link flex items-center justify-center gap-1.5 caption1 mt-5 text-white/80">
                                 <Link href="/" className="hover:text-white transition-colors">Home</Link>
                                 <span className="text-white/40">/</span>
                                 <span className="text-purple-200 font-bold">Shop Collection</span>
@@ -170,11 +170,11 @@ export default function ShopClient({ initialProducts, categories, types, brands 
             </div>
 
             {/* Main PLP Section */}
-            <div className="shop-product mt-8 lg:py-16 md:py-12 py-8">
+            <div className="shop-product mt-4 md:mt-6 lg:py-10 md:py-8 py-6">
                 <div className="container mx-auto px-4">
 
                     {/* AEO Conversational Filter Chips */}
-                    <div className="mb-10">
+                    <div className="mb-6">
                         <div className="flex items-center gap-2 mb-3">
                             <Sparkles className="w-4 h-4 text-purple-600" />
                             <span className="text-xs font-black uppercase tracking-widest text-purple-900">Conversational Search & Intent Filters</span>
@@ -302,7 +302,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
 
                         {/* Product Grid & Controls */}
                         <div className="list-product-block style-grid lg:w-3/4 md:w-2/3 w-full">
-                            <div className="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between gap-5 flex-wrap mb-6">
+                            <div className="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex items-center justify-between gap-5 flex-wrap mb-5">
                                 <div className="caption1 text-gray-600 font-semibold">
                                     Showing <span className="text-purple-700 font-extrabold">{paginatedProducts.length}</span> of {filteredProducts.length} items
                                 </div>
@@ -341,7 +341,7 @@ export default function ShopClient({ initialProducts, categories, types, brands 
 
                             {/* Clean SEO Pagination Controls */}
                             {totalPages > 1 && (
-                                <div className="flex items-center justify-center gap-2 mt-12">
+                                <div className="flex items-center justify-center gap-2 mt-8">
                                     <button
                                         onClick={() => handlePageChange(currentPage - 1)}
                                         disabled={currentPage === 1}

@@ -115,12 +115,12 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     };
 
     return (
-        <div className="product-detail-block md:py-16 py-8">
+        <div className="product-detail-block md:py-10 py-6">
             <div className="container mx-auto px-4 max-w-7xl">
-                <div className="flex max-md:flex-col gap-10 items-start">
+                <div className="flex max-md:flex-col gap-8 lg:gap-10 items-start">
                     {/* Left Column: Product Visuals with Drop-Shadow Contour */}
                     <div className="left-content md:w-1/2 w-full sticky top-24">
-                        <div className="image-main relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-b from-stone-50/80 to-stone-100/50 border border-gray-100/80 flex items-center justify-center p-8">
+                        <div className="image-main relative aspect-square max-w-[540px] mx-auto rounded-2xl overflow-hidden bg-gradient-to-b from-stone-50/80 to-stone-100/50 border border-gray-100/80 flex items-center justify-center p-4 sm:p-6">
                             {showVideo && hasVideo ? (
                                 <video
                                     src={videoUrl}
@@ -146,7 +146,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                         </div>
 
                         {/* Thumbnail Gallery */}
-                        <div className="list-images grid grid-cols-4 sm:grid-cols-5 gap-3 mt-4">
+                        <div className="list-images grid grid-cols-4 sm:grid-cols-5 gap-3 mt-3 max-w-[540px] mx-auto">
                             {hasVideo && (
                                 <div
                                     className={`item aspect-square rounded-xl overflow-hidden cursor-pointer border-2 relative transition-all duration-200 ${

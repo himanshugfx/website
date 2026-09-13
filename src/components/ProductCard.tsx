@@ -71,8 +71,8 @@ export default function ProductCard({ product }: ProductProps) {
     };
 
     return (
-        <div className="product-item group bg-white p-4 rounded-2xl border border-line hover:shadow-lg transition-all duration-500">
-            <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
+        <div className="product-item group bg-white p-3 sm:p-4 rounded-2xl border border-line hover:shadow-lg transition-all duration-500">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-stone-50/60">
                 <Link href={`/product/${product.slug}`} className="block h-full w-full">
                     {hasVideo ? (
                         <video
@@ -81,7 +81,7 @@ export default function ProductCard({ product }: ProductProps) {
                             loop
                             muted
                             playsInline
-                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                         />
                     ) : (
                         <Image
@@ -89,7 +89,7 @@ export default function ProductCard({ product }: ProductProps) {
                             alt={product.name}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="object-contain p-1.5 transition-transform duration-500 group-hover:scale-105"
                             unoptimized={imageUrl.startsWith('/uploads/') || imageUrl.startsWith('/api/media/')}
                         />
                     )}
@@ -173,14 +173,14 @@ export default function ProductCard({ product }: ProductProps) {
 
             </div>
 
-            <div className="product-infor mt-4 text-center">
+            <div className="product-infor mt-3 text-center">
                 <div className="product-brand caption2 text-secondary font-semibold uppercase">{product.brand}</div>
                 <Link href={`/product/${product.slug}`} className="product-name heading6 mt-1 line-clamp-1 hover:underline font-bold text-gray-900">
                     {product.name}
                 </Link>
 
                 {/* AEO Bulleted Spec Summaries */}
-                <ul className="text-[11px] text-gray-500 mt-2 space-y-0.5 flex flex-wrap items-center justify-center gap-x-2.5">
+                <ul className="text-[11px] text-gray-500 mt-1.5 space-y-0.5 flex flex-wrap items-center justify-center gap-x-2.5">
                     <li className="flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-purple-600 rounded-full inline-block" />
                         <span>100% Herbal</span>
@@ -195,7 +195,7 @@ export default function ProductCard({ product }: ProductProps) {
                     </li>
                 </ul>
 
-                <div className="product-price flex items-center justify-center gap-2 mt-2">
+                <div className="product-price flex items-center justify-center gap-2 mt-1.5">
                     <div className="price heading6 text-black font-extrabold">₹{product.price}</div>
                     {product.originPrice > product.price && (
                         <del className="origin-price caption1 text-secondary">₹{product.originPrice}</del>
