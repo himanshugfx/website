@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 import ProductTabs from "@/components/ProductTabs";
+import AnaAdvisorSection from "@/components/home/AnaAdvisorSection";
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCardProduct } from "@/components/ProductCard";
@@ -175,8 +176,11 @@ export default async function Home() {
         newArrivals={newArrivals as ProductCardProduct[]}
       />
 
+      {/* Ana AI Beauty Concierge Section */}
+      <AnaAdvisorSection />
+
       {/* Benefits */}
-      <div className="benefit-block mt-16 md:mt-24 md:py-20 py-10 bg-zinc-50">
+      <div className="benefit-block mt-2 md:mt-4 py-8 md:py-12 bg-zinc-50">
         <div className="container mx-auto px-4">
           <div className="list-benefit grid items-start md:grid-cols-3 grid-cols-1 gap-10">
             <div className="benefit-item flex flex-col items-center text-center">

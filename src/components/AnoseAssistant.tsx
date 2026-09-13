@@ -109,6 +109,7 @@ export default function AnoseAssistant() {
     }
   }, [isOpen]);
 
+
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
@@ -167,6 +168,23 @@ export default function AnoseAssistant() {
     },
     [isLoading, messages]
   );
+
+  useEffect(() => {
+    const handleOpenAna = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message?: string }>;
+      setIsOpen(true);
+      setShowGreeting(false);
+      setIsMinimized(false);
+      if (customEvent.detail?.message) {
+        setTimeout(() => {
+          sendMessage(customEvent.detail.message as string);
+        }, 150);
+      }
+    };
+
+    window.addEventListener("open-ana", handleOpenAna);
+    return () => window.removeEventListener("open-ana", handleOpenAna);
+  }, [sendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

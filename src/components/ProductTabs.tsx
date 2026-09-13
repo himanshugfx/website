@@ -34,7 +34,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
     };
 
     return (
-        <div className="product-tabs-block py-12 md:py-16 bg-gradient-to-b from-transparent via-purple-50/20 to-transparent">
+        <div className="product-tabs-block pt-10 pb-4 md:pt-14 md:pb-6 bg-gradient-to-b from-transparent via-purple-50/20 to-transparent">
             <div className="container mx-auto px-4">
                 {/* Tab Navigation */}
                 <div className="flex items-center justify-center mb-10">
@@ -68,7 +68,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                     {/* Horizontal Scroll Container */}
                     <div
                         ref={scrollContainerRef}
-                        className="list-product flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth py-4 px-1 no-scrollbar"
+                        className="list-product flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth py-2 px-1 no-scrollbar"
                         style={{
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none',
