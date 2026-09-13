@@ -34,9 +34,10 @@ interface Product {
     type: string;
     videoUrl?: string; // Optional video URL - if set, shows video
     ingredients?: string | null;
+    quantity?: number; // Available stock
 }
 
-export default function ProductDetailClient({ product }: { product: Product }) {
+export default function ProductDetailClient({ product, reviewCount = 0, avgRating = 0 }: { product: Product; reviewCount?: number; avgRating?: number }) {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
@@ -69,6 +70,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
     const [quantity, setQuantity] = useState(1);
     const [isExpanded, setIsExpanded] = useState(false);
+    const maxQty = product.quantity && product.quantity > 0 ? product.quantity : 99;
 
     // Active size option determines dynamic pricing
     const activeSizeOption = sizeOptions.find(
@@ -91,7 +93,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 slug: product.slug,
             });
         }
-    }, [product, currentPrice]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleVariationChange = (v: Variation) => {
         setSelectedVariation(v);
@@ -195,7 +198,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     <div className="relative w-full h-full" style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.03))' }}>
                                         <Image
                                             src={img}
-                                            alt={`Thumb ${i}`}
+                                            alt={`${product.name} - Image ${i + 1}`}
                                             fill
                                             className="object-contain"
                                             sizes="100px"
@@ -218,10 +221,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                     {product.brand || 'Anose Beauty'}
                                 </span>
                                 <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
-                                    <span className="text-amber-500">★★★★★</span>
-                                    <span>5.0</span>
+                                    <span className="text-amber-500">{'★'.repeat(Math.round(avgRating || 5))}{'☆'.repeat(5 - Math.round(avgRating || 5))}</span>
+                                    <span>{avgRating > 0 ? avgRating.toFixed(1) : '5.0'}</span>
                                     <span className="text-gray-400">•</span>
-                                    <span className="text-purple-600 hover:underline cursor-pointer">51 Reviews</span>
+                                    <span className="text-purple-600 hover:underline cursor-pointer">{reviewCount > 0 ? `${reviewCount} Review${reviewCount !== 1 ? 's' : ''}` : 'No Reviews Yet'}</span>
                                 </div>
                             </div>
 
@@ -360,7 +363,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                                         type="button"
                                         aria-label="Increase quantity"
                                         className="cursor-pointer text-base sm:text-lg font-bold text-gray-600 hover:text-gray-900 w-6 h-6 flex items-center justify-center select-none"
-                                        onClick={() => setQuantity(quantity + 1)}
+                                        onClick={() => setQuantity(Math.min(maxQty, quantity + 1))}
                                     >+</button>
                                 </div>
                                 <button
@@ -464,7 +467,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                             </div>
 
                             {/* Trust Quality Badges */}
-                            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-2 pt-2 border-t border-gray-100 text-[11px] font-semibold text-gray-700">
+                            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 text-[11px] font-semibold text-gray-700">
                                 <div className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg bg-stone-50/60">
                                     <span className="text-base">🌿</span>
                                     <span>Paraben & Toxin Free</span>

@@ -16,6 +16,7 @@ interface CartItem {
     quantity: number;
     name?: string;
     selectedSize?: string;
+    selectedColor?: string;
 }
 
 const orderLimiter = createRateLimiter('orders', {
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
         const productIds = cart.map((item: CartItem) => item.id);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, price: true, originPrice: true, name: true, slug: true, sizes: true },
+            select: { id: true, price: true, originPrice: true, name: true, slug: true, sizes: true, quantity: true },
         });
 
         if (products.length !== productIds.length) {
@@ -96,8 +97,19 @@ export async function POST(request: Request) {
             const quantity = Math.max(1, Math.floor(item.quantity));
             const { price: unitPrice } = getProductSizePrice(product, item.selectedSize);
             subtotal += unitPrice * quantity;
-            return { id: item.id, quantity, price: unitPrice };
+            return { id: item.id, quantity, price: unitPrice, selectedSize: item.selectedSize || null, selectedColor: item.selectedColor || null };
         });
+
+        // Server-side stock validation — reject orders exceeding available quantity
+        for (const item of validatedCart) {
+            const product = productMap.get(item.id);
+            if (product && product.quantity !== null && product.quantity !== undefined && item.quantity > product.quantity) {
+                return NextResponse.json(
+                    { error: `"${product.name}" only has ${product.quantity} units in stock.` },
+                    { status: 400 }
+                );
+            }
+        }
 
         // Server-side promo code validation
         let discountAmount = 0;
@@ -149,10 +161,12 @@ export async function POST(request: Request) {
                 paymentMethod: paymentMethod || 'ONLINE',
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
-                    create: validatedCart.map((item: { id: string; quantity: number; price: number }) => ({
+                    create: validatedCart.map((item: { id: string; quantity: number; price: number; selectedSize: string | null; selectedColor: string | null }) => ({
                         productId: item.id,
                         quantity: item.quantity,
                         price: item.price * item.quantity,
+                        selectedSize: item.selectedSize,
+                        selectedColor: item.selectedColor,
                     })),
                 },
             },

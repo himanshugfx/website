@@ -58,6 +58,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         notFound();
     }
 
+    // Fetch real review stats
+    const reviewStats = await prisma.productReview.aggregate({
+        where: { productId: product.id, isApproved: true },
+        _count: { id: true },
+        _avg: { rating: true },
+    });
+    const reviewCount = reviewStats._count.id || 0;
+    const avgRating = reviewStats._avg.rating ? Math.round(reviewStats._avg.rating * 10) / 10 : 0;
+
     // Related products
     const relatedProducts = await prisma.product.findMany({
         where: {
@@ -110,7 +119,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 </div>
             </div>
 
-            <ProductDetailClient product={product as Parameters<typeof ProductDetailClient>[0]['product']} />
+            <ProductDetailClient product={product as Parameters<typeof ProductDetailClient>[0]['product']} reviewCount={reviewCount} avgRating={avgRating} />
 
             {/* Customer Reviews */}
             <div className="container mx-auto px-4 max-w-7xl">

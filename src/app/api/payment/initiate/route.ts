@@ -12,6 +12,7 @@ interface CartItem {
     id: string;
     quantity: number;
     selectedSize?: string;
+    selectedColor?: string;
 }
 
 const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
             const quantity = Math.max(1, Math.floor(item.quantity));
             const { price: unitPrice } = getProductSizePrice(product, item.selectedSize);
             subtotal += unitPrice * quantity;
-            return { id: item.id, quantity, price: unitPrice };
+            return { id: item.id, quantity, price: unitPrice, selectedSize: item.selectedSize || null, selectedColor: item.selectedColor || null };
         });
 
         // Server-side promo code validation
@@ -141,10 +142,12 @@ export async function POST(request: Request) {
                 customerPhone: shippingInfo?.phone || null,
                 address: shippingInfo ? JSON.stringify(shippingInfo) : null,
                 items: {
-                    create: validatedCart.map((item: { id: string; quantity: number; price: number }) => ({
+                    create: validatedCart.map((item: { id: string; quantity: number; price: number; selectedSize: string | null; selectedColor: string | null }) => ({
                         productId: item.id,
                         quantity: item.quantity,
                         price: item.price * item.quantity,
+                        selectedSize: item.selectedSize,
+                        selectedColor: item.selectedColor,
                     })),
                 },
             },

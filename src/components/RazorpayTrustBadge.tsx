@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCcw, ChevronRight, ShieldCheck } from 'lucide-react';
+import { RefreshCcw, ChevronRight } from 'lucide-react';
 
 const RazorpayTrustBadge = () => {
     return (

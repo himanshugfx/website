@@ -114,21 +114,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => clearTimeout(handler);
     }, [cart, isLoaded]);
 
-    // Ensure flush before page unload
+    // Keep a ref to the latest cart for the beforeunload handler (avoids re-registering listener on every change)
+    const cartRef = useRef(cart);
+    useEffect(() => { cartRef.current = cart; }, [cart]);
+
+    // Ensure flush before page unload (single registration)
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const handleBeforeUnload = () => {
-            if (isLoaded) {
-                try {
-                    localStorage.setItem('anose_cart', JSON.stringify(cart));
-                } catch (e) {
-                    console.error("Failed to flush cart to localStorage", e);
-                }
+            try {
+                localStorage.setItem('anose_cart', JSON.stringify(cartRef.current));
+            } catch (e) {
+                console.error("Failed to flush cart to localStorage", e);
             }
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [cart, isLoaded]);
+    }, []);
 
     // Save selected promo to local storage
     useEffect(() => {
@@ -266,6 +268,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Sync abandoned cart after adding item
             syncAbandonedCart(updatedCart);
+            hasSyncedRef.current = true;
 
             return updatedCart;
         });

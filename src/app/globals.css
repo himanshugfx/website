@@ -10566,13 +10566,4 @@ button:is([class~="bg-red-600"], [class~="bg-red-700"]) {
 
 button:is([class~="bg-black"]) {
   background-color: #000000 !important;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+}
