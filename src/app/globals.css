@@ -44,6 +44,12 @@
   --font-secondary: "IBM Plex Sans", sans-serif;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   background: #ffffff !important;
   color: var(--foreground);

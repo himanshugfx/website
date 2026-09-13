@@ -59,7 +59,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                     {/* Left Scroll Arrow */}
                     <button
                         onClick={() => handleScroll('left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 z-20 w-11 h-11 bg-white/95 backdrop-blur-md text-gray-900 rounded-full flex items-center justify-center shadow-lg border border-purple-100 hover:bg-purple-600 hover:text-white transition-all duration-300 opacity-90 group-hover/carousel:opacity-100 focus:outline-none"
+                        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 backdrop-blur-md text-gray-900 rounded-full flex items-center justify-center shadow-lg border border-purple-100 hover:bg-purple-600 hover:text-white transition-all duration-300 opacity-90 group-hover/carousel:opacity-100 focus:outline-none"
                         aria-label="Scroll Left"
                     >
                         <ChevronLeft className="w-6 h-6" />
@@ -93,7 +93,7 @@ export default function ProductTabs({ bestSellers, onSale, newArrivals }: Produc
                     {/* Right Scroll Arrow */}
                     <button
                         onClick={() => handleScroll('right')}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 sm:translate-x-5 z-20 w-11 h-11 bg-white/95 backdrop-blur-md text-gray-900 rounded-full flex items-center justify-center shadow-lg border border-purple-100 hover:bg-purple-600 hover:text-white transition-all duration-300 opacity-90 group-hover/carousel:opacity-100 focus:outline-none"
+                        className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 backdrop-blur-md text-gray-900 rounded-full flex items-center justify-center shadow-lg border border-purple-100 hover:bg-purple-600 hover:text-white transition-all duration-300 opacity-90 group-hover/carousel:opacity-100 focus:outline-none"
                         aria-label="Scroll Right"
                     >
                         <ChevronRight className="w-6 h-6" />

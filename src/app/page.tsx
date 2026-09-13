@@ -66,7 +66,7 @@ export default async function Home() {
   }
 
   return (
-    <main>
+    <main className="overflow-x-clip">
       {/* Slider Hero - Enhanced */}
       <div className="slider-block relative 2xl:h-[800px] xl:h-[740px] lg:h-[680px] md:h-[580px] sm:h-[500px] h-[450px] w-full overflow-hidden">
         <div className="slider-main h-full w-full relative z-10">
@@ -177,7 +177,7 @@ export default async function Home() {
 
       {/* Benefits */}
       <div className="benefit-block mt-16 md:mt-24 md:py-20 py-10 bg-zinc-50">
-        <div className="container mx-auto">
+        <div className="container mx-auto px-4">
           <div className="list-benefit grid items-start md:grid-cols-3 grid-cols-1 gap-10">
             <div className="benefit-item flex flex-col items-center text-center">
               <ShieldCheck className="w-16 h-16 text-green-600 mb-5" strokeWidth={1.5} />
