@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import prisma from "@/lib/prisma";
 import ShopClient from "./ShopClient";
 
@@ -150,12 +151,23 @@ export default async function ShopPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }}
             />
-            <ShopClient
-                initialProducts={products as any}
-                categories={categories.map(c => c.category)}
-                types={types.map(t => t.type)}
-                brands={brands.map(b => b.brand)}
-            />
+            <Suspense
+                fallback={
+                    <div className="min-h-screen bg-gradient-to-b from-purple-50/40 via-white to-white flex items-center justify-center py-20">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                            <p className="text-sm font-semibold text-gray-500">Loading collection...</p>
+                        </div>
+                    </div>
+                }
+            >
+                <ShopClient
+                    initialProducts={products as any}
+                    categories={categories.map(c => c.category)}
+                    types={types.map(t => t.type)}
+                    brands={brands.map(b => b.brand)}
+                />
+            </Suspense>
         </>
     );
 }
