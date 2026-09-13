@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS "Order" (
     "returnRequest" TEXT,
     "cancelReason" TEXT,
     "returnReason" TEXT,
-    "shippingProvider" TEXT DEFAULT 'RAPIDSHYP',
+    "shippingProvider" TEXT,
     "awbNumber" TEXT,
     "shippingStatus" TEXT,
     "weight" DOUBLE PRECISION DEFAULT 0.5,

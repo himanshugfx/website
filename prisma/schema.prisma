@@ -105,7 +105,7 @@ model Order {
   cancelReason  String?
   returnReason  String?
   // Shipping Fields (Generic)
-  shippingProvider String?   @default("RAPIDSHYP")
+  shippingProvider String?
   awbNumber       String?   // Tracking ID
   shippingStatus  String?   // Shipping status from provider
   weight          Float?    @default(0.5) // KG

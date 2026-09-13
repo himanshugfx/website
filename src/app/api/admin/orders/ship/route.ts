@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { createRapidShypOrder, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -12,7 +11,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { orderId } = await request.json();
+        const { orderId, awbNumber, shippingProvider, trackingUrl } = await request.json();
 
         if (!orderId) {
             return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
@@ -21,84 +20,34 @@ export async function POST(request: Request) {
         // Fetch order details
         const order = await prisma.order.findUnique({
             where: { id: orderId },
-            include: {
-                items: {
-                    include: {
-                        product: {
-                            select: { name: true, price: true },
-                        },
-                    },
-                },
-            },
         });
 
         if (!order) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
-        if (order.awbNumber) {
-            return NextResponse.json({
-                error: 'Order already has a shipment',
-                awbNumber: order.awbNumber
-            }, { status: 400 });
-        }
-
-        // Parse address
-        let addressData: any = {};
-        try {
-            addressData = order.address ? JSON.parse(order.address) : {};
-        } catch (e) {
-            return NextResponse.json({ error: 'Invalid address format' }, { status: 400 });
-        }
-
-        // Create shipment with RapidShyp
-        const result = await createRapidShypOrder({
-            orderNumber: order.orderNumber,
-            customerName: addressData.firstName + ' ' + (addressData.lastName || ''),
-            customerEmail: addressData.email || order.customerEmail || '',
-            customerPhone: addressData.phone || order.customerPhone || '',
-            address: `${addressData.address || ''}, ${addressData.city || ''}, ${addressData.state || ''}`,
-            city: addressData.city || '',
-            state: addressData.state || '',
-            pincode: addressData.postalCode || '',
-            paymentMethod: order.paymentMethod,
-            total: order.total,
-            weight: (order as any).weight || 0.5,
-            products: order.items.map(item => ({
-                name: item.product.name,
-                quantity: item.quantity,
-                price: item.product.price,
-            })),
-        });
-
-        if (!result.success) {
-            return NextResponse.json({
-                error: result.error || 'Failed to create shipment'
-            }, { status: 500 });
-        }
-
-        // Update order with AWB number and shipping details
+        // Update order with shipping details
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
-                awbNumber: result.awbNumber,
-                shippingStatus: 'MANIFESTED',
-                shippingProvider: 'RAPIDSHYP',
-                status: 'PROCESSING',
+                awbNumber: awbNumber || null,
+                shippingStatus: 'SHIPPED',
+                shippingProvider: shippingProvider || 'STANDARD',
+                status: 'SHIPPED',
                 shippedAt: new Date(),
-                trackingUrl: result.awbNumber ? getRapidShypTrackingUrl(result.awbNumber) : null,
+                trackingUrl: trackingUrl || null,
                 lastTrackingSync: new Date(),
             },
         });
 
         return NextResponse.json({
             success: true,
-            awbNumber: result.awbNumber,
+            awbNumber: updatedOrder.awbNumber,
             trackingUrl: updatedOrder.trackingUrl,
-            message: 'Shipment created successfully on RapidShyp',
+            message: 'Order marked as shipped successfully',
         });
     } catch (error) {
-        console.error('RapidShyp ship error:', error);
-        return NextResponse.json({ error: 'Failed to create shipment' }, { status: 500 });
+        console.error('Ship order error:', error);
+        return NextResponse.json({ error: 'Failed to update shipment' }, { status: 500 });
     }
 }

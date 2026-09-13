@@ -395,15 +395,17 @@ export default function MyAccountClient({ user }: MyAccountClientProps) {
                                                                 <i className="ph ph-truck text-blue-600"></i>
                                                                 Shipment Tracking
                                                             </h6>
-                                                            <a
-                                                                href={order.trackingUrl || `https://www.rapidshyp.com/tracking?awb=${order.awbNumber}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
-                                                            >
-                                                                Track Shipment
-                                                                <i className="ph ph-arrow-square-out text-sm"></i>
-                                                            </a>
+                                                            {order.trackingUrl && (
+                                                                <a
+                                                                    href={order.trackingUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+                                                                >
+                                                                    Track Shipment
+                                                                    <i className="ph ph-arrow-square-out text-sm"></i>
+                                                                </a>
+                                                            )}
                                                         </div>
                                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                                                             <div>

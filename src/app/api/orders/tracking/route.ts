@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { trackRapidShypShipment, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 
 // Public tracking endpoint for customers
 export async function GET(request: Request) {
@@ -24,6 +23,10 @@ export async function GET(request: Request) {
             order = await prisma.order.findUnique({
                 where: { orderNumber: parseInt(orderNumber) }
             });
+        } else if (awb) {
+            order = await prisma.order.findFirst({
+                where: { awbNumber: awb }
+            });
         }
 
         const awbNumber = awb || order?.awbNumber;
@@ -36,33 +39,16 @@ export async function GET(request: Request) {
             });
         }
 
-        // Get tracking from RapidShyp
-        const tracking = await trackRapidShypShipment(awbNumber);
-
-        if (!tracking.success) {
-            // Return cached data from order
-            return NextResponse.json({
-                success: true,
-                shipped: true,
-                awbNumber,
-                status: order?.shippingStatus || 'Unknown',
-                trackingUrl: order?.trackingUrl || getRapidShypTrackingUrl(awbNumber),
-                shippedAt: order?.shippedAt,
-                estimatedDelivery: order?.estimatedDelivery,
-                deliveredAt: order?.deliveredAt,
-                cached: true,
-            });
-        }
-
         return NextResponse.json({
             success: true,
             shipped: true,
             awbNumber,
-            status: tracking.status,
-            location: tracking.location,
-            expectedDelivery: tracking.expectedDelivery,
-            scans: tracking.scans?.slice(0, 20), // Limit scan history
-            trackingUrl: getRapidShypTrackingUrl(awbNumber),
+            status: order?.shippingStatus || order?.status || 'In Transit',
+            shippingProvider: order?.shippingProvider,
+            trackingUrl: order?.trackingUrl,
+            shippedAt: order?.shippedAt,
+            estimatedDelivery: order?.estimatedDelivery,
+            deliveredAt: order?.deliveredAt,
         });
     } catch (error) {
         console.error('Public tracking error:', error);

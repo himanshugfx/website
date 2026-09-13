@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
-import { Eye, ShoppingCart, Filter, Search, Download, Truck, RefreshCw, Plus } from 'lucide-react';
+import { Eye, ShoppingCart, Filter, Search, Download, Plus } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -26,11 +26,9 @@ interface Order {
 const STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'CANCELLED', 'DRAFT'];
 
 // OrderRow component for reusable table row rendering
-function OrderRow({ order, handleStatusUpdate, shipWithRapidShyp, shippingOrderId }: {
+function OrderRow({ order, handleStatusUpdate }: {
     order: Order;
     handleStatusUpdate: (orderId: string, newStatus: string) => void;
-    shipWithRapidShyp: (orderId: string) => void;
-    shippingOrderId: string | null;
 }) {
     return (
         <tr className="group hover:bg-gray-50/50 transition-colors">
@@ -76,22 +74,6 @@ function OrderRow({ order, handleStatusUpdate, shipWithRapidShyp, shippingOrderI
                 {new Date(order.createdAt).toLocaleDateString('en-GB')}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
-                    order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
-                ) && (
-                        <button
-                            onClick={() => shipWithRapidShyp(order.id)}
-                            disabled={shippingOrderId === order.id}
-                            className="inline-flex items-center justify-center p-2 bg-blue-600 text-white rounded-lg transition-all hover:bg-blue-700 disabled:opacity-50"
-                            title="Ship with RapidShyp"
-                        >
-                            {shippingOrderId === order.id ? (
-                                <RefreshCw className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <Truck className="w-5 h-5" />
-                            )}
-                        </button>
-                    )}
                 <Link
                     href={`/admin/orders/${order.id}`}
                     className="inline-flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg transition-all hover:bg-purple-700"
@@ -152,43 +134,6 @@ export default function OrdersPage() {
         } catch (error) {
             console.error('Error updating order:', error);
             alert('Failed to update order status');
-        }
-    };
-
-    const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);
-
-    const shipWithRapidShyp = async (orderId: string) => {
-        if (!confirm('Create shipment with RapidShyp for this order?')) return;
-
-        try {
-            setShippingOrderId(orderId);
-            const res = await fetch('/api/admin/orders/ship', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId }),
-            });
-
-            const text = await res.text();
-            let data;
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch (_e) {
-                console.error('Failed to parse shipping response:', text);
-                alert(`Error: Invalid response from server. Status: ${res.status}. ${text.slice(0, 100)}`);
-                return;
-            }
-
-            if (res.ok && data.success) {
-                alert(`Shipment created with RapidShyp! AWB: ${data.awbNumber}`);
-                fetchOrders();
-            } else {
-                alert(data.error || data.message || 'Failed to create shipment');
-            }
-        } catch (error) {
-            console.error('RapidShyp shipping error:', error);
-            alert('Failed to create shipment');
-        } finally {
-            setShippingOrderId(null);
         }
     };
 
@@ -316,7 +261,7 @@ export default function OrdersPage() {
                                                     </td>
                                                 </tr>
                                                 {orders.filter((o: Order) => o.status === 'PENDING').map((order: Order) => (
-                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} />
                                                 ))}
                                             </>
                                         )}
@@ -330,7 +275,7 @@ export default function OrdersPage() {
                                                     </td>
                                                 </tr>
                                                 {orders.filter((o: Order) => o.status === 'PROCESSING').map((order: Order) => (
-                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} />
                                                 ))}
                                             </>
                                         )}
@@ -344,14 +289,14 @@ export default function OrdersPage() {
                                                     </td>
                                                 </tr>
                                                 {orders.filter((o: Order) => o.status !== 'PENDING' && o.status !== 'PROCESSING').map((order: Order) => (
-                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                                    <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} />
                                                 ))}
                                             </>
                                         )}
 
                                         {/* When status filter is active, show all matching orders without sections */}
                                         {statusFilter && orders.map((order: Order) => (
-                                            <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} shipWithRapidShyp={shipWithRapidShyp} shippingOrderId={shippingOrderId} />
+                                            <OrderRow key={order.id} order={order} handleStatusUpdate={handleStatusUpdate} />
                                         ))}
                                     </>
                                 )}

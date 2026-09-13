@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { trackRapidShypShipment, mapRapidShypStatus, getRapidShypTrackingUrl } from '@/lib/rapidshyp';
 import { requireAdmin } from '@/lib/admin/auth';
 
 // GET - Fetch tracking info for an order
@@ -15,7 +14,6 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Order ID or AWB number is required' }, { status: 400 });
         }
 
-        let awb = awbNumber;
         let order: any = null;
 
         if (orderId) {
@@ -26,6 +24,7 @@ export async function GET(request: Request) {
                     orderNumber: true,
                     awbNumber: true,
                     shippingStatus: true,
+                    shippingProvider: true,
                     shippedAt: true,
                     deliveredAt: true,
                     estimatedDelivery: true,
@@ -37,68 +36,42 @@ export async function GET(request: Request) {
             if (!order) {
                 return NextResponse.json({ error: 'Order not found' }, { status: 404 });
             }
-
-            awb = order.awbNumber;
+        } else if (awbNumber) {
+            order = await prisma.order.findFirst({
+                where: { awbNumber },
+                select: {
+                    id: true,
+                    orderNumber: true,
+                    awbNumber: true,
+                    shippingStatus: true,
+                    shippingProvider: true,
+                    shippedAt: true,
+                    deliveredAt: true,
+                    estimatedDelivery: true,
+                    trackingUrl: true,
+                    lastTrackingSync: true,
+                },
+            });
         }
 
-        if (!awb) {
+        if (!order || !order.awbNumber) {
             return NextResponse.json({
                 error: 'No shipment found for this order',
                 shipped: false,
             }, { status: 200 });
         }
 
-        // Get real-time tracking from RapidShyp
-        const trackingResult = await trackRapidShypShipment(awb);
-
-        if (!trackingResult.success) {
-            // Return cached data if API fails
-            return NextResponse.json({
-                success: true,
-                shipped: true,
-                awbNumber: awb,
-                status: order?.shippingStatus || 'Unknown',
-                trackingUrl: order?.trackingUrl,
-                shippedAt: order?.shippedAt,
-                deliveredAt: order?.deliveredAt,
-                estimatedDelivery: order?.estimatedDelivery,
-                lastSync: order?.lastTrackingSync,
-                cached: true,
-                error: trackingResult.error,
-            });
-        }
-
-        // Update order with latest tracking data
-        if (orderId) {
-            const isDelivered = trackingResult.status?.toUpperCase() === 'DELIVERED';
-            const newStatus = mapRapidShypStatus(trackingResult.status || '');
-
-            await prisma.order.update({
-                where: { id: orderId },
-                data: {
-                    shippingStatus: trackingResult.status,
-                    status: newStatus,
-                    estimatedDelivery: trackingResult.expectedDelivery
-                        ? new Date(trackingResult.expectedDelivery)
-                        : undefined,
-                    deliveredAt: isDelivered
-                        ? new Date()
-                        : undefined,
-                    lastTrackingSync: new Date(),
-                },
-            });
-        }
-
         return NextResponse.json({
             success: true,
             shipped: true,
-            awbNumber: awb,
-            status: trackingResult.status,
-            location: trackingResult.location,
-            expectedDelivery: trackingResult.expectedDelivery,
-            scans: trackingResult.scans,
-            trackingUrl: order?.trackingUrl || getRapidShypTrackingUrl(awb),
-            lastSync: new Date().toISOString(),
+            awbNumber: order.awbNumber,
+            status: order.shippingStatus || 'SHIPPED',
+            shippingProvider: order.shippingProvider,
+            trackingUrl: order.trackingUrl,
+            shippedAt: order.shippedAt,
+            deliveredAt: order.deliveredAt,
+            estimatedDelivery: order.estimatedDelivery,
+            lastSync: order.lastTrackingSync,
         });
     } catch (error) {
         console.error('Tracking fetch error:', error);
@@ -106,79 +79,34 @@ export async function GET(request: Request) {
     }
 }
 
-// POST - Sync tracking for multiple orders (batch update)
+// POST - Update tracking details for an order
 export async function POST(request: Request) {
     try {
         await requireAdmin(request);
-        const { orderIds } = await request.json();
+        const { orderId, awbNumber, shippingProvider, trackingUrl, shippingStatus, estimatedDelivery } = await request.json();
 
-        if (!orderIds || !Array.isArray(orderIds)) {
-            // Sync all shipped orders that haven't been delivered
-            const ordersToSync = await prisma.order.findMany({
-                where: {
-                    awbNumber: { not: null },
-                    status: { notIn: ['DELIVERED', 'CANCELLED', 'RTO_DELIVERED'] },
-                    shippingProvider: 'RAPIDSHYP'
-                },
-                select: {
-                    id: true,
-                    awbNumber: true,
-                },
-            });
-
-            const results: any[] = [];
-
-            for (const order of ordersToSync) {
-                if (!order.awbNumber) continue;
-
-                const trackingResult = await trackRapidShypShipment(order.awbNumber);
-
-                if (trackingResult.success && trackingResult.status) {
-                    const isDelivered = trackingResult.status?.toUpperCase() === 'DELIVERED';
-                    const newStatus = mapRapidShypStatus(trackingResult.status);
-
-                    await prisma.order.update({
-                        where: { id: order.id },
-                        data: {
-                            shippingStatus: trackingResult.status,
-                            status: newStatus,
-                            estimatedDelivery: trackingResult.expectedDelivery
-                                ? new Date(trackingResult.expectedDelivery)
-                                : undefined,
-                            deliveredAt: isDelivered
-                                ? new Date()
-                                : undefined,
-                            lastTrackingSync: new Date(),
-                        },
-                    });
-
-                    results.push({
-                        orderId: order.id,
-                        awbNumber: order.awbNumber,
-                        status: trackingResult.status,
-                        updated: true,
-                    });
-                } else {
-                    results.push({
-                        orderId: order.id,
-                        awbNumber: order.awbNumber,
-                        error: trackingResult.error,
-                        updated: false,
-                    });
-                }
-            }
-
-            return NextResponse.json({
-                success: true,
-                synced: results.filter(r => r.updated).length,
-                total: ordersToSync.length,
-                results,
-            });
+        if (!orderId) {
+            return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
         }
 
-        return NextResponse.json({ success: true, message: 'No orders specified' });
+        const updatedOrder = await prisma.order.update({
+            where: { id: orderId },
+            data: {
+                awbNumber: awbNumber || undefined,
+                shippingProvider: shippingProvider || undefined,
+                trackingUrl: trackingUrl || undefined,
+                shippingStatus: shippingStatus || undefined,
+                estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : undefined,
+                lastTrackingSync: new Date(),
+            },
+        });
+
+        return NextResponse.json({
+            success: true,
+            order: updatedOrder,
+        });
     } catch (error) {
-        console.error('Batch tracking sync error:', error);
-        return NextResponse.json({ error: 'Failed to sync tracking' }, { status: 500 });
+        console.error('Update tracking error:', error);
+        return NextResponse.json({ error: 'Failed to update tracking' }, { status: 500 });
     }
 }

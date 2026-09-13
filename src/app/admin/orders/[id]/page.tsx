@@ -148,38 +148,42 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         }
     };
 
-    const shipWithRapidShyp = async () => {
+    const [showShipModal, setShowShipModal] = useState(false);
+    const [shipForm, setShipForm] = useState({
+        awbNumber: '',
+        shippingProvider: '',
+        trackingUrl: '',
+    });
+
+    const handleShipOrder = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (!order) return;
-        if (!confirm('Create shipment with RapidShyp for this order?')) return;
 
         try {
             setShipping(true);
             const res = await fetch('/api/admin/orders/ship', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: order.id }),
+                body: JSON.stringify({
+                    orderId: order.id,
+                    awbNumber: shipForm.awbNumber,
+                    shippingProvider: shipForm.shippingProvider,
+                    trackingUrl: shipForm.trackingUrl,
+                }),
             });
 
-            const text = await res.text();
-            let data;
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch (e) {
-                console.error('Failed to parse shipping response:', text);
-                alert(`Error: Invalid response from server. Status: ${res.status}. ${text.slice(0, 100)}`);
-                return;
-            }
-
+            const data = await res.json();
             if (res.ok && data.success) {
-                alert(`Shipment created with RapidShyp! AWB: ${data.awbNumber}`);
+                alert('Order marked as shipped successfully!');
+                setShowShipModal(false);
                 fetchOrder();
                 fetchTracking();
             } else {
-                alert(data.error || data.message || 'Failed to create shipment');
+                alert(data.error || data.message || 'Failed to mark as shipped');
             }
         } catch (error) {
-            console.error('RapidShyp shipping error:', error);
-            alert('Failed to create shipment');
+            console.error('Shipping error:', error);
+            alert('Failed to mark as shipped');
         } finally {
             setShipping(false);
         }
@@ -286,22 +290,17 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        {/* Ship with RapidShyp button - only show if not yet shipped */}
+                        {/* Mark as Shipped button - only show if not yet shipped */}
                         {!order.awbNumber && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
                             order.paymentStatus === 'SUCCESSFUL' || order.paymentMethod === 'COD'
                         ) && (
                                 <button
-                                    onClick={shipWithRapidShyp}
+                                    onClick={() => setShowShipModal(true)}
                                     disabled={shipping}
                                     className="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    {shipping ? (
-                                        <RefreshCw className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Truck className="w-4 h-4" />
-                                    )}
-                                    <span className="hidden xs:inline">Ship with RapidShyp</span>
-                                    <span className="xs:hidden">Ship</span>
+                                    <Truck className="w-4 h-4" />
+                                    <span>Mark as Shipped</span>
                                 </button>
                             )}
                         {order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && order.status !== 'DELIVERED' && (
@@ -435,17 +434,27 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                     </button>
                                 </div>
                                 <div className="space-y-4">
+                                    {order.shippingProvider && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-500">Carrier / Provider</span>
+                                            <span className="text-sm font-semibold text-gray-900">{order.shippingProvider}</span>
+                                        </div>
+                                    )}
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">AWB Number</span>
-                                        <a
-                                            href={order.trackingUrl || `https://www.rapidshyp.com/tracking?awb=${order.awbNumber}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm font-mono font-bold text-blue-600 hover:underline flex items-center gap-1"
-                                        >
-                                            {order.awbNumber}
-                                            <ExternalLink className="w-3 h-3" />
-                                        </a>
+                                        <span className="text-sm text-gray-500">AWB / Tracking Number</span>
+                                        {order.trackingUrl ? (
+                                            <a
+                                                href={order.trackingUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm font-mono font-bold text-blue-600 hover:underline flex items-center gap-1"
+                                            >
+                                                {order.awbNumber}
+                                                <ExternalLink className="w-3 h-3" />
+                                            </a>
+                                        ) : (
+                                            <span className="text-sm font-mono font-bold text-gray-900">{order.awbNumber}</span>
+                                        )}
                                     </div>
                                     {tracking?.status && (
                                         <div className="flex items-center justify-between">
@@ -618,6 +627,80 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
                 </div>
             </div>
+
+            {/* Mark as Shipped Modal */}
+            {showShipModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                        <div className="flex items-center justify-between border-b pb-3">
+                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <Truck className="w-5 h-5 text-purple-600" />
+                                Mark Order as Shipped
+                            </h3>
+                            <button
+                                onClick={() => setShowShipModal(false)}
+                                className="text-gray-400 hover:text-gray-600 p-1 text-xl font-bold"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <form onSubmit={handleShipOrder} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    Courier / Provider Name
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Blue Dart, DTDC, India Post, etc."
+                                    value={shipForm.shippingProvider}
+                                    onChange={(e) => setShipForm({ ...shipForm, shippingProvider: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    AWB / Tracking Number
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. 1234567890"
+                                    value={shipForm.awbNumber}
+                                    onChange={(e) => setShipForm({ ...shipForm, awbNumber: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                                    Tracking URL (Optional)
+                                </label>
+                                <input
+                                    type="url"
+                                    placeholder="https://..."
+                                    value={shipForm.trackingUrl}
+                                    onChange={(e) => setShipForm({ ...shipForm, trackingUrl: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowShipModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={shipping}
+                                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                                >
+                                    {shipping ? 'Saving...' : 'Confirm Shipment'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }
