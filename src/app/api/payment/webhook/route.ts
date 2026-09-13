@@ -23,7 +23,11 @@ export async function POST(request: Request) {
                 .update(bodyContent)
                 .digest('hex');
 
-            if (expectedSignature !== razorpaySignature) {
+            const expectedSigBuf = Buffer.from(expectedSignature, 'utf-8');
+            const actualSigBuf = Buffer.from(razorpaySignature, 'utf-8');
+            const isSigValid = expectedSigBuf.length === actualSigBuf.length && crypto.timingSafeEqual(expectedSigBuf, actualSigBuf);
+
+            if (!isSigValid) {
                 console.error('Invalid Razorpay webhook signature');
                 return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
             }
@@ -80,7 +84,11 @@ export async function POST(request: Request) {
                 .update(body.response + saltKey)
                 .digest('hex') + '###' + saltIndex;
 
-            if (expectedChecksum !== xVerify) {
+            const expectedCheckBuf = Buffer.from(expectedChecksum, 'utf-8');
+            const actualCheckBuf = Buffer.from(xVerify, 'utf-8');
+            const isCheckValid = expectedCheckBuf.length === actualCheckBuf.length && crypto.timingSafeEqual(expectedCheckBuf, actualCheckBuf);
+
+            if (!isCheckValid) {
                 console.error('Invalid PhonePe webhook checksum');
                 return NextResponse.json({ error: 'Invalid checksum' }, { status: 400 });
             }

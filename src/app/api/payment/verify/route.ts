@@ -14,14 +14,26 @@ export async function POST(request: Request) {
         } = await request.json();
 
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        if (!keySecret) {
+            console.error("RAZORPAY_KEY_SECRET is not configured");
+            return NextResponse.json({ error: "Payment verification unavailable" }, { status: 500 });
+        }
 
-        // Verify signature
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return NextResponse.json({ error: "Missing required verification parameters" }, { status: 400 });
+        }
+
+        // Verify signature with timingSafeEqual to prevent side-channel timing attacks
         const generated_signature = crypto
-            .createHmac("sha256", keySecret || "")
-            .update(razorpay_order_id + "|" + razorpay_payment_id)
+            .createHmac("sha256", keySecret)
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest("hex");
 
-        if (generated_signature === razorpay_signature) {
+        const sigA = Buffer.from(generated_signature, 'utf-8');
+        const sigB = Buffer.from(razorpay_signature, 'utf-8');
+        const isValid = sigA.length === sigB.length && crypto.timingSafeEqual(sigA, sigB);
+
+        if (isValid) {
             // Payment successful
             await finalizeOrder(orderId);
 

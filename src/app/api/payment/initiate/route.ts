@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
 
 const SHIPPING_FEE = 49;
 const SHIPPING_THRESHOLD = 199;
@@ -15,8 +16,27 @@ const PHONEPE_API_URL = process.env.PHONEPE_ENV === 'PROD'
     ? 'https://api.phonepe.com/apis/hermes/pg/v1/pay'
     : 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay';
 
+const paymentLimiter = createRateLimiter('payment-initiate', {
+    intervalMs: 10 * 60 * 1000, // 10 minutes
+    maxRequests: 15,            // 15 initiate payment attempts per IP
+});
+
 export async function POST(request: Request) {
     try {
+        const clientIp = getClientIp(request);
+        const limitResult = paymentLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return NextResponse.json(
+                { error: 'Too many payment requests. Please wait a moment before trying again.' },
+                {
+                    status: 429,
+                    headers: {
+                        'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                    },
+                }
+            );
+        }
+
         const { cart, shippingInfo, userId, promoCode, paymentMethod, abandonedCheckoutId } = await request.json();
 
         // Validate required fields

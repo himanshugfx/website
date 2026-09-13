@@ -1,9 +1,29 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import emailService from '@/lib/email';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
+
+const contactLimiter = createRateLimiter('contact', {
+    intervalMs: 10 * 60 * 1000, // 10 minutes
+    maxRequests: 6,             // 6 requests max per IP
+});
 
 export async function POST(request: Request) {
     try {
+        const clientIp = getClientIp(request);
+        const limitResult = contactLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return NextResponse.json(
+                { error: 'Too many messages sent. Please wait a few minutes before trying again.' },
+                {
+                    status: 429,
+                    headers: {
+                        'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                    },
+                }
+            );
+        }
+
         const body = await request.json();
         const { name, email, phone, message, hotelName, quantity, type } = body;
 
@@ -92,7 +112,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error saving inquiry:', error);
         return NextResponse.json(
-            { error: 'Failed to send message', details: String(error) },
+            { error: 'Failed to send message. Please try again later.' },
             { status: 500 }
         );
     }

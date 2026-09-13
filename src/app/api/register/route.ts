@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/prisma";
+import { createRateLimiter, getClientIp } from "@/lib/rateLimit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const registerLimiter = createRateLimiter('register', {
+    intervalMs: 15 * 60 * 1000, // 15 minutes window
+    maxRequests: 5,              // 5 registrations max per IP
+});
+
 export async function POST(req: Request) {
     try {
+        const clientIp = getClientIp(req);
+        const limitResult = registerLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return new NextResponse("Too many registration attempts. Please try again later.", {
+                status: 429,
+                headers: {
+                    'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                },
+            });
+        }
+
         const body = await req.json();
         const { email, password, name } = body;
 

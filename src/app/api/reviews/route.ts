@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
+
+const reviewLimiter = createRateLimiter('reviews', {
+    intervalMs: 10 * 60 * 1000, // 10 minutes
+    maxRequests: 5,             // 5 reviews max per IP
+});
 
 // GET reviews for a product (or its constituent products if it is a bundle)
 export async function GET(request: Request) {
@@ -59,24 +65,32 @@ export async function GET(request: Request) {
                 productId: { in: productIdsToFetch },
                 isApproved: approved === 'all' ? undefined : true,
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: 'desc' }
         });
 
-        // Add productLabel to each review
         const reviews = rawReviews.map(r => ({
             ...r,
-            productLabel: productLabelMap[r.productId] || null
+            productName: productLabelMap[r.productId] || product.name
         }));
 
-        // Calculate average rating
-        const avgRating = reviews.length > 0
-            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        const totalReviews = reviews.length;
+        const avgRating = totalReviews > 0
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
             : 0;
 
         return NextResponse.json({
             reviews,
-            averageRating: Math.round(avgRating * 10) / 10,
-            totalReviews: reviews.length
+            stats: {
+                total: totalReviews,
+                average: Math.round(avgRating * 10) / 10,
+                breakdown: {
+                    5: reviews.filter(r => r.rating === 5).length,
+                    4: reviews.filter(r => r.rating === 4).length,
+                    3: reviews.filter(r => r.rating === 3).length,
+                    2: reviews.filter(r => r.rating === 2).length,
+                    1: reviews.filter(r => r.rating === 1).length,
+                }
+            }
         });
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -90,6 +104,20 @@ export async function GET(request: Request) {
 // POST a new review
 export async function POST(request: Request) {
     try {
+        const clientIp = getClientIp(request);
+        const limitResult = reviewLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return NextResponse.json(
+                { error: 'Too many reviews submitted. Please try again later.' },
+                {
+                    status: 429,
+                    headers: {
+                        'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                    },
+                }
+            );
+        }
+
         const body = await request.json();
         const { productId, customerName, customerEmail, rating, title, comment } = body;
 

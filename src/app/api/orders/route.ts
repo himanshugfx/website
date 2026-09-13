@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { emailService } from '@/lib/email';
 import { sendAdminPushNotification } from '@/lib/notifications';
 import { sendMetaCapiEvent } from '@/lib/metaCapi';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
 
 const SHIPPING_FEE = 49;
 const SHIPPING_THRESHOLD = 199;
@@ -15,8 +16,27 @@ interface CartItem {
     name?: string;
 }
 
+const orderLimiter = createRateLimiter('orders', {
+    intervalMs: 10 * 60 * 1000, // 10 minutes
+    maxRequests: 15,            // 15 order creation attempts per IP
+});
+
 export async function POST(request: Request) {
     try {
+        const clientIp = getClientIp(request);
+        const limitResult = orderLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return NextResponse.json(
+                { error: 'Too many order attempts. Please wait a moment before trying again.' },
+                {
+                    status: 429,
+                    headers: {
+                        'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                    },
+                }
+            );
+        }
+
         const body = await request.json();
         const { cart, shippingInfo, userId, paymentMethod, promoCode, abandonedCheckoutId } = body;
 

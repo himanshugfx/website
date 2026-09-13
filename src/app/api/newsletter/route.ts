@@ -2,11 +2,31 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/admin/auth';
 import { sendMetaCapiEvent } from '@/lib/metaCapi';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const newsletterLimiter = createRateLimiter('newsletter', {
+    intervalMs: 10 * 60 * 1000, // 10 minutes
+    maxRequests: 5,             // 5 subscriptions max per IP
+});
+
 export async function POST(request: Request) {
     try {
+        const clientIp = getClientIp(request);
+        const limitResult = newsletterLimiter.check(clientIp);
+        if (!limitResult.success) {
+            return NextResponse.json(
+                { error: 'Too many requests. Please wait a few minutes before trying again.' },
+                {
+                    status: 429,
+                    headers: {
+                        'Retry-After': String(Math.ceil((limitResult.reset - Date.now()) / 1000)),
+                    },
+                }
+            );
+        }
+
         const { email } = await request.json();
 
         if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email) || email.length > 254) {

@@ -3,40 +3,58 @@ description:
 ---
 
 # Comprehensive Security Audit & Threat Model
-**Project:** Anose Beauty E-Commerce Platform
-**Reviewer Role:** Principal Security Architect
+**Project:** Anose Beauty E-Commerce Platform (`anosebeauty.com`)  
+**Stack:** Next.js 15 (App Router), Prisma ORM, Supabase (PostgreSQL), Razorpay & PhonePe  
+**Reviewer Role:** Principal Security Architect  
 
 ## 1. Executive Summary
-This document outlines the security posture, threat vectors, and mitigation strategies for the Next.js and Laravel ecosystem. As the platform prepares to scale and process sensitive customer data, enforcing a zero-trust architecture is paramount to protect both the infrastructure and the brand's reputation.
+This document provides a comprehensive security review and threat modeling evaluation of the Anose Beauty production platform. Following a zero-trust architecture, defenses have been audited and hardened across authentication, payment cryptographic verification, client-side XSS mitigation, rate limiting, and secret management.
 
-## 2. API & Backend Security (Laravel)
+## 2. API & Backend Security (Next.js & Prisma)
 
 ### 2.1. Authentication & Session Management
-*   **Stateless Authentication:** Enforce Laravel Sanctum or Passport for API token management. Ensure tokens have strict expiration policies and rotate automatically upon sensitive account actions (e.g., password changes).
-*   **Brute-Force Mitigation:** Implement strict rate limiting on the `/login`, `/password/reset`, and `/checkout` endpoints. Utilize Redis to track failed attempts and enforce progressive delays (e.g., locking out an IP after 5 failed attempts for 15 minutes).
+*   **Session Security:** Enforced NextAuth JWT sessions with a 2-hour max age (`maxAge: 7200`) and secure HTTP cookies.
+*   **Mobile API Tokens:** Secured mobile admin endpoints via `jose.jwtVerify` validating `HS256` signatures against `NEXTAUTH_SECRET`.
+*   **Brute-Force & Abuse Mitigation:** [COMPLETED] Implemented a sliding-window rate limiting engine (`src/lib/rateLimit.ts`) with automatic IP extraction and TTL cleanup:
+    - `/api/register`: 5 attempts per 15 minutes per IP.
+    - `/api/orders`: 15 creation attempts per 10 minutes per IP.
+    - `/api/payment/initiate`: 15 attempts per 10 minutes per IP.
+    - `/api/contact`: 6 inquiries per 10 minutes per IP.
+    - `/api/collab`: 5 applications per 10 minutes per IP.
+    - `/api/newsletter`: 5 subscriptions per 10 minutes per IP.
+    - `/api/reviews`: 5 reviews per 10 minutes per IP.
 
 ### 2.2. Input Validation & Injection Prevention
-*   **Strict Validation:** Never trust client input. Utilize Laravel's Form Requests for 100% of incoming payloads. Enforce strict type checking and leverage the `$fillable` array in Eloquent models to prevent Mass Assignment vulnerabilities.
-*   **SQL Injection (SQLi):** While Eloquent ORM prevents most SQLi, rigorously audit all instances of `DB::raw()` or `whereRaw()`. Ensure no user-supplied data is concatenated directly into raw query strings.
+*   **SQL Injection (SQLi) Immunity:** [AUDITED & VERIFIED] 100% of database interactions utilize Prisma ORM parameterized queries. Zero instances of `$queryRaw`, `$queryRawUnsafe`, or string concatenation exist in the codebase.
+*   **Error Masking:** [COMPLETED] Removed internal error details leakage (`details: String(error)`) from public endpoints (`/api/contact`, `/api/collab`) to prevent database structure disclosure.
+*   **Payload Validation:** Strict validation of emails (`EMAIL_REGEX`), password bounds (8–128 chars), and promo codes on server routes.
 
 ## 3. Frontend & Client-Side Security (Next.js)
 
 ### 3.1. Cross-Site Scripting (XSS) & Content Security
-*   **Content Security Policy (CSP):** Implement a robust CSP via Next.js middleware (HTTP headers). Restrict `script-src`, `img-src`, and `connect-src` strictly to trusted domains (e.g., your CDN, payment gateway, and analytics providers).
-*   **React Hydration Integrity:** Next.js inherently escapes rendered text, but audit all uses of `dangerouslySetInnerHTML`. If rendering rich text for product descriptions, process the payload through a strict HTML sanitizer (e.g., DOMPurify) before hydration.
+*   **HTTP Security Headers:** [COMPLETED] Enforced via `next.config.ts`:
+    - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+    - `X-Content-Type-Options: nosniff`
+    - `X-Frame-Options: SAMEORIGIN`
+    - `Referrer-Policy: strict-origin-when-cross-origin`
+    - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+    - Fixed W3C CORS specification violation by removing `Access-Control-Allow-Credentials: true` from wildcard origin (`*`).
+*   **React Hydration & Rich Text Sanitization:** [AUDITED & VERIFIED] All instances of `dangerouslySetInnerHTML` in dynamic components (`AnoseAssistant.tsx`, `AnaAdminAssistant.tsx`, `blog/[id]/page.tsx`) are processed through `sanitizeHtml` with strict allowlists (`allowedTags`, `allowedAttributes`, `allowedSchemes`). Static instances are limited strictly to schema `application/ld+json`.
 
 ### 3.2. State & Cart Tampering
-*   **Price Validation:** The Next.js frontend must only send Product IDs and quantities to the Laravel API during checkout. **Never** pass price data from the client to the server. The backend must recalculate the total cart value directly from the secure database to prevent malicious cart tampering.
+*   **Server-Side Recalculation:** [AUDITED & VERIFIED] Frontend cart prices are never trusted. Both `/api/orders` and `/api/payment/initiate` extract product IDs, retrieve authorized prices from Supabase, recalculate subtotal, validate promo codes against DB limits, and enforce correct shipping fees entirely server-side.
 
 ## 4. Payment Processing & Compliance
 
 ### 4.1. Financial Data (PCI-DSS)
-*   **Tokenization:** Under no circumstances should the servers process, log, or store raw credit card numbers. Utilize the payment gateway's secure UI elements (e.g., Razorpay or Stripe drop-ins) to ensure card data routes directly to the processor.
-*   **Webhook Verification:** All incoming payment webhooks must verify the cryptographic signature provided by the payment gateway to prevent malicious actors from spoofing successful payment events.
-
-### 4.2. Data Privacy 
-*   **PII Protection:** Encrypt Highly Sensitive Personal Identifiable Information (PII) at rest in the database. Ensure explicit user consent is captured for marketing communications and tracking cookies to align with global data protection standards.
+*   **Tokenization:** [AUDITED & VERIFIED] Under no circumstances are raw credit card numbers processed, transmitted, or stored on servers. Transactions route through hosted checkouts / SDKs (Razorpay & PhonePe).
+*   **Webhook & Callback Cryptographic Verification:** [COMPLETED]
+    - Webhook signatures and checksums are verified before any order state is transitioned to `PAID`.
+    - Upgraded signature comparisons in `/api/payment/verify` and `/api/payment/webhook` to `crypto.timingSafeEqual` across Razorpay and PhonePe handlers to prevent side-channel timing attacks.
 
 ## 5. Infrastructure & DevSecOps
-*   **Secret Management:** Audit `.env` files. Ensure application keys, database credentials, and third-party API secrets are never committed to version control. Use a dedicated secret manager for production environments.
-*   **Dependency Auditing:** Integrate `npm audit` and `composer audit` into the CI/CD pipeline to automatically block deployments if high-severity vulnerabilities are detected in third-party packages.
+*   **Secret Management:** [COMPLETED]
+    - Removed `.vercel.temp.env` from git tracking.
+    - Updated `.gitignore` to strictly exclude all `.vercel*` files alongside `.env*` and `zoho-tokens.json`.
+    - Verified zero `.env` or credential files are committed to version control.
+*   **Admin Route Guarding:** Both client routes (`src/middleware.ts`) and all server API routes (`src/app/api/admin/*`) strictly verify `role === 'admin'` via `requireAdmin()`.
