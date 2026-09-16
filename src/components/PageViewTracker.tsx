@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function PageViewTracker() {
     const pathname = usePathname();
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
         // Don't track admin pages
@@ -23,6 +24,12 @@ export default function PageViewTracker() {
         }).catch(() => {
             // Silently fail - analytics shouldn't break the page
         });
+
+        // Skip duplicate Meta Pixel PageView on initial mount (already fired by layout.tsx inline snippet)
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
 
         // Track Meta Pixel PageView on SPA navigation
         if (typeof window !== 'undefined' && (window as any).fbq) {
