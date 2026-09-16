@@ -350,6 +350,12 @@ export default function SalesFunnelPage() {
                                                                     <h4 className="font-black text-gray-900 text-base tracking-tight leading-tight group-hover/card:text-purple-600 transition-colors font-primary">
                                                                         {lead.name}
                                                                     </h4>
+                                                                    {lead.phone && (
+                                                                        <div className="flex items-center gap-1.5 text-xs text-purple-700 font-bold">
+                                                                            <Phone className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
+                                                                            <a href={`tel:${lead.phone}`} className="hover:underline">{lead.phone}</a>
+                                                                        </div>
+                                                                    )}
                                                                     {lead.company && (
                                                                         <div className="flex items-center gap-1.5 opacity-60">
                                                                             <Target className="w-3 h-3" />
@@ -434,7 +440,15 @@ export default function SalesFunnelPage() {
                                                 </div>
                                                 <div>
                                                     <p className="font-black text-gray-900 group-hover:text-purple-700 transition-colors uppercase tracking-tight">{lead.name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{lead.company}</p>
+                                                    {lead.phone && (
+                                                        <p className="text-xs font-bold text-purple-700 flex items-center gap-1 mt-0.5">
+                                                            <Phone className="w-3 h-3 text-purple-600" />
+                                                            <a href={`tel:${lead.phone}`} className="hover:underline">{lead.phone}</a>
+                                                        </p>
+                                                    )}
+                                                    {lead.company && (
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{lead.company}</p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>

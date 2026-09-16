@@ -35,6 +35,15 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/admin/sales',
+        destination: '/admin/funnel',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

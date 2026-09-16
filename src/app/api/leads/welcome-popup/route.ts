@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendMetaCapiEvent } from '@/lib/metaCapi';
 import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
-import { sendAdminPushNotification } from '@/lib/notifications';
 
 const popupLimiter = createRateLimiter('welcome-popup', {
     intervalMs: 10 * 60 * 1000, // 10 minutes
@@ -66,7 +65,7 @@ export async function POST(request: Request) {
             console.error('Failed to upsert WELCOME10 promo code:', promoErr);
         }
 
-        // Save lead in CRM Funnel
+        // Save lead in CRM Funnel (Sales tab in admin panel)
         try {
             let stage = await prisma.funnelStage.findFirst({
                 where: { name: { equals: 'NEW', mode: 'insensitive' } },
@@ -78,36 +77,52 @@ export async function POST(request: Request) {
                 });
             }
 
-            if (stage) {
-                const lead = await prisma.lead.create({
+            if (!stage) {
+                stage = await prisma.funnelStage.create({
                     data: {
-                        name: cleanName,
-                        phone: formattedPhone,
-                        source: 'WEBSITE',
-                        stageId: stage.id,
-                        notes: 'Claimed 10% Extra Off Welcome Popup (Code: WELCOME10)',
-                        value: 1200,
+                        name: 'NEW',
+                        order: 1,
+                        color: '#9CA3AF',
                     },
                 });
-
-                await prisma.leadActivity.create({
-                    data: {
-                        leadId: lead.id,
-                        type: 'NOTE',
-                        content: `Lead captured via Welcome 10% Off Popup. Mobile: ${formattedPhone}`,
-                    },
-                }).catch(() => {});
             }
+
+            const lead = await prisma.lead.create({
+                data: {
+                    name: cleanName,
+                    phone: formattedPhone,
+                    company: '10% Welcome Offer',
+                    source: 'WEBSITE',
+                    stageId: stage.id,
+                    notes: 'Claimed 10% Extra Off Welcome Popup (Coupon: WELCOME10)',
+                    value: 1200,
+                },
+            });
+
+            await prisma.leadActivity.create({
+                data: {
+                    leadId: lead.id,
+                    type: 'NOTE',
+                    content: `Lead captured via Welcome 10% Off Popup. Mobile: ${formattedPhone}. Code issued: WELCOME10`,
+                },
+            }).catch(() => {});
+
+            console.log(`[Welcome Popup] Successfully saved lead: ${cleanName} (${formattedPhone}) in Sales Funnel stage: ${stage.name}`);
         } catch (leadErr) {
             console.error('Failed to create lead from welcome popup:', leadErr);
         }
 
         // Send Push Notification to admin devices
-        sendAdminPushNotification(
-            '🎁 10% Off Welcome Lead',
-            `${cleanName} — ${formattedPhone}`,
-            { type: 'welcome_lead', phone: formattedPhone }
-        ).catch(err => console.error('Push notification error:', err));
+        try {
+            const { sendAdminPushNotification } = await import('@/lib/notifications');
+            sendAdminPushNotification(
+                '🎁 10% Off Welcome Lead',
+                `${cleanName} — ${formattedPhone}`,
+                { type: 'welcome_lead', phone: formattedPhone }
+            ).catch(err => console.error('Push notification error:', err));
+        } catch (pushErr) {
+            // Silently ignore if push notification system is unavailable
+        }
 
         // Send Meta CAPI Lead conversion
         sendMetaCapiEvent({
