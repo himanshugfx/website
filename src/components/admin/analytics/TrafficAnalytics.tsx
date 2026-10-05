@@ -5,8 +5,54 @@ import {
     Users, RefreshCw, AlertCircle 
 } from 'lucide-react';
 
-export default function TrafficAnalytics({ data }: { data: any }) {
-    if (!data) return null;
+export default function TrafficAnalytics({ 
+    data, 
+    error, 
+    onRetry 
+}: { 
+    data: any; 
+    error?: string | null; 
+    onRetry?: () => void;
+}) {
+    if (!data) {
+        return (
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center">
+                <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-100">
+                    <Globe className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-1">
+                    {error ? 'Google Analytics Connection' : 'Loading Traffic Analytics...'}
+                </h3>
+                <p className="text-sm text-gray-500 max-w-md mx-auto mb-5">
+                    {error || 'Connecting to Google Analytics to fetch sessions, active users, and traffic insights.'}
+                </p>
+                {error && (
+                    <div className="inline-block bg-purple-50/70 text-purple-800 text-xs px-5 py-3.5 rounded-2xl border border-purple-100 text-left max-w-lg mb-5">
+                        <p className="font-semibold text-purple-950 mb-1.5 flex items-center gap-1.5">
+                            <AlertCircle className="w-4 h-4 text-purple-600" />
+                            Required Vercel Environment Variables:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 text-[11px] text-purple-900/90 font-mono">
+                            <li><span className="font-semibold">GA4_PROPERTY_ID</span></li>
+                            <li><span className="font-semibold">GOOGLE_SERVICE_ACCOUNT_EMAIL</span></li>
+                            <li><span className="font-semibold">GOOGLE_PRIVATE_KEY</span></li>
+                        </ul>
+                    </div>
+                )}
+                {onRetry && (
+                    <div>
+                        <button
+                            onClick={onRetry}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-purple-200"
+                        >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                            Retry Google Analytics
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     const totalSessions = data.trafficSources.reduce((sum: number, s: any) => sum + s.sessions, 0);
 

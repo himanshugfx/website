@@ -197,6 +197,7 @@ export async function GET(request: Request) {
     } catch (error: any) {
         console.error('DB Analytics API Error:', error);
         return NextResponse.json({
+            success: false,
             error: `Failed to fetch DB analytics: ${error.message}`,
             data: null
         }, { status: 500 });

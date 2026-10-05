@@ -42,34 +42,51 @@ export default function AnalyticsDashboard() {
     const [dbData, setDbData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [gaError, setGaError] = useState<string | null>(null);
 
     const fetchAnalytics = async () => {
         setLoading(true);
         setError(null);
+        setGaError(null);
         try {
             const [gaRes, dbRes] = await Promise.all([
                 fetch('/api/admin/analytics').catch(() => null),
                 fetch('/api/admin/analytics/db').catch(() => null)
             ]);
             
-            let gaJson = { success: false, data: null, error: null };
-            let dbJson = { success: false, data: null, error: null };
+            let gaJson: any = null;
+            let dbJson: any = null;
             
-            if (gaRes && gaRes.ok) gaJson = await gaRes.json();
-            if (dbRes && dbRes.ok) dbJson = await dbRes.json();
+            if (gaRes) {
+                try {
+                    gaJson = await gaRes.json();
+                } catch {
+                    gaJson = null;
+                }
+            }
 
-            if (dbJson.success && dbJson.data) {
+            if (dbRes) {
+                try {
+                    dbJson = await dbRes.json();
+                } catch {
+                    dbJson = null;
+                }
+            }
+
+            if (dbJson?.success && dbJson?.data) {
                 setDbData(dbJson.data);
             } else {
-                setError(dbJson.error || 'Failed to load database analytics');
+                setError(dbJson?.error || 'Failed to load database analytics');
                 return; // Stop if core DB data fails
             }
 
-            if (gaJson.success && gaJson.data) {
+            if (gaJson?.success && gaJson?.data) {
                 setData(gaJson.data);
+            } else if (gaJson?.error) {
+                setGaError(gaJson.error);
             }
-        } catch (err) {
-            setError('Failed to connect to analytics endpoints');
+        } catch (err: any) {
+            setError(err?.message || 'Failed to connect to analytics endpoints');
         } finally {
             setLoading(false);
         }
@@ -93,8 +110,8 @@ export default function AnalyticsDashboard() {
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                 <div className="flex-1">
-                    <p className="text-sm text-amber-800">{error}</p>
-                    <p className="text-xs text-amber-600 mt-1">Configure Google Analytics in environment variables.</p>
+                    <p className="text-sm font-semibold text-amber-900">{error}</p>
+                    <p className="text-xs text-amber-700 mt-1">Please verify your database connection or try again.</p>
                 </div>
                 <button
                     onClick={fetchAnalytics}
@@ -146,7 +163,7 @@ export default function AnalyticsDashboard() {
             <div className="mt-6">
                 {activeTab === 'revenue' && <RevenueAnalytics data={dbData?.revenue} onRefresh={fetchAnalytics} />}
                 {activeTab === 'products' && <ProductAnalytics data={dbData?.products} />}
-                {activeTab === 'traffic' && <TrafficAnalytics data={data} />}
+                {activeTab === 'traffic' && <TrafficAnalytics data={data} error={gaError} onRetry={fetchAnalytics} />}
                 {activeTab === 'experience' && <CustomerExperience data={dbData?.experience} />}
                 {activeTab === 'retention' && <RetentionAnalytics data={dbData?.retention} />}
             </div>
