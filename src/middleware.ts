@@ -1,7 +1,15 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 
-export default withAuth(
+// Maintenance mode is ON unless MAINTENANCE_MODE=false is set in the environment.
+// To bring the site back: set MAINTENANCE_MODE=false (e.g. in Vercel env vars) and redeploy.
+const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE !== "false";
+
+// Paths that keep working during maintenance (admin panel, admin login, APIs/webhooks).
+const MAINTENANCE_BYPASS = ["/maintenance", "/admin", "/login", "/api", "/print"];
+
+const authMiddleware = withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
@@ -37,13 +45,32 @@ export default withAuth(
   }
 );
 
+const AUTH_PATHS = ["/admin", "/my-account", "/login", "/register"];
+
+function matches(path: string, prefixes: string[]) {
+  return prefixes.some((p) => path === p || path.startsWith(p + "/"));
+}
+
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  const path = req.nextUrl.pathname;
+
+  if (MAINTENANCE_MODE && !matches(path, MAINTENANCE_BYPASS)) {
+    return NextResponse.redirect(new URL("/maintenance", req.url), 307);
+  }
+
+  if (!MAINTENANCE_MODE && path === "/maintenance") {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  if (matches(path, AUTH_PATHS)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (authMiddleware as any)(req, event);
+  }
+
+  return NextResponse.next();
+}
+
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/admin',
-    '/my-account/:path*',
-    '/my-account',
-    '/login',
-    '/register'
-  ],
+  // Run on every page except Next.js internals and static files (anything with a file extension).
+  matcher: ["/((?!_next/|.*\\..*).*)"],
 };

@@ -20,7 +20,7 @@ const WelcomeOfferPopup = dynamic(() => import('@/components/WelcomeOfferPopup')
 
 export default function ConditionalWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/print');
+    const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/print') || pathname === '/maintenance';
 
     if (isAdminPath) {
         return <>{children}</>;
